@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30225.117
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RoadTrafficSimulator", "RoadTrafficSimulator\RoadTrafficSimulator.csproj", "{D0AC56F0-9704-4F4C-9438-DB97BBFC7718}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadTrafficSimulator", "RoadTrafficSimulator\RoadTrafficSimulator.csproj", "{D0AC56F0-9704-4F4C-9438-DB97BBFC7718}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DirectedGraph", "DirectedGraph\DirectedGraph.csproj", "{10BD6752-6F80-4CF3-AB69-85D779ACDA0E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{D0AC56F0-9704-4F4C-9438-DB97BBFC7718}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D0AC56F0-9704-4F4C-9438-DB97BBFC7718}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D0AC56F0-9704-4F4C-9438-DB97BBFC7718}.Release|Any CPU.Build.0 = Release|Any CPU
+		{10BD6752-6F80-4CF3-AB69-85D779ACDA0E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{10BD6752-6F80-4CF3-AB69-85D779ACDA0E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{10BD6752-6F80-4CF3-AB69-85D779ACDA0E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{10BD6752-6F80-4CF3-AB69-85D779ACDA0E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
