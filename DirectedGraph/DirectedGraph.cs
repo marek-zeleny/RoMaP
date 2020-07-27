@@ -14,22 +14,22 @@ namespace DirectedGraph
         IEdge<TNodeId, TEdgeId> RemoveEdge(TEdgeId id);
     }
 
-    class DirectedGraph : IGraph<int, int>
+    class DirectedGraph<TNodeId, TEdgeId> : IGraph<TNodeId, TEdgeId>
     {
-        private Dictionary<int, INode<int, int>> nodes;
-        private Dictionary<int, IEdge<int, int>> edges;
-        public ReadOnlyDictionary<int, INode<int, int>> Nodes { get; }
-        public ReadOnlyDictionary<int, IEdge<int, int>> Edges { get; }
+        private Dictionary<TNodeId, INode<TNodeId, TEdgeId>> nodes;
+        private Dictionary<TEdgeId, IEdge<TNodeId, TEdgeId>> edges;
+        public ReadOnlyDictionary<TNodeId, INode<TNodeId, TEdgeId>> Nodes { get; }
+        public ReadOnlyDictionary<TEdgeId, IEdge<TNodeId, TEdgeId>> Edges { get; }
 
         public DirectedGraph()
         {
-            nodes = new Dictionary<int, INode<int, int>>();
-            edges = new Dictionary<int, IEdge<int, int>>();
-            Nodes = new ReadOnlyDictionary<int, INode<int, int>>(nodes);
-            Edges = new ReadOnlyDictionary<int, IEdge<int, int>>(edges);
+            nodes = new Dictionary<TNodeId, INode<TNodeId, TEdgeId>>();
+            edges = new Dictionary<TEdgeId, IEdge<TNodeId, TEdgeId>>();
+            Nodes = new ReadOnlyDictionary<TNodeId, INode<TNodeId, TEdgeId>>(nodes);
+            Edges = new ReadOnlyDictionary<TEdgeId, IEdge<TNodeId, TEdgeId>>(edges);
         }
 
-        public bool AddNode(INode<int, int> node)
+        public bool AddNode(INode<TNodeId, TEdgeId> node)
         {
             if (nodes.ContainsKey(node.Id))
                 return false;
@@ -37,7 +37,7 @@ namespace DirectedGraph
             return true;
         }
 
-        public bool AddEdge(IEdge<int, int> edge)
+        public bool AddEdge(IEdge<TNodeId, TEdgeId> edge)
         {
             if (edges.ContainsKey(edge.Id))
                 return false;
@@ -47,9 +47,9 @@ namespace DirectedGraph
             return true;
         }
 
-        public INode<int, int> RemoveNode(int id, bool force = false)
+        public INode<TNodeId, TEdgeId> RemoveNode(TNodeId id, bool force = false)
         {
-            INode<int, int> node;
+            INode<TNodeId, TEdgeId> node;
             if (!nodes.TryGetValue(id, out node))
                 return null;
             if (force)
@@ -65,9 +65,9 @@ namespace DirectedGraph
             return node;
         }
 
-        public IEdge<int, int> RemoveEdge(int id)
+        public IEdge<TNodeId, TEdgeId> RemoveEdge(TEdgeId id)
         {
-            IEdge<int, int> edge;
+            IEdge<TNodeId, TEdgeId> edge;
             if (!edges.TryGetValue(id, out edge))
                 return null;
             edge.FromNode.RemoveOutEdge(id);
