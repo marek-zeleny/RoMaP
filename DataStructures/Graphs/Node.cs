@@ -4,7 +4,7 @@ using System.Collections.ObjectModel;
 
 namespace DataStructures.Graphs
 {
-    interface INode<TNodeId, TEdgeId>
+    public interface INode<TNodeId, TEdgeId>
         where TNodeId : IEquatable<TNodeId>
         where TEdgeId : IEquatable<TEdgeId>
     {
@@ -17,7 +17,7 @@ namespace DataStructures.Graphs
         internal void RemoveOutEdge(TEdgeId id);
     }
 
-    class Node<TNodeId, TEdgeId, TData>
+    public class Node<TNodeId, TEdgeId, TData>
         : INode<TNodeId, TEdgeId>
         where TNodeId : IEquatable<TNodeId>
         where TEdgeId : IEquatable<TEdgeId>

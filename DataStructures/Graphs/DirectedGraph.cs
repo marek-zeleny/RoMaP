@@ -4,7 +4,7 @@ using System.Collections.ObjectModel;
 
 namespace DataStructures.Graphs
 {
-    interface IGraph<TNodeId, TEdgeId>
+    public interface IGraph<TNodeId, TEdgeId>
         where TNodeId : IEquatable<TNodeId>
         where TEdgeId : IEquatable<TEdgeId>
     {
@@ -16,7 +16,7 @@ namespace DataStructures.Graphs
         IEdge<TNodeId, TEdgeId> RemoveEdge(TEdgeId id);
     }
 
-    class DirectedGraph<TNodeId, TEdgeId>
+    public class DirectedGraph<TNodeId, TEdgeId>
         : IGraph<TNodeId, TEdgeId>
         where TNodeId : IEquatable<TNodeId>
         where TEdgeId : IEquatable<TEdgeId>

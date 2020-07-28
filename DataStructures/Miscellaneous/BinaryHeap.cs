@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace DataStructures.Miscellaneous
 {
-    interface IHeap<TKey, TValue>
+    public interface IHeap<TKey, TValue>
         where TKey : IComparable<TKey>
     {
         bool IsEmpty { get; }
@@ -13,7 +13,7 @@ namespace DataStructures.Miscellaneous
         KeyValuePair<TKey, TValue> ExtractMin();
     }
 
-    class BinaryHeap<TKey, TValue>
+    public class BinaryHeap<TKey, TValue>
         : IHeap<TKey, TValue>
         where TKey : IComparable<TKey>
     {    

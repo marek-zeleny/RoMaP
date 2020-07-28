@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace DataStructures.Miscellaneous
 {
-    struct SinglyLinkedList<T>
+    public struct SinglyLinkedList<T>
         : IEnumerable<T>
     {
         private class Node

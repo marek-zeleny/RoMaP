@@ -2,7 +2,7 @@
 
 namespace DataStructures.Graphs
 {
-    interface IEdge<TNodeId, TEdgeId>
+    public interface IEdge<TNodeId, TEdgeId>
         where TNodeId : IEquatable<TNodeId>
         where TEdgeId : IEquatable<TEdgeId>
     {
@@ -12,7 +12,7 @@ namespace DataStructures.Graphs
         double Weight { get; }
     }
 
-    class Edge<TNodeId, TEdgeId, TData>
+    public class Edge<TNodeId, TEdgeId, TData>
         : IEdge<TNodeId, TEdgeId>
         where TNodeId : IEquatable<TNodeId>
         where TEdgeId : IEquatable<TEdgeId>

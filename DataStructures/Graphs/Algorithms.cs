@@ -6,7 +6,7 @@ using DataStructures.Miscellaneous;
 
 namespace DataStructures.Graphs
 {
-    static class Algorithms
+    public static class Algorithms
     {
         public enum GraphType { Acyclic, NonnegativeWeights, General };
 
