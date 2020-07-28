@@ -17,6 +17,11 @@ namespace DataStructures.Miscellaneous
                 Next = next;
                 Data = data;
             }
+
+            public override string ToString()
+            {
+                return string.Format("Node: {0}", Data);
+            }
         }
 
         private readonly Node firstNode;
@@ -45,6 +50,11 @@ namespace DataStructures.Miscellaneous
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
+        }
+
+        public override string ToString()
+        {
+            return string.Format("LinkedList: First node: {0}", firstNode);
         }
     }
 }

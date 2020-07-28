@@ -21,13 +21,20 @@ namespace DataStructures.Graphs
         public INode<TNodeId, TEdgeId> FromNode { get; }
         public INode<TNodeId, TEdgeId> ToNode { get; }
         public double Weight { get; private set; }
+        public TData Data { get; set; }
 
-        public Edge(TEdgeId id, INode<TNodeId, TEdgeId> from, INode<TNodeId, TEdgeId> to, double weight)
+        public Edge(TEdgeId id, INode<TNodeId, TEdgeId> from, INode<TNodeId, TEdgeId> to, double weight, TData data = default)
         {
             Id = id;
             FromNode = from;
             ToNode = to;
             Weight = weight;
+            Data = data;
+        }
+
+        public override string ToString()
+        {
+            return string.Format("E{0}: In{1}, Out{2}, W{3}, Data: {4}", Id, FromNode.Id, ToNode.Id, Weight, Data);
         }
     }
 }

@@ -28,12 +28,14 @@ namespace DataStructures.Graphs
         public TNodeId Id { get; }
         public ReadOnlyDictionary<TEdgeId, IEdge<TNodeId, TEdgeId>> InEdges { get; }
         public ReadOnlyDictionary<TEdgeId, IEdge<TNodeId, TEdgeId>> OutEdges { get; }
+        public TData Data { get; set; }
 
-        public Node(TNodeId id)
+        public Node(TNodeId id, TData data = default)
         {
             Id = id;
             inEdges = new Dictionary<TEdgeId, IEdge<TNodeId, TEdgeId>>();
             outEdges = new Dictionary<TEdgeId, IEdge<TNodeId, TEdgeId>>();
+            Data = data;
             InEdges = new ReadOnlyDictionary<TEdgeId, IEdge<TNodeId, TEdgeId>>(inEdges);
             OutEdges = new ReadOnlyDictionary<TEdgeId, IEdge<TNodeId, TEdgeId>>(outEdges);
         }
@@ -56,6 +58,11 @@ namespace DataStructures.Graphs
         void INode<TNodeId, TEdgeId>.RemoveOutEdge(TEdgeId id)
         {
             outEdges.Remove(id);
+        }
+
+        public override string ToString()
+        {
+            return string.Format("N{0}: In{1}, Out{2}, Data: {3}", Id, inEdges.Count, outEdges.Count, Data);
         }
     }
 }

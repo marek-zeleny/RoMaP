@@ -44,6 +44,14 @@ namespace DataStructures.Miscellaneous
                 indexer.Add(heap[i].Value, i);
         }
 
+        public BinaryHeap(IEnumerable<TValue> values, Func<TKey> generateKey)
+        {
+            heap = new List<KeyValuePair<TKey, TValue>>(values.Select(value => new KeyValuePair<TKey, TValue>(generateKey(), value)));
+            indexer = new Dictionary<TValue, int>(heap.Count);
+            for (int i = 0; i < heap.Count; i++)
+                indexer.Add(heap[i].Value, i);
+        }
+
         public void Add(TKey key, TValue value)
         {
             int index = heap.Count;
@@ -71,20 +79,20 @@ namespace DataStructures.Miscellaneous
         {
             int index = indexer[value];
             decreaseAction(heap[index].Key); // Only makes sense if TValue is a reference type
-            BubbleDown(index);
+            BubbleUp(index);
         }
 
         public void DecreaseKey(TKey newKey, TValue value)
         {
             int index = indexer[value];
             heap[index] = new KeyValuePair<TKey, TValue>(newKey, value);
-            BubbleDown(index);
+            BubbleUp(index);
         }
 
         private void BubbleUp(int index)
         {
             int parentIndex = (index - 1) / 2;
-            while (heap[index].Key.CompareTo(heap[parentIndex].Key) > 0)
+            while (heap[index].Key.CompareTo(heap[parentIndex].Key) < 0)
             {
                 Switch(index, parentIndex);
                 index = parentIndex;
@@ -96,9 +104,9 @@ namespace DataStructures.Miscellaneous
         {
             int childIndex = index * 2 + 1;
             bool b1 = heap.Count > childIndex
-                && heap[index].Key.CompareTo(heap[childIndex].Key) < 0;
+                && heap[index].Key.CompareTo(heap[childIndex].Key) > 0;
             bool b2 = heap.Count > childIndex + 1
-                && heap[index].Key.CompareTo(heap[childIndex + 1].Key) < 0;
+                && heap[index].Key.CompareTo(heap[childIndex + 1].Key) > 0;
             while (b1 || b2)
             {
                 if (b2)
@@ -107,9 +115,9 @@ namespace DataStructures.Miscellaneous
                 index = childIndex;
                 childIndex = index * 2 + 1;
                 b1 = heap.Count > childIndex
-                    && heap[index].Key.CompareTo(heap[childIndex].Key) < 0;
+                    && heap[index].Key.CompareTo(heap[childIndex].Key) > 0;
                 b2 = heap.Count > childIndex + 1
-                    && heap[index].Key.CompareTo(heap[childIndex + 1].Key) < 0;
+                    && heap[index].Key.CompareTo(heap[childIndex + 1].Key) > 0;
             }
         }
 

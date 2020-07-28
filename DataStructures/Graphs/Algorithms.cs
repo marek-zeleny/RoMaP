@@ -49,6 +49,11 @@ namespace DataStructures.Graphs
             }
 
             public int CompareTo(Path<TNodeId, TEdgeId> other) => totalWeight.CompareTo(other.totalWeight);
+
+            public override string ToString()
+            {
+                return string.Format("P - TW{0}", totalWeight);
+            }
         }
 
         private static IEnumerable<IEdge<TNodeId, TEdgeId>> DijkstrasAlgorithm<TNodeId, TEdgeId>(
@@ -59,18 +64,19 @@ namespace DataStructures.Graphs
             where TNodeId : IEquatable<TNodeId>
             where TEdgeId : IEquatable<TEdgeId>
         {
-            var unsolvedNodes = new BinaryHeap<Path<TNodeId, TEdgeId>, INode<TNodeId, TEdgeId>>(graph.Nodes.Select(pair => pair.Value), new Path<TNodeId, TEdgeId>());
+            var unsolvedNodes = new BinaryHeap<Path<TNodeId, TEdgeId>, INode<TNodeId, TEdgeId>>(graph.Nodes.Select(pair => pair.Value), () => new Path<TNodeId, TEdgeId>());
             unsolvedNodes.DecreaseKey(startNode, path => path.totalWeight = 0);
             while (!unsolvedNodes.IsEmpty && unsolvedNodes.PeekMin().Value != endNode)
             {
                 var nodePair = unsolvedNodes.ExtractMin();
+                var path = nodePair.Key;
                 foreach (var edgePair in nodePair.Value.OutEdges)
                 {
                     var edge = edgePair.Value;
                     double currWeight = unsolvedNodes[edge.ToNode].totalWeight;
-                    double newWeight = nodePair.Key.totalWeight + edge.Weight;
+                    double newWeight = path.totalWeight + edge.Weight;
                     if (newWeight < currWeight)
-                        unsolvedNodes.DecreaseKey(edge.ToNode, path => { path.edges = path.edges.AddFront(edge); path.totalWeight = newWeight; });
+                        unsolvedNodes.DecreaseKey(edge.ToNode, currPath => { currPath.edges = path.edges.AddFront(edge); currPath.totalWeight = newWeight; });
                     // There is no check whether edge.ToNode exists in unsolvedNodes, but the algorithm ensures that it does (unless it has negative weights)
                 }
             }
