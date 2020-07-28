@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.30225.117
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadTrafficSimulator", "RoadTrafficSimulator\RoadTrafficSimulator.csproj", "{D0AC56F0-9704-4F4C-9438-DB97BBFC7718}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DirectedGraph", "DirectedGraph\DirectedGraph.csproj", "{10BD6752-6F80-4CF3-AB69-85D779ACDA0E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataStructures", "DataStructures\DataStructures.csproj", "{10BD6752-6F80-4CF3-AB69-85D779ACDA0E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

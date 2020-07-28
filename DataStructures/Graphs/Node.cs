@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
-namespace DirectedGraph
+namespace DataStructures.Graphs
 {
     interface INode<TNodeId, TEdgeId>
         where TNodeId : IEquatable<TNodeId>

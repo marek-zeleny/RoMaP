@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DirectedGraph\DirectedGraph.csproj" />
+    <ProjectReference Include="..\DirectedGraph\DataStructures.csproj" />
   </ItemGroup>
 
 </Project>

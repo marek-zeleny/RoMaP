@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace DirectedGraph
+using DataStructures.Miscellaneous;
+
+namespace DataStructures.Graphs
 {
-    static class GraphExtensions
+    static class Algorithms
     {
         public enum GraphType { Acyclic, NonnegativeWeights, General };
 

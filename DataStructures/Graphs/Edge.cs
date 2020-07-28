@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DirectedGraph
+namespace DataStructures.Graphs
 {
     interface IEdge<TNodeId, TEdgeId>
         where TNodeId : IEquatable<TNodeId>

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace DirectedGraph
+namespace DataStructures.Miscellaneous
 {
     interface IHeap<TKey, TValue>
         where TKey : IComparable<TKey>

@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace DirectedGraph
+namespace DataStructures.Miscellaneous
 {
     struct SinglyLinkedList<T>
         : IEnumerable<T>
