@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 
 namespace DirectedGraph
 {
-    interface IHeap<TKey, TValue> where TKey : IComparable<TKey>
+    interface IHeap<TKey, TValue>
+        where TKey : IComparable<TKey>
     {
         bool IsEmpty { get; }
         void Add(TKey key, TValue value);
@@ -13,10 +13,14 @@ namespace DirectedGraph
         KeyValuePair<TKey, TValue> ExtractMin();
     }
 
-    class BinaryHeap<TKey, TValue> : IHeap<TKey, TValue> where TKey : IComparable<TKey>
+    class BinaryHeap<TKey, TValue>
+        : IHeap<TKey, TValue>
+        where TKey : IComparable<TKey>
     {    
         private List<KeyValuePair<TKey, TValue>> heap;
         private Dictionary<TValue, int> indexer;
+
+        public TKey this[TValue value] { get => heap[indexer[value]].Key; }
 
         public bool IsEmpty { get => heap.Count == 0; }
 
@@ -45,13 +49,7 @@ namespace DirectedGraph
             int index = heap.Count;
             indexer.Add(value, index);
             heap.Add(new KeyValuePair<TKey, TValue>(key, value));
-            int parentIndex = (index - 1) / 2;
-            while (heap[index].Key.CompareTo(heap[parentIndex].Key) > 0)
-            {
-                Switch(index, parentIndex);
-                index = parentIndex;
-                parentIndex = (index - 1) / 2;
-            }
+            BubbleUp(index);
         }
 
         public KeyValuePair<TKey, TValue> PeekMin()
@@ -69,10 +67,33 @@ namespace DirectedGraph
             return output;
         }
 
+        public void DecreaseKey(TValue value, Action<TKey> decreaseAction)
+        {
+            int index = indexer[value];
+            decreaseAction(heap[index].Key); // Only makes sense if TValue is a reference type
+            BubbleDown(index);
+        }
+
         public void DecreaseKey(TKey newKey, TValue value)
         {
             int index = indexer[value];
             heap[index] = new KeyValuePair<TKey, TValue>(newKey, value);
+            BubbleDown(index);
+        }
+
+        private void BubbleUp(int index)
+        {
+            int parentIndex = (index - 1) / 2;
+            while (heap[index].Key.CompareTo(heap[parentIndex].Key) > 0)
+            {
+                Switch(index, parentIndex);
+                index = parentIndex;
+                parentIndex = (index - 1) / 2;
+            }
+        }
+
+        private void BubbleDown(int index)
+        {
             int childIndex = index * 2 + 1;
             bool b1 = heap.Count > childIndex
                 && heap[index].Key.CompareTo(heap[childIndex].Key) < 0;

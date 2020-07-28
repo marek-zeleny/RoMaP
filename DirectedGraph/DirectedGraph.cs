@@ -5,6 +5,8 @@ using System.Collections.ObjectModel;
 namespace DirectedGraph
 {
     interface IGraph<TNodeId, TEdgeId>
+        where TNodeId : IEquatable<TNodeId>
+        where TEdgeId : IEquatable<TEdgeId>
     {
         ReadOnlyDictionary<TNodeId, INode<TNodeId, TEdgeId>> Nodes { get; }
         ReadOnlyDictionary<TEdgeId, IEdge<TNodeId, TEdgeId>> Edges { get; }
@@ -14,7 +16,10 @@ namespace DirectedGraph
         IEdge<TNodeId, TEdgeId> RemoveEdge(TEdgeId id);
     }
 
-    class DirectedGraph<TNodeId, TEdgeId> : IGraph<TNodeId, TEdgeId>
+    class DirectedGraph<TNodeId, TEdgeId>
+        : IGraph<TNodeId, TEdgeId>
+        where TNodeId : IEquatable<TNodeId>
+        where TEdgeId : IEquatable<TEdgeId>
     {
         private Dictionary<TNodeId, INode<TNodeId, TEdgeId>> nodes;
         private Dictionary<TEdgeId, IEdge<TNodeId, TEdgeId>> edges;

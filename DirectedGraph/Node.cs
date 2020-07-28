@@ -5,6 +5,8 @@ using System.Collections.ObjectModel;
 namespace DirectedGraph
 {
     interface INode<TNodeId, TEdgeId>
+        where TNodeId : IEquatable<TNodeId>
+        where TEdgeId : IEquatable<TEdgeId>
     {
         TNodeId Id { get; }
         ReadOnlyDictionary<TEdgeId, IEdge<TNodeId, TEdgeId>> InEdges { get; }
@@ -15,7 +17,10 @@ namespace DirectedGraph
         internal void RemoveOutEdge(TEdgeId id);
     }
 
-    class Node<TNodeId, TEdgeId, TData> : INode<TNodeId, TEdgeId>
+    class Node<TNodeId, TEdgeId, TData>
+        : INode<TNodeId, TEdgeId>
+        where TNodeId : IEquatable<TNodeId>
+        where TEdgeId : IEquatable<TEdgeId>
     {
         private Dictionary<TEdgeId, IEdge<TNodeId, TEdgeId>> inEdges;
         private Dictionary<TEdgeId, IEdge<TNodeId, TEdgeId>> outEdges;

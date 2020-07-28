@@ -4,7 +4,8 @@ using System.Collections.Generic;
 
 namespace DirectedGraph
 {
-    struct SinglyLinkedList<T> : IEnumerable<T>
+    struct SinglyLinkedList<T>
+        : IEnumerable<T>
     {
         private class Node
         {

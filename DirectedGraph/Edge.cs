@@ -3,6 +3,8 @@
 namespace DirectedGraph
 {
     interface IEdge<TNodeId, TEdgeId>
+        where TNodeId : IEquatable<TNodeId>
+        where TEdgeId : IEquatable<TEdgeId>
     {
         TEdgeId Id { get; }
         INode<TNodeId, TEdgeId> FromNode { get; }
@@ -10,7 +12,10 @@ namespace DirectedGraph
         double Weight { get; }
     }
 
-    class Edge<TNodeId, TEdgeId, TData> : IEdge<TNodeId, TEdgeId>
+    class Edge<TNodeId, TEdgeId, TData>
+        : IEdge<TNodeId, TEdgeId>
+        where TNodeId : IEquatable<TNodeId>
+        where TEdgeId : IEquatable<TEdgeId>
     {
         public TEdgeId Id { get; }
         public INode<TNodeId, TEdgeId> FromNode { get; }
