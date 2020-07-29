@@ -13,7 +13,7 @@ namespace DataStructures.Graphs
         public TEdgeId Id { get; }
         public IReadOnlyNode<TNodeId, TEdgeId> FromNode { get => fromNode; }
         public IReadOnlyNode<TNodeId, TEdgeId> ToNode { get => toNode; }
-        public double Weight { get; private set; }
+        public double Weight { get; protected set; }
         public TData Data { get; set; }
 
         public Edge(TEdgeId id, INode<TNodeId, TEdgeId> from, INode<TNodeId, TEdgeId> to, double weight, TData data = default)

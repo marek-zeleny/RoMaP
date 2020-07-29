@@ -1,7 +1,8 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-using DataStructures.Graphs;
 using System;
+
+using DataStructures.Graphs;
 
 namespace DataStructures.UnitTests
 {

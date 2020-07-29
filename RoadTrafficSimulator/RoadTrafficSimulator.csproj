@@ -8,7 +8,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DataStructures\DataStructures.csproj" />
-    <ProjectReference Include="..\DirectedGraph\DataStructures.csproj" />
   </ItemGroup>
 
 </Project>
