@@ -18,10 +18,7 @@ namespace DataStructures.Miscellaneous
                 Data = data;
             }
 
-            public override string ToString()
-            {
-                return string.Format("Node: {0}", Data);
-            }
+            public override string ToString() => string.Format("Node: {0}", Data);
         }
 
         private readonly Node firstNode;
@@ -47,14 +44,8 @@ namespace DataStructures.Miscellaneous
                 yield return curr.Data;
         }
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        public override string ToString()
-        {
-            return string.Format("LinkedList: First node: {0}", firstNode);
-        }
+        public override string ToString() => string.Format("LinkedList: First node: {0}", firstNode);
     }
 }

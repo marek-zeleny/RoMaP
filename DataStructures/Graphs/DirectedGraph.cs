@@ -1,21 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace DataStructures.Graphs
 {
-    public interface IGraph<TNodeId, TEdgeId>
-        where TNodeId : IEquatable<TNodeId>
-        where TEdgeId : IEquatable<TEdgeId>
-    {
-        ReadOnlyDictionary<TNodeId, INode<TNodeId, TEdgeId>> Nodes { get; }
-        ReadOnlyDictionary<TEdgeId, IEdge<TNodeId, TEdgeId>> Edges { get; }
-        bool AddNode(INode<TNodeId, TEdgeId> node);
-        bool AddEdge(IEdge<TNodeId, TEdgeId> edge);
-        INode<TNodeId, TEdgeId> RemoveNode(TNodeId id, bool force = false);
-        IEdge<TNodeId, TEdgeId> RemoveEdge(TEdgeId id);
-    }
-
     public class DirectedGraph<TNodeId, TEdgeId>
         : IGraph<TNodeId, TEdgeId>
         where TNodeId : IEquatable<TNodeId>
@@ -23,16 +11,23 @@ namespace DataStructures.Graphs
     {
         private Dictionary<TNodeId, INode<TNodeId, TEdgeId>> nodes;
         private Dictionary<TEdgeId, IEdge<TNodeId, TEdgeId>> edges;
-        public ReadOnlyDictionary<TNodeId, INode<TNodeId, TEdgeId>> Nodes { get; }
-        public ReadOnlyDictionary<TEdgeId, IEdge<TNodeId, TEdgeId>> Edges { get; }
+
+        public int NodeCount { get => nodes.Count; }
+        public int EdgeCount { get => edges.Count; }
 
         public DirectedGraph()
         {
             nodes = new Dictionary<TNodeId, INode<TNodeId, TEdgeId>>();
             edges = new Dictionary<TEdgeId, IEdge<TNodeId, TEdgeId>>();
-            Nodes = new ReadOnlyDictionary<TNodeId, INode<TNodeId, TEdgeId>>(nodes);
-            Edges = new ReadOnlyDictionary<TEdgeId, IEdge<TNodeId, TEdgeId>>(edges);
         }
+
+        public IReadOnlyNode<TNodeId, TEdgeId> GetNode(TNodeId id) => nodes.TryGetValue(id, out var node) ? node : default;
+
+        public IReadOnlyEdge<TNodeId, TEdgeId> GetEdge(TEdgeId id) => edges.TryGetValue(id, out var edge) ? edge : default;
+
+        public IEnumerable<IReadOnlyNode<TNodeId, TEdgeId>> GetNodes() => nodes.Select(pair => pair.Value);
+
+        public IEnumerable<IReadOnlyEdge<TNodeId, TEdgeId>> GetEdges() => edges.Select(pair => pair.Value);
 
         public bool AddNode(INode<TNodeId, TEdgeId> node)
         {
@@ -44,11 +39,13 @@ namespace DataStructures.Graphs
 
         public bool AddEdge(IEdge<TNodeId, TEdgeId> edge)
         {
-            if (edges.ContainsKey(edge.Id))
+            if (edges.ContainsKey(edge.Id)
+                || edge.GetFromNode().GetOutEdge(edge.Id) != null
+                || edge.GetToNode().GetInEdge(edge.Id) != null)
                 return false;
             edges.Add(edge.Id, edge);
-            edge.FromNode.AddOutEdge(edge);
-            edge.ToNode.AddInEdge(edge);
+            edge.GetFromNode().AddOutEdge(edge);
+            edge.GetToNode().AddInEdge(edge);
             return true;
         }
 
@@ -59,12 +56,12 @@ namespace DataStructures.Graphs
                 return null;
             if (force)
             {
-                foreach (var pair in node.InEdges)
-                    RemoveEdge(pair.Key);
-                foreach (var pair in node.OutEdges)
-                    RemoveEdge(pair.Key);
+                foreach (var edge in node.GetInEdges())
+                    RemoveEdge(edge.Id);
+                foreach (var edge in node.GetOutEdges())
+                    RemoveEdge(edge.Id);
             }
-            else if (node.InEdges.Count > 0 || node.OutEdges.Count > 0)
+            else if (node.InDegree > 0 || node.OutDegree > 0)
                 return null;
             nodes.Remove(id);
             return node;
@@ -75,8 +72,8 @@ namespace DataStructures.Graphs
             IEdge<TNodeId, TEdgeId> edge;
             if (!edges.TryGetValue(id, out edge))
                 return null;
-            edge.FromNode.RemoveOutEdge(id);
-            edge.ToNode.RemoveInEdge(id);
+            edge.GetFromNode().RemoveOutEdge(id);
+            edge.GetToNode().RemoveInEdge(id);
             edges.Remove(id);
             return edge;
         }

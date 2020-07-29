@@ -4,15 +4,6 @@ using System.Linq;
 
 namespace DataStructures.Miscellaneous
 {
-    public interface IHeap<TKey, TValue>
-        where TKey : IComparable<TKey>
-    {
-        bool IsEmpty { get; }
-        void Add(TKey key, TValue value);
-        KeyValuePair<TKey, TValue> PeekMin();
-        KeyValuePair<TKey, TValue> ExtractMin();
-    }
-
     public class BinaryHeap<TKey, TValue>
         : IHeap<TKey, TValue>
         where TKey : IComparable<TKey>
@@ -54,20 +45,34 @@ namespace DataStructures.Miscellaneous
 
         public void Add(TKey key, TValue value)
         {
-            int index = heap.Count;
-            indexer.Add(value, index);
-            heap.Add(new KeyValuePair<TKey, TValue>(key, value));
-            BubbleUp(index);
+            try
+            {
+                int index = heap.Count;
+                indexer.Add(value, index);
+                heap.Add(new KeyValuePair<TKey, TValue>(key, value));
+                BubbleUp(index);
+            }
+            catch (ArgumentException e)
+            {
+                throw new ArgumentException(string.Format("An element with the same value already exists in the {0}.", nameof(BinaryHeap<TKey, TValue>)), nameof(value), e);
+            }
         }
 
         public KeyValuePair<TKey, TValue> PeekMin()
         {
-            return heap[0];
+            try
+            {
+                return heap[0];
+            }
+            catch (IndexOutOfRangeException e)
+            {
+                throw new InvalidOperationException(string.Format("The {0} is empty.", nameof(BinaryHeap<TKey, TValue>)), e);
+            }
         }
 
         public KeyValuePair<TKey, TValue> ExtractMin()
         {
-            var output = heap[0];
+            var output = PeekMin();
             int lastIndex = heap.Count - 1;
             Switch(0, lastIndex);
             heap.RemoveAt(lastIndex);
@@ -75,18 +80,22 @@ namespace DataStructures.Miscellaneous
             return output;
         }
 
-        public void DecreaseKey(TValue value, Action<TKey> decreaseAction)
+        public bool DecreaseKey(TValue value, Action<TKey> decreaseAction)
         {
-            int index = indexer[value];
+            if (!indexer.TryGetValue(value, out int index))
+                return false;
             decreaseAction(heap[index].Key); // Only makes sense if TValue is a reference type
             BubbleUp(index);
+            return true;
         }
 
-        public void DecreaseKey(TKey newKey, TValue value)
+        public bool DecreaseKey(TKey newKey, TValue value)
         {
-            int index = indexer[value];
+            if (!indexer.TryGetValue(value, out int index))
+                return false;
             heap[index] = new KeyValuePair<TKey, TValue>(newKey, value);
             BubbleUp(index);
+            return true;
         }
 
         private void BubbleUp(int index)
@@ -97,27 +106,6 @@ namespace DataStructures.Miscellaneous
                 Switch(index, parentIndex);
                 index = parentIndex;
                 parentIndex = (index - 1) / 2;
-            }
-        }
-
-        private void BubbleDown(int index)
-        {
-            int childIndex = index * 2 + 1;
-            bool b1 = heap.Count > childIndex
-                && heap[index].Key.CompareTo(heap[childIndex].Key) > 0;
-            bool b2 = heap.Count > childIndex + 1
-                && heap[index].Key.CompareTo(heap[childIndex + 1].Key) > 0;
-            while (b1 || b2)
-            {
-                if (b2)
-                    childIndex++;
-                Switch(index, childIndex);
-                index = childIndex;
-                childIndex = index * 2 + 1;
-                b1 = heap.Count > childIndex
-                    && heap[index].Key.CompareTo(heap[childIndex].Key) > 0;
-                b2 = heap.Count > childIndex + 1
-                    && heap[index].Key.CompareTo(heap[childIndex + 1].Key) > 0;
             }
         }
 
