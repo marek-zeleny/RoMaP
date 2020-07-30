@@ -3,6 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 
 using DataStructures.Graphs;
+using System.Linq;
 
 namespace DataStructures.UnitTests
 {
@@ -210,6 +211,38 @@ namespace DataStructures.UnitTests
             Assert.AreEqual(resultEdge1, edge1);
         }
 
+        [TestMethod]
+        public void GetInEdges()
+        {
+            // Arrange
+            Node<int, int, string> node1 = new Node<int, int, string>(1);
+            IEdge<int, int> edge1 = new TestEdge<int, int>(1);
+            IEdge<int, int> edge2 = new TestEdge<int, int>(2);
+            IEdge<int, int> edge3 = new TestEdge<int, int>(3);
+
+            // Act
+            var resultList1 = node1.GetInEdges().ToList();
+
+            node1.AddInEdge(edge1);
+            node1.AddInEdge(edge2);
+            node1.AddInEdge(edge3);
+            var resultList2 = node1.GetInEdges().ToList();
+
+            node1.RemoveInEdge(edge2.Id);
+            var resultList3 = node1.GetInEdges().ToList();
+
+            // Assert
+            Assert.AreEqual(resultList1.Count, 0);
+            Assert.AreEqual(resultList2.Count, 3);
+            Assert.AreEqual(resultList3.Count, 2);
+            CollectionAssert.Contains(resultList2, edge1);
+            CollectionAssert.Contains(resultList2, edge2);
+            CollectionAssert.Contains(resultList2, edge2);
+            CollectionAssert.Contains(resultList3, edge1);
+            CollectionAssert.DoesNotContain(resultList3, edge2);
+            CollectionAssert.Contains(resultList3, edge3);
+        }
+
         #endregion
 
         #region OutEdge methods
@@ -332,6 +365,38 @@ namespace DataStructures.UnitTests
             Assert.AreEqual(resultOutDegree1, 1);
             Assert.AreEqual(resultOutDegree2, 1);
             Assert.AreEqual(resultEdge1, edge1);
+        }
+
+        [TestMethod]
+        public void GetOutEdges()
+        {
+            // Arrange
+            Node<int, int, string> node1 = new Node<int, int, string>(1);
+            IEdge<int, int> edge1 = new TestEdge<int, int>(1);
+            IEdge<int, int> edge2 = new TestEdge<int, int>(2);
+            IEdge<int, int> edge3 = new TestEdge<int, int>(3);
+
+            // Act
+            var resultList1 = node1.GetOutEdges().ToList();
+
+            node1.AddOutEdge(edge1);
+            node1.AddOutEdge(edge2);
+            node1.AddOutEdge(edge3);
+            var resultList2 = node1.GetOutEdges().ToList();
+
+            node1.RemoveOutEdge(edge2.Id);
+            var resultList3 = node1.GetOutEdges().ToList();
+
+            // Assert
+            Assert.AreEqual(resultList1.Count, 0);
+            Assert.AreEqual(resultList2.Count, 3);
+            Assert.AreEqual(resultList3.Count, 2);
+            CollectionAssert.Contains(resultList2, edge1);
+            CollectionAssert.Contains(resultList2, edge2);
+            CollectionAssert.Contains(resultList2, edge2);
+            CollectionAssert.Contains(resultList3, edge1);
+            CollectionAssert.DoesNotContain(resultList3, edge2);
+            CollectionAssert.Contains(resultList3, edge3);
         }
 
         #endregion
