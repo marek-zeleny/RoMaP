@@ -77,21 +77,21 @@ namespace DataStructures.UnitTests
             Edge<int, int, string> edge2 = new Edge<int, int, string>(2, node2, node2, -5.3, "Second edge");
 
             // Assert
-            Assert.AreEqual(edge1.Id, 1);
-            Assert.AreEqual(edge1.FromNode, node1);
-            Assert.AreEqual(edge1.ToNode, node2);
-            Assert.AreEqual(edge1.GetFromNode(), node1);
-            Assert.AreEqual(edge1.GetToNode(), node2);
-            Assert.AreEqual(edge1.Weight, 1);
-            Assert.AreEqual(edge1.Data, default);
+            Assert.AreEqual(1, edge1.Id);
+            Assert.AreEqual(node1, edge1.FromNode);
+            Assert.AreEqual(node2, edge1.ToNode);
+            Assert.AreEqual(node1, edge1.GetFromNode());
+            Assert.AreEqual(node2, edge1.GetToNode());
+            Assert.AreEqual(1, edge1.Weight);
+            Assert.AreEqual(default, edge1.Data);
 
-            Assert.AreEqual(edge2.Id, 2);
-            Assert.AreEqual(edge2.FromNode, node2);
-            Assert.AreEqual(edge2.ToNode, node2);
-            Assert.AreEqual(edge2.GetFromNode(), node2);
-            Assert.AreEqual(edge2.GetToNode(), node2);
-            Assert.AreEqual(edge2.Weight, -5,3);
-            Assert.AreEqual(edge2.Data, "Second edge");
+            Assert.AreEqual(2, edge2.Id);
+            Assert.AreEqual(node2, edge2.FromNode);
+            Assert.AreEqual(node2, edge2.ToNode);
+            Assert.AreEqual(node2, edge2.GetFromNode());
+            Assert.AreEqual(node2, edge2.GetToNode());
+            Assert.AreEqual(-5.3, edge2.Weight);
+            Assert.AreEqual("Second edge", edge2.Data);
         }
     }
 }

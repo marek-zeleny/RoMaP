@@ -47,15 +47,15 @@ namespace DataStructures.UnitTests
             Node<int, int, string> node2 = new Node<int, int, string>(2, "Second node");
 
             // Assert
-            Assert.AreEqual(node1.Id, 1);
-            Assert.AreEqual(node1.Data, default);
-            Assert.AreEqual(node1.InDegree, 0);
-            Assert.AreEqual(node1.OutDegree, 0);
+            Assert.AreEqual(1, node1.Id);
+            Assert.AreEqual(default, node1.Data);
+            Assert.AreEqual(0, node1.InDegree);
+            Assert.AreEqual(0, node1.OutDegree);
 
-            Assert.AreEqual(node2.Id, 2);
-            Assert.AreEqual(node2.Data, "Second node");
-            Assert.AreEqual(node2.InDegree, 0);
-            Assert.AreEqual(node2.OutDegree, 0);
+            Assert.AreEqual(2, node2.Id);
+            Assert.AreEqual("Second node", node2.Data);
+            Assert.AreEqual(0, node2.InDegree);
+            Assert.AreEqual(0, node2.OutDegree);
         }
 
         [TestMethod]
@@ -81,12 +81,12 @@ namespace DataStructures.UnitTests
             int resultOutDegree3 = node1.OutDegree;
 
             // Assert
-            Assert.AreEqual(resultInDegree1, 0);
-            Assert.AreEqual(resultOutDegree1, 0);
-            Assert.AreEqual(resultInDegree2, 2);
-            Assert.AreEqual(resultOutDegree2, 0);
-            Assert.AreEqual(resultInDegree3, 1);
-            Assert.AreEqual(resultOutDegree3, 1);
+            Assert.AreEqual(0, resultInDegree1);
+            Assert.AreEqual(0, resultOutDegree1);
+            Assert.AreEqual(2, resultInDegree2);
+            Assert.AreEqual(0, resultOutDegree2);
+            Assert.AreEqual(1, resultInDegree3);
+            Assert.AreEqual(1, resultOutDegree3);
         }
 
         #region InEdge methods
@@ -103,13 +103,14 @@ namespace DataStructures.UnitTests
             node1.AddInEdge(edge1);
             node1.AddInEdge(edge2);
 
+            int resultInDegree = node1.InDegree;
             var resultEdge1 = node1.GetInEdge(1);
             var resultEdge2 = node1.GetInEdge(2);
 
             // Assert
-            Assert.AreEqual(node1.InDegree, 2);
-            Assert.AreEqual(resultEdge1, edge1);
-            Assert.AreEqual(resultEdge2, edge2);
+            Assert.AreEqual(2, resultInDegree);
+            Assert.AreEqual(edge1, resultEdge1);
+            Assert.AreEqual(edge2, resultEdge2);
         }
 
         [TestMethod]
@@ -143,9 +144,9 @@ namespace DataStructures.UnitTests
             var resultEdge3 = node2.GetInEdge(-140);
 
             // Assert
-            Assert.AreEqual(resultEdge1, edge1);
-            Assert.AreEqual(resultEdge2, default);
-            Assert.AreEqual(resultEdge3, default);
+            Assert.AreEqual(edge1, resultEdge1);
+            Assert.AreEqual(default, resultEdge2);
+            Assert.AreEqual(default, resultEdge3);
         }
 
         [TestMethod]
@@ -178,15 +179,15 @@ namespace DataStructures.UnitTests
             // Assert
             Assert.IsTrue(result1);
             Assert.IsTrue(result2);
-            Assert.AreEqual(resultInDegree1, 3);
-            Assert.AreEqual(resultInDegree2, 2);
-            Assert.AreEqual(resultInDegree3, 1);
-            Assert.AreEqual(resultEdge1, edge1);
-            Assert.AreEqual(resultEdge2, edge2);
-            Assert.AreEqual(resultEdge3, default);
-            Assert.AreEqual(resultEdge4, default);
-            Assert.AreEqual(resultEdge5, edge2);
-            Assert.AreEqual(resultEdge6, default);
+            Assert.AreEqual(3, resultInDegree1);
+            Assert.AreEqual(2, resultInDegree2);
+            Assert.AreEqual(1, resultInDegree3);
+            Assert.AreEqual(edge1, resultEdge1);
+            Assert.AreEqual(edge2, resultEdge2);
+            Assert.AreEqual(default, resultEdge3);
+            Assert.AreEqual(default, resultEdge4);
+            Assert.AreEqual(edge2, resultEdge5);
+            Assert.AreEqual(default, resultEdge6);
         }
 
         [TestMethod]
@@ -206,9 +207,9 @@ namespace DataStructures.UnitTests
 
             // Assert
             Assert.IsFalse(result1);
-            Assert.AreEqual(resultInDegree1, 1);
-            Assert.AreEqual(resultInDegree2, 1);
-            Assert.AreEqual(resultEdge1, edge1);
+            Assert.AreEqual(1, resultInDegree1);
+            Assert.AreEqual(1, resultInDegree2);
+            Assert.AreEqual(edge1, resultEdge1);
         }
 
         [TestMethod]
@@ -232,9 +233,9 @@ namespace DataStructures.UnitTests
             var resultList3 = node1.GetInEdges().ToList();
 
             // Assert
-            Assert.AreEqual(resultList1.Count, 0);
-            Assert.AreEqual(resultList2.Count, 3);
-            Assert.AreEqual(resultList3.Count, 2);
+            Assert.AreEqual(0, resultList1.Count);
+            Assert.AreEqual(3, resultList2.Count);
+            Assert.AreEqual(2, resultList3.Count);
             CollectionAssert.Contains(resultList2, edge1);
             CollectionAssert.Contains(resultList2, edge2);
             CollectionAssert.Contains(resultList2, edge2);
@@ -259,13 +260,14 @@ namespace DataStructures.UnitTests
             node1.AddOutEdge(edge1);
             node1.AddOutEdge(edge2);
 
+            int resultOutDegree = node1.OutDegree;
             var resultEdge1 = node1.GetOutEdge(1);
             var resultEdge2 = node1.GetOutEdge(2);
 
             // Assert
-            Assert.AreEqual(node1.OutDegree, 2);
-            Assert.AreEqual(resultEdge1, edge1);
-            Assert.AreEqual(resultEdge2, edge2);
+            Assert.AreEqual(2, resultOutDegree);
+            Assert.AreEqual(edge1, resultEdge1);
+            Assert.AreEqual(edge2, resultEdge2);
         }
 
         [TestMethod]
@@ -299,9 +301,9 @@ namespace DataStructures.UnitTests
             var resultEdge3 = node2.GetOutEdge(-140);
 
             // Assert
-            Assert.AreEqual(resultEdge1, edge1);
-            Assert.AreEqual(resultEdge2, default);
-            Assert.AreEqual(resultEdge3, default);
+            Assert.AreEqual(edge1, resultEdge1);
+            Assert.AreEqual(default, resultEdge2);
+            Assert.AreEqual(default, resultEdge3);
         }
 
         [TestMethod]
@@ -334,15 +336,15 @@ namespace DataStructures.UnitTests
             // Assert
             Assert.IsTrue(result1);
             Assert.IsTrue(result2);
-            Assert.AreEqual(resultOutDegree1, 3);
-            Assert.AreEqual(resultOutDegree2, 2);
-            Assert.AreEqual(resultOutDegree3, 1);
-            Assert.AreEqual(resultEdge1, edge1);
-            Assert.AreEqual(resultEdge2, edge2);
-            Assert.AreEqual(resultEdge3, default);
-            Assert.AreEqual(resultEdge4, default);
-            Assert.AreEqual(resultEdge5, edge2);
-            Assert.AreEqual(resultEdge6, default);
+            Assert.AreEqual(3, resultOutDegree1);
+            Assert.AreEqual(2, resultOutDegree2);
+            Assert.AreEqual(1, resultOutDegree3);
+            Assert.AreEqual(edge1, resultEdge1);
+            Assert.AreEqual(edge2, resultEdge2);
+            Assert.AreEqual(default, resultEdge3);
+            Assert.AreEqual(default, resultEdge4);
+            Assert.AreEqual(edge2, resultEdge5);
+            Assert.AreEqual(default, resultEdge6);
         }
 
         [TestMethod]
@@ -362,9 +364,9 @@ namespace DataStructures.UnitTests
 
             // Assert
             Assert.IsFalse(result1);
-            Assert.AreEqual(resultOutDegree1, 1);
-            Assert.AreEqual(resultOutDegree2, 1);
-            Assert.AreEqual(resultEdge1, edge1);
+            Assert.AreEqual(1, resultOutDegree1);
+            Assert.AreEqual(1, resultOutDegree2);
+            Assert.AreEqual(edge1, resultEdge1);
         }
 
         [TestMethod]
@@ -388,9 +390,9 @@ namespace DataStructures.UnitTests
             var resultList3 = node1.GetOutEdges().ToList();
 
             // Assert
-            Assert.AreEqual(resultList1.Count, 0);
-            Assert.AreEqual(resultList2.Count, 3);
-            Assert.AreEqual(resultList3.Count, 2);
+            Assert.AreEqual(0, resultList1.Count);
+            Assert.AreEqual(3, resultList2.Count);
+            Assert.AreEqual(2, resultList3.Count);
             CollectionAssert.Contains(resultList2, edge1);
             CollectionAssert.Contains(resultList2, edge2);
             CollectionAssert.Contains(resultList2, edge2);
