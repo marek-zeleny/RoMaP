@@ -49,20 +49,26 @@ namespace DataStructures.Graphs
             return true;
         }
 
-        public INode<TNodeId, TEdgeId> RemoveNode(TNodeId id, bool force = false)
+        public INode<TNodeId, TEdgeId> RemoveNode(TNodeId id)
+        {
+            INode<TNodeId, TEdgeId> node;
+            if (!nodes.TryGetValue(id, out node)
+                || node.InDegree > 0
+                || node.OutDegree > 0)
+                return default;
+            nodes.Remove(id);
+            return node;
+        }
+
+        public INode<TNodeId, TEdgeId> RemoveNodeForced(TNodeId id)
         {
             INode<TNodeId, TEdgeId> node;
             if (!nodes.TryGetValue(id, out node))
-                return null;
-            if (force)
-            {
-                foreach (var edge in node.GetInEdges())
-                    RemoveEdge(edge.Id);
-                foreach (var edge in node.GetOutEdges())
-                    RemoveEdge(edge.Id);
-            }
-            else if (node.InDegree > 0 || node.OutDegree > 0)
-                return null;
+                return default;
+            foreach (var edge in node.GetInEdges())
+                RemoveEdge(edge.Id);
+            foreach (var edge in node.GetOutEdges())
+                RemoveEdge(edge.Id);
             nodes.Remove(id);
             return node;
         }
@@ -71,7 +77,7 @@ namespace DataStructures.Graphs
         {
             IEdge<TNodeId, TEdgeId> edge;
             if (!edges.TryGetValue(id, out edge))
-                return null;
+                return default;
             edge.GetFromNode().RemoveOutEdge(id);
             edge.GetToNode().RemoveInEdge(id);
             edges.Remove(id);

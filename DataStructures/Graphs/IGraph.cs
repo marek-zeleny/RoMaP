@@ -22,7 +22,7 @@ namespace DataStructures.Graphs
     {
         bool AddNode(INode<TNodeId, TEdgeId> node);
         bool AddEdge(IEdge<TNodeId, TEdgeId> edge);
-        INode<TNodeId, TEdgeId> RemoveNode(TNodeId id, bool force = false);
+        INode<TNodeId, TEdgeId> RemoveNode(TNodeId id);
         IEdge<TNodeId, TEdgeId> RemoveEdge(TEdgeId id);
     }
 }
