@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-
+using System.Linq;
 using DataStructures.Miscellaneous;
 
 namespace DataStructures.Graphs
@@ -61,25 +61,30 @@ namespace DataStructures.Graphs
             where TEdgeId : IEquatable<TEdgeId>
         {
             var unsolvedNodes = new BinaryHeap<Path<TNodeId, TEdgeId>, IReadOnlyNode<TNodeId, TEdgeId>>(graph.GetNodes(), () => new Path<TNodeId, TEdgeId>());
+            var solvedNodes = new HashSet<IReadOnlyNode<TNodeId, TEdgeId>>();
             unsolvedNodes.DecreaseKey(startNode, path => path.totalWeight = 0);
-            while (!unsolvedNodes.IsEmpty && unsolvedNodes.PeekMin().Value != endNode)
+            while (!unsolvedNodes.IsEmpty
+                && unsolvedNodes.PeekMin().Value != endNode
+                && unsolvedNodes.PeekMin().Key.totalWeight < double.PositiveInfinity)
             {
                 var (path, node) = unsolvedNodes.ExtractMin();
+                solvedNodes.Add(node);
                 foreach (var edge in node.GetOutEdges())
                 {
+                    if (solvedNodes.Contains(edge.ToNode))
+                        continue;
                     double currWeight = unsolvedNodes[edge.ToNode].totalWeight;
                     double newWeight = path.totalWeight + edge.Weight;
                     if (newWeight < currWeight)
                         if (!unsolvedNodes.DecreaseKey(edge.ToNode, currPath => { currPath.edges = path.edges.AddFront(edge); currPath.totalWeight = newWeight; }))
                             throw new ArgumentException(string.Format("The given {0} is inconsistent.", nameof(IReadOnlyGraph<TNodeId, TEdgeId>)), nameof(graph));
-                    // There is no check whether edge.ToNode exists in unsolvedNodes, but the algorithm ensures that it does (unless it has negative weights)
                 }
             }
             if (unsolvedNodes.IsEmpty)
                 throw new ArgumentException(string.Format("The target {0} is not present in the given {1}.", nameof(IReadOnlyNode<TNodeId, TEdgeId>), nameof(IReadOnlyGraph<TNodeId, TEdgeId>)), nameof(endNode));
             var (foundPath, _) = unsolvedNodes.PeekMin();
             pathWeight = foundPath.totalWeight;
-            return foundPath.edges;
+            return foundPath.edges.Reverse();
         }
     }
 }

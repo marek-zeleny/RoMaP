@@ -7,7 +7,7 @@ namespace DataStructures.Miscellaneous
     public class BinaryHeap<TKey, TValue>
         : IHeap<TKey, TValue>
         where TKey : IComparable<TKey>
-    {    
+    {
         private List<KeyValuePair<TKey, TValue>> heap;
         private Dictionary<TValue, int> indexer;
 
@@ -77,6 +77,7 @@ namespace DataStructures.Miscellaneous
             Switch(0, lastIndex);
             heap.RemoveAt(lastIndex);
             indexer.Remove(output.Value);
+            BubbleDown(0);
             return output;
         }
 
@@ -106,6 +107,27 @@ namespace DataStructures.Miscellaneous
                 Switch(index, parentIndex);
                 index = parentIndex;
                 parentIndex = (index - 1) / 2;
+            }
+        }
+
+        private void BubbleDown(int index)
+        {
+            int childIndex = index * 2 + 1;
+            bool b1 = heap.Count > childIndex
+                && heap[index].Key.CompareTo(heap[childIndex].Key) > 0;
+            bool b2 = heap.Count > childIndex + 1
+                && heap[index].Key.CompareTo(heap[childIndex + 1].Key) > 0;
+            while (b1 || b2)
+            {
+                if (b2)
+                    childIndex++;
+                Switch(index, childIndex);
+                index = childIndex;
+                childIndex = index * 2 + 1;
+                b1 = heap.Count > childIndex
+                    && heap[index].Key.CompareTo(heap[childIndex].Key) > 0;
+                b2 = heap.Count > childIndex + 1
+                    && heap[index].Key.CompareTo(heap[childIndex + 1].Key) > 0;
             }
         }
 
