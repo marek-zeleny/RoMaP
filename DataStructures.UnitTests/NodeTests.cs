@@ -121,11 +121,12 @@ namespace DataStructures.UnitTests
             Node<int, int, string> node1 = new Node<int, int, string>(1);
             IEdge<int, int> edge1 = new TestEdge<int, int>(1);
             IEdge<int, int> edge2 = new TestEdge<int, int>(2);
+            IEdge<int, int> edge3 = new TestEdge<int, int>(1);
 
             // Act
             node1.AddInEdge(edge1);
             node1.AddInEdge(edge2);
-            node1.AddInEdge(edge1);
+            node1.AddInEdge(edge3);
         }
 
         [TestMethod]
@@ -278,11 +279,12 @@ namespace DataStructures.UnitTests
             Node<int, int, string> node1 = new Node<int, int, string>(1);
             IEdge<int, int> edge1 = new TestEdge<int, int>(1);
             IEdge<int, int> edge2 = new TestEdge<int, int>(2);
+            IEdge<int, int> edge3 = new TestEdge<int, int>(1);
 
             // Act
             node1.AddOutEdge(edge1);
             node1.AddOutEdge(edge2);
-            node1.AddOutEdge(edge1);
+            node1.AddOutEdge(edge3);
         }
 
         [TestMethod]

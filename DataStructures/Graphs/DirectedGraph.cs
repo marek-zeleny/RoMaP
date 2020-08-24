@@ -39,14 +39,21 @@ namespace DataStructures.Graphs
 
         public bool AddEdge(IEdge<TNodeId, TEdgeId> edge)
         {
-            if (edges.ContainsKey(edge.Id)
-                || edge.GetFromNode().GetOutEdge(edge.Id) != null
-                || edge.GetToNode().GetInEdge(edge.Id) != null)
+            bool idIsFree = !edges.ContainsKey(edge.Id);
+            bool fromNodeExists = nodes.TryGetValue(edge.FromNode.Id, out var fromNode) && fromNode == edge.FromNode;
+            bool toNodeExists = nodes.TryGetValue(edge.ToNode.Id, out var toNode) && toNode == edge.ToNode;
+            bool idIsFreeInFromNode = fromNode?.GetOutEdge(edge.Id) == default;
+            bool idIsFreeInToNode = toNode?.GetInEdge(edge.Id) == default;
+
+            if (idIsFree && fromNodeExists && toNodeExists && idIsFreeInFromNode && idIsFreeInToNode)
+            {
+                edges.Add(edge.Id, edge);
+                edge.GetFromNode().AddOutEdge(edge);
+                edge.GetToNode().AddInEdge(edge);
+                return true;
+            }
+            else
                 return false;
-            edges.Add(edge.Id, edge);
-            edge.GetFromNode().AddOutEdge(edge);
-            edge.GetToNode().AddInEdge(edge);
-            return true;
         }
 
         public INode<TNodeId, TEdgeId> RemoveNode(TNodeId id)
@@ -56,7 +63,8 @@ namespace DataStructures.Graphs
                 || node.InDegree > 0
                 || node.OutDegree > 0)
                 return default;
-            nodes.Remove(id);
+            if (!nodes.Remove(id))
+                return default;
             return node;
         }
 
@@ -69,7 +77,8 @@ namespace DataStructures.Graphs
                 RemoveEdge(edge.Id);
             foreach (var edge in node.GetOutEdges())
                 RemoveEdge(edge.Id);
-            nodes.Remove(id);
+            if (!nodes.Remove(id))
+                return default;
             return node;
         }
 
@@ -80,7 +89,8 @@ namespace DataStructures.Graphs
                 return default;
             edge.GetFromNode().RemoveOutEdge(id);
             edge.GetToNode().RemoveInEdge(id);
-            edges.Remove(id);
+            if (!edges.Remove(id))
+                return default;
             return edge;
         }
     }
