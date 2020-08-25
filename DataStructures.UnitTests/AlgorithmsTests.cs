@@ -16,13 +16,13 @@ namespace DataStructures.UnitTests
         {
             // Arrange
             IGraph<int, int> graph = new DirectedGraph<int, int>();
-            INode<int, int> node1 = new Node<int, int, string>(1);
-            INode<int, int> node2 = new Node<int, int, string>(2);
-            INode<int, int> node3 = new Node<int, int, string>(3);
+            INode<int, int> node1 = new Node<int, int>(1);
+            INode<int, int> node2 = new Node<int, int>(2);
+            INode<int, int> node3 = new Node<int, int>(3);
 
-            IEdge<int, int> edge1 = new Edge<int, int, string>(1, node1, node2, 5);
-            IEdge<int, int> edge2 = new Edge<int, int, string>(2, node1, node3, 15);
-            IEdge<int, int> edge3 = new Edge<int, int, string>(3, node2, node3, 7);
+            IEdge<int, int> edge1 = new Edge<int, int>(1, node1, node2, 5);
+            IEdge<int, int> edge2 = new Edge<int, int>(2, node1, node3, 15);
+            IEdge<int, int> edge3 = new Edge<int, int>(3, node2, node3, 7);
 
             graph.AddNode(node1);
             graph.AddNode(node2);
@@ -54,32 +54,32 @@ namespace DataStructures.UnitTests
         {
             // Arrange
             IGraph<int, int> graph = new DirectedGraph<int, int>();
-            INode<int, int> node1 = new Node<int, int, string>(1);
-            INode<int, int> node2 = new Node<int, int, string>(2);
-            INode<int, int> node3 = new Node<int, int, string>(3);
-            INode<int, int> node4 = new Node<int, int, string>(4);
-            INode<int, int> node5 = new Node<int, int, string>(5);
-            INode<int, int> node6 = new Node<int, int, string>(6);
-            INode<int, int> node7 = new Node<int, int, string>(7);
-            INode<int, int> node8 = new Node<int, int, string>(8);
-            INode<int, int> node9 = new Node<int, int, string>(9);
+            INode<int, int> node1 = new Node<int, int>(1);
+            INode<int, int> node2 = new Node<int, int>(2);
+            INode<int, int> node3 = new Node<int, int>(3);
+            INode<int, int> node4 = new Node<int, int>(4);
+            INode<int, int> node5 = new Node<int, int>(5);
+            INode<int, int> node6 = new Node<int, int>(6);
+            INode<int, int> node7 = new Node<int, int>(7);
+            INode<int, int> node8 = new Node<int, int>(8);
+            INode<int, int> node9 = new Node<int, int>(9);
 
-            IEdge<int, int> edge1 = new Edge<int, int, string>(1, node1, node2, 4);
-            IEdge<int, int> edge2 = new Edge<int, int, string>(2, node2, node3, 11);
-            IEdge<int, int> edge3 = new Edge<int, int, string>(3, node2, node4, 9);
-            IEdge<int, int> edge4 = new Edge<int, int, string>(4, node3, node1, 8);
-            IEdge<int, int> edge5 = new Edge<int, int, string>(5, node4, node3, 7);
-            IEdge<int, int> edge6 = new Edge<int, int, string>(6, node4, node5, 2);
-            IEdge<int, int> edge7 = new Edge<int, int, string>(7, node4, node6, 6);
-            IEdge<int, int> edge8 = new Edge<int, int, string>(8, node5, node2, 8);
-            IEdge<int, int> edge9 = new Edge<int, int, string>(9, node5, node7, 7);
-            IEdge<int, int> edge10 = new Edge<int, int, string>(10, node5, node8, 4);
-            IEdge<int, int> edge11 = new Edge<int, int, string>(11, node6, node3, 1);
-            IEdge<int, int> edge12 = new Edge<int, int, string>(12, node6, node5, 5);
-            IEdge<int, int> edge13 = new Edge<int, int, string>(13, node7, node8, 14);
-            IEdge<int, int> edge14 = new Edge<int, int, string>(14, node7, node9, 9);
-            IEdge<int, int> edge15 = new Edge<int, int, string>(15, node8, node6, 2);
-            IEdge<int, int> edge16 = new Edge<int, int, string>(16, node8, node9, 10);
+            IEdge<int, int> edge1 = new Edge<int, int>(1, node1, node2, 4);
+            IEdge<int, int> edge2 = new Edge<int, int>(2, node2, node3, 11);
+            IEdge<int, int> edge3 = new Edge<int, int>(3, node2, node4, 9);
+            IEdge<int, int> edge4 = new Edge<int, int>(4, node3, node1, 8);
+            IEdge<int, int> edge5 = new Edge<int, int>(5, node4, node3, 7);
+            IEdge<int, int> edge6 = new Edge<int, int>(6, node4, node5, 2);
+            IEdge<int, int> edge7 = new Edge<int, int>(7, node4, node6, 6);
+            IEdge<int, int> edge8 = new Edge<int, int>(8, node5, node2, 8);
+            IEdge<int, int> edge9 = new Edge<int, int>(9, node5, node7, 7);
+            IEdge<int, int> edge10 = new Edge<int, int>(10, node5, node8, 4);
+            IEdge<int, int> edge11 = new Edge<int, int>(11, node6, node3, 1);
+            IEdge<int, int> edge12 = new Edge<int, int>(12, node6, node5, 5);
+            IEdge<int, int> edge13 = new Edge<int, int>(13, node7, node8, 14);
+            IEdge<int, int> edge14 = new Edge<int, int>(14, node7, node9, 9);
+            IEdge<int, int> edge15 = new Edge<int, int>(15, node8, node6, 2);
+            IEdge<int, int> edge16 = new Edge<int, int>(16, node8, node9, 10);
 
             graph.AddNode(node1);
             graph.AddNode(node2);

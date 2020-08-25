@@ -43,17 +43,15 @@ namespace DataStructures.UnitTests
         public void Constructor_CorrectInitialization()
         {
             // Arrange & Act
-            Node<int, int, string> node1 = new Node<int, int, string>(1);
-            Node<int, int, string> node2 = new Node<int, int, string>(2, "Second node");
+            Node<int, int> node1 = new Node<int, int>(1);
+            Node<int, int> node2 = new Node<int, int>(2);
 
             // Assert
             Assert.AreEqual(1, node1.Id);
-            Assert.AreEqual(default, node1.Data);
             Assert.AreEqual(0, node1.InDegree);
             Assert.AreEqual(0, node1.OutDegree);
 
             Assert.AreEqual(2, node2.Id);
-            Assert.AreEqual("Second node", node2.Data);
             Assert.AreEqual(0, node2.InDegree);
             Assert.AreEqual(0, node2.OutDegree);
         }
@@ -62,7 +60,7 @@ namespace DataStructures.UnitTests
         public void InDegree_OutDegree()
         {
             // Arrange
-            Node<int, int, string> node1 = new Node<int, int, string>(1);
+            Node<int, int> node1 = new Node<int, int>(1);
             IEdge<int, int> edge1 = new TestEdge<int, int>(1);
             IEdge<int, int> edge2 = new TestEdge<int, int>(2);
 
@@ -95,7 +93,7 @@ namespace DataStructures.UnitTests
         public void AddInEdge_GetInEdge_Successful()
         {
             // Arrange
-            Node<int, int, string> node1 = new Node<int, int, string>(1);
+            Node<int, int> node1 = new Node<int, int>(1);
             IEdge<int, int> edge1 = new TestEdge<int, int>(1);
             IEdge<int, int> edge2 = new TestEdge<int, int>(2);
 
@@ -118,7 +116,7 @@ namespace DataStructures.UnitTests
         public void AddInEdge_DupliciteId_ExpectedArgumentException()
         {
             // Arrange
-            Node<int, int, string> node1 = new Node<int, int, string>(1);
+            Node<int, int> node1 = new Node<int, int>(1);
             IEdge<int, int> edge1 = new TestEdge<int, int>(1);
             IEdge<int, int> edge2 = new TestEdge<int, int>(2);
             IEdge<int, int> edge3 = new TestEdge<int, int>(1);
@@ -133,8 +131,8 @@ namespace DataStructures.UnitTests
         public void GetInEdge_NonExistentId_ExpectedDefaultValue()
         {
             // Arrange
-            Node<int, int, string> node1 = new Node<int, int, string>(1);
-            Node<int, int, string> node2 = new Node<int, int, string>(2);
+            Node<int, int> node1 = new Node<int, int>(1);
+            Node<int, int> node2 = new Node<int, int>(2);
             IEdge<int, int> edge1 = new TestEdge<int, int>(1);
 
             // Act
@@ -154,7 +152,7 @@ namespace DataStructures.UnitTests
         public void RemoveInEdge_Successful()
         {
             // Arrange
-            Node<int, int, string> node1 = new Node<int, int, string>(1);
+            Node<int, int> node1 = new Node<int, int>(1);
             IEdge<int, int> edge1 = new TestEdge<int, int>(1);
             IEdge<int, int> edge2 = new TestEdge<int, int>(2);
             IEdge<int, int> edge3 = new TestEdge<int, int>(3);
@@ -195,7 +193,7 @@ namespace DataStructures.UnitTests
         public void RemoveInEdge_Unsuccessful()
         {
             // Arrange
-            Node<int, int, string> node1 = new Node<int, int, string>(1);
+            Node<int, int> node1 = new Node<int, int>(1);
             IEdge<int, int> edge1 = new TestEdge<int, int>(1);
 
             // Act
@@ -217,7 +215,7 @@ namespace DataStructures.UnitTests
         public void GetInEdges()
         {
             // Arrange
-            Node<int, int, string> node1 = new Node<int, int, string>(1);
+            Node<int, int> node1 = new Node<int, int>(1);
             IEdge<int, int> edge1 = new TestEdge<int, int>(1);
             IEdge<int, int> edge2 = new TestEdge<int, int>(2);
             IEdge<int, int> edge3 = new TestEdge<int, int>(3);
@@ -253,7 +251,7 @@ namespace DataStructures.UnitTests
         public void AddOutEdge_GetOutEdge_Successful()
         {
             // Arrange
-            Node<int, int, string> node1 = new Node<int, int, string>(1);
+            Node<int, int> node1 = new Node<int, int>(1);
             IEdge<int, int> edge1 = new TestEdge<int, int>(1);
             IEdge<int, int> edge2 = new TestEdge<int, int>(2);
 
@@ -276,7 +274,7 @@ namespace DataStructures.UnitTests
         public void AddOutEdge_DupliciteId_ExpectedArgumentException()
         {
             // Arrange
-            Node<int, int, string> node1 = new Node<int, int, string>(1);
+            Node<int, int> node1 = new Node<int, int>(1);
             IEdge<int, int> edge1 = new TestEdge<int, int>(1);
             IEdge<int, int> edge2 = new TestEdge<int, int>(2);
             IEdge<int, int> edge3 = new TestEdge<int, int>(1);
@@ -291,8 +289,8 @@ namespace DataStructures.UnitTests
         public void GetOutEdge_NonExistentId_ExpectedDefaultValue()
         {
             // Arrange
-            Node<int, int, string> node1 = new Node<int, int, string>(1);
-            Node<int, int, string> node2 = new Node<int, int, string>(2);
+            Node<int, int> node1 = new Node<int, int>(1);
+            Node<int, int> node2 = new Node<int, int>(2);
             IEdge<int, int> edge1 = new TestEdge<int, int>(1);
 
             // Act
@@ -312,7 +310,7 @@ namespace DataStructures.UnitTests
         public void RemoveOutEdge_Successful()
         {
             // Arrange
-            Node<int, int, string> node1 = new Node<int, int, string>(1);
+            Node<int, int> node1 = new Node<int, int>(1);
             IEdge<int, int> edge1 = new TestEdge<int, int>(1);
             IEdge<int, int> edge2 = new TestEdge<int, int>(2);
             IEdge<int, int> edge3 = new TestEdge<int, int>(3);
@@ -353,7 +351,7 @@ namespace DataStructures.UnitTests
         public void RemoveOutEdge_Unsuccessful()
         {
             // Arrange
-            Node<int, int, string> node1 = new Node<int, int, string>(1);
+            Node<int, int> node1 = new Node<int, int>(1);
             IEdge<int, int> edge1 = new TestEdge<int, int>(1);
 
             // Act
@@ -375,7 +373,7 @@ namespace DataStructures.UnitTests
         public void GetOutEdges()
         {
             // Arrange
-            Node<int, int, string> node1 = new Node<int, int, string>(1);
+            Node<int, int> node1 = new Node<int, int>(1);
             IEdge<int, int> edge1 = new TestEdge<int, int>(1);
             IEdge<int, int> edge2 = new TestEdge<int, int>(2);
             IEdge<int, int> edge3 = new TestEdge<int, int>(3);

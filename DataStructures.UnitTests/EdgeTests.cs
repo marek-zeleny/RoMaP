@@ -73,8 +73,8 @@ namespace DataStructures.UnitTests
             // Arrange & Act
             INode<int, int> node1 = new TestNode<int, int>(1);
             INode<int, int> node2 = new TestNode<int, int>(2);
-            Edge<int, int, string> edge1 = new Edge<int, int, string>(1, node1, node2, 1);
-            Edge<int, int, string> edge2 = new Edge<int, int, string>(2, node2, node2, -5.3, "Second edge");
+            Edge<int, int> edge1 = new Edge<int, int>(1, node1, node2, 1);
+            Edge<int, int> edge2 = new Edge<int, int>(2, node2, node2, -5.3);
 
             // Assert
             Assert.AreEqual(1, edge1.Id);
@@ -83,7 +83,6 @@ namespace DataStructures.UnitTests
             Assert.AreEqual(node1, edge1.GetFromNode());
             Assert.AreEqual(node2, edge1.GetToNode());
             Assert.AreEqual(1, edge1.Weight);
-            Assert.AreEqual(default, edge1.Data);
 
             Assert.AreEqual(2, edge2.Id);
             Assert.AreEqual(node2, edge2.FromNode);
@@ -91,7 +90,6 @@ namespace DataStructures.UnitTests
             Assert.AreEqual(node2, edge2.GetFromNode());
             Assert.AreEqual(node2, edge2.GetToNode());
             Assert.AreEqual(-5.3, edge2.Weight);
-            Assert.AreEqual("Second edge", edge2.Data);
         }
     }
 }

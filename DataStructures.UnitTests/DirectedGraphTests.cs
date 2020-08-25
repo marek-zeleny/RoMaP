@@ -14,8 +14,8 @@ namespace DataStructures.UnitTests
         {
             // Arrange
             DirectedGraph<int, int> graph = new DirectedGraph<int, int>();
-            INode<int, int> node1 = new Node<int, int, string>(1);
-            INode<int, int> node2 = new Node<int, int, string>(2);
+            INode<int, int> node1 = new Node<int, int>(1);
+            INode<int, int> node2 = new Node<int, int>(2);
 
             // Act
             bool result1 = graph.AddNode(node1);
@@ -38,9 +38,9 @@ namespace DataStructures.UnitTests
         {
             // Arrange
             DirectedGraph<int, int> graph = new DirectedGraph<int, int>();
-            INode<int, int> node1 = new Node<int, int, string>(1);
-            INode<int, int> node2 = new Node<int, int, string>(2);
-            INode<int, int> node3 = new Node<int, int, string>(1);
+            INode<int, int> node1 = new Node<int, int>(1);
+            INode<int, int> node2 = new Node<int, int>(2);
+            INode<int, int> node3 = new Node<int, int>(1);
 
             // Act
             bool result1 = graph.AddNode(node1);
@@ -68,7 +68,7 @@ namespace DataStructures.UnitTests
         {
             // Arrange
             DirectedGraph<int, int> graph = new DirectedGraph<int, int>();
-            INode<int, int> node1 = new Node<int, int, string>(1);
+            INode<int, int> node1 = new Node<int, int>(1);
 
             // Act
             var resultNode1 = graph.GetNode(13);
@@ -88,10 +88,10 @@ namespace DataStructures.UnitTests
         {
             // Arrange
             DirectedGraph<int, int> graph = new DirectedGraph<int, int>();
-            INode<int, int> node1 = new Node<int, int, string>(1);
-            INode<int, int> node2 = new Node<int, int, string>(2);
-            IEdge<int, int> edge1 = new Edge<int, int, byte>(1, node1, node2, 3);
-            IEdge<int, int> edge2 = new Edge<int, int, byte>(2, node1, node1, -5.3);
+            INode<int, int> node1 = new Node<int, int>(1);
+            INode<int, int> node2 = new Node<int, int>(2);
+            IEdge<int, int> edge1 = new Edge<int, int>(1, node1, node2, 3);
+            IEdge<int, int> edge2 = new Edge<int, int>(2, node1, node1, -5.3);
 
             // Act
             graph.AddNode(node1);
@@ -129,11 +129,11 @@ namespace DataStructures.UnitTests
         {
             // Arrange
             DirectedGraph<int, int> graph = new DirectedGraph<int, int>();
-            INode<int, int> node1 = new Node<int, int, string>(1);
-            INode<int, int> node2 = new Node<int, int, string>(2);
-            IEdge<int, int> edge1 = new Edge<int, int, byte>(1, node1, node2, 3);
-            IEdge<int, int> edge2 = new Edge<int, int, byte>(2, node1, node1, -5.3);
-            IEdge<int, int> edge3 = new Edge<int, int, byte>(1, node2, node2, 145);
+            INode<int, int> node1 = new Node<int, int>(1);
+            INode<int, int> node2 = new Node<int, int>(2);
+            IEdge<int, int> edge1 = new Edge<int, int>(1, node1, node2, 3);
+            IEdge<int, int> edge2 = new Edge<int, int>(2, node1, node1, -5.3);
+            IEdge<int, int> edge3 = new Edge<int, int>(1, node2, node2, 145);
 
             // Act
             graph.AddNode(node1);
@@ -171,10 +171,10 @@ namespace DataStructures.UnitTests
         {
             // Arrange
             DirectedGraph<int, int> graph = new DirectedGraph<int, int>();
-            INode<int, int> node1 = new Node<int, int, string>(1);
-            INode<int, int> node2 = new Node<int, int, string>(2);
-            IEdge<int, int> edge1 = new Edge<int, int, byte>(1, node1, node2, 3);
-            IEdge<int, int> edge2 = new Edge<int, int, byte>(2, node2, node1, -5.3);
+            INode<int, int> node1 = new Node<int, int>(1);
+            INode<int, int> node2 = new Node<int, int>(2);
+            IEdge<int, int> edge1 = new Edge<int, int>(1, node1, node2, 3);
+            IEdge<int, int> edge2 = new Edge<int, int>(2, node2, node1, -5.3);
 
             // Act
             graph.AddNode(node2);
@@ -199,12 +199,12 @@ namespace DataStructures.UnitTests
         {
             // Arrange
             DirectedGraph<int, int> graph = new DirectedGraph<int, int>();
-            INode<int, int> node1 = new Node<int, int, string>(1);
-            INode<int, int> node2 = new Node<int, int, string>(2);
-            INode<int, int> node3 = new Node<int, int, string>(1);
-            IEdge<int, int> edge1 = new Edge<int, int, byte>(1, node2, node3, 3);
-            IEdge<int, int> edge2 = new Edge<int, int, byte>(2, node3, node1, -5.3);
-            IEdge<int, int> edge3 = new Edge<int, int, byte>(1, node1, node2, 145);
+            INode<int, int> node1 = new Node<int, int>(1);
+            INode<int, int> node2 = new Node<int, int>(2);
+            INode<int, int> node3 = new Node<int, int>(1);
+            IEdge<int, int> edge1 = new Edge<int, int>(1, node2, node3, 3);
+            IEdge<int, int> edge2 = new Edge<int, int>(2, node3, node1, -5.3);
+            IEdge<int, int> edge3 = new Edge<int, int>(1, node1, node2, 145);
 
             // Act
             graph.AddNode(node1);
@@ -239,12 +239,12 @@ namespace DataStructures.UnitTests
         {
             // Arrange
             DirectedGraph<int, int> graph = new DirectedGraph<int, int>();
-            INode<int, int> node1 = new Node<int, int, string>(1);
-            INode<int, int> node2 = new Node<int, int, string>(2);
-            IEdge<int, int> edge1 = new Edge<int, int, byte>(1, node1, node2, 3);
-            IEdge<int, int> edge2 = new Edge<int, int, byte>(1, node2, node1, -5.3);
-            IEdge<int, int> edge3 = new Edge<int, int, byte>(1, node1, node1, 145);
-            IEdge<int, int> edge4 = new Edge<int, int, byte>(3, node1, node1, 145);
+            INode<int, int> node1 = new Node<int, int>(1);
+            INode<int, int> node2 = new Node<int, int>(2);
+            IEdge<int, int> edge1 = new Edge<int, int>(1, node1, node2, 3);
+            IEdge<int, int> edge2 = new Edge<int, int>(1, node2, node1, -5.3);
+            IEdge<int, int> edge3 = new Edge<int, int>(1, node1, node1, 145);
+            IEdge<int, int> edge4 = new Edge<int, int>(3, node1, node1, 145);
 
             // Act
             graph.AddNode(node1);
@@ -282,8 +282,8 @@ namespace DataStructures.UnitTests
         {
             // Arrange
             DirectedGraph<int, int> graph = new DirectedGraph<int, int>();
-            INode<int, int> node1 = new Node<int, int, string>(1);
-            INode<int, int> node2 = new Node<int, int, string>(2);
+            INode<int, int> node1 = new Node<int, int>(1);
+            INode<int, int> node2 = new Node<int, int>(2);
 
             // Act
             graph.AddNode(node1);
@@ -306,7 +306,7 @@ namespace DataStructures.UnitTests
         {
             // Arrange
             DirectedGraph<int, int> graph = new DirectedGraph<int, int>();
-            INode<int, int> node1 = new Node<int, int, string>(1);
+            INode<int, int> node1 = new Node<int, int>(1);
 
             // Act
             var resultNode1 = graph.RemoveNode(13);

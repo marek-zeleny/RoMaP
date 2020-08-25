@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace DataStructures.Graphs
 {
-    public class Node<TNodeId, TEdgeId, TData>
+    public class Node<TNodeId, TEdgeId>
         : INode<TNodeId, TEdgeId>
         where TNodeId : IEquatable<TNodeId>
         where TEdgeId : IEquatable<TEdgeId>
@@ -15,14 +15,12 @@ namespace DataStructures.Graphs
         public TNodeId Id { get; }
         public int InDegree { get => inEdges.Count; }
         public int OutDegree { get => outEdges.Count; }
-        public TData Data { get; set; }
 
-        public Node(TNodeId id, TData data = default)
+        public Node(TNodeId id)
         {
             Id = id;
             inEdges = new Dictionary<TEdgeId, IEdge<TNodeId, TEdgeId>>();
             outEdges = new Dictionary<TEdgeId, IEdge<TNodeId, TEdgeId>>();
-            Data = data;
         }
 
         public IReadOnlyEdge<TNodeId, TEdgeId> GetInEdge(TEdgeId id) => inEdges.TryGetValue(id, out var edge) ? edge : default;
@@ -41,7 +39,7 @@ namespace DataStructures.Graphs
             }
             catch (ArgumentException e)
             {
-                throw new ArgumentException(string.Format("A {0} with the same ID already exists as an in edge of this {1}.", nameof(IEdge<TNodeId, TEdgeId>), nameof(Node<TNodeId, TEdgeId, TData>)), nameof(edge), e);
+                throw new ArgumentException(string.Format("A {0} with the same ID already exists as an in edge of this {1}.", nameof(IEdge<TNodeId, TEdgeId>), nameof(Node<TNodeId, TEdgeId>)), nameof(edge), e);
             }
         }
 
@@ -53,7 +51,7 @@ namespace DataStructures.Graphs
             }
             catch (ArgumentException e)
             {
-                throw new ArgumentException(string.Format("A {0} with the same ID already exists as an out edge of this {1}.", nameof(IEdge<TNodeId, TEdgeId>), nameof(Node<TNodeId, TEdgeId, TData>)), nameof(edge), e);
+                throw new ArgumentException(string.Format("A {0} with the same ID already exists as an out edge of this {1}.", nameof(IEdge<TNodeId, TEdgeId>), nameof(Node<TNodeId, TEdgeId>)), nameof(edge), e);
             }
         }
 
@@ -61,6 +59,6 @@ namespace DataStructures.Graphs
 
         public bool RemoveOutEdge(TEdgeId id) => outEdges.Remove(id);
 
-        public override string ToString() => string.Format("N{0}: In{1}, Out{2}, Data: {3}", Id, inEdges.Count, outEdges.Count, Data);
+        public override string ToString() => string.Format("N{0}: In{1}, Out{2}, Data: {3}", Id, inEdges.Count, outEdges.Count);
     }
 }
