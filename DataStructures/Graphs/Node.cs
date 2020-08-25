@@ -59,6 +59,6 @@ namespace DataStructures.Graphs
 
         public bool RemoveOutEdge(TEdgeId id) => outEdges.Remove(id);
 
-        public override string ToString() => string.Format("N{0}: In{1}, Out{2}, Data: {3}", Id, inEdges.Count, outEdges.Count);
+        public override string ToString() => string.Format("N{0}: In{1}, Out{2}", Id, inEdges.Count, outEdges.Count);
     }
 }

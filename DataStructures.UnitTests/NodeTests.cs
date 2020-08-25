@@ -21,7 +21,7 @@ namespace DataStructures.UnitTests
 
             public IReadOnlyNode<TNodeId, TEdgeId> ToNode => throw new NotImplementedException();
 
-            public double Weight => throw new NotImplementedException();
+            public Weight Weight => throw new NotImplementedException();
 
             public TestEdge(TEdgeId id)
             {

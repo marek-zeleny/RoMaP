@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DataStructures.Graphs;
+using System;
 
 namespace RoadTrafficSimulator.Components
 {
@@ -85,12 +86,29 @@ namespace RoadTrafficSimulator.Components
         public override string ToString() => value.ToString();
     }
 
-    static class Extensions
+    static class PhysicalQuantitiesExtensions
     {
-        public static Meters Meters(this uint i) => new Meters(i);
+        public static Meters Meters(this int value)
+        {
+            if (value < 0)
+                throw new ArgumentException(string.Format("The value of {0} cannot be negative.", nameof(Meters)), nameof(value));
+            return new Meters((uint)value);
+        }
 
-        public static Seconds Seconds(this uint i) => new Seconds(i);
+        public static Seconds Seconds(this int value)
+        {
+            if (value < 0)
+                throw new ArgumentException(string.Format("The value of {0} cannot be negative.", nameof(Seconds)), nameof(value));
+            return new Seconds((uint)value);
+        }
 
-        public static MetersPerSecond MetersPerSecond(this uint i) => new MetersPerSecond(i);
+        public static MetersPerSecond MetersPerSecond(this int value)
+        {
+            if (value < 0)
+                throw new ArgumentException(string.Format("The value of {0} cannot be negative.", nameof(MetersPerSecond)), nameof(value));
+            return new MetersPerSecond((uint)value);
+        }
+
+        public static Weight Weight(this Seconds value) => new Weight(value);
     }
 }

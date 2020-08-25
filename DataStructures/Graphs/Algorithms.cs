@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+
 using DataStructures.Miscellaneous;
 
 namespace DataStructures.Graphs
@@ -14,7 +15,7 @@ namespace DataStructures.Graphs
                GraphType graphType,
                IReadOnlyNode<TNodeId, TEdgeId> startNode,
                IReadOnlyNode<TNodeId, TEdgeId> endNode,
-               out double pathWeight)
+               out Weight pathWeight)
                where TNodeId : IEquatable<TNodeId>
                where TEdgeId : IEquatable<TEdgeId>
         {
@@ -33,15 +34,15 @@ namespace DataStructures.Graphs
             where TEdgeId : IEquatable<TEdgeId>
         {
             public SinglyLinkedList<IReadOnlyEdge<TNodeId, TEdgeId>> edges;
-            public double totalWeight;
+            public Weight totalWeight;
 
             public Path()
             {
                 edges = new SinglyLinkedList<IReadOnlyEdge<TNodeId, TEdgeId>>();
-                totalWeight = double.PositiveInfinity;
+                totalWeight = double.PositiveInfinity.Weight();
             }
 
-            public Path(SinglyLinkedList<IReadOnlyEdge<TNodeId, TEdgeId>> edges, double totalWeight)
+            public Path(SinglyLinkedList<IReadOnlyEdge<TNodeId, TEdgeId>> edges, Weight totalWeight)
             {
                 this.edges = edges;
                 this.totalWeight = totalWeight;
@@ -56,13 +57,13 @@ namespace DataStructures.Graphs
             this IReadOnlyGraph<TNodeId, TEdgeId> graph,
             IReadOnlyNode<TNodeId, TEdgeId> startNode,
             IReadOnlyNode<TNodeId, TEdgeId> endNode,
-            out double pathWeight)
+            out Weight pathWeight)
             where TNodeId : IEquatable<TNodeId>
             where TEdgeId : IEquatable<TEdgeId>
         {
             var unsolvedNodes = new BinaryHeap<Path<TNodeId, TEdgeId>, IReadOnlyNode<TNodeId, TEdgeId>>(graph.GetNodes(), () => new Path<TNodeId, TEdgeId>());
             var solvedNodes = new HashSet<IReadOnlyNode<TNodeId, TEdgeId>>();
-            unsolvedNodes.DecreaseKey(startNode, path => path.totalWeight = 0);
+            unsolvedNodes.DecreaseKey(startNode, path => path.totalWeight = 0.Weight());
             while (!unsolvedNodes.IsEmpty
                 && unsolvedNodes.PeekMin().Value != endNode
                 && unsolvedNodes.PeekMin().Key.totalWeight < double.PositiveInfinity)
@@ -73,8 +74,8 @@ namespace DataStructures.Graphs
                 {
                     if (solvedNodes.Contains(edge.ToNode))
                         continue;
-                    double currWeight = unsolvedNodes[edge.ToNode].totalWeight;
-                    double newWeight = path.totalWeight + edge.Weight;
+                    Weight currWeight = unsolvedNodes[edge.ToNode].totalWeight;
+                    Weight newWeight = path.totalWeight + edge.Weight;
                     if (newWeight < currWeight)
                         if (!unsolvedNodes.DecreaseKey(edge.ToNode, currPath => { currPath.edges = path.edges.AddFront(edge); currPath.totalWeight = newWeight; }))
                             throw new ArgumentException(string.Format("The given {0} is inconsistent.", nameof(IReadOnlyGraph<TNodeId, TEdgeId>)), nameof(graph));
