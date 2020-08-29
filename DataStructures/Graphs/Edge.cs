@@ -7,13 +7,13 @@ namespace DataStructures.Graphs
         where TNodeId : IEquatable<TNodeId>
         where TEdgeId : IEquatable<TEdgeId>
     {
-        private INode<TNodeId, TEdgeId> fromNode;
-        private INode<TNodeId, TEdgeId> toNode;
+        private readonly INode<TNodeId, TEdgeId> fromNode;
+        private readonly INode<TNodeId, TEdgeId> toNode;
 
         public TEdgeId Id { get; }
         public IReadOnlyNode<TNodeId, TEdgeId> FromNode { get => fromNode; }
         public IReadOnlyNode<TNodeId, TEdgeId> ToNode { get => toNode; }
-        public Weight Weight { get; protected set; }
+        public Weight Weight { get; }
 
         public Edge(TEdgeId id, INode<TNodeId, TEdgeId> from, INode<TNodeId, TEdgeId> to)
             : this(id, from, to, 1.Weight()) { }

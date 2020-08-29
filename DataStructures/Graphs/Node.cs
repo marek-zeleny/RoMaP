@@ -9,8 +9,8 @@ namespace DataStructures.Graphs
         where TNodeId : IEquatable<TNodeId>
         where TEdgeId : IEquatable<TEdgeId>
     {
-        private Dictionary<TEdgeId, IEdge<TNodeId, TEdgeId>> inEdges;
-        private Dictionary<TEdgeId, IEdge<TNodeId, TEdgeId>> outEdges;
+        protected Dictionary<TEdgeId, IEdge<TNodeId, TEdgeId>> inEdges;
+        protected Dictionary<TEdgeId, IEdge<TNodeId, TEdgeId>> outEdges;
 
         public TNodeId Id { get; }
         public int InDegree { get => inEdges.Count; }
@@ -39,7 +39,7 @@ namespace DataStructures.Graphs
             }
             catch (ArgumentException e)
             {
-                throw new ArgumentException(string.Format("A {0} with the same ID already exists as an in edge of this {1}.", nameof(IEdge<TNodeId, TEdgeId>), nameof(Node<TNodeId, TEdgeId>)), nameof(edge), e);
+                throw new ArgumentException(string.Format("An {0} with the same ID already exists as an in edge of this {1}.", nameof(IEdge<TNodeId, TEdgeId>), nameof(Node<TNodeId, TEdgeId>)), nameof(edge), e);
             }
         }
 
@@ -51,7 +51,7 @@ namespace DataStructures.Graphs
             }
             catch (ArgumentException e)
             {
-                throw new ArgumentException(string.Format("A {0} with the same ID already exists as an out edge of this {1}.", nameof(IEdge<TNodeId, TEdgeId>), nameof(Node<TNodeId, TEdgeId>)), nameof(edge), e);
+                throw new ArgumentException(string.Format("An {0} with the same ID already exists as an out edge of this {1}.", nameof(IEdge<TNodeId, TEdgeId>), nameof(Node<TNodeId, TEdgeId>)), nameof(edge), e);
             }
         }
 
