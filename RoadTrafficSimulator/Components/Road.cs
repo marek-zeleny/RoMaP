@@ -5,7 +5,7 @@ using DataStructures.Graphs;
 
 namespace RoadTrafficSimulator.Components
 {
-    class Road : Edge<int, int>
+    class Road : Edge<Coords, int>
     {
         private Queue<Car> cars = new Queue<Car>();
         private Car lastCar = null;
@@ -41,6 +41,12 @@ namespace RoadTrafficSimulator.Components
             else
                 cars.Peek().RemoveCarInFront(this);
             return true;
+        }
+
+        public void Tick(Seconds time)
+        {
+            foreach (Car car in cars)
+                car.Tick(time);
         }
     }
 }

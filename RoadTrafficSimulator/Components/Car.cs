@@ -1,23 +1,30 @@
-﻿using DataStructures.Graphs;
-using System;
+﻿using System;
 using System.Collections.Generic;
+
+using DataStructures.Graphs;
 
 namespace RoadTrafficSimulator.Components
 {
     class Car
     {
+        private readonly Action<Car> finishDriveAction;
         private Navigation navigation;
         private Meters distance;
         private Car carInFront;
 
         public Meters Length { get; }
-        public MetersPerSecond Speed { get; private set; }
-        public Meters DistanceRear => distance - Length;
+        public MetersPerSecond CurrentSpeed { get; private set; }
+        public Meters DistanceRear { get => distance - Length; }
+        public Meters TotalDistance { get; private set; }
+        public Seconds StartTime { get; }
+        public Seconds ExpectedDuration { get => navigation.ExpectedDuration; }
 
-        public Car(Meters length, IGraph<int, int> map, Crossroad start, Crossroad finish)
+        public Car(Meters length, IReadOnlyGraph<Coords, int> map, Crossroad start, Crossroad finish, Seconds time, Action<Car> finishDriveAction)
         {
             Length = length;
             navigation = new Navigation(map, start, finish);
+            StartTime = time;
+            this.finishDriveAction = finishDriveAction;
         }
 
 
@@ -29,14 +36,16 @@ namespace RoadTrafficSimulator.Components
             return true;
         }
 
-        public void Tick()
-        {
-            Tick(1.Seconds());
-        }
-
         public void Tick(Seconds time)
         {
-            Speed = Move(time * navigation.CurrentRoad.MaxSpeed) / time;
+            Meters drivenDistance = Move(time * navigation.CurrentRoad.MaxSpeed);
+            TotalDistance += drivenDistance;
+            CurrentSpeed = drivenDistance / time;
+            if (navigation.NextRoad == null && distance == navigation.CurrentRoad.Length)
+            {
+                navigation.CurrentRoad.GetOff(this);
+                finishDriveAction(this);
+            }
         }
 
         private Meters Move(Meters maxDistance)
@@ -70,16 +79,13 @@ namespace RoadTrafficSimulator.Components
 
             distance += spaceInFront;
             if (navigation.NextRoad == null)
-            {
-                FinishDrive();
                 return spaceInFront;
-            }
             return spaceInFront + CrossToNextRoad(maxDistance - spaceInFront);
         }
 
         private Meters CrossToNextRoad(Meters remainingDistance)
         {
-            if (!navigation.CurrentRoad.Destination.CrossingAllowed(navigation.CurrentRoad.Id, navigation.NextRoad.Id)
+            if (!navigation.CurrentRoad.Destination.TrafficLight.DirectionAllowed(navigation.CurrentRoad.Id, navigation.NextRoad.Id)
                 || !navigation.NextRoad.GetOn(this, out Car newCarInFront))
                 return 0.Meters();
 
@@ -88,11 +94,6 @@ namespace RoadTrafficSimulator.Components
             distance = 0.Meters();
             carInFront = newCarInFront;
             return Move(remainingDistance);
-        }
-
-        private void FinishDrive()
-        {
-            // TOTO
         }
 
         private struct Navigation
@@ -104,7 +105,7 @@ namespace RoadTrafficSimulator.Components
             public Road CurrentRoad { get; private set; }
             public Road NextRoad { get => nextRoadExists ? remainingPath.Current : null; }
 
-            public Navigation(IGraph<int, int> map, Crossroad start, Crossroad finish)
+            public Navigation(IReadOnlyGraph<Coords, int> map, Crossroad start, Crossroad finish)
             {
                 var e = map.FindShortestPath(Algorithms.GraphType.NonnegativeWeights, start, finish, out Weight expectedDuration);
                 remainingPath = (IEnumerator<Road>)e.GetEnumerator();
