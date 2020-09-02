@@ -25,8 +25,10 @@ namespace RoadTrafficSimulator.Components
 
         private DirectedGraph<Coords, int> graph = new DirectedGraph<Coords, int>();
 
-        public int NodeCount => graph.NodeCount;
-        public int EdgeCount => graph.EdgeCount;
+        public int CrossroadCount => graph.NodeCount;
+        public int RoadCount => graph.EdgeCount;
+        int IReadOnlyGraph<Coords, int>.NodeCount => graph.NodeCount;
+        int IReadOnlyGraph<Coords, int>.EdgeCount => graph.EdgeCount;
 
         public Road AddRoad(Coords fromId, Coords toId, Meters length, MetersPerSecond maxSpeed)
         {

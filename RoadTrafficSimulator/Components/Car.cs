@@ -27,6 +27,14 @@ namespace RoadTrafficSimulator.Components
             this.finishDriveAction = finishDriveAction;
         }
 
+        public bool Initialize()
+        {
+            if (!navigation.CurrentRoad.GetOn(this, out Car newCarInFront))
+                return false;
+            carInFront = newCarInFront;
+            return true;
+        }
+
 
         public bool RemoveCarInFront(Road authentication)
         {
