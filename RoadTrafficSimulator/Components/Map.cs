@@ -1,24 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using RoadTrafficSimulator.ValueTypes;
 using DataStructures.Graphs;
 
 namespace RoadTrafficSimulator.Components
 {
-    struct Coords : IEquatable<Coords>
-    {
-        public readonly int x;
-        public readonly int y;
-
-        public Coords(int x, int y)
-        {
-            this.x = x;
-            this.y = y;
-        }
-
-        public bool Equals(Coords other) => x == other.x && y == other.y;
-    }
-
     class Map : IReadOnlyGraph<Coords, int>
     {
         private int nextRoadId;

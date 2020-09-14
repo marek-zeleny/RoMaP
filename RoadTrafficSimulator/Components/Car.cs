@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using RoadTrafficSimulator.ValueTypes;
 using DataStructures.Graphs;
 
 namespace RoadTrafficSimulator.Components

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 
 using RoadTrafficSimulator.Components;
+using RoadTrafficSimulator.ValueTypes;
 
 namespace RoadTrafficSimulator
 {

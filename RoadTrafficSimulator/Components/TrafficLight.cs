@@ -2,6 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 
+using RoadTrafficSimulator.ValueTypes;
+
 namespace RoadTrafficSimulator.Components
 {
     class TrafficLight
