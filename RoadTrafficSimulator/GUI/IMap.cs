@@ -9,16 +9,12 @@ namespace RoadTrafficSimulator.GUI
     {
         bool AddCrossroad(ICrossroad crossroad, Coords coords);
         bool AddRoadSegment(IRoadSegment roadSegment, Vector vector);
+        bool RemoveCrossroad(Coords coords);
+        bool RemoveRoadSegment(Vector vector);
         ICrossroad GetCrossroad(Coords coords);
-        IRoadSegment GetRoadSegment(Vector vector);
+        IRoadSegment GetRoadSegment(Vector vector, bool ignoreDirection = false);
         void Draw(Graphics graphics, Coords origin, decimal zoom, int width, int height);
     }
-    
-    struct Vector
-    {
-        public readonly Coords from;
-        public readonly Coords to;
-    }
 
-    enum Highlight { Low, Normal, High }
+    enum Highlight { Low, Normal = 0, High }
 }

@@ -8,13 +8,13 @@ namespace RoadTrafficSimulator.GUI
     {
         protected static readonly Color color = Color.Blue;
 
-        protected int roadId;
+        public int RoadId { get; set; }
 
         public Highlight Highlight { protected get; set; }
 
         public virtual IEnumerable<int> GetRoadIds()
         {
-            yield return roadId;
+            yield return RoadId;
         }
 
         public virtual void Draw(Graphics graphics, Point from, Point to, int width)
@@ -38,12 +38,12 @@ namespace RoadTrafficSimulator.GUI
 
     class TwoWayRoadSegment : RoadSegment
     {
-        private int backwardRoadId;
+        public int BackwardRoadId { get; set; }
 
         public override IEnumerable<int> GetRoadIds()
         {
-            yield return roadId;
-            yield return backwardRoadId;
+            yield return RoadId;
+            yield return BackwardRoadId;
         }
 
         public override void Draw(Graphics graphics, Point from, Point to, int width)

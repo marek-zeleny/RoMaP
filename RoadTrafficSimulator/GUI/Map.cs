@@ -21,6 +21,16 @@ namespace RoadTrafficSimulator.GUI
             return roadSegments.TryAdd(vector, roadSegment);
         }
 
+        public bool RemoveCrossroad(Coords coords)
+        {
+            return crossroads.Remove(coords);
+        }
+
+        public bool RemoveRoadSegment(Vector vector)
+        {
+            return roadSegments.Remove(vector);
+        }
+
         public ICrossroad GetCrossroad(Coords coords)
         {
             if (!crossroads.TryGetValue(coords, out ICrossroad output))
@@ -28,10 +38,15 @@ namespace RoadTrafficSimulator.GUI
             return output;
         }
 
-        public IRoadSegment GetRoadSegment(Vector vector)
+        public IRoadSegment GetRoadSegment(Vector vector, bool ignoreDirection)
         {
             if (!roadSegments.TryGetValue(vector, out IRoadSegment output))
-                return null;
+            {
+                if (!ignoreDirection)
+                    return null;
+                else if (!roadSegments.TryGetValue(vector.Reverse(), out output))
+                    return null;
+            }
             return output;
         }
 
@@ -39,22 +54,17 @@ namespace RoadTrafficSimulator.GUI
         {
             foreach (var (vector, roadSegment) in roadSegments)
             {
-                Point from = CalculatePoint(vector.from, origin, zoom);
-                Point to = CalculatePoint(vector.to, origin, zoom);
+                Point from = MapManager.CalculatePoint(vector.from, origin, zoom);
+                Point to = MapManager.CalculatePoint(vector.to, origin, zoom);
                 if (IsInRange(from, width, height) || IsInRange(to, width, height))
                     roadSegment.Draw(graphics, from, to, 10);
             }
             foreach (var (coords, crossroad) in crossroads)
             {
-                Point point = CalculatePoint(coords, origin, zoom);
+                Point point = MapManager.CalculatePoint(coords, origin, zoom);
                 if (IsInRange(point, width, height))
                     crossroad.Draw(graphics, point, 20);
             }
-        }
-
-        private Point CalculatePoint (Coords coords, Coords origin, decimal zoom)
-        {
-            throw new NotImplementedException(); // TODO
         }
 
         private bool IsInRange (Point point, int width, int height)

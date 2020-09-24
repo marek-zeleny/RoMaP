@@ -25,6 +25,10 @@ namespace RoadTrafficSimulator.ValueTypes
 
         public static MetersPerSecond operator /(Meters m, Seconds s) => new MetersPerSecond(m.value / s);
 
+        public static Meters operator *(Meters m, int i) => new Meters(m.value * i);
+
+        public static Meters operator *(int i, Meters m) => m * i;
+
         public override string ToString() => value.ToString();
     }
 }
