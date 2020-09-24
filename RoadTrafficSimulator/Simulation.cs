@@ -14,14 +14,25 @@ namespace RoadTrafficSimulator
         private IEnumerator<Crossroad> randomCrossroads;
         private HashSet<Car> stagedCars;
 
-        public static Simulation Instance { get; } = new Simulation();
-
         public Seconds Time { get; private set; }
-        public Map Map { get; private set; } = new Map();
+        public Map Map { get; private set; }
         public Statistics Statistics { get; private set; }
+
+        public Simulation(Map map)
+        {
+            Map = map;
+        }
+
+        public bool Initialize(Map map)
+        {
+            Map = map;
+            return Initialize();
+        }
 
         public bool Initialize()
         {
+            if (Map == null)
+                return false;
             foreach (Crossroad c in Map.GetNodes())
                 if (!c.Initialize())
                     return false;
