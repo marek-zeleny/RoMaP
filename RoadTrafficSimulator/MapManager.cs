@@ -11,6 +11,7 @@ namespace RoadTrafficSimulator
     class MapManager
     {
         private static readonly Meters roadSegmentLength = 100.Meters();
+        private const int K = 100;
 
         private static readonly Coords[] directions = new Coords[]
         {
@@ -20,23 +21,32 @@ namespace RoadTrafficSimulator
                 new Coords(0, -1)
         };
 
-        public static Point CalculatePoint(Coords coords, Coords origin, decimal zoom)
+        public static Point CalculatePoint(Coords coords, Point origin, decimal zoom)
         {
-            throw new NotImplementedException(); // TODO
+            Point output = new Point();
+            output.X = origin.X + (int)(coords.x * K * zoom);
+            output.Y = origin.Y + (int)(coords.y * K * zoom);
+            return output;
         }
 
-        public static Coords CalculateCoords(Point point, Coords origin, decimal zoom)
+        public static Coords CalculateCoords(Point point, Point origin, decimal zoom)
         {
-            throw new NotImplementedException(); // TODO
+            int x = (int)Math.Round((point.X - origin.X) / (K * zoom));
+            int y = (int)Math.Round((point.Y - origin.Y) / (K * zoom));
+            return new Coords(x, y);
         }
 
         private Components.Map map;
         private IMap guiMap = new GUI.Map();
-        private GuiSettings settings;
+        private GuiSettings settings = new GuiSettings();
+
+        public Point Origin { get => settings.origin; set => settings.origin = value; }
+        public decimal Zoom { get => settings.zoom; set => settings.zoom = value; }
 
         public MapManager(Components.Map map)
         {
             this.map = map;
+            settings.zoom = 1;
         }
 
         public void Draw(Graphics graphics, int width, int height)
@@ -54,7 +64,15 @@ namespace RoadTrafficSimulator
 
         private void DrawGrid(Graphics graphics, int width, int height)
         {
-            throw new NotImplementedException(); // TODO
+            int step = (int)(K * settings.zoom);
+            int firstX = settings.origin.X % step;
+            int firstY = settings.origin.Y % step;
+            Pen pen = new Pen(Color.Gray, 2);
+            pen.DashStyle = System.Drawing.Drawing2D.DashStyle.Dash;
+            for (int x = firstX; x < width; x += step)
+                graphics.DrawLine(pen, x, 0, x, height);
+            for (int y = firstY; y < height; y += step)
+                graphics.DrawLine(pen, 0, y, width, y);
         }
 
         private bool IsFree(Coords coords)
@@ -67,7 +85,7 @@ namespace RoadTrafficSimulator
 
         private struct GuiSettings
         {
-            public Coords origin;
+            public Point origin;
             public decimal zoom;
         }
 

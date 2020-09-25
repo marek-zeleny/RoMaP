@@ -13,7 +13,7 @@ namespace RoadTrafficSimulator.GUI
         bool RemoveRoadSegment(Vector vector);
         ICrossroad GetCrossroad(Coords coords);
         IRoadSegment GetRoadSegment(Vector vector, bool ignoreDirection = false);
-        void Draw(Graphics graphics, Coords origin, decimal zoom, int width, int height);
+        void Draw(Graphics graphics, Point origin, decimal zoom, int width, int height);
     }
 
     enum Highlight { Low, Normal = 0, High }

@@ -8,8 +8,8 @@ namespace RoadTrafficSimulator.GUI
 {
     class Map : IMap
     {
-        private Dictionary<Coords, ICrossroad> crossroads;
-        private Dictionary<Vector, IRoadSegment> roadSegments;
+        private Dictionary<Coords, ICrossroad> crossroads = new Dictionary<Coords, ICrossroad>();
+        private Dictionary<Vector, IRoadSegment> roadSegments = new Dictionary<Vector, IRoadSegment>();
 
         public bool AddCrossroad(ICrossroad crossroad, Coords coords)
         {
@@ -50,7 +50,7 @@ namespace RoadTrafficSimulator.GUI
             return output;
         }
 
-        public void Draw(Graphics graphics, Coords origin, decimal zoom, int width, int height)
+        public void Draw(Graphics graphics, Point origin, decimal zoom, int width, int height)
         {
             foreach (var (vector, roadSegment) in roadSegments)
             {

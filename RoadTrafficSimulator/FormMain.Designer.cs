@@ -1,6 +1,6 @@
 ﻿namespace RoadTrafficSimulator
 {
-    partial class Form1
+    partial class FormMain
     {
         /// <summary>
         ///  Required designer variable.
@@ -28,33 +28,36 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.panel1 = new System.Windows.Forms.Panel();
+            this.panelMap = new System.Windows.Forms.Panel();
             this.SuspendLayout();
             // 
-            // panel1
+            // panelMap
             // 
-            this.panel1.BackColor = System.Drawing.Color.White;
-            this.panel1.Location = new System.Drawing.Point(12, 12);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(815, 763);
-            this.panel1.TabIndex = 0;
-            this.panel1.Paint += new System.Windows.Forms.PaintEventHandler(this.panel1_Paint);
+            this.panelMap.BackColor = System.Drawing.Color.White;
+            this.panelMap.Location = new System.Drawing.Point(15, 15);
+            this.panelMap.Margin = new System.Windows.Forms.Padding(4);
+            this.panelMap.Name = "panelMap";
+            this.panelMap.Size = new System.Drawing.Size(1019, 954);
+            this.panelMap.TabIndex = 0;
+            this.panelMap.Click += new System.EventHandler(this.panelMap_Click);
+            this.panelMap.Paint += new System.Windows.Forms.PaintEventHandler(this.panelMap_Paint);
             // 
-            // Form1
+            // FormMain
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 25F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1020, 787);
-            this.Controls.Add(this.panel1);
-            this.Name = "Form1";
-            this.Text = "Form1";
+            this.ClientSize = new System.Drawing.Size(1275, 984);
+            this.Controls.Add(this.panelMap);
+            this.Margin = new System.Windows.Forms.Padding(4);
+            this.Name = "FormMain";
+            this.Text = "RoadTrafficSimulator";
             this.ResumeLayout(false);
 
         }
 
         #endregion
 
-        private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.Panel panelMap;
     }
 }
 
