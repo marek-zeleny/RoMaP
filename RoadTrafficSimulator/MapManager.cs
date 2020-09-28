@@ -12,6 +12,8 @@ namespace RoadTrafficSimulator
     {
         private static readonly Meters roadSegmentLength = 100.Meters();
         private const int K = 100;
+        private const decimal minZoom = 0.2m;
+        private const decimal maxZoom = 5;
 
         private static readonly Coords[] directions = new Coords[]
         {
@@ -23,9 +25,11 @@ namespace RoadTrafficSimulator
 
         public static Point CalculatePoint(Coords coords, Point origin, decimal zoom)
         {
-            Point output = new Point();
-            output.X = origin.X + (int)(coords.x * K * zoom);
-            output.Y = origin.Y + (int)(coords.y * K * zoom);
+            Point output = new Point
+            {
+                X = origin.X + (int)(coords.x * K * zoom),
+                Y = origin.Y + (int)(coords.y * K * zoom)
+            };
             return output;
         }
 
@@ -38,21 +42,18 @@ namespace RoadTrafficSimulator
 
         private Components.Map map;
         private IMap guiMap = new GUI.Map();
-        private GuiSettings settings = new GuiSettings();
-
-        public Point Origin { get => settings.origin; set => settings.origin = value; }
-        public decimal Zoom { get => settings.zoom; set => settings.zoom = value; }
+        public GuiSettings Settings { get; } = new GuiSettings();
 
         public MapManager(Components.Map map)
         {
             this.map = map;
-            settings.zoom = 1;
+            Settings.Zoom = 1m;
         }
 
         public void Draw(Graphics graphics, int width, int height)
         {
             DrawGrid(graphics, width, height);
-            guiMap.Draw(graphics, settings.origin, settings.zoom, width, height);
+            guiMap.Draw(graphics, Settings.Origin, Settings.Zoom, width, height);
         }
 
         public IRoadBuilder GetRoadBuilder(Coords startingCoords, bool twoWayRoad = true)
@@ -64,11 +65,13 @@ namespace RoadTrafficSimulator
 
         private void DrawGrid(Graphics graphics, int width, int height)
         {
-            int step = (int)(K * settings.zoom);
-            int firstX = settings.origin.X % step;
-            int firstY = settings.origin.Y % step;
-            Pen pen = new Pen(Color.Gray, 2);
-            pen.DashStyle = System.Drawing.Drawing2D.DashStyle.Dash;
+            int step = (int)(K * Settings.Zoom);
+            int firstX = Settings.Origin.X % step;
+            int firstY = Settings.Origin.Y % step;
+            Pen pen = new Pen(Color.Gray, 1)
+            {
+                DashStyle = System.Drawing.Drawing2D.DashStyle.Dash
+            };
             for (int x = firstX; x < width; x += step)
                 graphics.DrawLine(pen, x, 0, x, height);
             for (int y = firstY; y < height; y += step)
@@ -83,10 +86,30 @@ namespace RoadTrafficSimulator
             return true;
         }
 
-        private struct GuiSettings
+        public class GuiSettings
         {
-            public Point origin;
-            public decimal zoom;
+            private Point origin;
+            private decimal zoom;
+
+            public Point Origin { get => origin; set => origin = value; }
+            public decimal Zoom
+            {
+                get => zoom;
+                set
+                {
+                    if (value < minZoom)
+                        zoom = minZoom;
+                    else if (value > maxZoom)
+                        zoom = maxZoom;
+                    else
+                        zoom = value;
+                }
+            }
+
+            public void MoveOrigin(Point offset)
+            {
+                origin.Offset(offset);
+            }
         }
 
         private class RoadBuilder : IRoadBuilder
@@ -95,7 +118,7 @@ namespace RoadTrafficSimulator
             private IRoadSegment roadSegment;
             private List<Coords> coords;
 
-            public bool CanContinue { get; private set; } = true;
+            public bool CanContinue { get; private set; }
 
             public RoadBuilder(MapManager manager, Coords startingCoords, bool twoWayRoad)
             {
@@ -106,6 +129,7 @@ namespace RoadTrafficSimulator
                     roadSegment = new RoadSegment();
                 roadSegment.Highlight = Highlight.High;
                 coords = new List<Coords> { startingCoords };
+                CanContinue = true;
                 TryGetOrAddCrossroad(startingCoords).Highlight = Highlight.High;
             }
 
@@ -133,7 +157,7 @@ namespace RoadTrafficSimulator
                     return false;
                 Coords from = coords[0];
                 Coords to = coords[coords.Count - 1];
-                manager.guiMap.GetCrossroad(from).Highlight = Highlight.Normal;
+                TryGetOrAddCrossroad(from).Highlight = Highlight.Normal;
                 TryGetOrAddCrossroad(to).Highlight = Highlight.Normal;
                 roadSegment.Highlight = Highlight.Normal;
                 Meters roadLength = (coords.Count - 1) * roadSegmentLength;
@@ -174,7 +198,8 @@ namespace RoadTrafficSimulator
                 foreach (Coords c in coords)
                     if (c.Equals(newCoords))
                         return false;
-                if (manager.map.GetNode(newCoords) == null)
+                // Always allow if there is a (different from the starting one) crossroad at newCoords
+                if (manager.map.GetNode(newCoords) != null)
                     return true;
                 return manager.IsFree(newCoords);
             }

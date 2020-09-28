@@ -16,5 +16,5 @@ namespace RoadTrafficSimulator.GUI
         void Draw(Graphics graphics, Point origin, decimal zoom, int width, int height);
     }
 
-    enum Highlight { Low, Normal = 0, High }
+    enum Highlight { Low = -1, Normal = 0, High = 1 }
 }
