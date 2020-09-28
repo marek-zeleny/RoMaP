@@ -13,7 +13,7 @@ namespace RoadTrafficSimulator
     {
         private enum Mode { Select_Crossroad, Select_Road, Build_Road };
 
-        private MapManager manager;
+        private MapManager mapManager;
         private Simulation simulation;
         private Mode mode;
         private IRoadBuilder roadBuilder;
@@ -38,15 +38,15 @@ namespace RoadTrafficSimulator
             mode = 0;
 
             Components.Map map = new Components.Map();
-            manager = new MapManager(map);
-            manager.Settings.Origin = PanelMapCenter;
-            manager.Settings.Zoom = 0.5m;
+            mapManager = new MapManager(map);
+            mapManager.Settings.Origin = PanelMapCenter;
+            mapManager.Settings.Zoom = 0.5m;
             simulation = new Simulation(map);
         }
 
         private void panelMap_Paint(object sender, PaintEventArgs e)
         {
-            manager.Draw(e.Graphics, panelMap.Width, panelMap.Height);
+            mapManager.Draw(e.Graphics, panelMap.Width, panelMap.Height);
         }
 
         private void panelMap_MouseClick(object sender, MouseEventArgs e)
@@ -114,13 +114,22 @@ namespace RoadTrafficSimulator
         private void comboBoxMode_SelectedIndexChanged(object sender, EventArgs e)
         {
             mode = Enum.Parse<Mode>(comboBoxMode.Text);
+            switch (mode)
+            {
+                case Mode.Build_Road:
+                    groupBoxBuild.Visible = true;
+                    break;
+                default:
+                    groupBoxBuild.Visible = false;
+                    break;
+            }
         }
 
         private void Build(Point mouseLocation)
         {
-            Coords coords = MapManager.CalculateCoords(mouseLocation, manager.Settings.Origin, manager.Settings.Zoom);
+            Coords coords = MapManager.CalculateCoords(mouseLocation, mapManager.Settings.Origin, mapManager.Settings.Zoom);
             if (roadBuilder == null)
-                roadBuilder = manager.GetRoadBuilder(coords, true);
+                roadBuilder = mapManager.GetRoadBuilder(coords, checkBoxTwoWayRoad.Checked);
             else
             {
                 roadBuilder.AddSegment(coords);
@@ -131,7 +140,8 @@ namespace RoadTrafficSimulator
 
         private void FinishBuild()
         {
-            if (roadBuilder.FinishRoad(30.MetersPerSecond() /* TODO */))
+            int maxSpeed = (int)numericUpDownSpeed.Value;
+            if (roadBuilder.FinishRoad(maxSpeed.MetersPerSecond()))
                 roadBuilder = null;
             else
                 ShowInfo("The road cannot be built like this.");
@@ -148,29 +158,29 @@ namespace RoadTrafficSimulator
         private void Drag(Point mouseLocation)
         {
             Point delta = new Point(mouseLocation.X - previousMouseLocation.X, mouseLocation.Y - previousMouseLocation.Y);
-            manager.Settings.MoveOrigin(delta);
+            mapManager.Settings.MoveOrigin(delta);
         }
 
         private void Zoom(int direction, Point mouseLocation)
         {
             const decimal coefficient = 1.2m;
             // For centering the zoom at coursor position
-            decimal originalZoom = manager.Settings.Zoom;
-            Point newOrigin = manager.Settings.Origin;
+            decimal originalZoom = mapManager.Settings.Zoom;
+            Point newOrigin = mapManager.Settings.Origin;
             if (direction > 0)
             {
-                manager.Settings.Zoom *= coefficient;
+                mapManager.Settings.Zoom *= coefficient;
                 newOrigin.X = (int)(newOrigin.X * coefficient - mouseLocation.X * (coefficient - 1));
                 newOrigin.Y = (int)(newOrigin.Y * coefficient - mouseLocation.Y * (coefficient - 1));
             }
             else if (direction < 0)
             {
-                manager.Settings.Zoom /= coefficient;
+                mapManager.Settings.Zoom /= coefficient;
                 newOrigin.X = (int)((newOrigin.X + mouseLocation.X * (coefficient - 1)) / coefficient);
                 newOrigin.Y = (int)((newOrigin.Y + mouseLocation.Y * (coefficient - 1)) / coefficient);
             }
-            if (manager.Settings.Zoom != originalZoom)
-                manager.Settings.Origin = newOrigin;
+            if (mapManager.Settings.Zoom != originalZoom)
+                mapManager.Settings.Origin = newOrigin;
         }
 
         private void ShowInfo(string info)
