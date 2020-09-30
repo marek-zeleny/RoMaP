@@ -10,6 +10,8 @@ namespace RoadTrafficSimulator
 {
     class MapManager
     {
+        #region static
+
         private static readonly Meters roadSegmentLength = 100.Meters();
         private const int K = 100;
         private const decimal minZoom = 0.2m;
@@ -39,6 +41,8 @@ namespace RoadTrafficSimulator
             int y = (int)Math.Round((point.Y - origin.Y) / (K * zoom));
             return new Coords(x, y);
         }
+
+        #endregion static
 
         private Components.Map map;
         private IMap guiMap = new GUI.Map();
@@ -85,6 +89,8 @@ namespace RoadTrafficSimulator
                     return false;
             return true;
         }
+
+        #region nested classes
 
         public class GuiSettings
         {
@@ -211,5 +217,7 @@ namespace RoadTrafficSimulator
                 coords = null;
             }
         }
+
+        #endregion nested classes
     }
 }

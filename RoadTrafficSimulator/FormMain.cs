@@ -21,6 +21,15 @@ namespace RoadTrafficSimulator
         private bool drag;
 
         private Point PanelMapCenter { get => new Point(panelMap.Width / 2, panelMap.Height / 2); }
+        private decimal Zoom
+        {
+            get => mapManager.Settings.Zoom;
+            set
+            {
+                mapManager.Settings.Zoom = value;
+                buttonZoom.Text = string.Format("Zoom: {0:0.0}x", mapManager.Settings.Zoom);
+            }
+        }
 
         public FormMain()
         {
@@ -55,8 +64,10 @@ namespace RoadTrafficSimulator
                 switch (mode)
                 {
                     case Mode.Select_Crossroad:
+                        SelectCrossroad(e.Location);
                         break;
                     case Mode.Select_Road:
+                        SelectRoad(e.Location);
                         break;
                     case Mode.Build_Road:
                         Build(e.Location);
@@ -107,8 +118,25 @@ namespace RoadTrafficSimulator
         }
         private void panelMap_MouseWheel(object sender, MouseEventArgs e)
         {
-            Zoom(e.Delta, e.Location);
+            ChangeZoom(e.Delta, e.Location);
             panelMap.Invalidate();
+        }
+
+        private void buttonCenter_Click(object sender, EventArgs e)
+        {
+            mapManager.Settings.Origin = PanelMapCenter;
+            panelMap.Invalidate();
+        }
+
+        private void buttonZoom_Click(object sender, EventArgs e)
+        {
+            Zoom = 1m;
+            panelMap.Invalidate();
+        }
+
+        private void buttonTrafficLight_Click(object sender, EventArgs e)
+        {
+            // TODO
         }
 
         private void comboBoxMode_SelectedIndexChanged(object sender, EventArgs e)
@@ -116,13 +144,63 @@ namespace RoadTrafficSimulator
             mode = Enum.Parse<Mode>(comboBoxMode.Text);
             switch (mode)
             {
+                case Mode.Select_Crossroad:
+                    groupBoxCrossroad.Visible = true;
+                    groupBoxRoad.Visible = false;
+                    groupBoxBuild.Visible = false;
+                    DestroyBuild();
+                    break;
+                case Mode.Select_Road:
+                    groupBoxCrossroad.Visible = false;
+                    groupBoxRoad.Visible = true;
+                    groupBoxBuild.Visible = false;
+                    DestroyBuild();
+                    break;
                 case Mode.Build_Road:
+                    groupBoxCrossroad.Visible = false;
+                    groupBoxRoad.Visible = false;
                     groupBoxBuild.Visible = true;
                     break;
-                default:
-                    groupBoxBuild.Visible = false;
-                    break;
             }
+            panelMap.Invalidate();
+        }
+
+        private void Drag(Point mouseLocation)
+        {
+            Point delta = new Point(mouseLocation.X - previousMouseLocation.X, mouseLocation.Y - previousMouseLocation.Y);
+            mapManager.Settings.MoveOrigin(delta);
+        }
+
+        private void ChangeZoom(int direction, Point mouseLocation)
+        {
+            const decimal coefficient = 1.2m;
+            // For centering the zoom at coursor position
+            decimal originalZoom = Zoom;
+            Point newOrigin = mapManager.Settings.Origin;
+            if (direction > 0)
+            {
+                Zoom *= coefficient;
+                newOrigin.X = (int)(newOrigin.X * coefficient - mouseLocation.X * (coefficient - 1));
+                newOrigin.Y = (int)(newOrigin.Y * coefficient - mouseLocation.Y * (coefficient - 1));
+            }
+            else if (direction < 0)
+            {
+                Zoom /= coefficient;
+                newOrigin.X = (int)((newOrigin.X + mouseLocation.X * (coefficient - 1)) / coefficient);
+                newOrigin.Y = (int)((newOrigin.Y + mouseLocation.Y * (coefficient - 1)) / coefficient);
+            }
+            if (Zoom != originalZoom)
+                mapManager.Settings.Origin = newOrigin;
+        }
+
+        private void SelectCrossroad(Point mouseLocation)
+        {
+            // TODO
+        }
+
+        private void SelectRoad(Point mouseLocation)
+        {
+            // TODO
         }
 
         private void Build(Point mouseLocation)
@@ -153,34 +231,6 @@ namespace RoadTrafficSimulator
                 return;
             roadBuilder.DestroyRoad();
             roadBuilder = null;
-        }
-
-        private void Drag(Point mouseLocation)
-        {
-            Point delta = new Point(mouseLocation.X - previousMouseLocation.X, mouseLocation.Y - previousMouseLocation.Y);
-            mapManager.Settings.MoveOrigin(delta);
-        }
-
-        private void Zoom(int direction, Point mouseLocation)
-        {
-            const decimal coefficient = 1.2m;
-            // For centering the zoom at coursor position
-            decimal originalZoom = mapManager.Settings.Zoom;
-            Point newOrigin = mapManager.Settings.Origin;
-            if (direction > 0)
-            {
-                mapManager.Settings.Zoom *= coefficient;
-                newOrigin.X = (int)(newOrigin.X * coefficient - mouseLocation.X * (coefficient - 1));
-                newOrigin.Y = (int)(newOrigin.Y * coefficient - mouseLocation.Y * (coefficient - 1));
-            }
-            else if (direction < 0)
-            {
-                mapManager.Settings.Zoom /= coefficient;
-                newOrigin.X = (int)((newOrigin.X + mouseLocation.X * (coefficient - 1)) / coefficient);
-                newOrigin.Y = (int)((newOrigin.Y + mouseLocation.Y * (coefficient - 1)) / coefficient);
-            }
-            if (mapManager.Settings.Zoom != originalZoom)
-                mapManager.Settings.Origin = newOrigin;
         }
 
         private void ShowInfo(string info)
