@@ -14,5 +14,7 @@ namespace RoadTrafficSimulator.ValueTypes
         }
 
         public bool Equals(Coords other) => x == other.x && y == other.y;
+
+        public override string ToString() => string.Format("({0};{1})", x, y);
     }
 }

@@ -4,7 +4,7 @@ using System.Drawing;
 
 namespace RoadTrafficSimulator.GUI
 {
-    class RoadSegment : IRoadSegment
+    class Road : IRoad
     {
         protected static readonly Color color = Color.Blue;
 
@@ -19,7 +19,7 @@ namespace RoadTrafficSimulator.GUI
 
         public virtual void Draw(Graphics graphics, Point from, Point to, int width)
         {
-            Color color = RoadSegment.color;
+            Color color = Road.color;
             switch (Highlight)
             {
                 case Highlight.Low:
@@ -36,7 +36,7 @@ namespace RoadTrafficSimulator.GUI
         protected int IncreaseWidth(int width) => width + width / 2;
     }
 
-    class TwoWayRoadSegment : RoadSegment
+    class TwoWayRoad : Road
     {
         public int BackwardRoadId { get; set; }
 

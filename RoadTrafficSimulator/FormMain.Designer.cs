@@ -42,7 +42,6 @@
             this.labelInIndex = new System.Windows.Forms.Label();
             this.labelCoords = new System.Windows.Forms.Label();
             this.groupBoxRoad = new System.Windows.Forms.GroupBox();
-            this.labelCars = new System.Windows.Forms.Label();
             this.labelRoadMaxSpeed = new System.Windows.Forms.Label();
             this.labelTo = new System.Windows.Forms.Label();
             this.labelFrom = new System.Windows.Forms.Label();
@@ -216,27 +215,17 @@
             // 
             // groupBoxRoad
             // 
-            this.groupBoxRoad.Controls.Add(this.labelCars);
             this.groupBoxRoad.Controls.Add(this.labelRoadMaxSpeed);
             this.groupBoxRoad.Controls.Add(this.labelTo);
             this.groupBoxRoad.Controls.Add(this.labelFrom);
             this.groupBoxRoad.Controls.Add(this.labelRoadId);
             this.groupBoxRoad.Location = new System.Drawing.Point(1041, 86);
             this.groupBoxRoad.Name = "groupBoxRoad";
-            this.groupBoxRoad.Size = new System.Drawing.Size(266, 155);
+            this.groupBoxRoad.Size = new System.Drawing.Size(266, 130);
             this.groupBoxRoad.TabIndex = 5;
             this.groupBoxRoad.TabStop = false;
             this.groupBoxRoad.Text = "Road Properties";
             this.groupBoxRoad.Visible = false;
-            // 
-            // labelCars
-            // 
-            this.labelCars.AutoSize = true;
-            this.labelCars.Location = new System.Drawing.Point(6, 127);
-            this.labelCars.Name = "labelCars";
-            this.labelCars.Size = new System.Drawing.Size(62, 25);
-            this.labelCars.TabIndex = 0;
-            this.labelCars.Text = "Cars: -";
             // 
             // labelRoadMaxSpeed
             // 
@@ -344,7 +333,6 @@
         private System.Windows.Forms.Label labelTo;
         private System.Windows.Forms.Label labelFrom;
         private System.Windows.Forms.Label labelRoadId;
-        private System.Windows.Forms.Label labelCars;
     }
 }
 

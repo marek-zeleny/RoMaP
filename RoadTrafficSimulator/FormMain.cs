@@ -17,10 +17,14 @@ namespace RoadTrafficSimulator
         private Simulation simulation;
         private Mode mode;
         private IRoadBuilder roadBuilder;
+        private CrossroadView crossroadView;
+        private RoadView roadView;
         private Point previousMouseLocation;
         private bool drag;
+        private bool dragOccured;
 
         private Point PanelMapCenter { get => new Point(panelMap.Width / 2, panelMap.Height / 2); }
+        private Point Origin { get => mapManager.Settings.Origin; set => mapManager.Settings.Origin = value; }
         private decimal Zoom
         {
             get => mapManager.Settings.Zoom;
@@ -48,8 +52,8 @@ namespace RoadTrafficSimulator
 
             Components.Map map = new Components.Map();
             mapManager = new MapManager(map);
-            mapManager.Settings.Origin = PanelMapCenter;
-            mapManager.Settings.Zoom = 0.5m;
+            Origin = PanelMapCenter;
+            Zoom = 1m;
             simulation = new Simulation(map);
         }
 
@@ -60,6 +64,8 @@ namespace RoadTrafficSimulator
 
         private void panelMap_MouseClick(object sender, MouseEventArgs e)
         {
+            if (dragOccured)
+                return;
             if (e.Button == MouseButtons.Left)
                 switch (mode)
                 {
@@ -98,13 +104,17 @@ namespace RoadTrafficSimulator
 
         private void panelMap_MouseDown(object sender, MouseEventArgs e)
         {
-            if (mode == Mode.Select_Crossroad || mode == Mode.Select_Road)
+            if (e.Button == MouseButtons.Left)
                 drag = true;
         }
 
         private void panelMap_MouseUp(object sender, MouseEventArgs e)
         {
-            drag = false;
+            if (e.Button == MouseButtons.Left)
+            {
+                drag = false;
+                dragOccured = false;
+            }
         }
 
         private void panelMap_MouseMove(object sender, MouseEventArgs e)
@@ -112,6 +122,7 @@ namespace RoadTrafficSimulator
             if (drag)
             {
                 Drag(e.Location);
+                dragOccured = true;
                 panelMap.Invalidate();
             }
             previousMouseLocation = e.Location;
@@ -124,7 +135,7 @@ namespace RoadTrafficSimulator
 
         private void buttonCenter_Click(object sender, EventArgs e)
         {
-            mapManager.Settings.Origin = PanelMapCenter;
+            Origin = PanelMapCenter;
             panelMap.Invalidate();
         }
 
@@ -141,27 +152,7 @@ namespace RoadTrafficSimulator
 
         private void comboBoxMode_SelectedIndexChanged(object sender, EventArgs e)
         {
-            mode = Enum.Parse<Mode>(comboBoxMode.Text);
-            switch (mode)
-            {
-                case Mode.Select_Crossroad:
-                    groupBoxCrossroad.Visible = true;
-                    groupBoxRoad.Visible = false;
-                    groupBoxBuild.Visible = false;
-                    DestroyBuild();
-                    break;
-                case Mode.Select_Road:
-                    groupBoxCrossroad.Visible = false;
-                    groupBoxRoad.Visible = true;
-                    groupBoxBuild.Visible = false;
-                    DestroyBuild();
-                    break;
-                case Mode.Build_Road:
-                    groupBoxCrossroad.Visible = false;
-                    groupBoxRoad.Visible = false;
-                    groupBoxBuild.Visible = true;
-                    break;
-            }
+            ChangeMode(Enum.Parse<Mode>(comboBoxMode.Text));
             panelMap.Invalidate();
         }
 
@@ -176,7 +167,7 @@ namespace RoadTrafficSimulator
             const decimal coefficient = 1.2m;
             // For centering the zoom at coursor position
             decimal originalZoom = Zoom;
-            Point newOrigin = mapManager.Settings.Origin;
+            Point newOrigin = Origin;
             if (direction > 0)
             {
                 Zoom *= coefficient;
@@ -190,22 +181,48 @@ namespace RoadTrafficSimulator
                 newOrigin.Y = (int)((newOrigin.Y + mouseLocation.Y * (coefficient - 1)) / coefficient);
             }
             if (Zoom != originalZoom)
-                mapManager.Settings.Origin = newOrigin;
+                Origin = newOrigin;
         }
 
         private void SelectCrossroad(Point mouseLocation)
         {
-            // TODO
+            UnselectCrossroad();
+            Coords coords = MapManager.CalculateCoords(mouseLocation, Origin, Zoom);
+            crossroadView = mapManager.GetCrossroad(coords);
+            if (crossroadView != null)
+                crossroadView.GuiCrossroad.Highlight = GUI.Highlight.High;
+            ShowProperties();
+        }
+
+        private void UnselectCrossroad()
+        {
+            if (crossroadView == null)
+                return;
+            crossroadView.GuiCrossroad.Highlight = GUI.Highlight.Normal;
+            crossroadView = null;
         }
 
         private void SelectRoad(Point mouseLocation)
         {
-            // TODO
+            UnselectRoad();
+            Vector vector = MapManager.CalculateVector(mouseLocation, Origin, Zoom);
+            roadView = mapManager.GetRoad(vector);
+            if (roadView != null)
+                roadView.GuiRoad.Highlight = GUI.Highlight.High;
+            ShowProperties();
+        }
+
+        private void UnselectRoad()
+        {
+            if (roadView == null)
+                return;
+            roadView.GuiRoad.Highlight = GUI.Highlight.Normal;
+            roadView = null;
         }
 
         private void Build(Point mouseLocation)
         {
-            Coords coords = MapManager.CalculateCoords(mouseLocation, mapManager.Settings.Origin, mapManager.Settings.Zoom);
+            Coords coords = MapManager.CalculateCoords(mouseLocation, Origin, Zoom);
             if (roadBuilder == null)
                 roadBuilder = mapManager.GetRoadBuilder(coords, checkBoxTwoWayRoad.Checked);
             else
@@ -231,6 +248,55 @@ namespace RoadTrafficSimulator
                 return;
             roadBuilder.DestroyRoad();
             roadBuilder = null;
+        }
+
+        private void ChangeMode(Mode newMode)
+        {
+            mode = newMode;
+            switch (mode)
+            {
+                case Mode.Select_Crossroad:
+                    groupBoxCrossroad.Visible = true;
+                    groupBoxRoad.Visible = false;
+                    groupBoxBuild.Visible = false;
+                    UnselectRoad();
+                    DestroyBuild();
+                    break;
+                case Mode.Select_Road:
+                    groupBoxCrossroad.Visible = false;
+                    groupBoxRoad.Visible = true;
+                    groupBoxBuild.Visible = false;
+                    UnselectCrossroad();
+                    DestroyBuild();
+                    break;
+                case Mode.Build_Road:
+                    groupBoxCrossroad.Visible = false;
+                    groupBoxRoad.Visible = false;
+                    groupBoxBuild.Visible = true;
+                    UnselectCrossroad();
+                    UnselectRoad();
+                    break;
+            }
+            ShowProperties();
+        }
+
+        private void ShowProperties()
+        {
+            switch (mode)
+            {
+                case Mode.Select_Crossroad:
+                    labelCoords.Text = string.Format("Coords: {0}", crossroadView?.Coords.ToString() ?? "(-;-)");
+                    labelInIndex.Text = string.Format("Incoming roads: {0}", crossroadView?.InIndex.ToString() ?? "-");
+                    labelOutIndex.Text = string.Format("Outcoming roads: {0}", crossroadView?.OutIndex.ToString() ?? "-");
+                    buttonTrafficLight.Enabled = crossroadView != null;
+                    break;
+                case Mode.Select_Road:
+                    labelRoadId.Text = string.Format("ID: {0}", roadView?.Id.ToString() ?? "-");
+                    labelFrom.Text = string.Format("From: {0}", roadView?.From.ToString() ?? "(-;-)");
+                    labelTo.Text = string.Format("To: {0}", roadView?.To.ToString() ?? "(-;-)");
+                    labelRoadMaxSpeed.Text = string.Format("Max speed: {0}", roadView?.MaxSpeed.ToString() ?? "-mps");
+                    break;
+            }
         }
 
         private void ShowInfo(string info)

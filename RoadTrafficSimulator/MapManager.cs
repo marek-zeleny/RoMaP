@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 
 using RoadTrafficSimulator.Components;
 using RoadTrafficSimulator.GUI;
@@ -42,6 +43,20 @@ namespace RoadTrafficSimulator
             return new Coords(x, y);
         }
 
+        public static Vector CalculateVector(Point point, Point origin, decimal zoom)
+        {
+            Coords from = CalculateCoords(point, origin, zoom);
+            Coords to;
+            Point fromPoint = CalculatePoint(from, origin, zoom);
+            int dx = point.X - fromPoint.X;
+            int dy = point.Y - fromPoint.Y;
+            if (Math.Abs(dx) < Math.Abs(dy))
+                to = new Coords(from.x, from.y + Math.Sign(dy));
+            else
+                to = new Coords(from.x + Math.Sign(dx), from.y);
+            return new Vector(from, to);
+        }
+
         #endregion static
 
         private Components.Map map;
@@ -54,10 +69,37 @@ namespace RoadTrafficSimulator
             Settings.Zoom = 1m;
         }
 
-        public void Draw(Graphics graphics, int width, int height)
+        public CrossroadView GetCrossroad(Coords coords)
         {
-            DrawGrid(graphics, width, height);
-            guiMap.Draw(graphics, Settings.Origin, Settings.Zoom, width, height);
+            ICrossroad guiCrossroad = guiMap.GetCrossroad(coords);
+            if (guiCrossroad == null)
+                return null;
+            Components.Crossroad crossroad = (Components.Crossroad)map.GetNode(coords);
+            return new CrossroadView(crossroad, guiCrossroad);
+        }
+
+        public RoadView GetRoad(Vector vector)
+        {
+            IRoad guiRoad = guiMap.GetRoad(vector, true);
+            if (guiRoad == null)
+                return null;
+            Components.Road road = (Components.Road)map.GetEdge(guiRoad.GetRoadIds().First());
+            return new RoadView(road, guiRoad);
+        }
+
+        public RoadView GetOppositeRoad(RoadView roadView)
+        {
+            Components.Road road = null;
+            if (roadView.GuiRoad is TwoWayRoad twoWayRoad)
+            {
+                if (twoWayRoad.RoadId != roadView.Id)
+                    road = (Components.Road)map.GetEdge(twoWayRoad.RoadId);
+                else
+                    road = (Components.Road)map.GetEdge(twoWayRoad.BackwardRoadId);
+            }
+            if (road == null)
+                return null;
+            return new RoadView(road, roadView.GuiRoad);
         }
 
         public IRoadBuilder GetRoadBuilder(Coords startingCoords, bool twoWayRoad = true)
@@ -65,6 +107,12 @@ namespace RoadTrafficSimulator
             if (map.GetNode(startingCoords) == null && !IsFree(startingCoords))
                 return null;
             return new RoadBuilder(this, startingCoords, twoWayRoad);
+        }
+
+        public void Draw(Graphics graphics, int width, int height)
+        {
+            DrawGrid(graphics, width, height);
+            guiMap.Draw(graphics, Settings.Origin, Settings.Zoom, width, height);
         }
 
         private void DrawGrid(Graphics graphics, int width, int height)
@@ -85,7 +133,7 @@ namespace RoadTrafficSimulator
         private bool IsFree(Coords coords)
         {
             foreach (Coords diff in directions)
-                if (guiMap.GetRoadSegment(new Vector(coords, new Coords(coords.x + diff.x, coords.y + diff.y)), true) != null)
+                if (guiMap.GetRoad(new Vector(coords, new Coords(coords.x + diff.x, coords.y + diff.y)), true) != null)
                     return false;
             return true;
         }
@@ -121,8 +169,8 @@ namespace RoadTrafficSimulator
         private class RoadBuilder : IRoadBuilder
         {
             private MapManager manager;
-            private IRoadSegment roadSegment;
-            private List<Coords> coords;
+            private IRoad road;
+            private List<Coords> route;
 
             public bool CanContinue { get; private set; }
 
@@ -130,11 +178,11 @@ namespace RoadTrafficSimulator
             {
                 this.manager = manager;
                 if (twoWayRoad)
-                    roadSegment = new TwoWayRoadSegment();
+                    road = new TwoWayRoad();
                 else
-                    roadSegment = new RoadSegment();
-                roadSegment.Highlight = Highlight.High;
-                coords = new List<Coords> { startingCoords };
+                    road = new GUI.Road();
+                road.Highlight = Highlight.High;
+                route = new List<Coords> { startingCoords };
                 CanContinue = true;
                 TryGetOrAddCrossroad(startingCoords).Highlight = Highlight.High;
             }
@@ -145,31 +193,31 @@ namespace RoadTrafficSimulator
                     return false;
                 if (!CanEnterCoords(nextCoords))
                     return false;
-                Coords lastCoords = coords[coords.Count - 1];
+                Coords lastCoords = route[route.Count - 1];
                 Vector vector = new Vector(lastCoords, nextCoords);
                 (int dx, int dy) = vector.Diff();
                 if (Math.Abs(dx) + Math.Abs(dy) != 1)
                     return false;
-                if (!manager.guiMap.AddRoadSegment(roadSegment, vector))
+                if (!manager.guiMap.AddRoad(road, vector))
                     return false;
-                coords.Add(nextCoords);
+                route.Add(nextCoords);
                 CanContinue = manager.map.GetNode(nextCoords) == null;
                 return true;
             }
 
             public bool FinishRoad(MetersPerSecond maxSpeed)
             {
-                if (coords.Count < 2)
+                if (route.Count < 2)
                     return false;
-                Coords from = coords[0];
-                Coords to = coords[coords.Count - 1];
+                Coords from = route[0];
+                Coords to = route[route.Count - 1];
                 TryGetOrAddCrossroad(from).Highlight = Highlight.Normal;
                 TryGetOrAddCrossroad(to).Highlight = Highlight.Normal;
-                roadSegment.Highlight = Highlight.Normal;
-                Meters roadLength = (coords.Count - 1) * roadSegmentLength;
-                Road road = manager.map.AddRoad(from, to, roadLength, maxSpeed);
-                ((RoadSegment)roadSegment).RoadId = road.Id;
-                if (roadSegment is TwoWayRoadSegment s)
+                this.road.Highlight = Highlight.Normal;
+                Meters roadLength = (route.Count - 1) * roadSegmentLength;
+                Components.Road road = manager.map.AddRoad(from, to, roadLength, maxSpeed);
+                ((GUI.Road)this.road).RoadId = road.Id;
+                if (this.road is TwoWayRoad s)
                 {
                     road = manager.map.AddRoad(to, from, roadLength, maxSpeed);
                     s.BackwardRoadId = road.Id;
@@ -180,12 +228,12 @@ namespace RoadTrafficSimulator
 
             public void DestroyRoad()
             {
-                for (int i = 1; i < coords.Count; i++)
-                    manager.guiMap.RemoveRoadSegment(new Vector(coords[i - 1], coords[i]));
-                if (manager.map.GetNode(coords[0]) == null)
-                    manager.guiMap.RemoveCrossroad(coords[0]);
+                for (int i = 1; i < route.Count; i++)
+                    manager.guiMap.RemoveRoad(new Vector(route[i - 1], route[i]));
+                if (manager.map.GetNode(route[0]) == null)
+                    manager.guiMap.RemoveCrossroad(route[0]);
                 else
-                    manager.guiMap.GetCrossroad(coords[0]).Highlight = Highlight.Normal;
+                    manager.guiMap.GetCrossroad(route[0]).Highlight = Highlight.Normal;
                 Invalidate();
             }
 
@@ -201,7 +249,7 @@ namespace RoadTrafficSimulator
 
             private bool CanEnterCoords(Coords newCoords)
             {
-                foreach (Coords c in coords)
+                foreach (Coords c in route)
                     if (c.Equals(newCoords))
                         return false;
                 // Always allow if there is a (different from the starting one) crossroad at newCoords
@@ -213,8 +261,8 @@ namespace RoadTrafficSimulator
             private void Invalidate()
             {
                 manager = null;
-                roadSegment = null;
-                coords = null;
+                road = null;
+                route = null;
             }
         }
 

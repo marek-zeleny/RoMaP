@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace RoadTrafficSimulator.ValueTypes
 {
@@ -25,6 +23,6 @@ namespace RoadTrafficSimulator.ValueTypes
 
         public static Seconds operator /(Meters m, MetersPerSecond mps) => new Seconds(m / mps.value);
 
-        public override string ToString() => value.ToString();
+        public override string ToString() => string.Format("{0}mps", value);
     }
 }

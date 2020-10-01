@@ -24,5 +24,7 @@ namespace RoadTrafficSimulator.ValueTypes
         }
 
         public bool Equals(Vector other) => from.Equals(other.from) && to.Equals(other.to);
+
+        public override string ToString() => string.Format("<{0},{1}>", from, to);
     }
 }

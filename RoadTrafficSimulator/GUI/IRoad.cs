@@ -4,7 +4,7 @@ using System.Drawing;
 
 namespace RoadTrafficSimulator.GUI
 {
-    interface IRoadSegment
+    interface IRoad
     {
         Highlight Highlight { set; }
         IEnumerable<int> GetRoadIds();

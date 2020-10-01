@@ -8,17 +8,20 @@ namespace RoadTrafficSimulator.GUI
 {
     class Map : IMap
     {
+        private const int crossroadSize = 15;
+        private const int roadWidth = 5;
+
         private Dictionary<Coords, ICrossroad> crossroads = new Dictionary<Coords, ICrossroad>();
-        private Dictionary<Vector, IRoadSegment> roadSegments = new Dictionary<Vector, IRoadSegment>();
+        private Dictionary<Vector, IRoad> roadSegments = new Dictionary<Vector, IRoad>();
 
         public bool AddCrossroad(ICrossroad crossroad, Coords coords)
         {
             return crossroads.TryAdd(coords, crossroad);
         }
 
-        public bool AddRoadSegment(IRoadSegment roadSegment, Vector vector)
+        public bool AddRoad(IRoad road, Vector vector)
         {
-            return roadSegments.TryAdd(vector, roadSegment);
+            return roadSegments.TryAdd(vector, road);
         }
 
         public bool RemoveCrossroad(Coords coords)
@@ -26,7 +29,7 @@ namespace RoadTrafficSimulator.GUI
             return crossroads.Remove(coords);
         }
 
-        public bool RemoveRoadSegment(Vector vector)
+        public bool RemoveRoad(Vector vector)
         {
             return roadSegments.Remove(vector);
         }
@@ -38,9 +41,9 @@ namespace RoadTrafficSimulator.GUI
             return output;
         }
 
-        public IRoadSegment GetRoadSegment(Vector vector, bool ignoreDirection)
+        public IRoad GetRoad(Vector vector, bool ignoreDirection)
         {
-            if (!roadSegments.TryGetValue(vector, out IRoadSegment output))
+            if (!roadSegments.TryGetValue(vector, out IRoad output))
             {
                 if (!ignoreDirection)
                     return null;
@@ -52,18 +55,18 @@ namespace RoadTrafficSimulator.GUI
 
         public void Draw(Graphics graphics, Point origin, decimal zoom, int width, int height)
         {
-            foreach (var (vector, roadSegment) in roadSegments)
+            foreach (var (vector, road) in roadSegments)
             {
                 Point from = MapManager.CalculatePoint(vector.from, origin, zoom);
                 Point to = MapManager.CalculatePoint(vector.to, origin, zoom);
                 if (IsInRange(from, width, height) || IsInRange(to, width, height))
-                    roadSegment.Draw(graphics, from, to, 10);
+                    road.Draw(graphics, from, to, roadWidth);
             }
             foreach (var (coords, crossroad) in crossroads)
             {
                 Point point = MapManager.CalculatePoint(coords, origin, zoom);
                 if (IsInRange(point, width, height))
-                    crossroad.Draw(graphics, point, 20);
+                    crossroad.Draw(graphics, point, crossroadSize);
             }
         }
 

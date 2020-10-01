@@ -8,11 +8,11 @@ namespace RoadTrafficSimulator.GUI
     interface IMap
     {
         bool AddCrossroad(ICrossroad crossroad, Coords coords);
-        bool AddRoadSegment(IRoadSegment roadSegment, Vector vector);
+        bool AddRoad(IRoad road, Vector vector);
         bool RemoveCrossroad(Coords coords);
-        bool RemoveRoadSegment(Vector vector);
+        bool RemoveRoad(Vector vector);
         ICrossroad GetCrossroad(Coords coords);
-        IRoadSegment GetRoadSegment(Vector vector, bool ignoreDirection = false);
+        IRoad GetRoad(Vector vector, bool ignoreDirection = false);
         void Draw(Graphics graphics, Point origin, decimal zoom, int width, int height);
     }
 
