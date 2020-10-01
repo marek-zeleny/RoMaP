@@ -2,19 +2,35 @@
 using System.Collections.Generic;
 using System.Drawing;
 
+using RoadTrafficSimulator.ValueTypes;
+
 namespace RoadTrafficSimulator.GUI
 {
-    class Road : IRoad
+    class Road : IMutableRoad
     {
         protected static readonly Color color = Color.Blue;
 
-        public int RoadId { get; set; }
+        protected int roadId;
 
+        public virtual bool IsTwoWay { get => false; }
         public Highlight Highlight { protected get; set; }
+        public IList<Coords> Route { get; } = new List<Coords>();
 
         public virtual IEnumerable<int> GetRoadIds()
         {
-            yield return RoadId;
+            yield return roadId;
+        }
+
+        public virtual void SetRoadId(int id, IMutableRoad.Direction direction)
+        {
+            if (direction == IMutableRoad.Direction.Backward)
+                throw new ArgumentException(string.Format("This {0} is unidirectional and cannto set ID for {1}", nameof(Road), nameof(IMutableRoad.Direction.Backward)), nameof(direction));
+            roadId = id;
+        }
+
+        public IEnumerable<Coords> GetRoute()
+        {
+            return Route;
         }
 
         public virtual void Draw(Graphics graphics, Point from, Point to, int width)
@@ -38,12 +54,27 @@ namespace RoadTrafficSimulator.GUI
 
     class TwoWayRoad : Road
     {
-        public int BackwardRoadId { get; set; }
+        private int backwardRoadId;
+
+        public override bool IsTwoWay { get => true; }
 
         public override IEnumerable<int> GetRoadIds()
         {
-            yield return RoadId;
-            yield return BackwardRoadId;
+            yield return roadId;
+            yield return backwardRoadId;
+        }
+
+        public override void SetRoadId(int id, IMutableRoad.Direction direction)
+        {
+            switch (direction)
+            {
+                case IMutableRoad.Direction.Forward:
+                    roadId = id;
+                    break;
+                case IMutableRoad.Direction.Backward:
+                    backwardRoadId = id;
+                    break;
+            }
         }
 
         public override void Draw(Graphics graphics, Point from, Point to, int width)
