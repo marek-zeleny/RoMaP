@@ -68,15 +68,19 @@ namespace DataStructures.Graphs
             return node;
         }
 
-        public INode<TNodeId, TEdgeId> RemoveNodeForced(TNodeId id)
+        public INode<TNodeId, TEdgeId> RemoveNodeForced(TNodeId id, out IEnumerable<IEdge<TNodeId, TEdgeId>> removedInEdges, out IEnumerable<IEdge<TNodeId, TEdgeId>> removedOutEdges)
         {
             INode<TNodeId, TEdgeId> node;
+            ICollection<IEdge<TNodeId, TEdgeId>> removedInEdgesCollection = new LinkedList<IEdge<TNodeId, TEdgeId>>();
+            ICollection<IEdge<TNodeId, TEdgeId>> removedOutEdgesCollection = new LinkedList<IEdge<TNodeId, TEdgeId>>();
+            removedInEdges = removedInEdgesCollection;
+            removedOutEdges = removedOutEdgesCollection;
             if (!nodes.TryGetValue(id, out node))
                 return default;
             foreach (var edge in node.GetInEdges())
-                RemoveEdge(edge.Id);
+                removedInEdgesCollection.Add(RemoveEdge(edge.Id));
             foreach (var edge in node.GetOutEdges())
-                RemoveEdge(edge.Id);
+                removedOutEdgesCollection.Add(RemoveEdge(edge.Id));
             if (!nodes.Remove(id))
                 return default;
             return node;

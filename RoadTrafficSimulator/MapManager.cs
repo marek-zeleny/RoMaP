@@ -97,45 +97,21 @@ namespace RoadTrafficSimulator
 
         public IRoadBuilder GetRoadBuilder(Coords startingCoords, bool twoWayRoad = true)
         {
-            if (map.GetNode(startingCoords) == null && !IsFree(startingCoords))
+            if (map.GetNode(startingCoords) == null && !IsRoadFree(startingCoords))
                 return null;
             return new RoadBuilder(this, startingCoords, twoWayRoad);
         }
 
         public bool DestroyCrossroad(CrossroadView crossroadView)
         {
-            if (TryRemoveCrossroad(crossroadView.Coords))
-                return true;
-            foreach (Coords coords in directions)
-            {
-                var roadView = GetRoad(new Vector(crossroadView.Coords, coords));
-                if (roadView != null)
-                    if (!DestroyRoad(roadView))
-                        return false;
-            }
-            // If the last DestroyRoad in the foreach cycle was successful, it has already removed this crossroad
-            return map.GetNode(crossroadView.Coords) == null;
+            map.RemoveCrossroad(crossroadView.Coords);
+            return DestroyGuiCrossroad(crossroadView.GuiCrossroad);
         }
 
         public bool DestroyRoad(RoadView roadView)
         {
-            var enumerator = roadView.GuiRoad.GetRoute().GetEnumerator();
-            enumerator.MoveNext();
-            Coords last = enumerator.Current;
-            while (enumerator.MoveNext())
-            {
-                if (!guiMap.RemoveRoad(new Vector(last, enumerator.Current)))
-                    return false;
-                last = enumerator.Current;
-            }
-            var road = map.GetEdge(roadView.Id);
-            var from = road.FromNode;
-            var to = road.ToNode;
-            if (map.RemoveRoad(road.Id) == null)
-                return false;
-            TryRemoveCrossroad(from);
-            TryRemoveCrossroad(to);
-            return true;
+            map.RemoveRoad(roadView.Id);
+            return DestroyGuiRoad(roadView.GuiRoad);
         }
 
         public void Draw(Graphics graphics, int width, int height)
@@ -144,20 +120,38 @@ namespace RoadTrafficSimulator
             guiMap.Draw(graphics, Settings.Origin, Settings.Zoom, width, height);
         }
 
-        private bool TryRemoveCrossroad(Coords coords)
+        private bool DestroyGuiCrossroad(ICrossroad crossroad)
         {
-            return TryRemoveCrossroad(map.GetNode(coords));
+            foreach (Coords diff in directions)
+            {
+                IRoad road = guiMap.GetRoad(new Vector(crossroad.CrossroadId, new Coords(crossroad.CrossroadId.x + diff.x, crossroad.CrossroadId.y + diff.y)), true);
+                if (road != null)
+                    if (!DestroyGuiRoad(road))
+                        return false;
+            }
+            // The crossroad should be destroyed in the previous cycle
+            return guiMap.GetCrossroad(crossroad.CrossroadId) == null;
         }
 
-        private bool TryRemoveCrossroad(DataStructures.Graphs.IReadOnlyNode<Coords, int> crossroad)
+        private bool DestroyGuiRoad(IRoad road)
         {
-            if (crossroad.InDegree == 0 && crossroad.OutDegree == 0
-                && map.RemoveCrossroad(crossroad.Id) != null)
+            var enumerator = road.GetRoute().GetEnumerator();
+            enumerator.MoveNext();
+            Coords last = enumerator.Current;
+            while (enumerator.MoveNext())
             {
-                guiMap.RemoveCrossroad(crossroad.Id);
-                return true;
+                if (!guiMap.RemoveRoad(new Vector(last, enumerator.Current)))
+                    return false;
+                last = enumerator.Current;
             }
-            return false;
+            // Destroy crossroads that became stand-alone after destroying this road
+            if (IsRoadFree(road.From))
+                if (!guiMap.RemoveCrossroad(road.From))
+                    return false;
+            if (IsRoadFree(road.To))
+                if (!guiMap.RemoveCrossroad(road.To))
+                    return false;
+            return true;
         }
 
         private void DrawGrid(Graphics graphics, int width, int height)
@@ -175,7 +169,7 @@ namespace RoadTrafficSimulator
                 graphics.DrawLine(pen, 0, y, width, y);
         }
 
-        private bool IsFree(Coords coords)
+        private bool IsRoadFree(Coords coords)
         {
             foreach (Coords diff in directions)
                 if (guiMap.GetRoad(new Vector(coords, new Coords(coords.x + diff.x, coords.y + diff.y)), true) != null)
@@ -227,6 +221,7 @@ namespace RoadTrafficSimulator
                     road = new TwoWayRoad();
                 else
                     road = new GUI.Road();
+                road.Route.Add(startingCoords);
                 road.Highlight = Highlight.High;
                 CanContinue = true;
                 TryGetOrAddCrossroad(startingCoords).Highlight = Highlight.High;
@@ -300,7 +295,7 @@ namespace RoadTrafficSimulator
                 // Always allow if there is a (different from the starting one) crossroad at newCoords
                 if (manager.map.GetNode(newCoords) != null)
                     return true;
-                return manager.IsFree(newCoords);
+                return manager.IsRoadFree(newCoords);
             }
 
             private void Invalidate()

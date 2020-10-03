@@ -12,6 +12,8 @@ namespace RoadTrafficSimulator.GUI
 
         protected int roadId;
 
+        public Coords From { get => Route[0]; }
+        public Coords To { get => Route[Route.Count - 1]; }
         public virtual bool IsTwoWay { get => false; }
         public Highlight Highlight { protected get; set; }
         public IList<Coords> Route { get; } = new List<Coords>();

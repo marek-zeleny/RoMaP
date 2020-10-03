@@ -36,9 +36,25 @@ namespace RoadTrafficSimulator.Components
             return road;
         }
 
-        public Road RemoveRoad(int id) => (Road)graph.RemoveEdge(id);
+        public Road RemoveRoad(int id)
+        {
+            Road output = (Road)graph.RemoveEdge(id);
+            // Remove crossroads if they were connected only to this road
+            graph.RemoveNode(output.FromNode.Id);
+            graph.RemoveNode(output.ToNode.Id);
+            return output;
+        }
 
-        public Crossroad RemoveCrossroad(Coords id) => (Crossroad)graph.RemoveNodeForced(id);
+        public Crossroad RemoveCrossroad(Coords id)
+        {
+            Crossroad output = (Crossroad)graph.RemoveNodeForced(id, out var removedInRoads, out var removedOutRoads);
+            // Remove crossroads that became stand-alone by removing this crossroad (more precisely the roads connected to this crossroad)
+            foreach (var road in removedInRoads)
+                graph.RemoveNode(road.FromNode.Id);
+            foreach (var road in removedOutRoads)
+                graph.RemoveNode(road.ToNode.Id);
+            return output;
+        }
 
         public IReadOnlyNode<Coords, int> GetNode(Coords id) => graph.GetNode(id);
 

@@ -150,6 +150,26 @@ namespace RoadTrafficSimulator
             // TODO
         }
 
+        private void buttonDestroyCrossroad_Click(object sender, EventArgs e)
+        {
+            if (crossroadView != null)
+            {
+                mapManager.DestroyCrossroad(crossroadView);
+                UnselectCrossroad();
+                panelMap.Invalidate();
+            }
+        }
+
+        private void buttonDestroyRoad_Click(object sender, EventArgs e)
+        {
+            if (roadView != null)
+            {
+                mapManager.DestroyRoad(roadView);
+                UnselectRoad();
+                panelMap.Invalidate();
+            }
+        }
+
         private void comboBoxMode_SelectedIndexChanged(object sender, EventArgs e)
         {
             ChangeMode(Enum.Parse<Mode>(comboBoxMode.Text));
@@ -288,6 +308,7 @@ namespace RoadTrafficSimulator
                     labelCoords.Text = string.Format("Coords: {0}", crossroadView?.Coords.ToString() ?? "(-;-)");
                     labelInIndex.Text = string.Format("Incoming roads: {0}", crossroadView?.InIndex.ToString() ?? "-");
                     labelOutIndex.Text = string.Format("Outcoming roads: {0}", crossroadView?.OutIndex.ToString() ?? "-");
+                    buttonDestroyCrossroad.Enabled = crossroadView != null;
                     buttonTrafficLight.Enabled = crossroadView != null;
                     break;
                 case Mode.Select_Road:
@@ -295,6 +316,7 @@ namespace RoadTrafficSimulator
                     labelFrom.Text = string.Format("From: {0}", roadView?.From.ToString() ?? "(-;-)");
                     labelTo.Text = string.Format("To: {0}", roadView?.To.ToString() ?? "(-;-)");
                     labelRoadMaxSpeed.Text = string.Format("Max speed: {0}", roadView?.MaxSpeed.ToString() ?? "-mps");
+                    buttonDestroyRoad.Enabled = roadView != null;
                     break;
             }
         }

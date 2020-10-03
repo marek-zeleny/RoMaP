@@ -8,6 +8,8 @@ namespace RoadTrafficSimulator.GUI
 {
     interface IRoad
     {
+        Coords From { get; }
+        Coords To { get; }
         bool IsTwoWay { get; }
         Highlight Highlight { set; }
         IEnumerable<int> GetRoadIds();
