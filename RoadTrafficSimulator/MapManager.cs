@@ -15,8 +15,6 @@ namespace RoadTrafficSimulator
 
         private static readonly Meters roadSegmentLength = 100.Meters();
         private const int K = 100;
-        private const decimal minZoom = 0.2m;
-        private const decimal maxZoom = 5;
 
         private static readonly Coords[] directions = new Coords[]
         {
@@ -61,12 +59,10 @@ namespace RoadTrafficSimulator
 
         private Components.Map map;
         private IMap guiMap = new GUI.Map();
-        public GuiSettings Settings { get; } = new GuiSettings();
 
         public MapManager(Components.Map map)
         {
             this.map = map;
-            Settings.Zoom = 1m;
         }
 
         public CrossroadView GetCrossroad(Coords coords)
@@ -114,10 +110,10 @@ namespace RoadTrafficSimulator
             return DestroyGuiRoad(roadView.GuiRoad);
         }
 
-        public void Draw(Graphics graphics, int width, int height)
+        public void Draw(Graphics graphics, Point origin, decimal zoom, int width, int height)
         {
-            DrawGrid(graphics, width, height);
-            guiMap.Draw(graphics, Settings.Origin, Settings.Zoom, width, height);
+            DrawGrid(graphics, origin, zoom, width, height);
+            guiMap.Draw(graphics, origin, zoom, width, height);
         }
 
         private bool DestroyGuiCrossroad(ICrossroad crossroad)
@@ -154,11 +150,11 @@ namespace RoadTrafficSimulator
             return true;
         }
 
-        private void DrawGrid(Graphics graphics, int width, int height)
+        private void DrawGrid(Graphics graphics, Point origin, decimal zoom, int width, int height)
         {
-            int step = (int)(K * Settings.Zoom);
-            int firstX = Settings.Origin.X % step;
-            int firstY = Settings.Origin.Y % step;
+            int step = (int)(K * zoom);
+            int firstX = origin.X % step;
+            int firstY = origin.Y % step;
             Pen pen = new Pen(Color.Gray, 1)
             {
                 DashStyle = System.Drawing.Drawing2D.DashStyle.Dash
@@ -175,34 +171,6 @@ namespace RoadTrafficSimulator
                 if (guiMap.GetRoad(new Vector(coords, new Coords(coords.x + diff.x, coords.y + diff.y)), true) != null)
                     return false;
             return true;
-        }
-
-        #region nested classes
-
-        public class GuiSettings
-        {
-            private Point origin;
-            private decimal zoom;
-
-            public Point Origin { get => origin; set => origin = value; }
-            public decimal Zoom
-            {
-                get => zoom;
-                set
-                {
-                    if (value < minZoom)
-                        zoom = minZoom;
-                    else if (value > maxZoom)
-                        zoom = maxZoom;
-                    else
-                        zoom = value;
-                }
-            }
-
-            public void MoveOrigin(Point offset)
-            {
-                origin.Offset(offset);
-            }
         }
 
         private class RoadBuilder : IRoadBuilder
@@ -304,7 +272,5 @@ namespace RoadTrafficSimulator
                 road = null;
             }
         }
-
-        #endregion nested classes
     }
 }

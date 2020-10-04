@@ -37,19 +37,19 @@
             this.numericUpDownSpeed = new System.Windows.Forms.NumericUpDown();
             this.checkBoxTwoWayRoad = new System.Windows.Forms.CheckBox();
             this.groupBoxCrossroad = new System.Windows.Forms.GroupBox();
+            this.buttonDestroyCrossroad = new System.Windows.Forms.Button();
             this.buttonTrafficLight = new System.Windows.Forms.Button();
             this.labelOutIndex = new System.Windows.Forms.Label();
             this.labelInIndex = new System.Windows.Forms.Label();
             this.labelCoords = new System.Windows.Forms.Label();
             this.groupBoxRoad = new System.Windows.Forms.GroupBox();
+            this.buttonDestroyRoad = new System.Windows.Forms.Button();
             this.labelRoadMaxSpeed = new System.Windows.Forms.Label();
             this.labelTo = new System.Windows.Forms.Label();
             this.labelFrom = new System.Windows.Forms.Label();
             this.labelRoadId = new System.Windows.Forms.Label();
             this.buttonCenter = new System.Windows.Forms.Button();
             this.buttonZoom = new System.Windows.Forms.Button();
-            this.buttonDestroyRoad = new System.Windows.Forms.Button();
-            this.buttonDestroyCrossroad = new System.Windows.Forms.Button();
             this.groupBoxBuild.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownSpeed)).BeginInit();
             this.groupBoxCrossroad.SuspendLayout();
@@ -168,19 +168,30 @@
             this.groupBoxCrossroad.Controls.Add(this.labelInIndex);
             this.groupBoxCrossroad.Controls.Add(this.labelCoords);
             this.groupBoxCrossroad.Location = new System.Drawing.Point(833, 69);
-            this.groupBoxCrossroad.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.groupBoxCrossroad.Margin = new System.Windows.Forms.Padding(2);
             this.groupBoxCrossroad.Name = "groupBoxCrossroad";
-            this.groupBoxCrossroad.Padding = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.groupBoxCrossroad.Padding = new System.Windows.Forms.Padding(2);
             this.groupBoxCrossroad.Size = new System.Drawing.Size(213, 162);
             this.groupBoxCrossroad.TabIndex = 4;
             this.groupBoxCrossroad.TabStop = false;
             this.groupBoxCrossroad.Text = "Crossroad Properties";
             this.groupBoxCrossroad.Visible = false;
             // 
+            // buttonDestroyCrossroad
+            // 
+            this.buttonDestroyCrossroad.Location = new System.Drawing.Point(4, 122);
+            this.buttonDestroyCrossroad.Margin = new System.Windows.Forms.Padding(2);
+            this.buttonDestroyCrossroad.Name = "buttonDestroyCrossroad";
+            this.buttonDestroyCrossroad.Size = new System.Drawing.Size(186, 34);
+            this.buttonDestroyCrossroad.TabIndex = 3;
+            this.buttonDestroyCrossroad.Text = "Destroy Crossroad";
+            this.buttonDestroyCrossroad.UseVisualStyleBackColor = true;
+            this.buttonDestroyCrossroad.Click += new System.EventHandler(this.buttonDestroyCrossroad_Click);
+            // 
             // buttonTrafficLight
             // 
             this.buttonTrafficLight.Location = new System.Drawing.Point(4, 87);
-            this.buttonTrafficLight.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.buttonTrafficLight.Margin = new System.Windows.Forms.Padding(2);
             this.buttonTrafficLight.Name = "buttonTrafficLight";
             this.buttonTrafficLight.Size = new System.Drawing.Size(186, 34);
             this.buttonTrafficLight.TabIndex = 3;
@@ -226,14 +237,25 @@
             this.groupBoxRoad.Controls.Add(this.labelFrom);
             this.groupBoxRoad.Controls.Add(this.labelRoadId);
             this.groupBoxRoad.Location = new System.Drawing.Point(833, 299);
-            this.groupBoxRoad.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.groupBoxRoad.Margin = new System.Windows.Forms.Padding(2);
             this.groupBoxRoad.Name = "groupBoxRoad";
-            this.groupBoxRoad.Padding = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.groupBoxRoad.Padding = new System.Windows.Forms.Padding(2);
             this.groupBoxRoad.Size = new System.Drawing.Size(213, 145);
             this.groupBoxRoad.TabIndex = 5;
             this.groupBoxRoad.TabStop = false;
             this.groupBoxRoad.Text = "Road Properties";
             this.groupBoxRoad.Visible = false;
+            // 
+            // buttonDestroyRoad
+            // 
+            this.buttonDestroyRoad.Location = new System.Drawing.Point(4, 104);
+            this.buttonDestroyRoad.Margin = new System.Windows.Forms.Padding(2);
+            this.buttonDestroyRoad.Name = "buttonDestroyRoad";
+            this.buttonDestroyRoad.Size = new System.Drawing.Size(186, 34);
+            this.buttonDestroyRoad.TabIndex = 3;
+            this.buttonDestroyRoad.Text = "DestroyRoad";
+            this.buttonDestroyRoad.UseVisualStyleBackColor = true;
+            this.buttonDestroyRoad.Click += new System.EventHandler(this.buttonDestroyRoad_Click);
             // 
             // labelRoadMaxSpeed
             // 
@@ -278,7 +300,7 @@
             // buttonCenter
             // 
             this.buttonCenter.Location = new System.Drawing.Point(833, 742);
-            this.buttonCenter.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.buttonCenter.Margin = new System.Windows.Forms.Padding(2);
             this.buttonCenter.Name = "buttonCenter";
             this.buttonCenter.Size = new System.Drawing.Size(96, 34);
             this.buttonCenter.TabIndex = 3;
@@ -289,35 +311,13 @@
             // buttonZoom
             // 
             this.buttonZoom.Location = new System.Drawing.Point(934, 742);
-            this.buttonZoom.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.buttonZoom.Margin = new System.Windows.Forms.Padding(2);
             this.buttonZoom.Name = "buttonZoom";
             this.buttonZoom.Size = new System.Drawing.Size(96, 34);
             this.buttonZoom.TabIndex = 3;
             this.buttonZoom.Text = "Zoom: 1.0x";
             this.buttonZoom.UseVisualStyleBackColor = true;
             this.buttonZoom.Click += new System.EventHandler(this.buttonZoom_Click);
-            // 
-            // buttonDestroyRoad
-            // 
-            this.buttonDestroyRoad.Location = new System.Drawing.Point(4, 104);
-            this.buttonDestroyRoad.Margin = new System.Windows.Forms.Padding(2);
-            this.buttonDestroyRoad.Name = "buttonDestroyRoad";
-            this.buttonDestroyRoad.Size = new System.Drawing.Size(186, 34);
-            this.buttonDestroyRoad.TabIndex = 3;
-            this.buttonDestroyRoad.Text = "DestroyRoad";
-            this.buttonDestroyRoad.UseVisualStyleBackColor = true;
-            this.buttonDestroyRoad.Click += new System.EventHandler(this.buttonDestroyRoad_Click);
-            // 
-            // buttonDestroyCrossroad
-            // 
-            this.buttonDestroyCrossroad.Location = new System.Drawing.Point(4, 122);
-            this.buttonDestroyCrossroad.Margin = new System.Windows.Forms.Padding(2);
-            this.buttonDestroyCrossroad.Name = "buttonDestroyCrossroad";
-            this.buttonDestroyCrossroad.Size = new System.Drawing.Size(186, 34);
-            this.buttonDestroyCrossroad.TabIndex = 3;
-            this.buttonDestroyCrossroad.Text = "Destroy Crossroad";
-            this.buttonDestroyCrossroad.UseVisualStyleBackColor = true;
-            this.buttonDestroyCrossroad.Click += new System.EventHandler(this.buttonDestroyCrossroad_Click);
             // 
             // FormMain
             // 
@@ -333,7 +333,7 @@
             this.Controls.Add(this.groupBoxBuild);
             this.Controls.Add(this.panelMap);
             this.Name = "FormMain";
-            this.Text = "RoadTrafficSimulator";
+            this.Text = "Road Traffic Simulator";
             this.groupBoxBuild.ResumeLayout(false);
             this.groupBoxBuild.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownSpeed)).EndInit();

@@ -11,9 +11,14 @@ namespace RoadTrafficSimulator
 {
     public partial class FormMain : Form
     {
+        private const decimal minZoom = 0.2m;
+        private const decimal maxZoom = 5m;
+
         private enum Mode { Select_Crossroad, Select_Road, Build_Road };
 
         private MapManager mapManager;
+        private Point origin;
+        private decimal zoom; // Do not access directly, use property Zoom
         private Simulation simulation;
         private Mode mode;
         private IRoadBuilder roadBuilder;
@@ -23,17 +28,22 @@ namespace RoadTrafficSimulator
         private bool drag;
         private bool dragOccured;
 
-        private Point PanelMapCenter { get => new Point(panelMap.Width / 2, panelMap.Height / 2); }
-        private Point Origin { get => mapManager.Settings.Origin; set => mapManager.Settings.Origin = value; }
-        private decimal Zoom
+        public decimal Zoom
         {
-            get => mapManager.Settings.Zoom;
+            get => zoom;
             set
             {
-                mapManager.Settings.Zoom = value;
-                buttonZoom.Text = string.Format("Zoom: {0:0.0}x", mapManager.Settings.Zoom);
+                if (value < minZoom)
+                    zoom = minZoom;
+                else if (value > maxZoom)
+                    zoom = maxZoom;
+                else
+                    zoom = value;
+                buttonZoom.Text = string.Format("Zoom: {0:0.0}x", zoom);
             }
         }
+
+        private Point PanelMapCenter { get => new Point(panelMap.Width / 2, panelMap.Height / 2); }
 
         public FormMain()
         {
@@ -52,14 +62,14 @@ namespace RoadTrafficSimulator
 
             Components.Map map = new Components.Map();
             mapManager = new MapManager(map);
-            Origin = PanelMapCenter;
+            origin = PanelMapCenter;
             Zoom = 1m;
             simulation = new Simulation(map);
         }
 
         private void panelMap_Paint(object sender, PaintEventArgs e)
         {
-            mapManager.Draw(e.Graphics, panelMap.Width, panelMap.Height);
+            mapManager.Draw(e.Graphics, origin, Zoom, panelMap.Width, panelMap.Height);
         }
 
         private void panelMap_MouseClick(object sender, MouseEventArgs e)
@@ -135,7 +145,7 @@ namespace RoadTrafficSimulator
 
         private void buttonCenter_Click(object sender, EventArgs e)
         {
-            Origin = PanelMapCenter;
+            origin = PanelMapCenter;
             panelMap.Invalidate();
         }
 
@@ -179,7 +189,7 @@ namespace RoadTrafficSimulator
         private void Drag(Point mouseLocation)
         {
             Point delta = new Point(mouseLocation.X - previousMouseLocation.X, mouseLocation.Y - previousMouseLocation.Y);
-            mapManager.Settings.MoveOrigin(delta);
+            origin.Offset(delta);
         }
 
         private void ChangeZoom(int direction, Point mouseLocation)
@@ -187,7 +197,7 @@ namespace RoadTrafficSimulator
             const decimal coefficient = 1.2m;
             // For centering the zoom at coursor position
             decimal originalZoom = Zoom;
-            Point newOrigin = Origin;
+            Point newOrigin = origin;
             if (direction > 0)
             {
                 Zoom *= coefficient;
@@ -201,13 +211,13 @@ namespace RoadTrafficSimulator
                 newOrigin.Y = (int)((newOrigin.Y + mouseLocation.Y * (coefficient - 1)) / coefficient);
             }
             if (Zoom != originalZoom)
-                Origin = newOrigin;
+                origin = newOrigin;
         }
 
         private void SelectCrossroad(Point mouseLocation)
         {
             UnselectCrossroad();
-            Coords coords = MapManager.CalculateCoords(mouseLocation, Origin, Zoom);
+            Coords coords = MapManager.CalculateCoords(mouseLocation, origin, Zoom);
             crossroadView = mapManager.GetCrossroad(coords);
             if (crossroadView != null)
                 crossroadView.GuiCrossroad.Highlight = GUI.Highlight.High;
@@ -225,7 +235,7 @@ namespace RoadTrafficSimulator
         private void SelectRoad(Point mouseLocation)
         {
             UnselectRoad();
-            Vector vector = MapManager.CalculateVector(mouseLocation, Origin, Zoom);
+            Vector vector = MapManager.CalculateVector(mouseLocation, origin, Zoom);
             roadView = mapManager.GetRoad(vector);
             if (roadView != null)
                 roadView.GuiRoad.Highlight = GUI.Highlight.High;
@@ -242,7 +252,7 @@ namespace RoadTrafficSimulator
 
         private void Build(Point mouseLocation)
         {
-            Coords coords = MapManager.CalculateCoords(mouseLocation, Origin, Zoom);
+            Coords coords = MapManager.CalculateCoords(mouseLocation, origin, Zoom);
             if (roadBuilder == null)
                 roadBuilder = mapManager.GetRoadBuilder(coords, checkBoxTwoWayRoad.Checked);
             else
