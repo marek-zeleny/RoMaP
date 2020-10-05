@@ -157,7 +157,10 @@ namespace RoadTrafficSimulator
 
         private void buttonTrafficLight_Click(object sender, EventArgs e)
         {
-            // TODO
+            FormTrafficLight form = new FormTrafficLight(mapManager, crossroadView);
+            form.FormClosed += (object sender, FormClosedEventArgs e) => Enabled = true;
+            Enabled = false;
+            form.Show();
         }
 
         private void buttonDestroyCrossroad_Click(object sender, EventArgs e)

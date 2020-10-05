@@ -236,7 +236,7 @@
             this.groupBoxRoad.Controls.Add(this.labelTo);
             this.groupBoxRoad.Controls.Add(this.labelFrom);
             this.groupBoxRoad.Controls.Add(this.labelRoadId);
-            this.groupBoxRoad.Location = new System.Drawing.Point(833, 299);
+            this.groupBoxRoad.Location = new System.Drawing.Point(833, 69);
             this.groupBoxRoad.Margin = new System.Windows.Forms.Padding(2);
             this.groupBoxRoad.Name = "groupBoxRoad";
             this.groupBoxRoad.Padding = new System.Windows.Forms.Padding(2);

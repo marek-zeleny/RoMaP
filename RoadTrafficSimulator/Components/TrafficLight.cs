@@ -10,17 +10,23 @@ namespace RoadTrafficSimulator.Components
     {
         private const int maxSettingsCount = 5;
 
-        private List<Setting> settings = new List<Setting>(maxSettingsCount);
+        private List<Setting> settings;
         private IEnumerator<Setting> settingEnumerator;
         private Seconds currentTime;
 
         private bool CurrentSettingExpired { get => currentTime >= settingEnumerator.Current.Duration; }
 
-        public IReadOnlyList<Setting> GetSettings() => settings;
+        public IReadOnlyList<Setting> Settings { get => settings; }
 
-        public Setting? InsertSetting(int index)
+        public TrafficLight()
         {
-            if (settings.Count >= maxSettingsCount)
+            settings = new List<Setting>(maxSettingsCount);
+            settings.Add(new Setting());
+        }
+
+        public Setting InsertSetting(int index)
+        {
+            if (settings.Count >= maxSettingsCount || index > settings.Count)
                 return null;
             Setting output = new Setting();
             settings.Insert(index, output);
@@ -29,7 +35,7 @@ namespace RoadTrafficSimulator.Components
 
         public bool RemoveSetting(int index)
         {
-            if (index >= settings.Count)
+            if (index >= settings.Count || settings.Count <= 1)
                 return false;
             settings.RemoveAt(index);
             return true;
@@ -69,45 +75,35 @@ namespace RoadTrafficSimulator.Components
                     yield return s;
         }
 
-        public struct Setting : IReadOnlyList<Direction>
+        public class Setting : IReadOnlyList<Direction>
         {
-            private List<Direction> allowedDirections;
+            private List<Direction> allowedDirections = new List<Direction>();
 
-            public Seconds Duration { get; set; }
+            public Seconds Duration { get; set; } = 20.Seconds();
 
-            private List<Direction> AllowedDirections
-            {
-                get
-                {
-                    if (allowedDirections == null)
-                        allowedDirections = new List<Direction>();
-                    return allowedDirections;
-                }
-            }
+            public Direction this[int index] { get => allowedDirections[index]; }
 
-            public Direction this[int index] { get => AllowedDirections[index]; }
-
-            public int Count { get => AllowedDirections.Count; }
+            public int Count { get => allowedDirections.Count; }
 
             public void AddDirection(int fromId, int toId)
             {
-                AllowedDirections.Add(new Direction(fromId, toId));
+                allowedDirections.Add(new Direction(fromId, toId));
             }
 
             public bool RemoveDirection(int index)
             {
-                if (index >= AllowedDirections.Count)
+                if (index >= allowedDirections.Count)
                     return false;
-                AllowedDirections.RemoveAt(index);
+                allowedDirections.RemoveAt(index);
                 return true;
             }
 
             public bool ContainsDirection(int fromId, int toId)
             {
-                return AllowedDirections.Contains(new Direction(fromId, toId));
+                return allowedDirections.Contains(new Direction(fromId, toId));
             }
 
-            public IEnumerator<Direction> GetEnumerator() => AllowedDirections.GetEnumerator();
+            public IEnumerator<Direction> GetEnumerator() => allowedDirections.GetEnumerator();
 
             IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
         }
