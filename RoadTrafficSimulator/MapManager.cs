@@ -83,6 +83,17 @@ namespace RoadTrafficSimulator
             return new RoadView(road, guiRoad);
         }
 
+        public IEnumerable<RoadView> GetAllRoads(Coords coords)
+        {
+            // May return the same road multiple times (twice)
+            foreach (Coords diff in directions)
+            {
+                RoadView road = GetRoad(new Vector(coords, new Coords(coords.x + diff.x, coords.y + diff.y)));
+                if (road != null)
+                    yield return road;
+            }
+        }
+
         public RoadView GetOppositeRoad(RoadView roadView)
         {
             foreach (int id in roadView.GuiRoad.GetRoadIds())
@@ -118,13 +129,9 @@ namespace RoadTrafficSimulator
 
         private bool DestroyGuiCrossroad(ICrossroad crossroad)
         {
-            foreach (Coords diff in directions)
-            {
-                IRoad road = guiMap.GetRoad(new Vector(crossroad.CrossroadId, new Coords(crossroad.CrossroadId.x + diff.x, crossroad.CrossroadId.y + diff.y)), true);
-                if (road != null)
-                    if (!DestroyGuiRoad(road))
-                        return false;
-            }
+            foreach (RoadView road in GetAllRoads(crossroad.CrossroadId))
+                if (!DestroyGuiRoad(road.GuiRoad))
+                    return false;
             // The crossroad should be destroyed in the previous cycle
             return guiMap.GetCrossroad(crossroad.CrossroadId) == null;
         }
@@ -167,10 +174,7 @@ namespace RoadTrafficSimulator
 
         private bool IsRoadFree(Coords coords)
         {
-            foreach (Coords diff in directions)
-                if (guiMap.GetRoad(new Vector(coords, new Coords(coords.x + diff.x, coords.y + diff.y)), true) != null)
-                    return false;
-            return true;
+            return !GetAllRoads(coords).Any();
         }
 
         private class RoadBuilder : IRoadBuilder
