@@ -9,8 +9,7 @@ namespace DataStructures.Graphs
         where TNodeId : IEquatable<TNodeId>
         where TEdgeId : IEquatable<TEdgeId>
     {
-        protected Dictionary<TEdgeId, IEdge<TNodeId, TEdgeId>> inEdges;
-        protected Dictionary<TEdgeId, IEdge<TNodeId, TEdgeId>> outEdges;
+        protected Dictionary<TEdgeId, IEdge<TNodeId, TEdgeId>> inEdges, outEdges;
 
         public TNodeId Id { get; }
         public int InDegree { get => inEdges.Count; }

@@ -7,8 +7,7 @@ namespace DataStructures.Graphs
         where TNodeId : IEquatable<TNodeId>
         where TEdgeId : IEquatable<TEdgeId>
     {
-        private readonly INode<TNodeId, TEdgeId> fromNode;
-        private readonly INode<TNodeId, TEdgeId> toNode;
+        private readonly INode<TNodeId, TEdgeId> fromNode, toNode;
 
         public TEdgeId Id { get; }
         public IReadOnlyNode<TNodeId, TEdgeId> FromNode { get => fromNode; }
