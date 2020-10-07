@@ -113,6 +113,8 @@ namespace RoadTrafficSimulator.Components
                 this.fromId = fromId;
                 this.toId = toId;
             }
+
+            public override string ToString() => string.Format("Dir: {0} -> {1}", fromId, toId);
         }
     }
 }

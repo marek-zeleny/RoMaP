@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.panelMap = new System.Windows.Forms.Panel();
             this.comboBoxSetting = new System.Windows.Forms.ComboBox();
             this.labelDuration = new System.Windows.Forms.Label();
             this.numericUpDownDuration = new System.Windows.Forms.NumericUpDown();
@@ -40,20 +41,9 @@
             this.checkBoxUp = new System.Windows.Forms.CheckBox();
             this.checkBoxRight = new System.Windows.Forms.CheckBox();
             this.checkBoxLeft = new System.Windows.Forms.CheckBox();
-            panelMap = new System.Windows.Forms.Panel();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownDuration)).BeginInit();
             this.groupBoxAllowedDirections.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // panelMap
-            // 
-            panelMap.BackColor = System.Drawing.Color.White;
-            panelMap.Location = new System.Drawing.Point(14, 14);
-            panelMap.Name = "panelMap";
-            panelMap.Size = new System.Drawing.Size(366, 405);
-            panelMap.TabIndex = 0;
-            panelMap.Paint += new System.Windows.Forms.PaintEventHandler(this.panelMap_Paint);
-            panelMap.MouseClick += new System.Windows.Forms.MouseEventHandler(this.panelMap_MouseClick);
             // 
             // comboBoxSetting
             // 
@@ -165,7 +155,7 @@
             this.checkBoxDown.TabIndex = 3;
             this.checkBoxDown.Text = "▼";
             this.checkBoxDown.UseVisualStyleBackColor = true;
-            this.checkBoxDown.CheckedChanged += new System.EventHandler(this.checkBoxDown_CheckedChanged);
+            this.checkBoxDown.CheckedChanged += new System.EventHandler(this.checkBoxDirection_CheckedChanged);
             // 
             // checkBoxUp
             // 
@@ -178,7 +168,7 @@
             this.checkBoxUp.TabIndex = 2;
             this.checkBoxUp.Text = "▲";
             this.checkBoxUp.UseVisualStyleBackColor = true;
-            this.checkBoxUp.CheckedChanged += new System.EventHandler(this.checkBoxUp_CheckedChanged);
+            this.checkBoxUp.CheckedChanged += new System.EventHandler(this.checkBoxDirection_CheckedChanged);
             // 
             // checkBoxRight
             // 
@@ -191,7 +181,7 @@
             this.checkBoxRight.TabIndex = 1;
             this.checkBoxRight.Text = "►";
             this.checkBoxRight.UseVisualStyleBackColor = true;
-            this.checkBoxRight.CheckedChanged += new System.EventHandler(this.checkBoxRight_CheckedChanged);
+            this.checkBoxRight.CheckedChanged += new System.EventHandler(this.checkBoxDirection_CheckedChanged);
             // 
             // checkBoxLeft
             // 
@@ -204,7 +194,17 @@
             this.checkBoxLeft.TabIndex = 0;
             this.checkBoxLeft.Text = "◄";
             this.checkBoxLeft.UseVisualStyleBackColor = true;
-            this.checkBoxLeft.CheckedChanged += new System.EventHandler(this.checkBoxLeft_CheckedChanged);
+            this.checkBoxLeft.CheckedChanged += new System.EventHandler(this.checkBoxDirection_CheckedChanged);
+            // 
+            // panelMap
+            // 
+            panelMap.BackColor = System.Drawing.Color.White;
+            panelMap.Location = new System.Drawing.Point(14, 14);
+            panelMap.Name = "panelMap";
+            panelMap.Size = new System.Drawing.Size(366, 405);
+            panelMap.TabIndex = 0;
+            panelMap.Paint += new System.Windows.Forms.PaintEventHandler(this.panelMap_Paint);
+            panelMap.MouseClick += new System.Windows.Forms.MouseEventHandler(this.panelMap_MouseClick);
             // 
             // FormTrafficLight
             // 
@@ -222,6 +222,7 @@
             this.Controls.Add(panelMap);
             this.Name = "FormTrafficLight";
             this.Text = "Road Traffic Simulator - Traffic Light Settings";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.FormTrafficLight_FormClosed);
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownDuration)).EndInit();
             this.groupBoxAllowedDirections.ResumeLayout(false);
             this.groupBoxAllowedDirections.PerformLayout();
