@@ -43,6 +43,19 @@ namespace RoadTrafficSimulator
             return true;
         }
 
+        public void Simulate(Seconds duration, int newCarsPerHundredSeconds) => Simulate(duration, newCarsPerHundredSeconds, 1.Seconds());
+
+        public void Simulate(Seconds duration, int newCarsPerHundredSeconds, Seconds step)
+        {
+            while (Time < duration)
+            {
+                Tick(step);
+                if (Time % 100 < step)
+                    for (int i = 0; i < newCarsPerHundredSeconds; i++)
+                        GenerateCar();
+            }
+        }
+
         public void GenerateCar()
         {
             Crossroad start = GetRandomCrossroad();

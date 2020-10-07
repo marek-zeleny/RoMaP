@@ -67,6 +67,8 @@ namespace RoadTrafficSimulator
             simulation = new Simulation(map);
         }
 
+        #region form_events
+
         private void panelMap_Paint(object sender, PaintEventArgs e)
         {
             mapManager.Draw(e.Graphics, origin, Zoom, panelMap.Width, panelMap.Height);
@@ -183,10 +185,59 @@ namespace RoadTrafficSimulator
             }
         }
 
+        private void buttonStartSimulation_Click(object sender, EventArgs e)
+        {
+            StartSimulation();
+        }
+
+        private void trackBarDuration_Scroll(object sender, EventArgs e)
+        {
+            labelDuration.Text = string.Format("Duration: {0}h", trackBarDuration.Value);
+        }
+
+        private void trackBarCarFrequency_Scroll(object sender, EventArgs e)
+        {
+            labelCarFrequency.Text = string.Format("Car frequency: {0:0.00}", (float)trackBarCarFrequency.Value / 100);
+        }
+
         private void comboBoxMode_SelectedIndexChanged(object sender, EventArgs e)
         {
             ChangeMode(Enum.Parse<Mode>(comboBoxMode.Text));
             panelMap.Invalidate();
+        }
+
+        #endregion // form_events
+
+        #region helper_methods
+
+        private void StartSimulation()
+        {
+            if (simulation.Initialize())
+            {
+                string message = string.Format(
+                    "Map check complete: the created map is consistent.\n" +
+                    "Do you want to start the simulation of {0} hours with {1:0.00} car frequency?"
+                    , trackBarDuration.Value, (float)trackBarCarFrequency.Value / 100);
+                DialogResult result = MessageBox.Show(message, "Start Simulation", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
+                switch (result)
+                {
+                    case DialogResult.Yes:
+                        ShowInfo("Starting simulation...");
+                        simulation.Simulate(trackBarDuration.Value.Seconds(), trackBarCarFrequency.Value);
+                        ShowInfo("The simulation has ended.");
+                        break;
+                    default:
+                        ShowInfo("The simulation did not start.");
+                        break;
+                }
+            }
+            else
+            {
+                string message =
+                    "Map check complete: the created map is inconsistent.\n" +
+                    "Please make sure that every crossroad has a correctly set-up traffic light.";
+                MessageBox.Show(message, "Map Inconsistent", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            }
         }
 
         private void Drag(Point mouseLocation)
@@ -341,5 +392,7 @@ namespace RoadTrafficSimulator
             // TODO
             Debug.Print(info);
         }
+
+        #endregion // helper_methods
     }
 }

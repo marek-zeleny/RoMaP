@@ -50,7 +50,7 @@ namespace RoadTrafficSimulator.Components
                 if (!b)
                     return false;
             settingEnumerator = GetEnumerator();
-            return true;
+            return settingEnumerator.MoveNext();
         }
 
         public void Tick(Seconds time)
