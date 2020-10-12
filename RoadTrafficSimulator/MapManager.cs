@@ -162,14 +162,25 @@ namespace RoadTrafficSimulator
             int step = (int)(K * zoom);
             int firstX = origin.X % step;
             int firstY = origin.Y % step;
+            Coords firstCoords = CalculateCoords(new Point(firstX, firstY), origin, zoom);
             Pen pen = new Pen(Color.Gray, 1)
             {
                 DashStyle = System.Drawing.Drawing2D.DashStyle.Dash
             };
+            Font font = new Font(SystemFonts.DefaultFont.FontFamily, 10f);
+            Brush brush = Brushes.DarkOrange;
+            int xCoord = firstCoords.x;
             for (int x = firstX; x < width; x += step)
+            {
                 graphics.DrawLine(pen, x, 0, x, height);
+                graphics.DrawString(string.Format("[{0}]", xCoord++), font, brush, x + 5, 5);
+            }
+            int yCoord = firstCoords.y;
             for (int y = firstY; y < height; y += step)
+            {
                 graphics.DrawLine(pen, 0, y, width, y);
+                graphics.DrawString(string.Format("[{0}]", yCoord++), font, brush, 5, y + 5);
+            }
         }
 
         private bool IsRoadFree(Coords coords)
@@ -231,8 +242,11 @@ namespace RoadTrafficSimulator
                 this.road.SetRoadId(road.Id);
                 if (this.road.IsTwoWay)
                 {
-                    road = manager.map.AddRoad(to, from, roadLength, maxSpeed);
-                    this.road.SetRoadId(road.Id, IMutableRoad.Direction.Backward);
+                    Components.Road backRoad = manager.map.AddRoad(to, from, roadLength, maxSpeed);
+                    this.road.SetRoadId(backRoad.Id, IMutableRoad.Direction.Backward);
+                    // Set TrafficLight to always allow backward direction
+                    ((Components.Crossroad)road.ToNode).TrafficLight.AddDefaultDirection(road.Id, backRoad.Id);
+                    ((Components.Crossroad)backRoad.ToNode).TrafficLight.AddDefaultDirection(backRoad.Id, road.Id);
                 }
                 Invalidate();
                 return true;

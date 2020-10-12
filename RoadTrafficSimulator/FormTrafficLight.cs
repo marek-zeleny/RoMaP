@@ -27,6 +27,13 @@ namespace RoadTrafficSimulator
         internal FormTrafficLight(MapManager mapManager, CrossroadView crossroadView)
         {
             InitializeComponent();
+            // Disable form resizing via maximizing the window, disable minimizing the window
+            MaximizeBox = false;
+            MinimizeBox = false;
+            // Enable double-buffering for panelMap
+            typeof(Panel).InvokeMember("DoubleBuffered",
+                System.Reflection.BindingFlags.SetProperty | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic,
+                null, panelMap, new object[] { true });
             this.mapManager = mapManager;
             this.crossroadView = crossroadView;
             trafficLight = crossroadView.TrafficLight;
@@ -154,8 +161,17 @@ namespace RoadTrafficSimulator
                 bool enable = selectedRoad != null;
                 foreach (var (cb, id) in checkBoxBinder)
                 {
-                    cb.Enabled = enable && id.HasValue;
-                    cb.Checked = cb.Enabled && currentSetting.ContainsDirection(selectedRoad.Id, id.Value);
+                    if (enable && id.HasValue)
+                    {
+                        // If the selected road is two-way, disable the backward direction
+                        cb.Enabled = !selectedRoad.GuiRoad.GetRoadIds().Contains((int)id);
+                        cb.Checked = currentSetting.ContainsDirection(selectedRoad.Id, id.Value);
+                    }
+                    else
+                    {
+                        cb.Enabled = false;
+                        cb.Checked = false;
+                    }
                 }
             }
             finally
@@ -188,7 +204,7 @@ namespace RoadTrafficSimulator
         private void ShowInfo(string info)
         {
             // TODO
-            Debug.Print(info);
+            Debug.Print("{0}: {1}", DateTime.Now, info);
         }
 
         #endregion // helper_methods

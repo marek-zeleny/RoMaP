@@ -45,21 +45,32 @@
             this.groupBoxAllowedDirections.SuspendLayout();
             this.SuspendLayout();
             // 
+            // panelMap
+            // 
+            panelMap.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(236)))), ((int)(((byte)(237)))), ((int)(((byte)(242)))));
+            panelMap.Cursor = System.Windows.Forms.Cursors.Cross;
+            panelMap.Location = new System.Drawing.Point(12, 12);
+            panelMap.Name = "panelMap";
+            panelMap.Size = new System.Drawing.Size(360, 360);
+            panelMap.TabIndex = 0;
+            panelMap.Paint += new System.Windows.Forms.PaintEventHandler(this.panelMap_Paint);
+            panelMap.MouseClick += new System.Windows.Forms.MouseEventHandler(this.panelMap_MouseClick);
+            // 
             // comboBoxSetting
             // 
             this.comboBoxSetting.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBoxSetting.FormattingEnabled = true;
-            this.comboBoxSetting.Location = new System.Drawing.Point(386, 15);
+            this.comboBoxSetting.Location = new System.Drawing.Point(378, 12);
             this.comboBoxSetting.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.comboBoxSetting.Name = "comboBoxSetting";
-            this.comboBoxSetting.Size = new System.Drawing.Size(210, 27);
+            this.comboBoxSetting.Size = new System.Drawing.Size(186, 27);
             this.comboBoxSetting.TabIndex = 2;
             this.comboBoxSetting.SelectedIndexChanged += new System.EventHandler(this.comboBoxSetting_SelectedIndexChanged);
             // 
             // labelDuration
             // 
             this.labelDuration.AutoSize = true;
-            this.labelDuration.Location = new System.Drawing.Point(386, 54);
+            this.labelDuration.Location = new System.Drawing.Point(378, 49);
             this.labelDuration.Name = "labelDuration";
             this.labelDuration.Size = new System.Drawing.Size(63, 19);
             this.labelDuration.TabIndex = 3;
@@ -67,7 +78,7 @@
             // 
             // numericUpDownDuration
             // 
-            this.numericUpDownDuration.Location = new System.Drawing.Point(454, 52);
+            this.numericUpDownDuration.Location = new System.Drawing.Point(447, 47);
             this.numericUpDownDuration.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.numericUpDownDuration.Maximum = new decimal(new int[] {
             60,
@@ -92,7 +103,7 @@
             // labelS
             // 
             this.labelS.AutoSize = true;
-            this.labelS.Location = new System.Drawing.Point(510, 54);
+            this.labelS.Location = new System.Drawing.Point(502, 49);
             this.labelS.Name = "labelS";
             this.labelS.Size = new System.Drawing.Size(15, 19);
             this.labelS.TabIndex = 5;
@@ -100,7 +111,7 @@
             // 
             // buttonNewSetting
             // 
-            this.buttonNewSetting.Location = new System.Drawing.Point(386, 200);
+            this.buttonNewSetting.Location = new System.Drawing.Point(378, 195);
             this.buttonNewSetting.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.buttonNewSetting.Name = "buttonNewSetting";
             this.buttonNewSetting.Size = new System.Drawing.Size(186, 33);
@@ -111,7 +122,7 @@
             // 
             // buttonFinish
             // 
-            this.buttonFinish.Location = new System.Drawing.Point(386, 380);
+            this.buttonFinish.Location = new System.Drawing.Point(378, 339);
             this.buttonFinish.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.buttonFinish.Name = "buttonFinish";
             this.buttonFinish.Size = new System.Drawing.Size(186, 33);
@@ -122,7 +133,7 @@
             // 
             // buttonDeleteSetting
             // 
-            this.buttonDeleteSetting.Location = new System.Drawing.Point(386, 241);
+            this.buttonDeleteSetting.Location = new System.Drawing.Point(378, 236);
             this.buttonDeleteSetting.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.buttonDeleteSetting.Name = "buttonDeleteSetting";
             this.buttonDeleteSetting.Size = new System.Drawing.Size(186, 33);
@@ -137,7 +148,7 @@
             this.groupBoxAllowedDirections.Controls.Add(this.checkBoxUp);
             this.groupBoxAllowedDirections.Controls.Add(this.checkBoxRight);
             this.groupBoxAllowedDirections.Controls.Add(this.checkBoxLeft);
-            this.groupBoxAllowedDirections.Location = new System.Drawing.Point(386, 85);
+            this.groupBoxAllowedDirections.Location = new System.Drawing.Point(378, 80);
             this.groupBoxAllowedDirections.Name = "groupBoxAllowedDirections";
             this.groupBoxAllowedDirections.Size = new System.Drawing.Size(139, 108);
             this.groupBoxAllowedDirections.TabIndex = 7;
@@ -196,21 +207,11 @@
             this.checkBoxLeft.UseVisualStyleBackColor = true;
             this.checkBoxLeft.CheckedChanged += new System.EventHandler(this.checkBoxDirection_CheckedChanged);
             // 
-            // panelMap
-            // 
-            panelMap.BackColor = System.Drawing.Color.White;
-            panelMap.Location = new System.Drawing.Point(14, 14);
-            panelMap.Name = "panelMap";
-            panelMap.Size = new System.Drawing.Size(366, 405);
-            panelMap.TabIndex = 0;
-            panelMap.Paint += new System.Windows.Forms.PaintEventHandler(this.panelMap_Paint);
-            panelMap.MouseClick += new System.Windows.Forms.MouseEventHandler(this.panelMap_MouseClick);
-            // 
             // FormTrafficLight
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 19F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(610, 428);
+            this.ClientSize = new System.Drawing.Size(576, 384);
             this.Controls.Add(this.groupBoxAllowedDirections);
             this.Controls.Add(this.buttonDeleteSetting);
             this.Controls.Add(this.buttonFinish);
@@ -220,7 +221,9 @@
             this.Controls.Add(this.labelDuration);
             this.Controls.Add(this.comboBoxSetting);
             this.Controls.Add(panelMap);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Name = "FormTrafficLight";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Road Traffic Simulator - Traffic Light Settings";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.FormTrafficLight_FormClosed);
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownDuration)).EndInit();

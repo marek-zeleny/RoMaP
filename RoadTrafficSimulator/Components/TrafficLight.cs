@@ -10,6 +10,7 @@ namespace RoadTrafficSimulator.Components
     {
         private const int maxSettingsCount = 5;
 
+        private ICollection<Direction> defaultDirections = new List<Direction>(1);
         private List<Setting> settings;
         private IEnumerator<Setting> settingEnumerator;
         private Seconds currentTime;
@@ -24,11 +25,19 @@ namespace RoadTrafficSimulator.Components
             settings.Add(new Setting());
         }
 
+        public void AddDefaultDirection(int fromId, int toId)
+        {
+            Direction direction = new Direction(fromId, toId);
+            defaultDirections.Add(direction);
+            foreach (Setting s in settings)
+                s.AddDirection(direction);
+        }
+
         public Setting InsertSetting(int index)
         {
             if (settings.Count >= maxSettingsCount || index > settings.Count)
                 return null;
-            Setting output = new Setting();
+            Setting output = new Setting(defaultDirections);
             settings.Insert(index, output);
             return output;
         }
@@ -78,11 +87,24 @@ namespace RoadTrafficSimulator.Components
         public class Setting : IReadOnlyCollection<Direction>
         {
             // In general, a HashTable might be preferable, but in this specific case only few values are expected, so a List is fine
-            private ICollection<Direction> allowedDirections = new HashSet<Direction>();
+            private ICollection<Direction> allowedDirections = new HashSet<Direction>(4);
 
             public Seconds Duration { get; set; } = 20.Seconds();
 
             public int Count { get => allowedDirections.Count; }
+
+            public Setting() { }
+
+            public Setting(ICollection<Direction> defaultDirections)
+            {
+                foreach (Direction d in defaultDirections)
+                    allowedDirections.Add(d);
+            }
+
+            public void AddDirection(Direction direction)
+            {
+                allowedDirections.Add(direction);
+            }
 
             public void AddDirection(int fromId, int toId)
             {

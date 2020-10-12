@@ -14,7 +14,7 @@ namespace RoadTrafficSimulator
         private const decimal minZoom = 0.2m;
         private const decimal maxZoom = 5m;
 
-        private enum Mode { Select_Crossroad, Select_Road, Build_Road };
+        private enum Mode { Build_Road, Select_Crossroad, Select_Road };
 
         private MapManager mapManager;
         private Point origin;
@@ -48,6 +48,8 @@ namespace RoadTrafficSimulator
         public FormMain()
         {
             InitializeComponent();
+            // Disable form resizing via maximizing the window
+            MaximizeBox = false;
             // Enable double-buffering for panelMap
             typeof(Panel).InvokeMember("DoubleBuffered",
                 System.Reflection.BindingFlags.SetProperty | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic,
@@ -56,7 +58,7 @@ namespace RoadTrafficSimulator
             panelMap.MouseWheel += panelMap_MouseWheel;
             // Initialize comboBoxMode
             foreach (Mode m in Enum.GetValues(typeof(Mode)))
-                comboBoxMode.Items.Add(m);
+                comboBoxMode.Items.Add(m.ToString().Replace('_', ' '));
             comboBoxMode.SelectedIndex = 0;
             mode = 0;
 
@@ -202,7 +204,7 @@ namespace RoadTrafficSimulator
 
         private void comboBoxMode_SelectedIndexChanged(object sender, EventArgs e)
         {
-            ChangeMode(Enum.Parse<Mode>(comboBoxMode.Text));
+            ChangeMode(Enum.Parse<Mode>(comboBoxMode.Text.Replace(' ', '_')));
             panelMap.Invalidate();
         }
 
@@ -214,16 +216,18 @@ namespace RoadTrafficSimulator
         {
             if (simulation.Initialize())
             {
+                int duration = trackBarDuration.Value;
+                float carFrequency = trackBarCarFrequency.Value / 100f;
                 string message = string.Format(
                     "Map check complete: the created map is consistent.\n" +
                     "Do you want to start the simulation of {0} hours with {1:0.00} car frequency?"
-                    , trackBarDuration.Value, (float)trackBarCarFrequency.Value / 100);
+                    , duration, carFrequency);
                 DialogResult result = MessageBox.Show(message, "Start Simulation", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
                 switch (result)
                 {
                     case DialogResult.Yes:
-                        ShowInfo("Starting simulation...");
-                        simulation.Simulate((trackBarDuration.Value * 3600).Seconds(), trackBarCarFrequency.Value);
+                        ShowInfo(string.Format("Starting simulation of {0} hours with {1:0.00} car frequency...", duration, carFrequency));
+                        simulation.Simulate((duration * 3600).Seconds(), trackBarCarFrequency.Value);
                         ShowInfo("The simulation has ended.");
                         UpdateStatistics();
                         break;
@@ -245,6 +249,7 @@ namespace RoadTrafficSimulator
         {
             labelCars.Text = string.Format("Finished cars: {0}", simulation.Statistics.RecordCount);
             labelAvgDistance.Text = string.Format("Average distance: {0}", simulation.Statistics.GetAverageDistance());
+            labelAvgDuration.Text = string.Format("Average duration: {0}", simulation.Statistics.GetAverageDuration());
             labelAvgDelay.Text = string.Format("Average delay: {0}", simulation.Statistics.GetAverageDelay());
         }
 
@@ -386,7 +391,10 @@ namespace RoadTrafficSimulator
                     buttonTrafficLight.Enabled = selectedCrossroad != null;
                     break;
                 case Mode.Select_Road:
-                    labelRoadId.Text = string.Format("ID: {0}", selectedRoad?.Id.ToString() ?? "-");
+                    if (selectedRoad == null)
+                        labelTwoWayRoad.Text = "-";
+                    else
+                        labelTwoWayRoad.Text = selectedRoad.TwoWayRoad ? "Two-way" : "One-way";
                     labelFrom.Text = string.Format("From: {0}", selectedRoad?.From.ToString() ?? "(-;-)");
                     labelTo.Text = string.Format("To: {0}", selectedRoad?.To.ToString() ?? "(-;-)");
                     labelRoadMaxSpeed.Text = string.Format("Max speed: {0}", selectedRoad?.MaxSpeed.ToString() ?? "-mps");
@@ -398,7 +406,7 @@ namespace RoadTrafficSimulator
         private void ShowInfo(string info)
         {
             // TODO
-            Debug.Print(info);
+            Debug.Print("{0}: {1}", DateTime.Now, info);
         }
 
         #endregion // helper_methods

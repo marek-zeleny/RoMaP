@@ -26,6 +26,14 @@ namespace RoadTrafficSimulator
             return (totalDistance / RecordCount).Meters();
         }
 
+        public Seconds GetAverageDuration()
+        {
+            if (RecordCount == 0)
+                return 0.Seconds();
+            int totalDuration = records.Sum(record => record.actualDuration);
+            return (totalDuration / RecordCount).Seconds();
+        }
+
         public Seconds GetAverageDelay()
         {
             if (RecordCount == 0)
