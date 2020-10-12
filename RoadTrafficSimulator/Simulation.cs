@@ -24,24 +24,32 @@ namespace RoadTrafficSimulator
             Map = map;
         }
 
-        public bool Initialize(Map map)
+        public enum InitializationResult { Ok, Error_MapIsNull, Error_NoMap, Error_InvalidCrossroad }
+
+        public InitializationResult Initialize(Map map, out Crossroad invalidCrossroad)
         {
             Map = map;
-            return Initialize();
+            return Initialize(out invalidCrossroad);
         }
 
-        public bool Initialize()
+        public InitializationResult Initialize(out Crossroad invalidCrossroad)
         {
+            invalidCrossroad = null;
             if (Map == null)
-                return false;
+                return InitializationResult.Error_MapIsNull;
+            if (Map.CrossroadCount == 0 || Map.RoadCount == 0)
+                return InitializationResult.Error_NoMap;
             foreach (Crossroad c in Map.GetNodes())
                 if (!c.Initialize())
-                    return false;
+                {
+                    invalidCrossroad = c;
+                    return InitializationResult.Error_InvalidCrossroad;
+                }
             randomCrossroads = GetRandomCrossroads().GetEnumerator();
             stagedCars = new HashSet<Car>();
             Time = 0.Seconds();
             Statistics = new Statistics();
-            return true;
+            return InitializationResult.Ok;
         }
 
         public void Simulate(Seconds duration, int newCarsPerHundredSeconds) => Simulate(duration, newCarsPerHundredSeconds, 1.Seconds());

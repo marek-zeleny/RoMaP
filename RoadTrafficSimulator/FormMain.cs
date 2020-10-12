@@ -171,7 +171,7 @@ namespace RoadTrafficSimulator
         {
             if (selectedCrossroad != null)
             {
-                mapManager.DestroyCrossroad(selectedCrossroad);
+                mapManager.DestroyCrossroad(selectedCrossroad.GuiCrossroad);
                 UnselectCrossroad();
                 panelMap.Invalidate();
             }
@@ -181,7 +181,7 @@ namespace RoadTrafficSimulator
         {
             if (selectedRoad != null)
             {
-                mapManager.DestroyRoad(selectedRoad);
+                mapManager.DestroyRoad(selectedRoad.GuiRoad);
                 UnselectRoad();
                 panelMap.Invalidate();
             }
@@ -189,7 +189,7 @@ namespace RoadTrafficSimulator
 
         private void buttonStartSimulation_Click(object sender, EventArgs e)
         {
-            StartSimulation();
+            InitializeSimulation();
         }
 
         private void trackBarDuration_Scroll(object sender, EventArgs e)
@@ -212,36 +212,57 @@ namespace RoadTrafficSimulator
 
         #region helper_methods
 
-        private void StartSimulation()
+        private void InitializeSimulation()
         {
-            if (simulation.Initialize())
-            {
-                int duration = trackBarDuration.Value;
-                float carFrequency = trackBarCarFrequency.Value / 100f;
-                string message = string.Format(
-                    "Map check complete: the created map is consistent.\n" +
-                    "Do you want to start the simulation of {0} hours with {1:0.00} car frequency?"
-                    , duration, carFrequency);
-                DialogResult result = MessageBox.Show(message, "Start Simulation", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
-                switch (result)
-                {
-                    case DialogResult.Yes:
-                        ShowInfo(string.Format("Starting simulation of {0} hours with {1:0.00} car frequency...", duration, carFrequency));
-                        simulation.Simulate((duration * 3600).Seconds(), trackBarCarFrequency.Value);
-                        ShowInfo("The simulation has ended.");
-                        UpdateStatistics();
-                        break;
-                    default:
-                        ShowInfo("The simulation did not start.");
-                        break;
-                }
-            }
+            Simulation.InitializationResult result = simulation.Initialize(out Components.Crossroad invalidCrossroad);
+            if (result == Simulation.InitializationResult.Ok)
+                StartSimulation();
             else
             {
-                string message =
-                    "Map check complete: the created map is inconsistent.\n" +
-                    "Please make sure that every crossroad has a correctly set-up traffic light.";
+                string message;
+                switch (result)
+                {
+                    case Simulation.InitializationResult.Error_NoMap:
+                        message =
+                            "Map check complete: the map is empty.\n" +
+                            "You have to create a map before starting the simulation.";
+                        break;
+                    case Simulation.InitializationResult.Error_InvalidCrossroad:
+                        message = string.Format(
+                            "Map check complete: the traffic light at {0} is inconsistent.\n" +
+                            "Please make sure that every possible direction is allowed at that crossroad.",
+                            invalidCrossroad.Id);
+                        break;
+                    default:
+                        message =
+                            "Map check complete: cannot start the simulation for an unknown reason." +
+                            "If the problem occures repeatedly, please restart the application.";
+                        break;
+                }
                 MessageBox.Show(message, "Map Inconsistent", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            }
+        }
+
+        private void StartSimulation()
+        {
+            int duration = trackBarDuration.Value;
+            float carFrequency = trackBarCarFrequency.Value / 100f;
+            string message = string.Format(
+                "Map check complete: all traffic lights are set up correctly.\n" +
+                "Do you want to start the simulation of {0} hours with {1:0.00} car frequency?"
+                , duration, carFrequency);
+            DialogResult result = MessageBox.Show(message, "Start Simulation", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
+            switch (result)
+            {
+                case DialogResult.Yes:
+                    ShowInfo(string.Format("Starting simulation of {0} hours with {1:0.00} car frequency...", duration, carFrequency));
+                    simulation.Simulate((duration * 3600).Seconds(), trackBarCarFrequency.Value);
+                    ShowInfo("The simulation has ended.");
+                    UpdateStatistics();
+                    break;
+                default:
+                    ShowInfo("The simulation did not start.");
+                    break;
             }
         }
 
@@ -283,7 +304,7 @@ namespace RoadTrafficSimulator
 
         private void SelectCrossroad(Point mouseLocation)
         {
-            UnselectCrossroad();
+            UnselectCrossroad(false);
             Coords coords = MapManager.CalculateCoords(mouseLocation, origin, Zoom);
             selectedCrossroad = mapManager.GetCrossroad(coords);
             if (selectedCrossroad != null)
@@ -291,17 +312,19 @@ namespace RoadTrafficSimulator
             ShowProperties();
         }
 
-        private void UnselectCrossroad()
+        private void UnselectCrossroad(bool updateProperties = true)
         {
             if (selectedCrossroad == null)
                 return;
             selectedCrossroad.GuiCrossroad.Highlight = GUI.Highlight.Normal;
             selectedCrossroad = null;
+            if (updateProperties)
+                ShowProperties();
         }
 
         private void SelectRoad(Point mouseLocation)
         {
-            UnselectRoad();
+            UnselectRoad(false);
             Vector vector = MapManager.CalculateVector(mouseLocation, origin, Zoom);
             selectedRoad = mapManager.GetRoad(vector);
             if (selectedRoad != null)
@@ -309,12 +332,14 @@ namespace RoadTrafficSimulator
             ShowProperties();
         }
 
-        private void UnselectRoad()
+        private void UnselectRoad(bool updateProperties = true)
         {
             if (selectedRoad == null)
                 return;
             selectedRoad.GuiRoad.Highlight = GUI.Highlight.Normal;
             selectedRoad = null;
+            if (updateProperties)
+                ShowProperties();
         }
 
         private void Build(Point mouseLocation)
@@ -358,22 +383,22 @@ namespace RoadTrafficSimulator
                     groupBoxCrossroad.Visible = true;
                     groupBoxRoad.Visible = false;
                     groupBoxBuild.Visible = false;
-                    UnselectRoad();
+                    UnselectRoad(false);
                     DestroyBuild();
                     break;
                 case Mode.Select_Road:
                     groupBoxCrossroad.Visible = false;
                     groupBoxRoad.Visible = true;
                     groupBoxBuild.Visible = false;
-                    UnselectCrossroad();
+                    UnselectCrossroad(false);
                     DestroyBuild();
                     break;
                 case Mode.Build_Road:
                     groupBoxCrossroad.Visible = false;
                     groupBoxRoad.Visible = false;
                     groupBoxBuild.Visible = true;
-                    UnselectCrossroad();
-                    UnselectRoad();
+                    UnselectCrossroad(false);
+                    UnselectRoad(false);
                     break;
             }
             ShowProperties();

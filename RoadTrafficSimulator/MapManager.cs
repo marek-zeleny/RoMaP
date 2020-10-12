@@ -109,16 +109,17 @@ namespace RoadTrafficSimulator
             return new RoadBuilder(this, startingCoords, twoWayRoad);
         }
 
-        public bool DestroyCrossroad(CrossroadView crossroadView)
+        public bool DestroyCrossroad(ICrossroad crossroad)
         {
-            map.RemoveCrossroad(crossroadView.Coords);
-            return DestroyGuiCrossroad(crossroadView.GuiCrossroad);
+            map.RemoveCrossroad(crossroad.CrossroadId);
+            return DestroyGuiCrossroad(crossroad);
         }
 
-        public bool DestroyRoad(RoadView roadView)
+        public bool DestroyRoad(IRoad road)
         {
-            map.RemoveRoad(roadView.Id);
-            return DestroyGuiRoad(roadView.GuiRoad);
+            foreach (int id in road.GetRoadIds())
+                map.RemoveRoad(id);
+            return DestroyGuiRoad(road);
         }
 
         public void Draw(Graphics graphics, Point origin, decimal zoom, int width, int height)
