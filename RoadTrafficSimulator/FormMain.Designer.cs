@@ -51,18 +51,23 @@
             this.buttonCenter = new System.Windows.Forms.Button();
             this.buttonZoom = new System.Windows.Forms.Button();
             this.groupBoxSimulation = new System.Windows.Forms.GroupBox();
-            this.trackBarDuration = new System.Windows.Forms.TrackBar();
-            this.labelDuration = new System.Windows.Forms.Label();
-            this.trackBarCarFrequency = new System.Windows.Forms.TrackBar();
-            this.labelCarFrequency = new System.Windows.Forms.Label();
             this.buttonStartSimulation = new System.Windows.Forms.Button();
+            this.labelCarFrequency = new System.Windows.Forms.Label();
+            this.trackBarCarFrequency = new System.Windows.Forms.TrackBar();
+            this.labelDuration = new System.Windows.Forms.Label();
+            this.trackBarDuration = new System.Windows.Forms.TrackBar();
+            this.groupBoxStatistics = new System.Windows.Forms.GroupBox();
+            this.labelCars = new System.Windows.Forms.Label();
+            this.labelAvgDistance = new System.Windows.Forms.Label();
+            this.labelAvgDelay = new System.Windows.Forms.Label();
             this.groupBoxBuild.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownSpeed)).BeginInit();
             this.groupBoxCrossroad.SuspendLayout();
             this.groupBoxRoad.SuspendLayout();
             this.groupBoxSimulation.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.trackBarDuration)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarCarFrequency)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.trackBarDuration)).BeginInit();
+            this.groupBoxStatistics.SuspendLayout();
             this.SuspendLayout();
             // 
             // panelMap
@@ -342,26 +347,25 @@
             this.groupBoxSimulation.TabStop = false;
             this.groupBoxSimulation.Text = "Simulation";
             // 
-            // trackBarDuration
+            // buttonStartSimulation
             // 
-            this.trackBarDuration.LargeChange = 4;
-            this.trackBarDuration.Location = new System.Drawing.Point(6, 44);
-            this.trackBarDuration.Maximum = 24;
-            this.trackBarDuration.Minimum = 1;
-            this.trackBarDuration.Name = "trackBarDuration";
-            this.trackBarDuration.Size = new System.Drawing.Size(201, 50);
-            this.trackBarDuration.TabIndex = 0;
-            this.trackBarDuration.Value = 10;
-            this.trackBarDuration.Scroll += new System.EventHandler(this.trackBarDuration_Scroll);
+            this.buttonStartSimulation.Location = new System.Drawing.Point(5, 174);
+            this.buttonStartSimulation.Margin = new System.Windows.Forms.Padding(2);
+            this.buttonStartSimulation.Name = "buttonStartSimulation";
+            this.buttonStartSimulation.Size = new System.Drawing.Size(185, 32);
+            this.buttonStartSimulation.TabIndex = 3;
+            this.buttonStartSimulation.Text = "Start Simulation";
+            this.buttonStartSimulation.UseVisualStyleBackColor = true;
+            this.buttonStartSimulation.Click += new System.EventHandler(this.buttonStartSimulation_Click);
             // 
-            // labelDuration
+            // labelCarFrequency
             // 
-            this.labelDuration.AutoSize = true;
-            this.labelDuration.Location = new System.Drawing.Point(6, 22);
-            this.labelDuration.Name = "labelDuration";
-            this.labelDuration.Size = new System.Drawing.Size(94, 19);
-            this.labelDuration.TabIndex = 1;
-            this.labelDuration.Text = "Duration: 10h";
+            this.labelCarFrequency.AutoSize = true;
+            this.labelCarFrequency.Location = new System.Drawing.Point(6, 97);
+            this.labelCarFrequency.Name = "labelCarFrequency";
+            this.labelCarFrequency.Size = new System.Drawing.Size(128, 19);
+            this.labelCarFrequency.TabIndex = 1;
+            this.labelCarFrequency.Text = "Car frequency: 0.50";
             // 
             // trackBarCarFrequency
             // 
@@ -375,31 +379,72 @@
             this.trackBarCarFrequency.Value = 50;
             this.trackBarCarFrequency.Scroll += new System.EventHandler(this.trackBarCarFrequency_Scroll);
             // 
-            // labelCarFrequency
+            // labelDuration
             // 
-            this.labelCarFrequency.AutoSize = true;
-            this.labelCarFrequency.Location = new System.Drawing.Point(6, 97);
-            this.labelCarFrequency.Name = "labelCarFrequency";
-            this.labelCarFrequency.Size = new System.Drawing.Size(128, 19);
-            this.labelCarFrequency.TabIndex = 1;
-            this.labelCarFrequency.Text = "Car frequency: 0.50";
+            this.labelDuration.AutoSize = true;
+            this.labelDuration.Location = new System.Drawing.Point(6, 22);
+            this.labelDuration.Name = "labelDuration";
+            this.labelDuration.Size = new System.Drawing.Size(94, 19);
+            this.labelDuration.TabIndex = 1;
+            this.labelDuration.Text = "Duration: 10h";
             // 
-            // buttonStartSimulation
+            // trackBarDuration
             // 
-            this.buttonStartSimulation.Location = new System.Drawing.Point(5, 174);
-            this.buttonStartSimulation.Margin = new System.Windows.Forms.Padding(2);
-            this.buttonStartSimulation.Name = "buttonStartSimulation";
-            this.buttonStartSimulation.Size = new System.Drawing.Size(185, 32);
-            this.buttonStartSimulation.TabIndex = 3;
-            this.buttonStartSimulation.Text = "Start Simulation";
-            this.buttonStartSimulation.UseVisualStyleBackColor = true;
-            this.buttonStartSimulation.Click += new System.EventHandler(this.buttonStartSimulation_Click);
+            this.trackBarDuration.LargeChange = 4;
+            this.trackBarDuration.Location = new System.Drawing.Point(6, 44);
+            this.trackBarDuration.Maximum = 24;
+            this.trackBarDuration.Minimum = 1;
+            this.trackBarDuration.Name = "trackBarDuration";
+            this.trackBarDuration.Size = new System.Drawing.Size(201, 50);
+            this.trackBarDuration.TabIndex = 0;
+            this.trackBarDuration.Value = 10;
+            this.trackBarDuration.Scroll += new System.EventHandler(this.trackBarDuration_Scroll);
+            // 
+            // groupBoxStatistics
+            // 
+            this.groupBoxStatistics.Controls.Add(this.labelAvgDelay);
+            this.groupBoxStatistics.Controls.Add(this.labelAvgDistance);
+            this.groupBoxStatistics.Controls.Add(this.labelCars);
+            this.groupBoxStatistics.Location = new System.Drawing.Point(834, 358);
+            this.groupBoxStatistics.Name = "groupBoxStatistics";
+            this.groupBoxStatistics.Size = new System.Drawing.Size(213, 89);
+            this.groupBoxStatistics.TabIndex = 7;
+            this.groupBoxStatistics.TabStop = false;
+            this.groupBoxStatistics.Text = "Statistics";
+            // 
+            // labelCars
+            // 
+            this.labelCars.AutoSize = true;
+            this.labelCars.Location = new System.Drawing.Point(6, 22);
+            this.labelCars.Name = "labelCars";
+            this.labelCars.Size = new System.Drawing.Size(100, 19);
+            this.labelCars.TabIndex = 0;
+            this.labelCars.Text = "Finished cars: -";
+            // 
+            // labelAvgDistance
+            // 
+            this.labelAvgDistance.AutoSize = true;
+            this.labelAvgDistance.Location = new System.Drawing.Point(6, 41);
+            this.labelAvgDistance.Name = "labelAvgDistance";
+            this.labelAvgDistance.Size = new System.Drawing.Size(138, 19);
+            this.labelAvgDistance.TabIndex = 0;
+            this.labelAvgDistance.Text = "Average distance: -m";
+            // 
+            // labelAvgDelay
+            // 
+            this.labelAvgDelay.AutoSize = true;
+            this.labelAvgDelay.Location = new System.Drawing.Point(6, 60);
+            this.labelAvgDelay.Name = "labelAvgDelay";
+            this.labelAvgDelay.Size = new System.Drawing.Size(114, 19);
+            this.labelAvgDelay.TabIndex = 0;
+            this.labelAvgDelay.Text = "Average delay: -s";
             // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 19F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1063, 792);
+            this.Controls.Add(this.groupBoxStatistics);
             this.Controls.Add(this.groupBoxSimulation);
             this.Controls.Add(this.groupBoxRoad);
             this.Controls.Add(this.buttonZoom);
@@ -420,8 +465,10 @@
             this.groupBoxRoad.PerformLayout();
             this.groupBoxSimulation.ResumeLayout(false);
             this.groupBoxSimulation.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.trackBarDuration)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarCarFrequency)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.trackBarDuration)).EndInit();
+            this.groupBoxStatistics.ResumeLayout(false);
+            this.groupBoxStatistics.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -457,6 +504,10 @@
         private System.Windows.Forms.TrackBar trackBarCarFrequency;
         private System.Windows.Forms.Label labelDuration;
         private System.Windows.Forms.TrackBar trackBarDuration;
+        private System.Windows.Forms.GroupBox groupBoxStatistics;
+        private System.Windows.Forms.Label labelAvgDelay;
+        private System.Windows.Forms.Label labelAvgDistance;
+        private System.Windows.Forms.Label labelCars;
     }
 }
 

@@ -8,8 +8,8 @@ namespace RoadTrafficSimulator.Components
 {
     class Road : Edge<Coords, int>
     {
-        private Queue<Car> cars = new Queue<Car>();
-        private Car lastCar = null;
+        private Car firstCar;
+        private Car lastCar;
 
         public Meters Length { get; }
         public MetersPerSecond MaxSpeed { get; }
@@ -25,29 +25,41 @@ namespace RoadTrafficSimulator.Components
         public bool GetOn(Car car, out Car carInFront)
         {
             carInFront = lastCar;
-            if (lastCar != null && lastCar.DistanceRear < car.Length)
-                return false;
-            cars.Enqueue(car);
+            if (firstCar == null)
+                firstCar = car;
+            else
+            {
+                if (lastCar.DistanceRear < car.Length)
+                    return false;
+                lastCar.SetCarBehind(this, car);
+            }
             lastCar = car;
             return true;
         }
 
         public bool GetOff(Car authentication)
         {
-            if (authentication != cars.Peek())
+            if (authentication != firstCar)
                 return false;
-            cars.Dequeue();
-            if (cars.Count == 0)
+            firstCar = firstCar.CarBehind;
+            if (firstCar == null)
                 lastCar = null;
             else
-                cars.Peek().RemoveCarInFront(this);
+                firstCar.RemoveCarInFront(this);
             return true;
         }
 
         public void Tick(Seconds time)
         {
-            foreach (Car car in cars)
-                car.Tick(time);
+            Car current = firstCar;
+            // Because the current Car can leave this Road during its Tick(), we need to know the next Car beforehands
+            Car next;
+            while (current != null)
+            {
+                next = current.CarBehind;
+                current.Tick(time);
+                current = next;
+            }
         }
     }
 }

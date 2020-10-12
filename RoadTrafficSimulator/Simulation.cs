@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 using RoadTrafficSimulator.Components;
 using RoadTrafficSimulator.ValueTypes;
@@ -82,7 +83,7 @@ namespace RoadTrafficSimulator
             Time += time;
         }
 
-        public void DriveFinished(Car car)
+        private void DriveFinished(Car car)
         {
             Statistics.AddRecord(car, Time);
         }
@@ -95,7 +96,7 @@ namespace RoadTrafficSimulator
 
         private IEnumerable<Crossroad> GetRandomCrossroads()
         {
-            List<Crossroad> crossroads = new List<Crossroad>((IEnumerable<Crossroad>)Map.GetNodes());
+            List<Crossroad> crossroads = new List<Crossroad>(Map.GetNodes().Select(node => (Crossroad)node));
             int count = Map.CrossroadCount;
             while (true)
                 yield return crossroads[random.Next(count)];

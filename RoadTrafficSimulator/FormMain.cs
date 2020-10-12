@@ -223,8 +223,9 @@ namespace RoadTrafficSimulator
                 {
                     case DialogResult.Yes:
                         ShowInfo("Starting simulation...");
-                        simulation.Simulate(trackBarDuration.Value.Seconds(), trackBarCarFrequency.Value);
+                        simulation.Simulate((trackBarDuration.Value * 3600).Seconds(), trackBarCarFrequency.Value);
                         ShowInfo("The simulation has ended.");
+                        UpdateStatistics();
                         break;
                     default:
                         ShowInfo("The simulation did not start.");
@@ -238,6 +239,13 @@ namespace RoadTrafficSimulator
                     "Please make sure that every crossroad has a correctly set-up traffic light.";
                 MessageBox.Show(message, "Map Inconsistent", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
+        }
+
+        private void UpdateStatistics()
+        {
+            labelCars.Text = string.Format("Finished cars: {0}", simulation.Statistics.RecordCount);
+            labelAvgDistance.Text = string.Format("Average distance: {0}", simulation.Statistics.GetAverageDistance());
+            labelAvgDelay.Text = string.Format("Average delay: {0}", simulation.Statistics.GetAverageDelay());
         }
 
         private void Drag(Point mouseLocation)
