@@ -63,6 +63,8 @@
             this.labelCars = new System.Windows.Forms.Label();
             this.buttonLoadMap = new System.Windows.Forms.Button();
             this.buttonSaveMap = new System.Windows.Forms.Button();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.textBoxInfo = new System.Windows.Forms.TextBox();
             this.groupBoxBuild.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownSpeed)).BeginInit();
             this.groupBoxCrossroad.SuspendLayout();
@@ -71,6 +73,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.trackBarCarFrequency)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarDuration)).BeginInit();
             this.groupBoxStatistics.SuspendLayout();
+            this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
             // panelMap
@@ -114,7 +117,7 @@
             this.groupBoxBuild.Controls.Add(this.labelBuildMaxSpeed);
             this.groupBoxBuild.Controls.Add(this.numericUpDownSpeed);
             this.groupBoxBuild.Controls.Add(this.checkBoxTwoWayRoad);
-            this.groupBoxBuild.Location = new System.Drawing.Point(712, 51);
+            this.groupBoxBuild.Location = new System.Drawing.Point(712, 85);
             this.groupBoxBuild.Name = "groupBoxBuild";
             this.groupBoxBuild.Size = new System.Drawing.Size(172, 73);
             this.groupBoxBuild.TabIndex = 3;
@@ -181,7 +184,7 @@
             this.groupBoxCrossroad.Controls.Add(this.labelOutIndex);
             this.groupBoxCrossroad.Controls.Add(this.labelInIndex);
             this.groupBoxCrossroad.Controls.Add(this.labelCoords);
-            this.groupBoxCrossroad.Location = new System.Drawing.Point(712, 51);
+            this.groupBoxCrossroad.Location = new System.Drawing.Point(712, 85);
             this.groupBoxCrossroad.Margin = new System.Windows.Forms.Padding(2);
             this.groupBoxCrossroad.Name = "groupBoxCrossroad";
             this.groupBoxCrossroad.Padding = new System.Windows.Forms.Padding(2);
@@ -250,7 +253,7 @@
             this.groupBoxRoad.Controls.Add(this.labelTo);
             this.groupBoxRoad.Controls.Add(this.labelFrom);
             this.groupBoxRoad.Controls.Add(this.labelTwoWayRoad);
-            this.groupBoxRoad.Location = new System.Drawing.Point(712, 51);
+            this.groupBoxRoad.Location = new System.Drawing.Point(712, 85);
             this.groupBoxRoad.Margin = new System.Windows.Forms.Padding(2);
             this.groupBoxRoad.Name = "groupBoxRoad";
             this.groupBoxRoad.Padding = new System.Windows.Forms.Padding(2);
@@ -340,7 +343,7 @@
             this.groupBoxSimulation.Controls.Add(this.trackBarCarFrequency);
             this.groupBoxSimulation.Controls.Add(this.labelDuration);
             this.groupBoxSimulation.Controls.Add(this.trackBarDuration);
-            this.groupBoxSimulation.Location = new System.Drawing.Point(712, 358);
+            this.groupBoxSimulation.Location = new System.Drawing.Point(712, 270);
             this.groupBoxSimulation.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.groupBoxSimulation.Name = "groupBoxSimulation";
             this.groupBoxSimulation.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -410,7 +413,7 @@
             this.groupBoxStatistics.Controls.Add(this.labelAvgDelay);
             this.groupBoxStatistics.Controls.Add(this.labelAvgDistance);
             this.groupBoxStatistics.Controls.Add(this.labelCars);
-            this.groupBoxStatistics.Location = new System.Drawing.Point(712, 529);
+            this.groupBoxStatistics.Location = new System.Drawing.Point(712, 441);
             this.groupBoxStatistics.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.groupBoxStatistics.Name = "groupBoxStatistics";
             this.groupBoxStatistics.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -457,7 +460,7 @@
             // 
             // buttonLoadMap
             // 
-            this.buttonLoadMap.Location = new System.Drawing.Point(800, 329);
+            this.buttonLoadMap.Location = new System.Drawing.Point(799, 53);
             this.buttonLoadMap.Margin = new System.Windows.Forms.Padding(2);
             this.buttonLoadMap.Name = "buttonLoadMap";
             this.buttonLoadMap.Size = new System.Drawing.Size(84, 25);
@@ -468,7 +471,7 @@
             // 
             // buttonSaveMap
             // 
-            this.buttonSaveMap.Location = new System.Drawing.Point(712, 329);
+            this.buttonSaveMap.Location = new System.Drawing.Point(711, 53);
             this.buttonSaveMap.Margin = new System.Windows.Forms.Padding(2);
             this.buttonSaveMap.Name = "buttonSaveMap";
             this.buttonSaveMap.Size = new System.Drawing.Size(84, 25);
@@ -477,11 +480,33 @@
             this.buttonSaveMap.UseVisualStyleBackColor = true;
             this.buttonSaveMap.Click += new System.EventHandler(this.buttonSaveMap_Click);
             // 
+            // groupBox1
+            // 
+            this.groupBox1.Controls.Add(this.textBoxInfo);
+            this.groupBox1.Location = new System.Drawing.Point(712, 526);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(172, 82);
+            this.groupBox1.TabIndex = 8;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "Info";
+            // 
+            // textBoxInfo
+            // 
+            this.textBoxInfo.BackColor = System.Drawing.SystemColors.Control;
+            this.textBoxInfo.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.textBoxInfo.Location = new System.Drawing.Point(6, 22);
+            this.textBoxInfo.Multiline = true;
+            this.textBoxInfo.Name = "textBoxInfo";
+            this.textBoxInfo.ReadOnly = true;
+            this.textBoxInfo.Size = new System.Drawing.Size(160, 54);
+            this.textBoxInfo.TabIndex = 0;
+            // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(894, 647);
+            this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.buttonSaveMap);
             this.Controls.Add(this.buttonLoadMap);
             this.Controls.Add(this.groupBoxCrossroad);
@@ -511,6 +536,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.trackBarDuration)).EndInit();
             this.groupBoxStatistics.ResumeLayout(false);
             this.groupBoxStatistics.PerformLayout();
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -553,6 +580,8 @@
         private System.Windows.Forms.Label labelAvgDuration;
         private System.Windows.Forms.Button buttonLoadMap;
         private System.Windows.Forms.Button buttonSaveMap;
+        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.TextBox textBoxInfo;
     }
 }
 

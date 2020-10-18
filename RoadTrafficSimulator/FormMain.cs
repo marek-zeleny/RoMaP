@@ -525,8 +525,8 @@ namespace RoadTrafficSimulator
 
         private void ShowInfo(string info)
         {
-            // TODO
-            Debug.Print("{0}: {1}", DateTime.Now, info);
+            textBoxInfo.Text = info;
+            Debug.WriteLine(string.Format("{0}: {1}", DateTime.Now, info));
         }
 
         #endregion // helper_methods
