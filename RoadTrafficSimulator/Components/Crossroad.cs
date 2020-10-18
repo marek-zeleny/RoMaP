@@ -29,5 +29,23 @@ namespace RoadTrafficSimulator.Components
         {
             TrafficLight.Tick(time);
         }
+
+        public override bool RemoveInEdge(int id)
+        {
+            bool result = base.RemoveInEdge(id);
+            if (result)
+                foreach (var setting in TrafficLight.Settings)
+                    setting.RemoveDirectionsWithFromId(id);
+            return result;
+        }
+
+        public override bool RemoveOutEdge(int id)
+        {
+            bool result = base.RemoveOutEdge(id);
+            if (result)
+                foreach (var setting in TrafficLight.Settings)
+                    setting.RemoveDirectionsWithToId(id);
+            return result;
+        }
     }
 }

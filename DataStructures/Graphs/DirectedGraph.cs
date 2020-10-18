@@ -29,7 +29,7 @@ namespace DataStructures.Graphs
 
         public IEnumerable<IReadOnlyEdge<TNodeId, TEdgeId>> GetEdges() => edges.Select(pair => pair.Value);
 
-        public bool AddNode(INode<TNodeId, TEdgeId> node)
+        public virtual bool AddNode(INode<TNodeId, TEdgeId> node)
         {
             if (nodes.ContainsKey(node.Id))
                 return false;
@@ -37,7 +37,7 @@ namespace DataStructures.Graphs
             return true;
         }
 
-        public bool AddEdge(IEdge<TNodeId, TEdgeId> edge)
+        public virtual bool AddEdge(IEdge<TNodeId, TEdgeId> edge)
         {
             bool idIsFree = !edges.ContainsKey(edge.Id);
             bool fromNodeExists = nodes.TryGetValue(edge.FromNode.Id, out var fromNode) && fromNode == edge.FromNode;
@@ -56,7 +56,7 @@ namespace DataStructures.Graphs
                 return false;
         }
 
-        public INode<TNodeId, TEdgeId> RemoveNode(TNodeId id)
+        public virtual INode<TNodeId, TEdgeId> RemoveNode(TNodeId id)
         {
             INode<TNodeId, TEdgeId> node;
             if (!nodes.TryGetValue(id, out node)
@@ -68,7 +68,7 @@ namespace DataStructures.Graphs
             return node;
         }
 
-        public INode<TNodeId, TEdgeId> RemoveNodeForced(TNodeId id, out IEnumerable<IEdge<TNodeId, TEdgeId>> removedInEdges, out IEnumerable<IEdge<TNodeId, TEdgeId>> removedOutEdges)
+        public virtual INode<TNodeId, TEdgeId> RemoveNodeForced(TNodeId id, out IEnumerable<IEdge<TNodeId, TEdgeId>> removedInEdges, out IEnumerable<IEdge<TNodeId, TEdgeId>> removedOutEdges)
         {
             INode<TNodeId, TEdgeId> node;
             ICollection<IEdge<TNodeId, TEdgeId>> removedInEdgesCollection = new LinkedList<IEdge<TNodeId, TEdgeId>>();
@@ -86,7 +86,7 @@ namespace DataStructures.Graphs
             return node;
         }
 
-        public IEdge<TNodeId, TEdgeId> RemoveEdge(TEdgeId id)
+        public virtual IEdge<TNodeId, TEdgeId> RemoveEdge(TEdgeId id)
         {
             IEdge<TNodeId, TEdgeId> edge;
             if (!edges.TryGetValue(id, out edge))

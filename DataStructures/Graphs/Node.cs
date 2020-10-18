@@ -30,7 +30,7 @@ namespace DataStructures.Graphs
 
         public IEnumerable<IReadOnlyEdge<TNodeId, TEdgeId>> GetOutEdges() => outEdges.Select(pair => pair.Value);
 
-        public void AddInEdge(IEdge<TNodeId, TEdgeId> edge)
+        public virtual void AddInEdge(IEdge<TNodeId, TEdgeId> edge)
         {
             try
             {
@@ -42,7 +42,7 @@ namespace DataStructures.Graphs
             }
         }
 
-        public void AddOutEdge(IEdge<TNodeId, TEdgeId> edge)
+        public virtual void AddOutEdge(IEdge<TNodeId, TEdgeId> edge)
         {
             try
             {
@@ -54,9 +54,9 @@ namespace DataStructures.Graphs
             }
         }
 
-        public bool RemoveInEdge(TEdgeId id) => inEdges.Remove(id);
+        public virtual bool RemoveInEdge(TEdgeId id) => inEdges.Remove(id);
 
-        public bool RemoveOutEdge(TEdgeId id) => outEdges.Remove(id);
+        public virtual bool RemoveOutEdge(TEdgeId id) => outEdges.Remove(id);
 
         public override string ToString() => string.Format("N{0}: In{1}, Out{2}", Id, inEdges.Count, outEdges.Count);
     }

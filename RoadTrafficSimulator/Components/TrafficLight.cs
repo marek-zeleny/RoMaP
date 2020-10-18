@@ -86,8 +86,7 @@ namespace RoadTrafficSimulator.Components
 
         public class Setting : IReadOnlyCollection<Direction>
         {
-            // In general, a HashTable might be preferable, but in this specific case only few values are expected, so a List is fine
-            private ICollection<Direction> allowedDirections = new HashSet<Direction>(4);
+            private HashSet<Direction> allowedDirections = new HashSet<Direction>(4);
 
             public Seconds Duration { get; set; } = 20.Seconds();
 
@@ -114,6 +113,16 @@ namespace RoadTrafficSimulator.Components
             public void RemoveDirection(int fromId, int toId)
             {
                 allowedDirections.Remove(new Direction(fromId, toId));
+            }
+
+            public void RemoveDirectionsWithFromId(int id)
+            {
+                allowedDirections.RemoveWhere(dir => dir.fromId == id);
+            }
+
+            public void RemoveDirectionsWithToId(int id)
+            {
+                allowedDirections.RemoveWhere(dir => dir.toId == id);
             }
 
             public bool ContainsDirection(int fromId, int toId)
