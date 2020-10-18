@@ -13,7 +13,7 @@ namespace RoadTrafficSimulator
 {
     public partial class FormTrafficLight : Form
     {
-        private const decimal zoom = 10m;
+        private const decimal zoom = 2m;
 
         private MapManager mapManager;
         private CrossroadView crossroadView;
