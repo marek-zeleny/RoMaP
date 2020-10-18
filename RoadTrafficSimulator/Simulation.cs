@@ -16,7 +16,7 @@ namespace RoadTrafficSimulator
         private HashSet<Car> stagedCars;
 
         public Seconds Time { get; private set; }
-        public Map Map { get; private set; }
+        public Map Map { get; set; }
         public Statistics Statistics { get; private set; }
 
         public Simulation(Map map)
@@ -25,12 +25,6 @@ namespace RoadTrafficSimulator
         }
 
         public enum InitializationResult { Ok, Error_MapIsNull, Error_NoMap, Error_InvalidCrossroad }
-
-        public InitializationResult Initialize(Map map, out Crossroad invalidCrossroad)
-        {
-            Map = map;
-            return Initialize(out invalidCrossroad);
-        }
 
         public InitializationResult Initialize(out Crossroad invalidCrossroad)
         {

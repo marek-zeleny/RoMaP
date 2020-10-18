@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-
+using System.Linq;
 using RoadTrafficSimulator.ValueTypes;
 
 namespace RoadTrafficSimulator.GUI
@@ -14,25 +14,13 @@ namespace RoadTrafficSimulator.GUI
         private Dictionary<Coords, ICrossroad> crossroads = new Dictionary<Coords, ICrossroad>();
         private Dictionary<Vector, IRoad> roadSegments = new Dictionary<Vector, IRoad>();
 
-        public bool AddCrossroad(ICrossroad crossroad, Coords coords)
-        {
-            return crossroads.TryAdd(coords, crossroad);
-        }
+        public bool AddCrossroad(ICrossroad crossroad, Coords coords) =>crossroads.TryAdd(coords, crossroad);
 
-        public bool AddRoad(IRoad road, Vector vector)
-        {
-            return roadSegments.TryAdd(vector, road);
-        }
+        public bool AddRoad(IRoad road, Vector vector) => roadSegments.TryAdd(vector, road);
 
-        public bool RemoveCrossroad(Coords coords)
-        {
-            return crossroads.Remove(coords);
-        }
+        public bool RemoveCrossroad(Coords coords) => crossroads.Remove(coords);
 
-        public bool RemoveRoad(Vector vector)
-        {
-            return roadSegments.Remove(vector);
-        }
+        public bool RemoveRoad(Vector vector) => roadSegments.Remove(vector);
 
         public ICrossroad GetCrossroad(Coords coords)
         {
@@ -52,6 +40,10 @@ namespace RoadTrafficSimulator.GUI
             }
             return output;
         }
+
+        public IEnumerable<ICrossroad> GetCrossroads() => crossroads.Select(pair => pair.Value);
+
+        public IEnumerable<IRoad> GetRoads() => roadSegments.Select(pair => pair.Value).Distinct();
 
         public void Draw(Graphics graphics, Point origin, decimal zoom, int width, int height)
         {

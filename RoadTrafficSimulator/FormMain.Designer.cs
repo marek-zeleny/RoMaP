@@ -61,6 +61,8 @@
             this.labelAvgDelay = new System.Windows.Forms.Label();
             this.labelAvgDistance = new System.Windows.Forms.Label();
             this.labelCars = new System.Windows.Forms.Label();
+            this.buttonLoadMap = new System.Windows.Forms.Button();
+            this.buttonSaveMap = new System.Windows.Forms.Button();
             this.groupBoxBuild.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownSpeed)).BeginInit();
             this.groupBoxCrossroad.SuspendLayout();
@@ -75,9 +77,10 @@
             // 
             this.panelMap.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(236)))), ((int)(((byte)(237)))), ((int)(((byte)(242)))));
             this.panelMap.Cursor = System.Windows.Forms.Cursors.Cross;
-            this.panelMap.Location = new System.Drawing.Point(12, 12);
+            this.panelMap.Location = new System.Drawing.Point(10, 9);
+            this.panelMap.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.panelMap.Name = "panelMap";
-            this.panelMap.Size = new System.Drawing.Size(796, 796);
+            this.panelMap.Size = new System.Drawing.Size(696, 628);
             this.panelMap.TabIndex = 0;
             this.panelMap.Paint += new System.Windows.Forms.PaintEventHandler(this.panelMap_Paint);
             this.panelMap.MouseClick += new System.Windows.Forms.MouseEventHandler(this.panelMap_MouseClick);
@@ -89,9 +92,9 @@
             // labelMode
             // 
             this.labelMode.AutoSize = true;
-            this.labelMode.Location = new System.Drawing.Point(814, 9);
+            this.labelMode.Location = new System.Drawing.Point(712, 7);
             this.labelMode.Name = "labelMode";
-            this.labelMode.Size = new System.Drawing.Size(45, 19);
+            this.labelMode.Size = new System.Drawing.Size(38, 15);
             this.labelMode.TabIndex = 1;
             this.labelMode.Text = "Mode";
             // 
@@ -99,10 +102,9 @@
             // 
             this.comboBoxMode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBoxMode.FormattingEnabled = true;
-            this.comboBoxMode.Location = new System.Drawing.Point(814, 32);
-            this.comboBoxMode.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.comboBoxMode.Location = new System.Drawing.Point(712, 25);
             this.comboBoxMode.Name = "comboBoxMode";
-            this.comboBoxMode.Size = new System.Drawing.Size(196, 27);
+            this.comboBoxMode.Size = new System.Drawing.Size(172, 23);
             this.comboBoxMode.TabIndex = 2;
             this.comboBoxMode.SelectedIndexChanged += new System.EventHandler(this.comboBoxMode_SelectedIndexChanged);
             // 
@@ -112,11 +114,9 @@
             this.groupBoxBuild.Controls.Add(this.labelBuildMaxSpeed);
             this.groupBoxBuild.Controls.Add(this.numericUpDownSpeed);
             this.groupBoxBuild.Controls.Add(this.checkBoxTwoWayRoad);
-            this.groupBoxBuild.Location = new System.Drawing.Point(814, 65);
-            this.groupBoxBuild.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.groupBoxBuild.Location = new System.Drawing.Point(712, 51);
             this.groupBoxBuild.Name = "groupBoxBuild";
-            this.groupBoxBuild.Padding = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.groupBoxBuild.Size = new System.Drawing.Size(196, 92);
+            this.groupBoxBuild.Size = new System.Drawing.Size(172, 73);
             this.groupBoxBuild.TabIndex = 3;
             this.groupBoxBuild.TabStop = false;
             this.groupBoxBuild.Text = "Build Properties";
@@ -125,25 +125,24 @@
             // labelMps
             // 
             this.labelMps.AutoSize = true;
-            this.labelMps.Location = new System.Drawing.Point(142, 62);
+            this.labelMps.Location = new System.Drawing.Point(124, 49);
             this.labelMps.Name = "labelMps";
-            this.labelMps.Size = new System.Drawing.Size(35, 19);
+            this.labelMps.Size = new System.Drawing.Size(30, 15);
             this.labelMps.TabIndex = 3;
             this.labelMps.Text = "mps";
             // 
             // labelBuildMaxSpeed
             // 
             this.labelBuildMaxSpeed.AutoSize = true;
-            this.labelBuildMaxSpeed.Location = new System.Drawing.Point(6, 62);
+            this.labelBuildMaxSpeed.Location = new System.Drawing.Point(5, 49);
             this.labelBuildMaxSpeed.Name = "labelBuildMaxSpeed";
-            this.labelBuildMaxSpeed.Size = new System.Drawing.Size(75, 19);
+            this.labelBuildMaxSpeed.Size = new System.Drawing.Size(64, 15);
             this.labelBuildMaxSpeed.TabIndex = 2;
             this.labelBuildMaxSpeed.Text = "Max speed";
             // 
             // numericUpDownSpeed
             // 
-            this.numericUpDownSpeed.Location = new System.Drawing.Point(87, 58);
-            this.numericUpDownSpeed.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.numericUpDownSpeed.Location = new System.Drawing.Point(76, 46);
             this.numericUpDownSpeed.Maximum = new decimal(new int[] {
             40,
             0,
@@ -155,7 +154,7 @@
             0,
             0});
             this.numericUpDownSpeed.Name = "numericUpDownSpeed";
-            this.numericUpDownSpeed.Size = new System.Drawing.Size(49, 26);
+            this.numericUpDownSpeed.Size = new System.Drawing.Size(43, 23);
             this.numericUpDownSpeed.TabIndex = 1;
             this.numericUpDownSpeed.Value = new decimal(new int[] {
             14,
@@ -168,10 +167,9 @@
             this.checkBoxTwoWayRoad.AutoSize = true;
             this.checkBoxTwoWayRoad.Checked = true;
             this.checkBoxTwoWayRoad.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBoxTwoWayRoad.Location = new System.Drawing.Point(6, 27);
-            this.checkBoxTwoWayRoad.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.checkBoxTwoWayRoad.Location = new System.Drawing.Point(5, 21);
             this.checkBoxTwoWayRoad.Name = "checkBoxTwoWayRoad";
-            this.checkBoxTwoWayRoad.Size = new System.Drawing.Size(114, 23);
+            this.checkBoxTwoWayRoad.Size = new System.Drawing.Size(100, 19);
             this.checkBoxTwoWayRoad.TabIndex = 0;
             this.checkBoxTwoWayRoad.Text = "Two-way road";
             this.checkBoxTwoWayRoad.UseVisualStyleBackColor = true;
@@ -183,11 +181,11 @@
             this.groupBoxCrossroad.Controls.Add(this.labelOutIndex);
             this.groupBoxCrossroad.Controls.Add(this.labelInIndex);
             this.groupBoxCrossroad.Controls.Add(this.labelCoords);
-            this.groupBoxCrossroad.Location = new System.Drawing.Point(814, 65);
+            this.groupBoxCrossroad.Location = new System.Drawing.Point(712, 51);
             this.groupBoxCrossroad.Margin = new System.Windows.Forms.Padding(2);
             this.groupBoxCrossroad.Name = "groupBoxCrossroad";
             this.groupBoxCrossroad.Padding = new System.Windows.Forms.Padding(2);
-            this.groupBoxCrossroad.Size = new System.Drawing.Size(196, 152);
+            this.groupBoxCrossroad.Size = new System.Drawing.Size(172, 120);
             this.groupBoxCrossroad.TabIndex = 4;
             this.groupBoxCrossroad.TabStop = false;
             this.groupBoxCrossroad.Text = "Crossroad Properties";
@@ -195,10 +193,10 @@
             // 
             // buttonDestroyCrossroad
             // 
-            this.buttonDestroyCrossroad.Location = new System.Drawing.Point(4, 116);
+            this.buttonDestroyCrossroad.Location = new System.Drawing.Point(4, 92);
             this.buttonDestroyCrossroad.Margin = new System.Windows.Forms.Padding(2);
             this.buttonDestroyCrossroad.Name = "buttonDestroyCrossroad";
-            this.buttonDestroyCrossroad.Size = new System.Drawing.Size(188, 32);
+            this.buttonDestroyCrossroad.Size = new System.Drawing.Size(164, 25);
             this.buttonDestroyCrossroad.TabIndex = 3;
             this.buttonDestroyCrossroad.Text = "Destroy Crossroad";
             this.buttonDestroyCrossroad.UseVisualStyleBackColor = true;
@@ -206,10 +204,10 @@
             // 
             // buttonTrafficLight
             // 
-            this.buttonTrafficLight.Location = new System.Drawing.Point(4, 80);
+            this.buttonTrafficLight.Location = new System.Drawing.Point(4, 63);
             this.buttonTrafficLight.Margin = new System.Windows.Forms.Padding(2);
             this.buttonTrafficLight.Name = "buttonTrafficLight";
-            this.buttonTrafficLight.Size = new System.Drawing.Size(188, 32);
+            this.buttonTrafficLight.Size = new System.Drawing.Size(164, 25);
             this.buttonTrafficLight.TabIndex = 3;
             this.buttonTrafficLight.Text = "Customize Traffic Light";
             this.buttonTrafficLight.UseVisualStyleBackColor = true;
@@ -218,30 +216,30 @@
             // labelOutIndex
             // 
             this.labelOutIndex.AutoSize = true;
-            this.labelOutIndex.Location = new System.Drawing.Point(4, 59);
+            this.labelOutIndex.Location = new System.Drawing.Point(4, 47);
             this.labelOutIndex.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.labelOutIndex.Name = "labelOutIndex";
-            this.labelOutIndex.Size = new System.Drawing.Size(129, 19);
+            this.labelOutIndex.Size = new System.Drawing.Size(111, 15);
             this.labelOutIndex.TabIndex = 2;
             this.labelOutIndex.Text = "Outcoming roads: -";
             // 
             // labelInIndex
             // 
             this.labelInIndex.AutoSize = true;
-            this.labelInIndex.Location = new System.Drawing.Point(4, 40);
+            this.labelInIndex.Location = new System.Drawing.Point(4, 32);
             this.labelInIndex.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.labelInIndex.Name = "labelInIndex";
-            this.labelInIndex.Size = new System.Drawing.Size(117, 19);
+            this.labelInIndex.Size = new System.Drawing.Size(101, 15);
             this.labelInIndex.TabIndex = 1;
             this.labelInIndex.Text = "Incoming roads: -";
             // 
             // labelCoords
             // 
             this.labelCoords.AutoSize = true;
-            this.labelCoords.Location = new System.Drawing.Point(4, 21);
+            this.labelCoords.Location = new System.Drawing.Point(4, 17);
             this.labelCoords.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.labelCoords.Name = "labelCoords";
-            this.labelCoords.Size = new System.Drawing.Size(75, 19);
+            this.labelCoords.Size = new System.Drawing.Size(64, 15);
             this.labelCoords.TabIndex = 0;
             this.labelCoords.Text = "Coords: -;-";
             // 
@@ -252,11 +250,11 @@
             this.groupBoxRoad.Controls.Add(this.labelTo);
             this.groupBoxRoad.Controls.Add(this.labelFrom);
             this.groupBoxRoad.Controls.Add(this.labelTwoWayRoad);
-            this.groupBoxRoad.Location = new System.Drawing.Point(814, 65);
+            this.groupBoxRoad.Location = new System.Drawing.Point(712, 51);
             this.groupBoxRoad.Margin = new System.Windows.Forms.Padding(2);
             this.groupBoxRoad.Name = "groupBoxRoad";
             this.groupBoxRoad.Padding = new System.Windows.Forms.Padding(2);
-            this.groupBoxRoad.Size = new System.Drawing.Size(196, 135);
+            this.groupBoxRoad.Size = new System.Drawing.Size(172, 107);
             this.groupBoxRoad.TabIndex = 5;
             this.groupBoxRoad.TabStop = false;
             this.groupBoxRoad.Text = "Road Properties";
@@ -264,10 +262,10 @@
             // 
             // buttonDestroyRoad
             // 
-            this.buttonDestroyRoad.Location = new System.Drawing.Point(4, 99);
+            this.buttonDestroyRoad.Location = new System.Drawing.Point(4, 78);
             this.buttonDestroyRoad.Margin = new System.Windows.Forms.Padding(2);
             this.buttonDestroyRoad.Name = "buttonDestroyRoad";
-            this.buttonDestroyRoad.Size = new System.Drawing.Size(188, 32);
+            this.buttonDestroyRoad.Size = new System.Drawing.Size(164, 25);
             this.buttonDestroyRoad.TabIndex = 3;
             this.buttonDestroyRoad.Text = "Destroy Road";
             this.buttonDestroyRoad.UseVisualStyleBackColor = true;
@@ -276,49 +274,49 @@
             // labelRoadMaxSpeed
             // 
             this.labelRoadMaxSpeed.AutoSize = true;
-            this.labelRoadMaxSpeed.Location = new System.Drawing.Point(4, 78);
+            this.labelRoadMaxSpeed.Location = new System.Drawing.Point(4, 62);
             this.labelRoadMaxSpeed.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.labelRoadMaxSpeed.Name = "labelRoadMaxSpeed";
-            this.labelRoadMaxSpeed.Size = new System.Drawing.Size(118, 19);
+            this.labelRoadMaxSpeed.Size = new System.Drawing.Size(101, 15);
             this.labelRoadMaxSpeed.TabIndex = 0;
             this.labelRoadMaxSpeed.Text = "Max speed: - mps";
             // 
             // labelTo
             // 
             this.labelTo.AutoSize = true;
-            this.labelTo.Location = new System.Drawing.Point(4, 59);
+            this.labelTo.Location = new System.Drawing.Point(4, 47);
             this.labelTo.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.labelTo.Name = "labelTo";
-            this.labelTo.Size = new System.Drawing.Size(45, 19);
+            this.labelTo.Size = new System.Drawing.Size(38, 15);
             this.labelTo.TabIndex = 0;
             this.labelTo.Text = "To: -;-";
             // 
             // labelFrom
             // 
             this.labelFrom.AutoSize = true;
-            this.labelFrom.Location = new System.Drawing.Point(4, 40);
+            this.labelFrom.Location = new System.Drawing.Point(4, 32);
             this.labelFrom.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.labelFrom.Name = "labelFrom";
-            this.labelFrom.Size = new System.Drawing.Size(63, 19);
+            this.labelFrom.Size = new System.Drawing.Size(54, 15);
             this.labelFrom.TabIndex = 0;
             this.labelFrom.Text = "From: -;-";
             // 
             // labelTwoWayRoad
             // 
             this.labelTwoWayRoad.AutoSize = true;
-            this.labelTwoWayRoad.Location = new System.Drawing.Point(4, 21);
+            this.labelTwoWayRoad.Location = new System.Drawing.Point(4, 17);
             this.labelTwoWayRoad.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.labelTwoWayRoad.Name = "labelTwoWayRoad";
-            this.labelTwoWayRoad.Size = new System.Drawing.Size(15, 19);
+            this.labelTwoWayRoad.Size = new System.Drawing.Size(12, 15);
             this.labelTwoWayRoad.TabIndex = 0;
             this.labelTwoWayRoad.Text = "-";
             // 
             // buttonCenter
             // 
-            this.buttonCenter.Location = new System.Drawing.Point(814, 776);
+            this.buttonCenter.Location = new System.Drawing.Point(712, 613);
             this.buttonCenter.Margin = new System.Windows.Forms.Padding(2);
             this.buttonCenter.Name = "buttonCenter";
-            this.buttonCenter.Size = new System.Drawing.Size(96, 32);
+            this.buttonCenter.Size = new System.Drawing.Size(84, 25);
             this.buttonCenter.TabIndex = 3;
             this.buttonCenter.Text = "Center Map";
             this.buttonCenter.UseVisualStyleBackColor = true;
@@ -326,10 +324,10 @@
             // 
             // buttonZoom
             // 
-            this.buttonZoom.Location = new System.Drawing.Point(914, 776);
+            this.buttonZoom.Location = new System.Drawing.Point(800, 613);
             this.buttonZoom.Margin = new System.Windows.Forms.Padding(2);
             this.buttonZoom.Name = "buttonZoom";
-            this.buttonZoom.Size = new System.Drawing.Size(96, 32);
+            this.buttonZoom.Size = new System.Drawing.Size(84, 25);
             this.buttonZoom.TabIndex = 3;
             this.buttonZoom.Text = "Zoom: 1.0x";
             this.buttonZoom.UseVisualStyleBackColor = true;
@@ -342,19 +340,21 @@
             this.groupBoxSimulation.Controls.Add(this.trackBarCarFrequency);
             this.groupBoxSimulation.Controls.Add(this.labelDuration);
             this.groupBoxSimulation.Controls.Add(this.trackBarDuration);
-            this.groupBoxSimulation.Location = new System.Drawing.Point(814, 453);
+            this.groupBoxSimulation.Location = new System.Drawing.Point(712, 358);
+            this.groupBoxSimulation.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.groupBoxSimulation.Name = "groupBoxSimulation";
-            this.groupBoxSimulation.Size = new System.Drawing.Size(196, 211);
+            this.groupBoxSimulation.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.groupBoxSimulation.Size = new System.Drawing.Size(172, 167);
             this.groupBoxSimulation.TabIndex = 6;
             this.groupBoxSimulation.TabStop = false;
             this.groupBoxSimulation.Text = "Simulation";
             // 
             // buttonStartSimulation
             // 
-            this.buttonStartSimulation.Location = new System.Drawing.Point(4, 174);
+            this.buttonStartSimulation.Location = new System.Drawing.Point(4, 137);
             this.buttonStartSimulation.Margin = new System.Windows.Forms.Padding(2);
             this.buttonStartSimulation.Name = "buttonStartSimulation";
-            this.buttonStartSimulation.Size = new System.Drawing.Size(188, 32);
+            this.buttonStartSimulation.Size = new System.Drawing.Size(164, 25);
             this.buttonStartSimulation.TabIndex = 3;
             this.buttonStartSimulation.Text = "Start Simulation";
             this.buttonStartSimulation.UseVisualStyleBackColor = true;
@@ -363,20 +363,21 @@
             // labelCarFrequency
             // 
             this.labelCarFrequency.AutoSize = true;
-            this.labelCarFrequency.Location = new System.Drawing.Point(6, 97);
+            this.labelCarFrequency.Location = new System.Drawing.Point(5, 77);
             this.labelCarFrequency.Name = "labelCarFrequency";
-            this.labelCarFrequency.Size = new System.Drawing.Size(128, 19);
+            this.labelCarFrequency.Size = new System.Drawing.Size(108, 15);
             this.labelCarFrequency.TabIndex = 1;
             this.labelCarFrequency.Text = "Car frequency: 0.50";
             // 
             // trackBarCarFrequency
             // 
             this.trackBarCarFrequency.LargeChange = 10;
-            this.trackBarCarFrequency.Location = new System.Drawing.Point(6, 119);
+            this.trackBarCarFrequency.Location = new System.Drawing.Point(5, 94);
+            this.trackBarCarFrequency.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.trackBarCarFrequency.Maximum = 100;
             this.trackBarCarFrequency.Minimum = 1;
             this.trackBarCarFrequency.Name = "trackBarCarFrequency";
-            this.trackBarCarFrequency.Size = new System.Drawing.Size(184, 50);
+            this.trackBarCarFrequency.Size = new System.Drawing.Size(161, 45);
             this.trackBarCarFrequency.TabIndex = 0;
             this.trackBarCarFrequency.Value = 50;
             this.trackBarCarFrequency.Scroll += new System.EventHandler(this.trackBarCarFrequency_Scroll);
@@ -384,20 +385,21 @@
             // labelDuration
             // 
             this.labelDuration.AutoSize = true;
-            this.labelDuration.Location = new System.Drawing.Point(6, 22);
+            this.labelDuration.Location = new System.Drawing.Point(5, 17);
             this.labelDuration.Name = "labelDuration";
-            this.labelDuration.Size = new System.Drawing.Size(94, 19);
+            this.labelDuration.Size = new System.Drawing.Size(78, 15);
             this.labelDuration.TabIndex = 1;
             this.labelDuration.Text = "Duration: 10h";
             // 
             // trackBarDuration
             // 
             this.trackBarDuration.LargeChange = 4;
-            this.trackBarDuration.Location = new System.Drawing.Point(6, 44);
+            this.trackBarDuration.Location = new System.Drawing.Point(5, 35);
+            this.trackBarDuration.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.trackBarDuration.Maximum = 24;
             this.trackBarDuration.Minimum = 1;
             this.trackBarDuration.Name = "trackBarDuration";
-            this.trackBarDuration.Size = new System.Drawing.Size(184, 50);
+            this.trackBarDuration.Size = new System.Drawing.Size(161, 45);
             this.trackBarDuration.TabIndex = 0;
             this.trackBarDuration.Value = 10;
             this.trackBarDuration.Scroll += new System.EventHandler(this.trackBarDuration_Scroll);
@@ -408,9 +410,11 @@
             this.groupBoxStatistics.Controls.Add(this.labelAvgDelay);
             this.groupBoxStatistics.Controls.Add(this.labelAvgDistance);
             this.groupBoxStatistics.Controls.Add(this.labelCars);
-            this.groupBoxStatistics.Location = new System.Drawing.Point(814, 670);
+            this.groupBoxStatistics.Location = new System.Drawing.Point(712, 529);
+            this.groupBoxStatistics.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.groupBoxStatistics.Name = "groupBoxStatistics";
-            this.groupBoxStatistics.Size = new System.Drawing.Size(196, 101);
+            this.groupBoxStatistics.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.groupBoxStatistics.Size = new System.Drawing.Size(172, 80);
             this.groupBoxStatistics.TabIndex = 7;
             this.groupBoxStatistics.TabStop = false;
             this.groupBoxStatistics.Text = "Statistics";
@@ -418,44 +422,68 @@
             // labelAvgDuration
             // 
             this.labelAvgDuration.AutoSize = true;
-            this.labelAvgDuration.Location = new System.Drawing.Point(6, 60);
+            this.labelAvgDuration.Location = new System.Drawing.Point(5, 47);
             this.labelAvgDuration.Name = "labelAvgDuration";
-            this.labelAvgDuration.Size = new System.Drawing.Size(134, 19);
+            this.labelAvgDuration.Size = new System.Drawing.Size(114, 15);
             this.labelAvgDuration.TabIndex = 0;
             this.labelAvgDuration.Text = "Average duration: -s";
             // 
             // labelAvgDelay
             // 
             this.labelAvgDelay.AutoSize = true;
-            this.labelAvgDelay.Location = new System.Drawing.Point(6, 79);
+            this.labelAvgDelay.Location = new System.Drawing.Point(5, 62);
             this.labelAvgDelay.Name = "labelAvgDelay";
-            this.labelAvgDelay.Size = new System.Drawing.Size(114, 19);
+            this.labelAvgDelay.Size = new System.Drawing.Size(97, 15);
             this.labelAvgDelay.TabIndex = 0;
             this.labelAvgDelay.Text = "Average delay: -s";
             // 
             // labelAvgDistance
             // 
             this.labelAvgDistance.AutoSize = true;
-            this.labelAvgDistance.Location = new System.Drawing.Point(6, 41);
+            this.labelAvgDistance.Location = new System.Drawing.Point(5, 32);
             this.labelAvgDistance.Name = "labelAvgDistance";
-            this.labelAvgDistance.Size = new System.Drawing.Size(138, 19);
+            this.labelAvgDistance.Size = new System.Drawing.Size(119, 15);
             this.labelAvgDistance.TabIndex = 0;
             this.labelAvgDistance.Text = "Average distance: -m";
             // 
             // labelCars
             // 
             this.labelCars.AutoSize = true;
-            this.labelCars.Location = new System.Drawing.Point(6, 22);
+            this.labelCars.Location = new System.Drawing.Point(5, 17);
             this.labelCars.Name = "labelCars";
-            this.labelCars.Size = new System.Drawing.Size(100, 19);
+            this.labelCars.Size = new System.Drawing.Size(86, 15);
             this.labelCars.TabIndex = 0;
             this.labelCars.Text = "Finished cars: -";
             // 
+            // buttonLoadMap
+            // 
+            this.buttonLoadMap.Location = new System.Drawing.Point(800, 329);
+            this.buttonLoadMap.Margin = new System.Windows.Forms.Padding(2);
+            this.buttonLoadMap.Name = "buttonLoadMap";
+            this.buttonLoadMap.Size = new System.Drawing.Size(84, 25);
+            this.buttonLoadMap.TabIndex = 3;
+            this.buttonLoadMap.Text = "Load Map";
+            this.buttonLoadMap.UseVisualStyleBackColor = true;
+            this.buttonLoadMap.Click += new System.EventHandler(this.buttonLoadMap_Click);
+            // 
+            // buttonSaveMap
+            // 
+            this.buttonSaveMap.Location = new System.Drawing.Point(712, 329);
+            this.buttonSaveMap.Margin = new System.Windows.Forms.Padding(2);
+            this.buttonSaveMap.Name = "buttonSaveMap";
+            this.buttonSaveMap.Size = new System.Drawing.Size(84, 25);
+            this.buttonSaveMap.TabIndex = 3;
+            this.buttonSaveMap.Text = "Save Map";
+            this.buttonSaveMap.UseVisualStyleBackColor = true;
+            this.buttonSaveMap.Click += new System.EventHandler(this.buttonSaveMap_Click);
+            // 
             // FormMain
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 19F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1022, 820);
+            this.ClientSize = new System.Drawing.Size(894, 647);
+            this.Controls.Add(this.buttonSaveMap);
+            this.Controls.Add(this.buttonLoadMap);
             this.Controls.Add(this.groupBoxCrossroad);
             this.Controls.Add(this.groupBoxRoad);
             this.Controls.Add(this.groupBoxBuild);
@@ -467,6 +495,7 @@
             this.Controls.Add(this.labelMode);
             this.Controls.Add(this.panelMap);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Name = "FormMain";
             this.Text = "Road Traffic Simulator";
             this.groupBoxBuild.ResumeLayout(false);
@@ -522,6 +551,8 @@
         private System.Windows.Forms.Label labelAvgDistance;
         private System.Windows.Forms.Label labelCars;
         private System.Windows.Forms.Label labelAvgDuration;
+        private System.Windows.Forms.Button buttonLoadMap;
+        private System.Windows.Forms.Button buttonSaveMap;
     }
 }
 

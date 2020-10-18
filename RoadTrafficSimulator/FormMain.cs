@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -13,6 +14,7 @@ namespace RoadTrafficSimulator
     {
         private const decimal minZoom = 0.2m;
         private const decimal maxZoom = 5m;
+        private static readonly string savePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "RoadTrafficSimulator");
 
         private enum Mode { Build_Road, Select_Crossroad, Select_Road };
 
@@ -147,18 +149,6 @@ namespace RoadTrafficSimulator
             panelMap.Invalidate();
         }
 
-        private void buttonCenter_Click(object sender, EventArgs e)
-        {
-            origin = PanelMapCenter;
-            panelMap.Invalidate();
-        }
-
-        private void buttonZoom_Click(object sender, EventArgs e)
-        {
-            Zoom = 1m;
-            panelMap.Invalidate();
-        }
-
         private void buttonTrafficLight_Click(object sender, EventArgs e)
         {
             FormTrafficLight form = new FormTrafficLight(mapManager, selectedCrossroad);
@@ -187,9 +177,32 @@ namespace RoadTrafficSimulator
             }
         }
 
+        private void buttonSaveMap_Click(object sender, EventArgs e)
+        {
+            InitializeSaveMap();
+        }
+
+        private void buttonLoadMap_Click(object sender, EventArgs e)
+        {
+            InitializeLoadMap();
+            panelMap.Invalidate();
+        }
+
         private void buttonStartSimulation_Click(object sender, EventArgs e)
         {
             InitializeSimulation();
+        }
+
+        private void buttonCenter_Click(object sender, EventArgs e)
+        {
+            origin = PanelMapCenter;
+            panelMap.Invalidate();
+        }
+
+        private void buttonZoom_Click(object sender, EventArgs e)
+        {
+            Zoom = 1m;
+            panelMap.Invalidate();
         }
 
         private void trackBarDuration_Scroll(object sender, EventArgs e)
@@ -264,6 +277,88 @@ namespace RoadTrafficSimulator
                     ShowInfo("The simulation did not start.");
                     break;
             }
+        }
+
+        private void InitializeSaveMap()
+        {
+            if (!Directory.Exists(savePath))
+                Directory.CreateDirectory(savePath);
+            SaveFileDialog fileDialog = new SaveFileDialog()
+            {
+                Title = "Save map",
+                Filter = "Map files (*.map)|*.map",
+                InitialDirectory = savePath
+            };
+            if (fileDialog.ShowDialog() == DialogResult.OK)
+                SaveMap(fileDialog.FileName);
+        }
+
+        private void SaveMap(string path)
+        {
+            bool result = true;
+            StreamWriter sw = new StreamWriter(path);
+            try
+            {
+                mapManager.SaveMap(sw);
+            }
+            catch (IOException e)
+            {
+                string message = string.Format("An error occured while saving the map: {0}", e.Message);
+                MessageBox.Show(message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                result = false;
+            }
+            finally
+            {
+                sw?.Dispose();
+            }
+            if (result)
+                ShowInfo("Map successfully saved.");
+        }
+
+        private void InitializeLoadMap()
+        {
+            string message =
+                "Are you sure you want to load a new map?" +
+                "The currently built map will be lost unless it's already saved.";
+            DialogResult result = MessageBox.Show(message, "Load Map", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2);
+            if (result == DialogResult.Yes)
+            {
+                OpenFileDialog fileDialog = new OpenFileDialog()
+                {
+                    Title = "Load map",
+                    Filter = "Map files (*.map)|*.map",
+                    InitialDirectory = Directory.Exists(savePath) ? savePath : Environment.GetFolderPath(Environment.SpecialFolder.Desktop)
+                };
+                if (fileDialog.ShowDialog() == DialogResult.OK)
+                    LoadMap(fileDialog.FileName);
+            }
+        }
+
+        private void LoadMap(string path)
+        {
+            bool result = false;
+            Components.Map newMap = null;
+            StreamReader sr = new StreamReader(path);
+            try
+            {
+                result = mapManager.LoadMap(sr, out newMap);
+            }
+            catch (IOException e)
+            {
+                string message = string.Format("An error occured while loading the map: {0}", e.Message);
+                MessageBox.Show(message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                sr?.Dispose();
+            }
+            if (result)
+            {
+                simulation.Map = newMap;
+                ShowInfo("Map successfully loaded.");
+            }
+            else
+                ShowInfo("Chosen map couldn't be loaded due to wrong format.");
         }
 
         private void UpdateStatistics()

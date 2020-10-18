@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 
 using RoadTrafficSimulator.ValueTypes;
@@ -13,6 +14,8 @@ namespace RoadTrafficSimulator.GUI
         bool RemoveRoad(Vector vector);
         ICrossroad GetCrossroad(Coords coords);
         IRoad GetRoad(Vector vector, bool ignoreDirection = false);
+        IEnumerable<ICrossroad> GetCrossroads();
+        IEnumerable<IRoad> GetRoads();
         void Draw(Graphics graphics, Point origin, decimal zoom, int width, int height);
     }
 
