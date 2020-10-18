@@ -33,9 +33,9 @@ namespace RoadTrafficSimulator
          * 
          * where
          * path: coords1 ; coords2 [; coords3 [; coords4] ...]
-         * coords: x,y
-         * settings: direction1 [; direction2 [; direction3] ...]
-         * direction: from,to
+         * coords: x , y
+         * settings: duration ; direction1 [; direction2 [; direction3] ...]
+         * direction: from , to
          */
 
         public static void SaveMap(StreamWriter writer, Components.Map map, IMap guiMap)
@@ -111,6 +111,7 @@ namespace RoadTrafficSimulator
             sb.Append(fieldSeparator);
             foreach (TrafficLight.Setting setting in crossroad.TrafficLight.Settings)
             {
+                sb.Append(setting.Duration).Append(entitySeparator);
                 foreach (TrafficLight.Direction direction in setting)
                     sb.Append(direction.fromId).Append(valueSeparator).Append(direction.toId).Append(entitySeparator);
                 sb.Remove(sb.Length - 1, 1);
@@ -194,11 +195,14 @@ namespace RoadTrafficSimulator
                     setting = trafficLight.Settings[0];
                 else
                     setting = trafficLight.InsertSetting(i - 1);
-                // Add directions to the current setting: direction1 [; direction2 [; direction3] ...]
+                // Add directions to the current setting: duration ; direction1 [; direction2 [; direction3] ...]
                 string[] directions = fields[i].Split(entitySeparator);
-                foreach (string pair in directions)
+                if (!int.TryParse(directions[0], out int duration))
+                    return false;
+                setting.Duration = duration.Seconds();
+                for (int j = 1; j < directions.Length; j++)
                 {
-                    string[] split = pair.Split(valueSeparator);
+                    string[] split = directions[j].Split(valueSeparator);
                     if (split.Length != 2)
                         return false;
                     if (!int.TryParse(split[0], out int fromIdOld) || !int.TryParse(split[1], out int toIdOld))
