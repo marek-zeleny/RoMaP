@@ -45,7 +45,7 @@ namespace RoadTrafficSimulator.GUI
 
         public IEnumerable<IRoad> GetRoads() => roadSegments.Select(pair => pair.Value).Distinct();
 
-        public void Draw(Graphics graphics, Point origin, decimal zoom, int width, int height)
+        public void Draw(Graphics graphics, Point origin, float zoom, int width, int height)
         {
             int realRoadWidth = (int)(roadWidth * zoom);
             foreach (var (vector, road) in roadSegments)

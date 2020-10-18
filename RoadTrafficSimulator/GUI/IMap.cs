@@ -16,7 +16,7 @@ namespace RoadTrafficSimulator.GUI
         IRoad GetRoad(Vector vector, bool ignoreDirection = false);
         IEnumerable<ICrossroad> GetCrossroads();
         IEnumerable<IRoad> GetRoads();
-        void Draw(Graphics graphics, Point origin, decimal zoom, int width, int height);
+        void Draw(Graphics graphics, Point origin, float zoom, int width, int height);
     }
 
     enum Highlight { Low = -1, Normal = 0, High = 1 }

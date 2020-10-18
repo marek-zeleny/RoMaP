@@ -12,15 +12,15 @@ namespace RoadTrafficSimulator
 {
     public partial class FormMain : Form
     {
-        private const decimal minZoom = 0.2m;
-        private const decimal maxZoom = 5m;
+        private const float minZoom = 0.2f;
+        private const float maxZoom = 5f;
         private static readonly string savePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "RoadTrafficSimulator");
 
         private enum Mode { Build_Road, Select_Crossroad, Select_Road };
 
         private MapManager mapManager;
         private Point origin;
-        private decimal zoom; // Do not access directly, use property Zoom
+        private float zoom; // Do not access directly, use property Zoom
         private Simulation simulation;
         private Mode mode;
         private IRoadBuilder currentRoadBuilder;
@@ -30,7 +30,7 @@ namespace RoadTrafficSimulator
         private bool drag;
         private bool dragOccured;
 
-        public decimal Zoom
+        public float Zoom
         {
             get => zoom;
             set
@@ -67,7 +67,7 @@ namespace RoadTrafficSimulator
             Components.Map map = new Components.Map();
             mapManager = new MapManager(map);
             origin = PanelMapCenter;
-            Zoom = 1m;
+            Zoom = 1f;
             simulation = new Simulation(map);
         }
 
@@ -201,7 +201,7 @@ namespace RoadTrafficSimulator
 
         private void buttonZoom_Click(object sender, EventArgs e)
         {
-            Zoom = 1m;
+            Zoom = 1f;
             panelMap.Invalidate();
         }
 
@@ -221,7 +221,7 @@ namespace RoadTrafficSimulator
             panelMap.Invalidate();
         }
 
-        #endregion // form_events
+        #endregion form_events
 
         #region helper_methods
 
@@ -248,7 +248,7 @@ namespace RoadTrafficSimulator
                         break;
                     default:
                         message =
-                            "Map check complete: cannot start the simulation for an unknown reason." +
+                            "Map check complete: cannot start the simulation for an unknown reason.\n" +
                             "If the problem occures repeatedly, please restart the application.";
                         break;
                 }
@@ -318,7 +318,7 @@ namespace RoadTrafficSimulator
         private void InitializeLoadMap()
         {
             string message =
-                "Are you sure you want to load a new map?" +
+                "Are you sure you want to load a new map?\n" +
                 "The currently built map will be lost unless it's already saved.";
             DialogResult result = MessageBox.Show(message, "Load Map", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2);
             if (result == DialogResult.Yes)
@@ -377,9 +377,9 @@ namespace RoadTrafficSimulator
 
         private void ChangeZoom(int direction, Point mouseLocation)
         {
-            const decimal coefficient = 1.2m;
+            const float coefficient = 1.2f;
             // For centering the zoom at coursor position
-            decimal originalZoom = Zoom;
+            float originalZoom = Zoom;
             Point newOrigin = origin;
             if (direction > 0)
             {
@@ -529,6 +529,6 @@ namespace RoadTrafficSimulator
             Debug.WriteLine(string.Format("{0}: {1}", DateTime.Now, info));
         }
 
-        #endregion // helper_methods
+        #endregion helper_methods
     }
 }

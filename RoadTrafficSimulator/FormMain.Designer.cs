@@ -63,7 +63,7 @@
             this.labelCars = new System.Windows.Forms.Label();
             this.buttonLoadMap = new System.Windows.Forms.Button();
             this.buttonSaveMap = new System.Windows.Forms.Button();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.groupBoxInfo = new System.Windows.Forms.GroupBox();
             this.textBoxInfo = new System.Windows.Forms.TextBox();
             this.groupBoxBuild.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownSpeed)).BeginInit();
@@ -73,7 +73,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.trackBarCarFrequency)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarDuration)).BeginInit();
             this.groupBoxStatistics.SuspendLayout();
-            this.groupBox1.SuspendLayout();
+            this.groupBoxInfo.SuspendLayout();
             this.SuspendLayout();
             // 
             // panelMap
@@ -480,15 +480,15 @@
             this.buttonSaveMap.UseVisualStyleBackColor = true;
             this.buttonSaveMap.Click += new System.EventHandler(this.buttonSaveMap_Click);
             // 
-            // groupBox1
+            // groupBoxInfo
             // 
-            this.groupBox1.Controls.Add(this.textBoxInfo);
-            this.groupBox1.Location = new System.Drawing.Point(712, 526);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(172, 82);
-            this.groupBox1.TabIndex = 8;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Info";
+            this.groupBoxInfo.Controls.Add(this.textBoxInfo);
+            this.groupBoxInfo.Location = new System.Drawing.Point(712, 526);
+            this.groupBoxInfo.Name = "groupBoxInfo";
+            this.groupBoxInfo.Size = new System.Drawing.Size(172, 82);
+            this.groupBoxInfo.TabIndex = 8;
+            this.groupBoxInfo.TabStop = false;
+            this.groupBoxInfo.Text = "Info";
             // 
             // textBoxInfo
             // 
@@ -506,7 +506,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(894, 647);
-            this.Controls.Add(this.groupBox1);
+            this.Controls.Add(this.groupBoxInfo);
             this.Controls.Add(this.buttonSaveMap);
             this.Controls.Add(this.buttonLoadMap);
             this.Controls.Add(this.groupBoxCrossroad);
@@ -522,6 +522,7 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Name = "FormMain";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Road Traffic Simulator";
             this.groupBoxBuild.ResumeLayout(false);
             this.groupBoxBuild.PerformLayout();
@@ -536,8 +537,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.trackBarDuration)).EndInit();
             this.groupBoxStatistics.ResumeLayout(false);
             this.groupBoxStatistics.PerformLayout();
-            this.groupBox1.ResumeLayout(false);
-            this.groupBox1.PerformLayout();
+            this.groupBoxInfo.ResumeLayout(false);
+            this.groupBoxInfo.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -580,7 +581,7 @@
         private System.Windows.Forms.Label labelAvgDuration;
         private System.Windows.Forms.Button buttonLoadMap;
         private System.Windows.Forms.Button buttonSaveMap;
-        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.GroupBox groupBoxInfo;
         private System.Windows.Forms.TextBox textBoxInfo;
     }
 }

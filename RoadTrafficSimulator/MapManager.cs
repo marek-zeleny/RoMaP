@@ -25,7 +25,7 @@ namespace RoadTrafficSimulator
                 new Coords(0, -1)
         };
 
-        public static Point CalculatePoint(Coords coords, Point origin, decimal zoom)
+        public static Point CalculatePoint(Coords coords, Point origin, float zoom)
         {
             Point output = new Point
             {
@@ -35,14 +35,14 @@ namespace RoadTrafficSimulator
             return output;
         }
 
-        public static Coords CalculateCoords(Point point, Point origin, decimal zoom)
+        public static Coords CalculateCoords(Point point, Point origin, float zoom)
         {
             int x = (int)Math.Round((point.X - origin.X) / (K * zoom));
             int y = (int)Math.Round((point.Y - origin.Y) / (K * zoom));
             return new Coords(x, y);
         }
 
-        public static Vector CalculateVector(Point point, Point origin, decimal zoom)
+        public static Vector CalculateVector(Point point, Point origin, float zoom)
         {
             Coords from = CalculateCoords(point, origin, zoom);
             Coords to;
@@ -136,7 +136,7 @@ namespace RoadTrafficSimulator
             return DestroyGuiRoad(road);
         }
 
-        public void Draw(Graphics graphics, Point origin, decimal zoom, int width, int height)
+        public void Draw(Graphics graphics, Point origin, float zoom, int width, int height)
         {
             DrawGrid(graphics, origin, zoom, width, height);
             guiMap.Draw(graphics, origin, zoom, width, height);
@@ -190,26 +190,27 @@ namespace RoadTrafficSimulator
             return true;
         }
 
-        private void DrawGrid(Graphics graphics, Point origin, decimal zoom, int width, int height)
+        private void DrawGrid(Graphics graphics, Point origin, float zoom, int width, int height)
         {
-            int step = (int)(K * zoom);
-            int firstX = origin.X % step;
-            int firstY = origin.Y % step;
-            Coords firstCoords = CalculateCoords(new Point(firstX, firstY), origin, zoom);
+            float step = K * zoom;
+            Coords firstCoords = CalculateCoords(new Point(0, 0), origin, zoom);
+            Point firstPoint = CalculatePoint(firstCoords, origin, zoom);
+
             Pen pen = new Pen(Color.Gray, 1)
             {
                 DashStyle = System.Drawing.Drawing2D.DashStyle.Dash
             };
             Font font = new Font(SystemFonts.DefaultFont.FontFamily, 10f);
             Brush brush = Brushes.DarkOrange;
+
             int xCoord = firstCoords.x;
-            for (int x = firstX; x < width; x += step)
+            for (float x = firstPoint.X; x < width; x += step)
             {
                 graphics.DrawLine(pen, x, 0, x, height);
                 graphics.DrawString(string.Format("[{0}]", xCoord++), font, brush, x + 5, 5);
             }
             int yCoord = firstCoords.y;
-            for (int y = firstY; y < height; y += step)
+            for (float y = firstPoint.Y; y < height; y += step)
             {
                 graphics.DrawLine(pen, 0, y, width, y);
                 graphics.DrawString(string.Format("[{0}]", yCoord++), font, brush, 5, y + 5);
