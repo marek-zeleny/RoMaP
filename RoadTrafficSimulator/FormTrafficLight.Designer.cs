@@ -41,8 +41,8 @@
             this.checkBoxUp = new System.Windows.Forms.CheckBox();
             this.checkBoxRight = new System.Windows.Forms.CheckBox();
             this.checkBoxLeft = new System.Windows.Forms.CheckBox();
-            this.textBoxInfo = new System.Windows.Forms.TextBox();
             this.groupBoxInfo = new System.Windows.Forms.GroupBox();
+            this.labelInfo = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownDuration)).BeginInit();
             this.groupBoxAllowedDirections.SuspendLayout();
             this.groupBoxInfo.SuspendLayout();
@@ -212,26 +212,22 @@
             this.checkBoxLeft.UseVisualStyleBackColor = true;
             this.checkBoxLeft.CheckedChanged += new System.EventHandler(this.checkBoxDirection_CheckedChanged);
             // 
-            // textBoxInfo
-            // 
-            this.textBoxInfo.BackColor = System.Drawing.SystemColors.Control;
-            this.textBoxInfo.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.textBoxInfo.Location = new System.Drawing.Point(6, 22);
-            this.textBoxInfo.Multiline = true;
-            this.textBoxInfo.Name = "textBoxInfo";
-            this.textBoxInfo.ReadOnly = true;
-            this.textBoxInfo.Size = new System.Drawing.Size(154, 48);
-            this.textBoxInfo.TabIndex = 0;
-            // 
             // groupBoxInfo
             // 
-            this.groupBoxInfo.Controls.Add(this.textBoxInfo);
+            this.groupBoxInfo.Controls.Add(this.labelInfo);
             this.groupBoxInfo.Location = new System.Drawing.Point(331, 186);
             this.groupBoxInfo.Name = "groupBoxInfo";
             this.groupBoxInfo.Size = new System.Drawing.Size(166, 76);
             this.groupBoxInfo.TabIndex = 8;
             this.groupBoxInfo.TabStop = false;
             this.groupBoxInfo.Text = "Info";
+            // 
+            // labelInfo
+            // 
+            this.labelInfo.Location = new System.Drawing.Point(6, 19);
+            this.labelInfo.Name = "labelInfo";
+            this.labelInfo.Size = new System.Drawing.Size(154, 54);
+            this.labelInfo.TabIndex = 0;
             // 
             // FormTrafficLight
             // 
@@ -258,7 +254,6 @@
             this.groupBoxAllowedDirections.ResumeLayout(false);
             this.groupBoxAllowedDirections.PerformLayout();
             this.groupBoxInfo.ResumeLayout(false);
-            this.groupBoxInfo.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -279,7 +274,7 @@
         private System.Windows.Forms.CheckBox checkBoxUp;
         private System.Windows.Forms.CheckBox checkBoxRight;
         private System.Windows.Forms.CheckBox checkBoxLeft;
-        private System.Windows.Forms.TextBox textBoxInfo;
         private System.Windows.Forms.GroupBox groupBoxInfo;
+        private System.Windows.Forms.Label labelInfo;
     }
 }

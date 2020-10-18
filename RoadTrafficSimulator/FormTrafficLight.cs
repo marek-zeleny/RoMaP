@@ -203,7 +203,7 @@ namespace RoadTrafficSimulator
 
         private void ShowInfo(string info)
         {
-            textBoxInfo.Text = info;
+            labelInfo.Text = info;
             Debug.WriteLine("{0}: {1}", DateTime.Now, info);
         }
 

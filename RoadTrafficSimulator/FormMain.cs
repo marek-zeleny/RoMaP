@@ -525,7 +525,7 @@ namespace RoadTrafficSimulator
 
         private void ShowInfo(string info)
         {
-            textBoxInfo.Text = info;
+            labelInfo.Text = info;
             Debug.WriteLine(string.Format("{0}: {1}", DateTime.Now, info));
         }
 

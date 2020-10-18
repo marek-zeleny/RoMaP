@@ -64,7 +64,7 @@
             this.buttonLoadMap = new System.Windows.Forms.Button();
             this.buttonSaveMap = new System.Windows.Forms.Button();
             this.groupBoxInfo = new System.Windows.Forms.GroupBox();
-            this.textBoxInfo = new System.Windows.Forms.TextBox();
+            this.labelInfo = new System.Windows.Forms.Label();
             this.groupBoxBuild.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownSpeed)).BeginInit();
             this.groupBoxCrossroad.SuspendLayout();
@@ -482,7 +482,7 @@
             // 
             // groupBoxInfo
             // 
-            this.groupBoxInfo.Controls.Add(this.textBoxInfo);
+            this.groupBoxInfo.Controls.Add(this.labelInfo);
             this.groupBoxInfo.Location = new System.Drawing.Point(712, 526);
             this.groupBoxInfo.Name = "groupBoxInfo";
             this.groupBoxInfo.Size = new System.Drawing.Size(172, 82);
@@ -490,16 +490,12 @@
             this.groupBoxInfo.TabStop = false;
             this.groupBoxInfo.Text = "Info";
             // 
-            // textBoxInfo
+            // labelInfo
             // 
-            this.textBoxInfo.BackColor = System.Drawing.SystemColors.Control;
-            this.textBoxInfo.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.textBoxInfo.Location = new System.Drawing.Point(6, 22);
-            this.textBoxInfo.Multiline = true;
-            this.textBoxInfo.Name = "textBoxInfo";
-            this.textBoxInfo.ReadOnly = true;
-            this.textBoxInfo.Size = new System.Drawing.Size(160, 54);
-            this.textBoxInfo.TabIndex = 0;
+            this.labelInfo.Location = new System.Drawing.Point(6, 19);
+            this.labelInfo.Name = "labelInfo";
+            this.labelInfo.Size = new System.Drawing.Size(160, 60);
+            this.labelInfo.TabIndex = 0;
             // 
             // FormMain
             // 
@@ -538,7 +534,6 @@
             this.groupBoxStatistics.ResumeLayout(false);
             this.groupBoxStatistics.PerformLayout();
             this.groupBoxInfo.ResumeLayout(false);
-            this.groupBoxInfo.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -582,7 +577,7 @@
         private System.Windows.Forms.Button buttonLoadMap;
         private System.Windows.Forms.Button buttonSaveMap;
         private System.Windows.Forms.GroupBox groupBoxInfo;
-        private System.Windows.Forms.TextBox textBoxInfo;
+        private System.Windows.Forms.Label labelInfo;
     }
 }
 
