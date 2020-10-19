@@ -98,8 +98,11 @@ namespace RoadTrafficSimulator
 
         private IEnumerable<Crossroad> GetRandomCrossroads()
         {
-            List<Crossroad> crossroads = new List<Crossroad>(Map.GetNodes().Select(node => (Crossroad)node));
-            int count = Map.CrossroadCount;
+            List<Crossroad> crossroads = new List<Crossroad>();
+            foreach (Crossroad crossroad in Map.GetNodes())
+                for (int i = 0; i < crossroad.CarSpawnRate; i++)
+                    crossroads.Add(crossroad);
+            int count = crossroads.Count;
             while (true)
                 yield return crossroads[random.Next(count)];
         }

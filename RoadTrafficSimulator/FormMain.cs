@@ -205,6 +205,13 @@ namespace RoadTrafficSimulator
             panelMap.Invalidate();
         }
 
+        private void trackBarCarSpawnRate_Scroll(object sender, EventArgs e)
+        {
+            if (selectedCrossroad != null)
+                selectedCrossroad.CarSpawnRate = (byte)trackBarCarSpawnRate.Value;
+            labelCarSpawnRate.Text = string.Format("Car spawn rate: {0} %", trackBarCarSpawnRate.Value);
+        }
+
         private void trackBarDuration_Scroll(object sender, EventArgs e)
         {
             labelDuration.Text = string.Format("Duration: {0}h", trackBarDuration.Value);
@@ -507,6 +514,9 @@ namespace RoadTrafficSimulator
                     labelCoords.Text = string.Format("Coords: {0}", selectedCrossroad?.Coords.ToString() ?? "(-;-)");
                     labelInIndex.Text = string.Format("Incoming roads: {0}", selectedCrossroad?.InIndex.ToString() ?? "-");
                     labelOutIndex.Text = string.Format("Outcoming roads: {0}", selectedCrossroad?.OutIndex.ToString() ?? "-");
+                    labelCarSpawnRate.Text = string.Format("Car spawn rate: {0} %", selectedCrossroad?.CarSpawnRate.ToString() ?? "-");
+                    trackBarCarSpawnRate.Value = selectedCrossroad?.CarSpawnRate ?? 10;
+                    trackBarCarSpawnRate.Enabled = selectedCrossroad != null;
                     buttonDestroyCrossroad.Enabled = selectedCrossroad != null;
                     buttonTrafficLight.Enabled = selectedCrossroad != null;
                     break;

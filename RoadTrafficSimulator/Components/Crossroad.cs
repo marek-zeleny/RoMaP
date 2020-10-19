@@ -8,7 +8,22 @@ namespace RoadTrafficSimulator.Components
 {
     class Crossroad : Node<Coords, int>
     {
+        private byte carSpawnRate = 10;
+
         public TrafficLight TrafficLight { get; }
+        public byte CarSpawnRate
+        {
+            get => carSpawnRate;
+            set
+            {
+                if (value > 100)
+                    carSpawnRate = 100;
+                else if (value < 1)
+                    carSpawnRate = 1;
+                else
+                    carSpawnRate = value;
+            }
+        }
 
         public Crossroad(Coords id)
             : base(id)

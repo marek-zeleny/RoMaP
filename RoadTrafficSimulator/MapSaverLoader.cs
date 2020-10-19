@@ -13,11 +13,12 @@ namespace RoadTrafficSimulator
     static class MapSaverLoader
     {
         private const string keywordRoads = "===ROADS===";
-        private const string keywordTrafficLights = "===TRAFFIC_LIGHTS===";
+        private const string keywordCrossroads = "===CROSSROADS===";
         private const string keywordEnd = "===END===";
         private const char fieldSeparator = '|';
         private const char entitySeparator = ';';
         private const char valueSeparator = ',';
+        private const char commentMark = '#';
 
         /**
          * Format:
@@ -26,8 +27,8 @@ namespace RoadTrafficSimulator
          * ===ROADS===
          * roadId [| backRoadId] | maxSpeed | path
          * ...
-         * ===TRAFFIC_LIGHTS===
-         * coords [| settings1 [| settings2] ...]
+         * ===CROSSROADS===
+         * coords | carSpawnRate [| settings1 [| settings2] ...]
          * ...
          * ===END===
          * 
@@ -41,12 +42,28 @@ namespace RoadTrafficSimulator
         public static void SaveMap(StreamWriter writer, Components.Map map, IMap guiMap)
         {
             writer.WriteLine(keywordRoads);
+            writer.WriteLine();
+            writer.WriteLine("{0} roadId [| backRoadId] | maxSpeed | path", commentMark);
+            writer.WriteLine("{0} path: coords1 ; coords2 [; coords3 [; coords4] ...]", commentMark);
+            writer.WriteLine("{0} coords: x , y", commentMark);
+            writer.WriteLine();
             foreach (IRoad guiRoad in guiMap.GetRoads())
                 writer.WriteLine(RoadToString(new RoadView((Components.Road)map.GetEdge(guiRoad.GetRoadIds().First()), guiRoad)));
-            writer.WriteLine(keywordTrafficLights);
+            writer.WriteLine();
+
+            writer.WriteLine(keywordCrossroads);
+            writer.WriteLine();
+            writer.WriteLine("{0} coords | carSpawnRate [| settings1 [| settings2] ...]", commentMark);
+            writer.WriteLine("{0} coords: x , y", commentMark);
+            writer.WriteLine("{0} settings: duration ; direction1 [; direction2 [; direction3] ...]", commentMark);
+            writer.WriteLine("{0} direction: from , to", commentMark);
+            writer.WriteLine();
             foreach (ICrossroad guiCrossroad in guiMap.GetCrossroads())
                 writer.WriteLine(CrossroadToString(new CrossroadView((Components.Crossroad)map.GetNode(guiCrossroad.CrossroadId), guiCrossroad)));
+            writer.WriteLine();
             writer.WriteLine(keywordEnd);
+
+            writer.Flush();
         }
 
         public static bool LoadMap(StreamReader reader, Components.Map map, IMap guiMap)
@@ -70,7 +87,7 @@ namespace RoadTrafficSimulator
                 line = line.Trim();
                 if (IgnoreLine(line))
                     continue;
-                else if (line == keywordTrafficLights)
+                else if (line == keywordCrossroads)
                     break;
                 else if (ParseRoad(line, map, guiMap, out var roadIdMappings))
                     foreach (var (key, value) in roadIdMappings)
@@ -108,6 +125,8 @@ namespace RoadTrafficSimulator
         {
             StringBuilder sb = new StringBuilder();
             sb.Append(crossroad.Coords.x).Append(valueSeparator).Append(crossroad.Coords.y);
+            sb.Append(fieldSeparator);
+            sb.Append(crossroad.CarSpawnRate);
             sb.Append(fieldSeparator);
             foreach (TrafficLight.Setting setting in crossroad.TrafficLight.Settings)
             {
@@ -179,16 +198,19 @@ namespace RoadTrafficSimulator
 
         private static bool ParseCrossroad(string line, Components.Map map, Dictionary<int, int> roadIdMapper)
         {
-            // Split line into fields and get the traffic light: coords [| settings1 [| settings2] ...]
+            // Split line into fields and get the traffic light: coords | carSpawnRate [| settings1 [| settings2] ...]
             string[] fields = line.Split(fieldSeparator);
-            if (fields.Length < 1)
+            if (fields.Length < 2)
                 return false;
             if (!ParseCoords(fields[0], out Coords coords))
                 return false;
+            if (!byte.TryParse(fields[1], out byte carSpawnRate))
+                return false;
             Components.Crossroad crossroad = (Components.Crossroad)map.GetNode(coords);
             TrafficLight trafficLight = crossroad.TrafficLight;
+            crossroad.CarSpawnRate = carSpawnRate;
             // Split directions into roadID pairs and get the traffic light
-            for (int i = 1; i < fields.Length; i++)
+            for (int i = 2; i < fields.Length; i++)
             {
                 TrafficLight.Setting setting;
                 if (i == 1)
@@ -231,7 +253,7 @@ namespace RoadTrafficSimulator
 
         private static bool IgnoreLine(string line)
         {
-            return line == string.Empty || line[0] == '#';
+            return line == string.Empty || line[0] == commentMark;
         }
     }
 }

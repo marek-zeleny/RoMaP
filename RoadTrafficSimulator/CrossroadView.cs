@@ -14,6 +14,7 @@ namespace RoadTrafficSimulator
         public int InIndex { get => crossroad.InDegree; }
         public int OutIndex { get => crossroad.OutDegree; }
         public TrafficLight TrafficLight { get => crossroad.TrafficLight; }
+        public byte CarSpawnRate { get => crossroad.CarSpawnRate; set => crossroad.CarSpawnRate = value; }
         public ICrossroad GuiCrossroad { get; }
 
         public CrossroadView(Components.Crossroad crossroad, ICrossroad guiCrossroad)

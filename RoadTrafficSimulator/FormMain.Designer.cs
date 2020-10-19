@@ -37,6 +37,8 @@
             this.numericUpDownSpeed = new System.Windows.Forms.NumericUpDown();
             this.checkBoxTwoWayRoad = new System.Windows.Forms.CheckBox();
             this.groupBoxCrossroad = new System.Windows.Forms.GroupBox();
+            this.labelCarSpawnRate = new System.Windows.Forms.Label();
+            this.trackBarCarSpawnRate = new System.Windows.Forms.TrackBar();
             this.buttonDestroyCrossroad = new System.Windows.Forms.Button();
             this.buttonTrafficLight = new System.Windows.Forms.Button();
             this.labelOutIndex = new System.Windows.Forms.Label();
@@ -68,6 +70,7 @@
             this.groupBoxBuild.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownSpeed)).BeginInit();
             this.groupBoxCrossroad.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.trackBarCarSpawnRate)).BeginInit();
             this.groupBoxRoad.SuspendLayout();
             this.groupBoxSimulation.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarCarFrequency)).BeginInit();
@@ -179,6 +182,8 @@
             // 
             // groupBoxCrossroad
             // 
+            this.groupBoxCrossroad.Controls.Add(this.labelCarSpawnRate);
+            this.groupBoxCrossroad.Controls.Add(this.trackBarCarSpawnRate);
             this.groupBoxCrossroad.Controls.Add(this.buttonDestroyCrossroad);
             this.groupBoxCrossroad.Controls.Add(this.buttonTrafficLight);
             this.groupBoxCrossroad.Controls.Add(this.labelOutIndex);
@@ -188,18 +193,38 @@
             this.groupBoxCrossroad.Margin = new System.Windows.Forms.Padding(2);
             this.groupBoxCrossroad.Name = "groupBoxCrossroad";
             this.groupBoxCrossroad.Padding = new System.Windows.Forms.Padding(2);
-            this.groupBoxCrossroad.Size = new System.Drawing.Size(172, 120);
+            this.groupBoxCrossroad.Size = new System.Drawing.Size(172, 161);
             this.groupBoxCrossroad.TabIndex = 4;
             this.groupBoxCrossroad.TabStop = false;
             this.groupBoxCrossroad.Text = "Crossroad Properties";
             this.groupBoxCrossroad.Visible = false;
             // 
+            // labelCarSpawnRate
+            // 
+            this.labelCarSpawnRate.AutoSize = true;
+            this.labelCarSpawnRate.Location = new System.Drawing.Point(6, 64);
+            this.labelCarSpawnRate.Name = "labelCarSpawnRate";
+            this.labelCarSpawnRate.Size = new System.Drawing.Size(109, 15);
+            this.labelCarSpawnRate.TabIndex = 5;
+            this.labelCarSpawnRate.Text = "Car spawn rate: - %";
+            // 
+            // trackBarCarSpawnRate
+            // 
+            this.trackBarCarSpawnRate.Location = new System.Drawing.Point(5, 82);
+            this.trackBarCarSpawnRate.Maximum = 100;
+            this.trackBarCarSpawnRate.Minimum = 1;
+            this.trackBarCarSpawnRate.Name = "trackBarCarSpawnRate";
+            this.trackBarCarSpawnRate.Size = new System.Drawing.Size(163, 45);
+            this.trackBarCarSpawnRate.TabIndex = 4;
+            this.trackBarCarSpawnRate.Value = 10;
+            this.trackBarCarSpawnRate.Scroll += new System.EventHandler(this.trackBarCarSpawnRate_Scroll);
+            // 
             // buttonDestroyCrossroad
             // 
-            this.buttonDestroyCrossroad.Location = new System.Drawing.Point(4, 92);
+            this.buttonDestroyCrossroad.Location = new System.Drawing.Point(88, 132);
             this.buttonDestroyCrossroad.Margin = new System.Windows.Forms.Padding(2);
             this.buttonDestroyCrossroad.Name = "buttonDestroyCrossroad";
-            this.buttonDestroyCrossroad.Size = new System.Drawing.Size(164, 25);
+            this.buttonDestroyCrossroad.Size = new System.Drawing.Size(80, 25);
             this.buttonDestroyCrossroad.TabIndex = 3;
             this.buttonDestroyCrossroad.Text = "Destroy Crossroad";
             this.buttonDestroyCrossroad.UseVisualStyleBackColor = true;
@@ -207,10 +232,10 @@
             // 
             // buttonTrafficLight
             // 
-            this.buttonTrafficLight.Location = new System.Drawing.Point(4, 63);
+            this.buttonTrafficLight.Location = new System.Drawing.Point(4, 132);
             this.buttonTrafficLight.Margin = new System.Windows.Forms.Padding(2);
             this.buttonTrafficLight.Name = "buttonTrafficLight";
-            this.buttonTrafficLight.Size = new System.Drawing.Size(164, 25);
+            this.buttonTrafficLight.Size = new System.Drawing.Size(80, 25);
             this.buttonTrafficLight.TabIndex = 3;
             this.buttonTrafficLight.Text = "Customize Traffic Light";
             this.buttonTrafficLight.UseVisualStyleBackColor = true;
@@ -525,6 +550,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownSpeed)).EndInit();
             this.groupBoxCrossroad.ResumeLayout(false);
             this.groupBoxCrossroad.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.trackBarCarSpawnRate)).EndInit();
             this.groupBoxRoad.ResumeLayout(false);
             this.groupBoxRoad.PerformLayout();
             this.groupBoxSimulation.ResumeLayout(false);
@@ -578,6 +604,8 @@
         private System.Windows.Forms.Button buttonSaveMap;
         private System.Windows.Forms.GroupBox groupBoxInfo;
         private System.Windows.Forms.Label labelInfo;
+        private System.Windows.Forms.Label labelCarSpawnRate;
+        private System.Windows.Forms.TrackBar trackBarCarSpawnRate;
     }
 }
 
