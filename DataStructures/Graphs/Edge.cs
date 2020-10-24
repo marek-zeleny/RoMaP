@@ -12,7 +12,7 @@ namespace DataStructures.Graphs
         public TEdgeId Id { get; }
         public IReadOnlyNode<TNodeId, TEdgeId> FromNode { get => fromNode; }
         public IReadOnlyNode<TNodeId, TEdgeId> ToNode { get => toNode; }
-        public Weight Weight { get; }
+        public Weight Weight { get; private set; }
 
         public Edge(TEdgeId id, INode<TNodeId, TEdgeId> from, INode<TNodeId, TEdgeId> to)
             : this(id, from, to, 1.Weight()) { }
@@ -28,6 +28,8 @@ namespace DataStructures.Graphs
         public INode<TNodeId, TEdgeId> GetFromNode() => fromNode;
 
         public INode<TNodeId, TEdgeId> GetToNode() => toNode;
+
+        public void SetWeight(Weight value) => Weight = value;
 
         public override string ToString() => string.Format("E{0}: In{1}, Out{2}, W{3}", Id, FromNode.Id, ToNode.Id, Weight);
     }

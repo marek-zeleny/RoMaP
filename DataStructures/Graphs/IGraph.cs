@@ -24,5 +24,6 @@ namespace DataStructures.Graphs
         bool AddEdge(IEdge<TNodeId, TEdgeId> edge);
         INode<TNodeId, TEdgeId> RemoveNode(TNodeId id);
         IEdge<TNodeId, TEdgeId> RemoveEdge(TEdgeId id);
+        bool SetWeight(TEdgeId edgeId, Weight weight);
     }
 }

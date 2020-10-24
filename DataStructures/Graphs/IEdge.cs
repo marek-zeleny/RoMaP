@@ -19,11 +19,12 @@ namespace DataStructures.Graphs
     {
         INode<TNodeId, TEdgeId> GetFromNode();
         INode<TNodeId, TEdgeId> GetToNode();
+        void SetWeight(Weight value);
     }
 
     public struct Weight : IComparable<Weight>
     {
-        private double value;
+        private readonly double value;
 
         public Weight(double value)
         {

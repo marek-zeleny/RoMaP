@@ -30,6 +30,7 @@ namespace RoadTrafficSimulator
         private Point previousMouseLocation;
         private bool drag;
         private bool dragOccured;
+        private bool freezeMaxSpeed;
 
         public float Zoom
         {
@@ -204,6 +205,17 @@ namespace RoadTrafficSimulator
         {
             Zoom = 1f;
             panelMap.Invalidate();
+        }
+
+        private void numericUpDownMaxSpeed_ValueChanged(object sender, EventArgs e)
+        {
+            if (freezeMaxSpeed || selectedRoad == null)
+                return;
+            selectedRoad.MaxSpeed = ((int)numericUpDownMaxSpeed.Value).MetersPerSecond();
+            // Must check whether the road accepted this max speed
+            freezeMaxSpeed = true;
+            numericUpDownMaxSpeed.Value = selectedRoad.MaxSpeed;
+            freezeMaxSpeed = false;
         }
 
         private void trackBarCarSpawnRate_Scroll(object sender, EventArgs e)
@@ -464,8 +476,7 @@ namespace RoadTrafficSimulator
         {
             if (currentRoadBuilder == null)
                 return;
-            int maxSpeed = (int)numericUpDownSpeed.Value;
-            if (currentRoadBuilder.FinishRoad(maxSpeed.MetersPerSecond()))
+            if (currentRoadBuilder.FinishRoad())
                 currentRoadBuilder = null;
             else
                 ShowInfo("The road cannot be built like this.");
@@ -530,7 +541,10 @@ namespace RoadTrafficSimulator
                         labelTwoWayRoad.Text = selectedRoad.TwoWayRoad ? "Two-way" : "One-way";
                     labelFrom.Text = string.Format("From: {0}", selectedRoad?.From.ToString() ?? "(-;-)");
                     labelTo.Text = string.Format("To: {0}", selectedRoad?.To.ToString() ?? "(-;-)");
-                    labelRoadMaxSpeed.Text = string.Format("Max speed: {0}", selectedRoad?.MaxSpeed.ToString() ?? "-mps");
+                    freezeMaxSpeed = true;
+                    numericUpDownMaxSpeed.Value = selectedRoad?.MaxSpeed ?? numericUpDownMaxSpeed.Minimum;
+                    freezeMaxSpeed = false;
+                    numericUpDownMaxSpeed.Enabled = selectedRoad != null;
                     buttonDestroyRoad.Enabled = selectedRoad != null;
                     break;
             }

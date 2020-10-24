@@ -13,7 +13,7 @@ namespace RoadTrafficSimulator
         public int Id { get => road.Id; }
         public Coords From { get => road.FromNode.Id; }
         public Coords To { get => road.ToNode.Id; }
-        public MetersPerSecond MaxSpeed { get => road.MaxSpeed; }
+        public MetersPerSecond MaxSpeed { get => road.MaxSpeed; set => road.MaxSpeed = value; }
         public bool TwoWayRoad { get => GuiRoad is TwoWayRoad; }
         public IRoad GuiRoad { get; }
 

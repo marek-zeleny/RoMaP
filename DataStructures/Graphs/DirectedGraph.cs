@@ -97,5 +97,13 @@ namespace DataStructures.Graphs
                 return default;
             return edge;
         }
+
+        public virtual bool SetWeight(TEdgeId edgeId, Weight weight)
+        {
+            if (!edges.TryGetValue(edgeId, out var edge))
+                return false;
+            edge.SetWeight(weight);
+            return true;
+        }
     }
 }

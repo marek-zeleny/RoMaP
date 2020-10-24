@@ -10,9 +10,21 @@ namespace RoadTrafficSimulator.Components
     {
         private Car firstCar;
         private Car lastCar;
+        private MetersPerSecond maxSpeed;
 
         public Meters Length { get; }
-        public MetersPerSecond MaxSpeed { get; }
+        public MetersPerSecond MaxSpeed
+        {
+            get => maxSpeed;
+            set
+            {
+                if (value < 1)
+                    maxSpeed = 1.MetersPerSecond();
+                else
+                    maxSpeed = value;
+                SetWeight((Length / maxSpeed).Weight());
+            }
+        }
         public Crossroad Destination { get => (Crossroad)ToNode; }
 
         public Road(int id, Crossroad from, Crossroad to, Meters length, MetersPerSecond maxSpeed)
