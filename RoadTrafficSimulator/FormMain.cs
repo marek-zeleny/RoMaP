@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Security;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -302,23 +303,24 @@ namespace RoadTrafficSimulator
 
         private void SaveMap(string path)
         {
-            bool result = true;
-            StreamWriter sw = new StreamWriter(path);
+            bool successful = true;
+            StreamWriter sw = null;
             try
             {
+                sw = new StreamWriter(path);
                 mapManager.SaveMap(sw);
             }
-            catch (IOException e)
+            catch (Exception e) when (e is IOException || e is UnauthorizedAccessException || e is SecurityException)
             {
                 string message = string.Format("An error occured while saving the map: {0}", e.Message);
                 MessageBox.Show(message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                result = false;
+                successful = false;
             }
             finally
             {
                 sw?.Dispose();
             }
-            if (result)
+            if (successful)
                 ShowInfo("Map successfully saved.");
         }
 
@@ -343,14 +345,15 @@ namespace RoadTrafficSimulator
 
         private void LoadMap(string path)
         {
-            bool result = false;
+            bool successful = false;
             Components.Map newMap = null;
-            StreamReader sr = new StreamReader(path);
+            StreamReader sr = null;
             try
             {
-                result = mapManager.LoadMap(sr, out newMap);
+                sr = new StreamReader(path);
+                successful = mapManager.LoadMap(sr, out newMap);
             }
-            catch (IOException e)
+            catch (Exception e) when (e is IOException || e is UnauthorizedAccessException || e is SecurityException)
             {
                 string message = string.Format("An error occured while loading the map: {0}", e.Message);
                 MessageBox.Show(message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -359,7 +362,7 @@ namespace RoadTrafficSimulator
             {
                 sr?.Dispose();
             }
-            if (result)
+            if (successful)
             {
                 simulation.Map = newMap;
                 ShowInfo("Map successfully loaded.");
