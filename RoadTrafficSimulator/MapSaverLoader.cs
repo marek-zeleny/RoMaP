@@ -210,13 +210,14 @@ namespace RoadTrafficSimulator
             TrafficLight trafficLight = crossroad.TrafficLight;
             crossroad.CarSpawnRate = carSpawnRate;
             // Split directions into roadID pairs and get the traffic light
-            for (int i = 2; i < fields.Length; i++)
+            const int settingsOffset = 2;
+            for (int i = settingsOffset; i < fields.Length; i++)
             {
                 TrafficLight.Setting setting;
-                if (i == 1)
+                if (i == settingsOffset)
                     setting = trafficLight.Settings[0];
                 else
-                    setting = trafficLight.InsertSetting(i - 1);
+                    setting = trafficLight.InsertSetting(i - settingsOffset);
                 // Add directions to the current setting: duration ; direction1 [; direction2 [; direction3] ...]
                 string[] directions = fields[i].Split(entitySeparator);
                 if (!int.TryParse(directions[0], out int duration))
