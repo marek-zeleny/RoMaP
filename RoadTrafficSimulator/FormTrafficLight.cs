@@ -136,6 +136,7 @@ namespace RoadTrafficSimulator
 
         private void ShowProperties()
         {
+            numericUpDownDuration.Enabled = trafficLight.Settings.Count > 1;
             numericUpDownDuration.Value = currentSetting.Duration;
             InitializeDirectionCheckBoxes();
         }
@@ -163,9 +164,18 @@ namespace RoadTrafficSimulator
                 {
                     if (enable && id.HasValue)
                     {
-                        // If the selected road is two-way, disable the backward direction
-                        cb.Enabled = !selectedRoad.GuiRoad.GetRoadIds().Contains((int)id);
-                        cb.Checked = currentSetting.ContainsDirection(selectedRoad.Id, id.Value);
+                        // If there's just one setting, all possible directions are allowed
+                        if (trafficLight.Settings.Count <= 1)
+                        {
+                            cb.Enabled = false;
+                            cb.Checked = true;
+                        }
+                        else
+                        {
+                            // If the selected road is two-way, disable the backward direction
+                            cb.Enabled = !selectedRoad.GuiRoad.GetRoadIds().Contains((int)id);
+                            cb.Checked = currentSetting.ContainsDirection(selectedRoad.Id, id.Value);
+                        }
                     }
                     else
                     {

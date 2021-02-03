@@ -12,6 +12,7 @@ namespace RoadTrafficSimulator.Components
 
         private ICollection<Direction> defaultDirections = new List<Direction>(1);
         private List<Setting> settings;
+        private bool allowAll = false;
         private IEnumerator<Setting> settingEnumerator;
         private Seconds currentTime;
 
@@ -52,6 +53,12 @@ namespace RoadTrafficSimulator.Components
 
         public bool Initialize(Dictionary<Direction, bool> verifier)
         {
+            if (settings.Count == 1)
+            {
+                allowAll = true;
+                return true;
+            }
+
             foreach (Setting s in settings)
                 foreach (Direction d in s)
                     verifier[d] = true;
@@ -64,6 +71,8 @@ namespace RoadTrafficSimulator.Components
 
         public void Tick(Seconds time)
         {
+            if (allowAll)
+                return;
             if (currentTime > settingEnumerator.Current.Duration)
             {
                 currentTime -= settingEnumerator.Current.Duration;
@@ -74,6 +83,8 @@ namespace RoadTrafficSimulator.Components
 
         public bool DirectionAllowed(int fromId, int toId)
         {
+            if (allowAll)
+                return true;
             return !CurrentSettingExpired && settingEnumerator.Current.ContainsDirection(fromId, toId);
         }
 
