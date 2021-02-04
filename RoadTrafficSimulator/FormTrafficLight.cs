@@ -215,6 +215,7 @@ namespace RoadTrafficSimulator
         {
             labelInfo.Text = info;
             Debug.WriteLine("{0}: {1}", DateTime.Now, info);
+            labelInfo.Refresh();
         }
 
         #endregion helper_methods
