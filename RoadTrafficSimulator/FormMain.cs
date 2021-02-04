@@ -15,6 +15,7 @@ namespace RoadTrafficSimulator
     {
         private const float minZoom = 0.2f;
         private const float maxZoom = 5f;
+        private const float carFrequencyQuotient = 0.03f;
         private static readonly string savePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "RoadTrafficSimulator");
 
         private enum Mode { Build_Road, Select_Crossroad, Select_Road };
@@ -289,7 +290,9 @@ namespace RoadTrafficSimulator
             {
                 case DialogResult.Yes:
                     ShowInfo(string.Format("Starting simulation of {0} hours with {1:0.00} car frequency...", duration, carFrequency));
-                    simulation.Simulate((duration * 3600).Seconds(), trackBarCarFrequency.Value);
+                    Seconds durationSeconds = (duration * 3600).Seconds();
+                    float newCarsPerHundredSecondsPerCrossroad = trackBarCarFrequency.Value * carFrequencyQuotient;
+                    simulation.Simulate(durationSeconds, newCarsPerHundredSecondsPerCrossroad);
                     ShowInfo("The simulation has ended.");
                     UpdateStatistics();
                     break;
@@ -385,7 +388,7 @@ namespace RoadTrafficSimulator
 
         private void UpdateStatistics()
         {
-            labelCars.Text = string.Format("Finished cars: {0}", simulation.Statistics.RecordCount);
+            labelCars.Text = string.Format("Finished cars: {0}/{1}", simulation.Statistics.CarsFinished, simulation.Statistics.CarsTotal);
             labelAvgDistance.Text = string.Format("Average distance: {0}", simulation.Statistics.GetAverageDistance());
             labelAvgDuration.Text = string.Format("Average duration: {0}", simulation.Statistics.GetAverageDuration());
             labelAvgDelay.Text = string.Format("Average delay: {0}", simulation.Statistics.GetAverageDelay());

@@ -10,49 +10,55 @@ namespace RoadTrafficSimulator
 {
     class Statistics
     {
-        private List<Car.Statistics> records = new List<Car.Statistics>();
+        private List<Car.Statistics> finishedCars = new List<Car.Statistics>();
 
-        public int RecordCount { get => records.Count; }
+        public int CarsFinished { get => finishedCars.Count; }
+        public int CarsTotal { get; private set; }
 
-        public void AddRecord(Car.Statistics record)
+        public void AddCars(int count = 1)
         {
-            if (record.Duration < record.ExpectedDuration)
-                throw new Exception($"Duration less than expected duration: {record.Duration} < {record.ExpectedDuration}");
-            records.Add(record);
+            CarsTotal+= count;
+        }
+
+        public void AddFinishedCar(Car.Statistics stats)
+        {
+            if (stats.Duration < stats.ExpectedDuration)
+                throw new Exception($"Duration less than expected duration: {stats.Duration} < {stats.ExpectedDuration}");
+            finishedCars.Add(stats);
         }
 
         public Meters GetAverageDistance()
         {
-            if (RecordCount == 0)
+            if (CarsFinished == 0)
                 return 0.Meters();
-            int totalDistance = records.Sum(record => record.Distance);
-            return (totalDistance / RecordCount).Meters();
+            int totalDistance = finishedCars.Sum(stats => stats.Distance);
+            return (totalDistance / CarsFinished).Meters();
         }
 
         public Seconds GetAverageDuration()
         {
-            if (RecordCount == 0)
+            if (CarsFinished == 0)
                 return 0.Seconds();
-            int totalDuration = records.Sum(record => record.Duration);
-            return (totalDuration / RecordCount).Seconds();
+            int totalDuration = finishedCars.Sum(stats => stats.Duration);
+            return (totalDuration / CarsFinished).Seconds();
         }
 
         public Seconds GetAverageDelay()
         {
-            if (RecordCount == 0)
+            if (CarsFinished == 0)
                 return 0.Seconds();
-            int totalDelay = records.Sum(record => record.Duration - record.ExpectedDuration);
-            return (totalDelay / RecordCount).Seconds();
+            int totalDelay = finishedCars.Sum(stats => stats.Duration - stats.ExpectedDuration);
+            return (totalDelay / CarsFinished).Seconds();
         }
 
         public void ExportCSV(StringWriter writer)
         {
             writer.WriteLine("From;To;Start;Finish;ExpectedDuration;Distance");
-            foreach (var r in records)
+            foreach (var s in finishedCars)
             {
-                var first = r.RoadLog[0];
-                var last = r.RoadLog[r.RoadLog.Count - 1];
-                writer.WriteLine($"{first.Road.FromNode};{last.Road.ToNode};{first.Time};{r.End};{r.ExpectedDuration};{r.Distance}");
+                var first = s.RoadLog[0];
+                var last = s.RoadLog[s.RoadLog.Count - 1];
+                writer.WriteLine($"{first.Road.FromNode};{last.Road.ToNode};{first.Time};{s.End};{s.ExpectedDuration};{s.Distance}");
             }
             writer.Flush();
         }

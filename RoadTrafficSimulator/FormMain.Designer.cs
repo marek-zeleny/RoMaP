@@ -437,7 +437,7 @@
             this.labelCars.Name = "labelCars";
             this.labelCars.Size = new System.Drawing.Size(106, 20);
             this.labelCars.TabIndex = 0;
-            this.labelCars.Text = "Finished cars: -";
+            this.labelCars.Text = "Finished cars: -/-";
             // 
             // buttonLoadMap
             // 

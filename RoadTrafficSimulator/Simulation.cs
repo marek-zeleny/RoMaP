@@ -53,10 +53,11 @@ namespace RoadTrafficSimulator
             return InitializationResult.Ok;
         }
 
-        public void Simulate(Seconds duration, int newCarsPerHundredSeconds) => Simulate(duration, newCarsPerHundredSeconds, 1.Seconds());
+        public void Simulate(Seconds duration, float newCarsPerHundredSecondsPerCrossroad) => Simulate(duration, newCarsPerHundredSecondsPerCrossroad, 1.Seconds());
 
-        public void Simulate(Seconds duration, int newCarsPerHundredSeconds, Seconds step)
+        public void Simulate(Seconds duration, float newCarsPerHundredSecondsPerCrossroad, Seconds step)
         {
+            int newCarsPerHundredSeconds = (int)(newCarsPerHundredSecondsPerCrossroad * Map.CrossroadCount);
             while (Time < duration)
             {
                 if (Time % 100 < step)
@@ -84,6 +85,7 @@ namespace RoadTrafficSimulator
             foreach (Car c in stagedCars)
                 if (c.Initialize())
                     releasedCars.Add(c);
+            Statistics.AddCars(releasedCars.Count);
             foreach (Car c in releasedCars)
                 stagedCars.Remove(c);
             foreach (Crossroad c in Map.GetNodes())
@@ -94,7 +96,7 @@ namespace RoadTrafficSimulator
 
         private void DriveFinished(Car.Statistics statistics)
         {
-            Statistics.AddRecord(statistics);
+            Statistics.AddFinishedCar(statistics);
         }
 
         private Crossroad GetRandomCrossroad()
