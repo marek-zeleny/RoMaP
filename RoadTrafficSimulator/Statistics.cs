@@ -15,6 +15,7 @@ namespace RoadTrafficSimulator
 
         public void AddRecord(Car car, Seconds currentTime)
         {
+            // TODO: resolve issue with actual duration smaller than expected duration
             records.Add(new Record(car.TotalDistance, car.ExpectedDuration, currentTime - car.StartTime));
         }
 

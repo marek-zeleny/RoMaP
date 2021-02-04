@@ -39,6 +39,8 @@ namespace RoadTrafficSimulator
                     invalidCrossroad = c;
                     return InitializationResult.Error_InvalidCrossroad;
                 }
+            foreach (Road r in Map.GetEdges())
+                r.Initialize();
             randomCrossroads = GetRandomCrossroads().GetEnumerator();
             stagedCars = new HashSet<Car>();
             Time = 0.Seconds();
@@ -52,10 +54,10 @@ namespace RoadTrafficSimulator
         {
             while (Time < duration)
             {
-                Tick(step);
                 if (Time % 100 < step)
                     for (int i = 0; i < newCarsPerHundredSeconds; i++)
                         GenerateCar();
+                Tick(step);
             }
         }
 
@@ -72,6 +74,7 @@ namespace RoadTrafficSimulator
 
         public void Tick(Seconds time)
         {
+            Time += time;
             HashSet<Car> releasedCars = new HashSet<Car>();
             foreach (Car c in stagedCars)
                 if (c.Initialize())
@@ -82,7 +85,6 @@ namespace RoadTrafficSimulator
                 c.Tick(time);
             foreach (Road r in Map.GetEdges())
                 r.Tick(time);
-            Time += time;
         }
 
         private void DriveFinished(Car car)

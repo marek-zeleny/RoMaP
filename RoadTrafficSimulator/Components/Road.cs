@@ -34,6 +34,13 @@ namespace RoadTrafficSimulator.Components
             MaxSpeed = maxSpeed;
         }
 
+        public bool Initialize()
+        {
+            firstCar = null;
+            lastCar = null;
+            return true;
+        }
+
         public bool GetOn(Car car, out Car carInFront)
         {
             carInFront = lastCar;
@@ -43,7 +50,8 @@ namespace RoadTrafficSimulator.Components
             {
                 if (lastCar.DistanceRear < car.Length)
                     return false;
-                lastCar.SetCarBehind(this, car);
+                if (!lastCar.SetCarBehind(this, car))
+                    return false;
             }
             lastCar = car;
             return true;
@@ -53,11 +61,12 @@ namespace RoadTrafficSimulator.Components
         {
             if (authentication != firstCar)
                 return false;
-            firstCar = firstCar.CarBehind;
-            if (firstCar == null)
+            Car newFirstCar = firstCar.CarBehind;
+            if (newFirstCar == null)
                 lastCar = null;
-            else
-                firstCar.RemoveCarInFront(this);
+            else if (!newFirstCar.RemoveCarInFront(this))
+                return false;
+            firstCar = newFirstCar;
             return true;
         }
 
