@@ -7,7 +7,12 @@ using RoadTrafficSimulator.ValueTypes;
 
 namespace RoadTrafficSimulator
 {
-    class Simulation
+    interface IClock
+    {
+        Seconds Time { get; }
+    }
+
+    class Simulation: IClock
     {
         private static readonly int[] carLengthDistribution = new int[] { 2, 3, 3, 3, 3, 4, 4, 10, 10, 15 };
 
@@ -69,7 +74,7 @@ namespace RoadTrafficSimulator
                 finish = GetRandomCrossroad();
             while (finish == start);
             Meters length = carLengthDistribution[random.Next(carLengthDistribution.Length)].Meters();
-            stagedCars.Add(new Car(length, Map, start, finish, Time, DriveFinished));
+            stagedCars.Add(new Car(length, Map, start, finish, this, DriveFinished));
         }
 
         public void Tick(Seconds time)
@@ -87,9 +92,9 @@ namespace RoadTrafficSimulator
                 r.Tick(time);
         }
 
-        private void DriveFinished(Car car)
+        private void DriveFinished(Car.Statistics statistics)
         {
-            Statistics.AddRecord(car, Time);
+            Statistics.AddRecord(statistics);
         }
 
         private Crossroad GetRandomCrossroad()

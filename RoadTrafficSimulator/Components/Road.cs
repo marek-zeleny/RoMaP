@@ -81,6 +81,13 @@ namespace RoadTrafficSimulator.Components
                 current.Tick(time);
                 current = next;
             }
+            current = firstCar;
+            while (current != null)
+            {
+                next = current.CarBehind;
+                current.FinishCrossingRoads(time);
+                current = next;
+            }
         }
     }
 }
