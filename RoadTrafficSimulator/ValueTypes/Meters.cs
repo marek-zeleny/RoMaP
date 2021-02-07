@@ -31,6 +31,6 @@ namespace RoadTrafficSimulator.ValueTypes
 
         public static Meters operator *(double i, Meters m) => m * i;
 
-        public override string ToString() => string.Format("{0}m", value);
+        public override string ToString() => string.Format("{0:N0}m", value);
     }
 }

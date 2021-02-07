@@ -51,14 +51,16 @@ namespace RoadTrafficSimulator
             return (totalDelay / CarsFinished).Seconds();
         }
 
-        public void ExportCSV(StringWriter writer)
+        public void ExportCSV(TextWriter writer)
         {
-            writer.WriteLine("From;To;Start;Finish;ExpectedDuration;Distance");
+            writer.WriteLine("From(x),From(y),To(x),To(y),Start(s),Finish(s),ExpectedDuration(s),Distance(m)");
             foreach (var s in finishedCars)
             {
                 var first = s.RoadLog[0];
                 var last = s.RoadLog[s.RoadLog.Count - 1];
-                writer.WriteLine($"{first.Road.FromNode};{last.Road.ToNode};{first.Time};{s.End};{s.ExpectedDuration};{s.Distance}");
+                var from = first.Road.FromNode.Id;
+                var to = last.Road.ToNode.Id;
+                writer.WriteLine($"{from.x},{from.y},{to.x},{to.y},{(int)first.Time},{(int)s.End},{(int)s.ExpectedDuration},{(int)s.Distance}");
             }
             writer.Flush();
         }

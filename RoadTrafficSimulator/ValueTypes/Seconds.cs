@@ -25,6 +25,6 @@ namespace RoadTrafficSimulator.ValueTypes
 
         public static Meters operator *(MetersPerSecond mps, Seconds s) => s * mps;
 
-        public override string ToString() => string.Format("{0}s", value);
+        public override string ToString() => string.Format("{0:N0}s", value);
     }
 }

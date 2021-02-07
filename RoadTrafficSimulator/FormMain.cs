@@ -196,6 +196,11 @@ namespace RoadTrafficSimulator
             InitializeSimulation();
         }
 
+        private void buttonExportStats_Click(object sender, EventArgs e)
+        {
+            InitializeExportStats();
+        }
+
         private void buttonCenter_Click(object sender, EventArgs e)
         {
             origin = PanelMapCenter;
@@ -386,9 +391,53 @@ namespace RoadTrafficSimulator
                 ShowInfo("Chosen map couldn't be loaded due to wrong format.");
         }
 
+        private void InitializeExportStats()
+        {
+            string message = "There are no statistics to export. You need to run the simulation first.";
+            if (simulation.Statistics == null)
+            {
+                MessageBox.Show(message, "No Statistics", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return;
+            }
+
+            if (!Directory.Exists(savePath))
+                Directory.CreateDirectory(savePath);
+            SaveFileDialog fileDialog = new SaveFileDialog()
+            {
+                Title = "Export CSV",
+                Filter = "CSV files (*.csv)|*.csv",
+                InitialDirectory = savePath
+            };
+            if (fileDialog.ShowDialog() == DialogResult.OK)
+                ExportStats(fileDialog.FileName);
+        }
+
+        private void ExportStats(string path)
+        {
+            bool successful = true;
+            StreamWriter sw = null;
+            try
+            {
+                sw = new StreamWriter(path);
+                simulation.Statistics.ExportCSV(sw);
+            }
+            catch (Exception e) when (e is IOException || e is UnauthorizedAccessException || e is SecurityException)
+            {
+                string message = string.Format("An error occured while exporting statistics: {0}", e.Message);
+                MessageBox.Show(message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                successful = false;
+            }
+            finally
+            {
+                sw?.Dispose();
+            }
+            if (successful)
+                ShowInfo("Statistics successfully exported.");
+        }
+
         private void UpdateStatistics()
         {
-            labelCars.Text = string.Format("Finished cars: {0}/{1}", simulation.Statistics.CarsFinished, simulation.Statistics.CarsTotal);
+            labelCars.Text = string.Format("Finished cars: {0:N0}/{1:N0}", simulation.Statistics.CarsFinished, simulation.Statistics.CarsTotal);
             labelAvgDistance.Text = string.Format("Average distance: {0}", simulation.Statistics.GetAverageDistance());
             labelAvgDuration.Text = string.Format("Average duration: {0}", simulation.Statistics.GetAverageDuration());
             labelAvgDelay.Text = string.Format("Average delay: {0}", simulation.Statistics.GetAverageDelay());

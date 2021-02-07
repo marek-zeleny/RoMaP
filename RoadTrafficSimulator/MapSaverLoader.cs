@@ -39,7 +39,7 @@ namespace RoadTrafficSimulator
          * direction: from , to
          */
 
-        public static void SaveMap(StreamWriter writer, Components.Map map, IMap guiMap)
+        public static void SaveMap(TextWriter writer, Components.Map map, IMap guiMap)
         {
             writer.WriteLine(keywordRoads);
             writer.WriteLine();
@@ -66,7 +66,7 @@ namespace RoadTrafficSimulator
             writer.Flush();
         }
 
-        public static bool LoadMap(StreamReader reader, Components.Map map, IMap guiMap)
+        public static bool LoadMap(TextReader reader, Components.Map map, IMap guiMap)
         {
             string line;
             // Find the beginning of roads

@@ -76,6 +76,7 @@ namespace RoadTrafficSimulator
             while (finish == start);
             Meters length = carLengthDistribution[random.Next(carLengthDistribution.Length)].Meters();
             stagedCars.Add(new Car(length, Map, start, finish, this, DriveFinished));
+            Statistics.AddCars();
         }
 
         public void Tick(Seconds time)
@@ -85,7 +86,6 @@ namespace RoadTrafficSimulator
             foreach (Car c in stagedCars)
                 if (c.Initialize())
                     releasedCars.Add(c);
-            Statistics.AddCars(releasedCars.Count);
             foreach (Car c in releasedCars)
                 stagedCars.Remove(c);
             foreach (Crossroad c in Map.GetNodes())
