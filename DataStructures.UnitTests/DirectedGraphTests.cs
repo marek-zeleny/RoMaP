@@ -13,7 +13,7 @@ namespace DataStructures.UnitTests
         public void AddNode_GetNode_Successful()
         {
             // Arrange
-            DirectedGraph<int, int> graph = new DirectedGraph<int, int>();
+            Graph<int, int> graph = new Graph<int, int>();
             INode<int, int> node1 = new Node<int, int>(1);
             INode<int, int> node2 = new Node<int, int>(2);
 
@@ -37,7 +37,7 @@ namespace DataStructures.UnitTests
         public void AddNode_DupliciteId()
         {
             // Arrange
-            DirectedGraph<int, int> graph = new DirectedGraph<int, int>();
+            Graph<int, int> graph = new Graph<int, int>();
             INode<int, int> node1 = new Node<int, int>(1);
             INode<int, int> node2 = new Node<int, int>(2);
             INode<int, int> node3 = new Node<int, int>(1);
@@ -67,7 +67,7 @@ namespace DataStructures.UnitTests
         public void GetNode_NonExistentId()
         {
             // Arrange
-            DirectedGraph<int, int> graph = new DirectedGraph<int, int>();
+            Graph<int, int> graph = new Graph<int, int>();
             INode<int, int> node1 = new Node<int, int>(1);
 
             // Act
@@ -87,7 +87,7 @@ namespace DataStructures.UnitTests
         public void AddEdge_GetEdge_Successful()
         {
             // Arrange
-            DirectedGraph<int, int> graph = new DirectedGraph<int, int>();
+            Graph<int, int> graph = new Graph<int, int>();
             INode<int, int> node1 = new Node<int, int>(1);
             INode<int, int> node2 = new Node<int, int>(2);
             IEdge<int, int> edge1 = new Edge<int, int>(1, node1, node2);
@@ -128,7 +128,7 @@ namespace DataStructures.UnitTests
         public void AddEdge_DupliciteId()
         {
             // Arrange
-            DirectedGraph<int, int> graph = new DirectedGraph<int, int>();
+            Graph<int, int> graph = new Graph<int, int>();
             INode<int, int> node1 = new Node<int, int>(1);
             INode<int, int> node2 = new Node<int, int>(2);
             IEdge<int, int> edge1 = new Edge<int, int>(1, node1, node2);
@@ -170,7 +170,7 @@ namespace DataStructures.UnitTests
         public void AddEdge_MissingNode()
         {
             // Arrange
-            DirectedGraph<int, int> graph = new DirectedGraph<int, int>();
+            Graph<int, int> graph = new Graph<int, int>();
             INode<int, int> node1 = new Node<int, int>(1);
             INode<int, int> node2 = new Node<int, int>(2);
             IEdge<int, int> edge1 = new Edge<int, int>(1, node1, node2);
@@ -198,7 +198,7 @@ namespace DataStructures.UnitTests
         public void AddEdge_DifferentNodeWithSameId()
         {
             // Arrange
-            DirectedGraph<int, int> graph = new DirectedGraph<int, int>();
+            Graph<int, int> graph = new Graph<int, int>();
             INode<int, int> node1 = new Node<int, int>(1);
             INode<int, int> node2 = new Node<int, int>(2);
             INode<int, int> node3 = new Node<int, int>(1);
@@ -238,7 +238,7 @@ namespace DataStructures.UnitTests
         public void AddEdge_DupliciteIdInNode()
         {
             // Arrange
-            DirectedGraph<int, int> graph = new DirectedGraph<int, int>();
+            Graph<int, int> graph = new Graph<int, int>();
             INode<int, int> node1 = new Node<int, int>(1);
             INode<int, int> node2 = new Node<int, int>(2);
             IEdge<int, int> edge1 = new Edge<int, int>(1, node1, node2);
@@ -281,7 +281,7 @@ namespace DataStructures.UnitTests
         public void RemoveNode_Successful()
         {
             // Arrange
-            DirectedGraph<int, int> graph = new DirectedGraph<int, int>();
+            Graph<int, int> graph = new Graph<int, int>();
             INode<int, int> node1 = new Node<int, int>(1);
             INode<int, int> node2 = new Node<int, int>(2);
 
@@ -305,7 +305,7 @@ namespace DataStructures.UnitTests
         public void RemoveNode_NonExistentId()
         {
             // Arrange
-            DirectedGraph<int, int> graph = new DirectedGraph<int, int>();
+            Graph<int, int> graph = new Graph<int, int>();
             INode<int, int> node1 = new Node<int, int>(1);
 
             // Act

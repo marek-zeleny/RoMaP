@@ -10,7 +10,7 @@ namespace RoadTrafficSimulator.Components
     {
         private int nextRoadId;
 
-        private DirectedGraph<Coords, int> graph = new DirectedGraph<Coords, int>();
+        private Graph<Coords, int> graph = new Graph<Coords, int>();
 
         public int CrossroadCount => graph.NodeCount;
         public int RoadCount => graph.EdgeCount;

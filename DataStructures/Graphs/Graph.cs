@@ -4,10 +4,14 @@ using System.Linq;
 
 namespace DataStructures.Graphs
 {
-    public class DirectedGraph<TNodeId, TEdgeId>
+    /// <summary>
+    /// Directed graph.
+    /// </summary>
+    /// <inheritdoc cref="IGraph{TNodeId, TEdgeId}"/>
+    public class Graph<TNodeId, TEdgeId>
         : IGraph<TNodeId, TEdgeId>
-        where TNodeId : IEquatable<TNodeId>
-        where TEdgeId : IEquatable<TEdgeId>
+        where TNodeId : notnull, IEquatable<TNodeId>
+        where TEdgeId : notnull, IEquatable<TEdgeId>
     {
         private Dictionary<TNodeId, INode<TNodeId, TEdgeId>> nodes;
         private Dictionary<TEdgeId, IEdge<TNodeId, TEdgeId>> edges;
@@ -15,7 +19,10 @@ namespace DataStructures.Graphs
         public int NodeCount { get => nodes.Count; }
         public int EdgeCount { get => edges.Count; }
 
-        public DirectedGraph()
+        /// <summary>
+        /// Creates a new graph.
+        /// </summary>
+        public Graph()
         {
             nodes = new Dictionary<TNodeId, INode<TNodeId, TEdgeId>>();
             edges = new Dictionary<TEdgeId, IEdge<TNodeId, TEdgeId>>();
@@ -29,6 +36,8 @@ namespace DataStructures.Graphs
 
         public IEnumerable<IReadOnlyEdge<TNodeId, TEdgeId>> GetEdges() => edges.Select(pair => pair.Value);
 
+        /// <inheritdoc cref="IGraph{TNodeId, TEdgeId}.AddNode(INode{TNodeId, TEdgeId})"/>
+        /// <remarks>The added <see cref="INode{TNodeId, TEdgeId}"/> must have a unique ID within the graph.</remarks>
         public virtual bool AddNode(INode<TNodeId, TEdgeId> node)
         {
             if (nodes.ContainsKey(node.Id))
@@ -37,6 +46,8 @@ namespace DataStructures.Graphs
             return true;
         }
 
+        /// <inheritdoc cref="IGraph{TNodeId, TEdgeId}.AddEdge(IEdge{TNodeId, TEdgeId})"/>
+        /// <remarks>The added <see cref="IEdge{TNodeId, TEdgeId}"/> must have a unique ID within the graph.</remarks>
         public virtual bool AddEdge(IEdge<TNodeId, TEdgeId> edge)
         {
             bool idIsFree = !edges.ContainsKey(edge.Id);
@@ -56,6 +67,11 @@ namespace DataStructures.Graphs
                 return false;
         }
 
+        /// <inheritdoc cref="IGraph{TNodeId, TEdgeId}.RemoveNode(TNodeId)"/>
+        /// <remarks>
+        /// The <see cref="INode{TNodeId, TEdgeId}"/> is removed only if it doesn't have any
+        /// <see cref="IEdge{TNodeId, TEdgeId}"/> going to/from it.
+        /// </remarks>
         public virtual INode<TNodeId, TEdgeId> RemoveNode(TNodeId id)
         {
             INode<TNodeId, TEdgeId> node;
@@ -68,7 +84,25 @@ namespace DataStructures.Graphs
             return node;
         }
 
-        public virtual INode<TNodeId, TEdgeId> RemoveNodeForced(TNodeId id, out IEnumerable<IEdge<TNodeId, TEdgeId>> removedInEdges, out IEnumerable<IEdge<TNodeId, TEdgeId>> removedOutEdges)
+        /// <summary>
+        /// Forcefully removes from the graph <see cref="INode{TNodeId, TEdgeId}"/> with a given <paramref name="id"/>
+        /// and all <see cref="IEdge{TNodeId, TEdgeId}"/>s going to/from the node.
+        /// </summary>
+        /// <param name="id">ID of the removed <see cref="INode{TNodeId, TEdgeId}"/>.</param>
+        /// <param name="removedInEdges">
+        /// Removed ingoing <see cref="IEdge{TNodeId, TEdgeId}"/>s to the <see cref="INode{TNodeId, TEdgeId}"/>.
+        /// </param>
+        /// <param name="removedOutEdges">
+        /// Removed outgoing <see cref="IEdge{TNodeId, TEdgeId}"/>s from the <see cref="INode{TNodeId, TEdgeId}"/>.
+        /// </param>
+        /// <returns>
+        /// The removed <see cref="INode{TNodeId, TEdgeId}"/>. If no node with <paramref name="id"/> was found, returns
+        /// <c>default</c>.
+        /// </returns>
+        public virtual INode<TNodeId, TEdgeId> RemoveNodeForced(
+            TNodeId id,
+            out IEnumerable<IEdge<TNodeId, TEdgeId>> removedInEdges,
+            out IEnumerable<IEdge<TNodeId, TEdgeId>> removedOutEdges)
         {
             INode<TNodeId, TEdgeId> node;
             ICollection<IEdge<TNodeId, TEdgeId>> removedInEdgesCollection = new LinkedList<IEdge<TNodeId, TEdgeId>>();
@@ -105,5 +139,7 @@ namespace DataStructures.Graphs
             edge.SetWeight(weight);
             return true;
         }
+
+        public override string ToString() => $"Graph: N{NodeCount}, E{EdgeCount}";
     }
 }

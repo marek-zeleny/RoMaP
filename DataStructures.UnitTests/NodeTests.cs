@@ -4,6 +4,7 @@ using System;
 
 using DataStructures.Graphs;
 using System.Linq;
+using System.Diagnostics.CodeAnalysis;
 
 namespace DataStructures.UnitTests
 {
@@ -34,6 +35,16 @@ namespace DataStructures.UnitTests
             }
 
             public INode<TNodeId, TEdgeId> GetToNode()
+            {
+                throw new NotImplementedException();
+            }
+
+            public void SetWeight(Weight value)
+            {
+                throw new NotImplementedException();
+            }
+
+            public bool Equals(IReadOnlyEdge<TNodeId, TEdgeId> other)
             {
                 throw new NotImplementedException();
             }

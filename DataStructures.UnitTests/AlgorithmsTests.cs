@@ -15,7 +15,7 @@ namespace DataStructures.UnitTests
         public void FindShortestPath_NonnegativeWeights_SmallGraph()
         {
             // Arrange
-            IGraph<int, int> graph = new DirectedGraph<int, int>();
+            IGraph<int, int> graph = new Graph<int, int>();
             INode<int, int> node1 = new Node<int, int>(1);
             INode<int, int> node2 = new Node<int, int>(2);
             INode<int, int> node3 = new Node<int, int>(3);
@@ -53,7 +53,7 @@ namespace DataStructures.UnitTests
         public void FindShortestPath_NonnegativeWeights_LargeGraph()
         {
             // Arrange
-            IGraph<int, int> graph = new DirectedGraph<int, int>();
+            IGraph<int, int> graph = new Graph<int, int>();
             INode<int, int> node1 = new Node<int, int>(1);
             INode<int, int> node2 = new Node<int, int>(2);
             INode<int, int> node3 = new Node<int, int>(3);

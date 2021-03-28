@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 
 using DataStructures.Graphs;
+using System.Diagnostics.CodeAnalysis;
 
 namespace DataStructures.UnitTests
 {
@@ -62,6 +63,11 @@ namespace DataStructures.UnitTests
             }
 
             public bool RemoveOutEdge(TEdgeId id)
+            {
+                throw new NotImplementedException();
+            }
+
+            public bool Equals(IReadOnlyNode<TNodeId, TEdgeId> other)
             {
                 throw new NotImplementedException();
             }
