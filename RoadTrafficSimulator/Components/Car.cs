@@ -1,21 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Diagnostics;
 
 using RoadTrafficSimulator.ValueTypes;
 using DataStructures.Graphs;
-using System.Linq;
+using RoadTrafficSimulator.Statistics;
 
 namespace RoadTrafficSimulator.Components
 {
     class Car
     {
+        private static int nextID = 0;
+
         private readonly Action<Statistics> finishDriveAction;
         private Navigation navigation;
         private Meters distance;
         private bool newRoad;
         private Meters remainingDistanceAfterCrossing;
 
+        public int ID { get; }
         public Meters Length { get; }
         public MetersPerSecond CurrentSpeed { get; private set; }
         public Meters DistanceRear { get => distance - Length; }
@@ -25,6 +29,7 @@ namespace RoadTrafficSimulator.Components
         public Car(Meters length, IReadOnlyGraph<Coords, int> map, Crossroad start, Crossroad finish, IClock clock,
             Action<Statistics> finishDriveAction)
         {
+            ID = nextID++;
             Length = length;
             navigation = new Navigation(map, start, finish, clock);
             this.finishDriveAction = finishDriveAction;
@@ -173,44 +178,28 @@ namespace RoadTrafficSimulator.Components
             }
         }
 
-        public class Statistics
+        public class Statistics : StatisticsBase
         {
-            public struct Timestamp
-            {
-                public Road Road { get; }
-                public Seconds Time { get; }
-
-                public Timestamp(Road road, Seconds time)
-                {
-                    Road = road;
-                    Time = time;
-                }
-
-                public override string ToString() => $"{Road}; {Time}";
-            }
-
-            private IClock clock;
-
             /// <summary>
             /// Records each road and time the car got on that road.
             /// </summary>
-            public List<Timestamp> RoadLog { get; private set; }
+            public List<Timestamp<Road>> RoadLog { get; private set; }
             public Meters Distance { get; private set; }
             public Seconds End { get; private set; }
             public Seconds ExpectedDuration { get; }
-            public Seconds Duration { get => End - RoadLog[0].Time; }
+            public Seconds Duration { get => End - RoadLog[0].time; }
 
             public Statistics(IClock clock, Seconds expectedDuration, Road firstRoad)
+                : base(clock)
             {
-                this.clock = clock;
                 ExpectedDuration = expectedDuration;
-                RoadLog = new List<Timestamp> { new Timestamp(firstRoad, clock.Time) };
+                RoadLog = new List<Timestamp<Road>> { new Timestamp<Road>(clock.Time, firstRoad) };
             }
 
             public void NextRoad(Road road)
             {
                 UpdateDistance();
-                RoadLog.Add(new Timestamp(road, clock.Time));
+                RoadLog.Add(new Timestamp<Road>(clock.Time, road));
             }
 
             public void Finish()
@@ -221,7 +210,7 @@ namespace RoadTrafficSimulator.Components
 
             private void UpdateDistance()
             {
-                Distance += RoadLog[RoadLog.Count - 1].Road.Length;
+                Distance += RoadLog[RoadLog.Count - 1].data.Length;
             }
         }
     }

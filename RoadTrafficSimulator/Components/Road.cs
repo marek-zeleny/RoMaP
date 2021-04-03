@@ -1,7 +1,8 @@
 ﻿using System;
 
-using RoadTrafficSimulator.ValueTypes;
 using DataStructures.Graphs;
+using RoadTrafficSimulator.ValueTypes;
+using RoadTrafficSimulator.Statistics;
 
 namespace RoadTrafficSimulator.Components
 {
@@ -147,6 +148,15 @@ namespace RoadTrafficSimulator.Components
                     action(current);
                     current = next;
                 }
+            }
+        }
+
+        public class Statistics : StatisticsBase
+        {
+            public Statistics(IClock clock)
+                : base(clock)
+            {
+
             }
         }
     }

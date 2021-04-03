@@ -6,9 +6,9 @@ using System.Linq;
 using RoadTrafficSimulator.Components;
 using RoadTrafficSimulator.ValueTypes;
 
-namespace RoadTrafficSimulator
+namespace RoadTrafficSimulator.Statistics
 {
-    class Statistics
+    class StatisticsCollector
     {
         private List<Car.Statistics> finishedCars = new List<Car.Statistics>();
 

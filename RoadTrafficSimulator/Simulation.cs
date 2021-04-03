@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 using RoadTrafficSimulator.Components;
 using RoadTrafficSimulator.ValueTypes;
+using RoadTrafficSimulator.Statistics;
 
 namespace RoadTrafficSimulator
 {
@@ -22,7 +22,7 @@ namespace RoadTrafficSimulator
 
         public Seconds Time { get; private set; }
         public Map Map { get; set; }
-        public Statistics Statistics { get; private set; }
+        public StatisticsCollector Statistics { get; private set; }
 
         public Simulation(Map map)
         {
@@ -49,7 +49,7 @@ namespace RoadTrafficSimulator
             randomCrossroads = GetRandomCrossroads().GetEnumerator();
             stagedCars = new HashSet<Car>();
             Time = 0.Seconds();
-            Statistics = new Statistics();
+            Statistics = new StatisticsCollector();
             return InitialisationResult.Ok;
         }
 
