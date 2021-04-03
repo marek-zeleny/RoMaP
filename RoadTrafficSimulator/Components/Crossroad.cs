@@ -31,7 +31,7 @@ namespace RoadTrafficSimulator.Components
             TrafficLight = new TrafficLight();
         }
 
-        public bool Initialize()
+        public bool Initialise()
         {
             Dictionary<TrafficLight.Direction, bool> trafficLightVerifier = new Dictionary<TrafficLight.Direction, bool>(InDegree * OutDegree);
             foreach (Road inRoad in GetInEdges())

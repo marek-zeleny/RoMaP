@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 using RoadTrafficSimulator.ValueTypes;
 using DataStructures.Graphs;
@@ -21,16 +22,17 @@ namespace RoadTrafficSimulator.Components
         private Car CarInFront { get; set; }
         public Car CarBehind { get; private set; }
 
-        public Car(Meters length, IReadOnlyGraph<Coords, int> map, Crossroad start, Crossroad finish, IClock clock, Action<Statistics> finishDriveAction)
+        public Car(Meters length, IReadOnlyGraph<Coords, int> map, Crossroad start, Crossroad finish, IClock clock,
+            Action<Statistics> finishDriveAction)
         {
             Length = length;
             navigation = new Navigation(map, start, finish, clock);
             this.finishDriveAction = finishDriveAction;
         }
 
-        public bool Initialize()
+        public bool Initialise()
         {
-            if (!navigation.CurrentRoad.GetOn(this, out Car newCarInFront))
+            if (!navigation.CurrentRoad.TryGetOn(this, out Car newCarInFront))
                 return false;
             CarInFront = newCarInFront;
             return true;
@@ -59,20 +61,16 @@ namespace RoadTrafficSimulator.Components
             newRoad = false;
         }
 
-        public bool SetCarBehind(Road authentication, Car car)
+        public void SetCarBehind(Road road, Car car)
         {
-            if (authentication != navigation.CurrentRoad)
-                return false;
+            Debug.Assert(road == navigation.CurrentRoad);
             CarBehind = car;
-            return true;
         }
 
-        public bool RemoveCarInFront(Road authentication)
+        public void RemoveCarInFront(Road road)
         {
-            if (authentication != navigation.CurrentRoad)
-                return false;
+            Debug.Assert(road == navigation.CurrentRoad);
             CarInFront = null;
-            return true;
         }
 
         private Meters Move(Meters maxDistance)
@@ -113,8 +111,10 @@ namespace RoadTrafficSimulator.Components
         private Meters CrossToNextRoad(Meters remainingDistance)
         {
             MetersPerSecond oldSpeed = navigation.CurrentRoad.MaxSpeed;
-            if (!navigation.CurrentRoad.Destination.TrafficLight.DirectionAllowed(navigation.CurrentRoad.Id, navigation.NextRoad.Id)
-                || !navigation.NextRoad.GetOn(this, out Car newCarInFront))
+            bool canCross = navigation.CurrentRoad.Destination.TrafficLight.DirectionAllowed(navigation.CurrentRoad.Id,
+                navigation.NextRoad.Id);
+            if (!canCross
+                || !navigation.NextRoad.TryGetOn(this, out Car newCarInFront))
                 return 0.Meters();
 
             navigation.CurrentRoad.GetOff(this);
@@ -151,10 +151,12 @@ namespace RoadTrafficSimulator.Components
 
             public Navigation(IReadOnlyGraph<Coords, int> map, Crossroad start, Crossroad finish, IClock clock)
             {
-                var e = map.FindShortestPath(Algorithms.GraphType.NonnegativeWeights, start, finish, out Weight expectedDuration);
+                var e = map.FindShortestPath(Algorithms.GraphType.NonnegativeWeights, start, finish,
+                    out Weight expectedDuration);
                 remainingPath = e.Select(edge => (Road)edge).GetEnumerator();
                 if (!remainingPath.MoveNext())
-                    throw new ArgumentException(string.Format("There doesn't exist any path from given {0} to {1} in the given {2}", nameof(start), nameof(finish), nameof(map)));
+                    throw new ArgumentException($"There doesn't exist any path from {nameof(start)} to" +
+                        $"{nameof(finish)} in the {nameof(map)}.");
                 CurrentRoad = remainingPath.Current;
                 nextRoadExists = remainingPath.MoveNext();
                 Statistics = new Statistics(clock, ((int)expectedDuration).Seconds(), CurrentRoad);
@@ -163,7 +165,8 @@ namespace RoadTrafficSimulator.Components
             public void MoveToNextRoad()
             {
                 if (!nextRoadExists)
-                    throw new InvalidOperationException(string.Format("Cannot move to the next road when the {0} is already at the end of the path.", nameof(Navigation)));
+                    throw new InvalidOperationException("Cannot move to the next road when the navigation is already" +
+                        "at the end of the path.");
                 CurrentRoad = remainingPath.Current;
                 Statistics.NextRoad(CurrentRoad);
                 nextRoadExists = remainingPath.MoveNext();

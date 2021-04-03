@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 using RoadTrafficSimulator.ValueTypes;
 using DataStructures.Graphs;
@@ -8,9 +7,11 @@ namespace RoadTrafficSimulator.Components
 {
     class Road : Edge<Coords, int>
     {
-        private Car firstCar;
-        private Car lastCar;
+        public const int maxLaneCount = 3;
+
         private MetersPerSecond maxSpeed;
+        private Lane[] lanes;
+        private int laneCount;
 
         public Meters Length { get; }
         public MetersPerSecond MaxSpeed
@@ -25,6 +26,22 @@ namespace RoadTrafficSimulator.Components
                 SetWeight((Length / maxSpeed).Weight());
             }
         }
+        public int LaneCount
+        {
+            get => laneCount;
+            set
+            {
+                int newLaneCount = value;
+                if (newLaneCount < 1)
+                    newLaneCount = 1;
+                else if (newLaneCount > maxLaneCount)
+                    newLaneCount = maxLaneCount;
+                if (newLaneCount < laneCount)
+                    for (int i = newLaneCount; i < laneCount; i++)
+                        lanes[i].Initialise();
+                laneCount = newLaneCount;
+            }
+        }
         public Crossroad Destination { get => (Crossroad)ToNode; }
 
         public Road(int id, Crossroad from, Crossroad to, Meters length, MetersPerSecond maxSpeed)
@@ -32,61 +49,104 @@ namespace RoadTrafficSimulator.Components
         {
             Length = length;
             MaxSpeed = maxSpeed;
+            lanes = new Lane[maxLaneCount];
+            LaneCount = 1;
+            lanes[0].Initialise();
         }
 
-        public bool Initialize()
+        public bool Initialise()
         {
-            firstCar = null;
-            lastCar = null;
+            for (int i = 0; i < LaneCount; i++)
+                lanes[i].Initialise();
             return true;
         }
 
-        public bool GetOn(Car car, out Car carInFront)
+        public bool TryGetOn(Car car, out Car carInFront)
         {
-            carInFront = lastCar;
-            if (firstCar == null)
-                firstCar = car;
-            else
+            int maxIndex = 0;
+            Meters maxSpace = lanes[0].FreeSpace(Length);
+            for (int i = 1; i < LaneCount; i++)
             {
-                if (lastCar.DistanceRear < car.Length)
-                    return false;
-                if (!lastCar.SetCarBehind(this, car))
-                    return false;
+                Meters space = lanes[i].FreeSpace(Length);
+                if (space > maxSpace)
+                {
+                    maxIndex = i;
+                    maxSpace = space;
+                }
             }
-            lastCar = car;
-            return true;
+            return lanes[maxIndex].TryGetOn(this, car, out carInFront);
         }
 
-        public bool GetOff(Car authentication)
+        public void GetOff(Car car)
         {
-            if (authentication != firstCar)
-                return false;
-            Car newFirstCar = firstCar.CarBehind;
-            if (newFirstCar == null)
-                lastCar = null;
-            else if (!newFirstCar.RemoveCarInFront(this))
-                return false;
-            firstCar = newFirstCar;
-            return true;
+            for (int i = 0; i < LaneCount; i++)
+            {
+                if (lanes[i].TryGetOff(this, car))
+                    return;
+            }
+            throw new ArgumentException("The car must be first in a lane to get off the road.", nameof(car));
         }
 
         public void Tick(Seconds time)
         {
-            Car current = firstCar;
-            // Because the current Car can leave this Road during its Tick(), we need to know the next Car beforehands
-            Car next;
-            while (current != null)
+            for (int i = 0; i < LaneCount; i++)
+                lanes[i].ForAllCars(car => car.Tick(time));
+            for (int i = 0; i < LaneCount; i++)
+                lanes[i].ForAllCars(car => car.FinishCrossingRoads(time));
+        }
+
+        private struct Lane
+        {
+            private Car firstCar;
+            private Car lastCar;
+
+            public void Initialise()
             {
-                next = current.CarBehind;
-                current.Tick(time);
-                current = next;
+                firstCar = null;
+                lastCar = null;
             }
-            current = firstCar;
-            while (current != null)
+
+            public Meters FreeSpace(Meters length)
             {
-                next = current.CarBehind;
-                current.FinishCrossingRoads(time);
-                current = next;
+                return lastCar == null ? length : lastCar.DistanceRear;
+            }
+
+            public bool TryGetOn(Road road, Car car, out Car carInFront)
+            {
+                carInFront = lastCar;
+                if (firstCar == null)
+                    firstCar = car;
+                else if (lastCar.DistanceRear < car.Length)
+                    return false;
+                else
+                    lastCar.SetCarBehind(road, car);
+                lastCar = car;
+                return true;
+            }
+
+            public bool TryGetOff(Road road, Car car)
+            {
+                if (car != firstCar)
+                    return false;
+                firstCar = firstCar.CarBehind;
+                if (firstCar == null)
+                    lastCar = null;
+                else
+                    firstCar.RemoveCarInFront(road);
+                return true;
+            }
+
+            public void ForAllCars(Action<Car> action)
+            {
+                Car current = firstCar;
+                // Because the current Car can leave the Road during its action, we need to know the next Car beforehand
+                Car next;
+                while (current != null)
+                {
+                    next = current.CarBehind;
+                    action(current);
+                    current = next;
+                }
             }
         }
     }

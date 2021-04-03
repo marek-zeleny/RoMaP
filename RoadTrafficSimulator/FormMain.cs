@@ -253,20 +253,20 @@ namespace RoadTrafficSimulator
 
         private void InitializeSimulation()
         {
-            Simulation.InitializationResult result = simulation.Initialize(out Components.Crossroad invalidCrossroad);
-            if (result == Simulation.InitializationResult.Ok)
+            Simulation.InitialisationResult result = simulation.Initialise(out Components.Crossroad invalidCrossroad);
+            if (result == Simulation.InitialisationResult.Ok)
                 StartSimulation();
             else
             {
                 string message;
                 switch (result)
                 {
-                    case Simulation.InitializationResult.Error_NoMap:
+                    case Simulation.InitialisationResult.Error_NoMap:
                         message =
                             "Map check complete: the map is empty.\n" +
                             "You have to create a map before starting the simulation.";
                         break;
-                    case Simulation.InitializationResult.Error_InvalidCrossroad:
+                    case Simulation.InitialisationResult.Error_InvalidCrossroad:
                         message = string.Format(
                             "Map check complete: the traffic light at {0} is inconsistent.\n" +
                             "Please make sure that every possible direction is allowed at that crossroad.",

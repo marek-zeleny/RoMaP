@@ -29,28 +29,28 @@ namespace RoadTrafficSimulator
             Map = map;
         }
 
-        public enum InitializationResult { Ok, Error_MapIsNull, Error_NoMap, Error_InvalidCrossroad }
+        public enum InitialisationResult { Ok, Error_MapIsNull, Error_NoMap, Error_InvalidCrossroad }
 
-        public InitializationResult Initialize(out Crossroad invalidCrossroad)
+        public InitialisationResult Initialise(out Crossroad invalidCrossroad)
         {
             invalidCrossroad = null;
             if (Map == null)
-                return InitializationResult.Error_MapIsNull;
+                return InitialisationResult.Error_MapIsNull;
             if (Map.CrossroadCount == 0 || Map.RoadCount == 0)
-                return InitializationResult.Error_NoMap;
+                return InitialisationResult.Error_NoMap;
             foreach (Crossroad c in Map.GetNodes())
-                if (!c.Initialize())
+                if (!c.Initialise())
                 {
                     invalidCrossroad = c;
-                    return InitializationResult.Error_InvalidCrossroad;
+                    return InitialisationResult.Error_InvalidCrossroad;
                 }
             foreach (Road r in Map.GetEdges())
-                r.Initialize();
+                r.Initialise();
             randomCrossroads = GetRandomCrossroads().GetEnumerator();
             stagedCars = new HashSet<Car>();
             Time = 0.Seconds();
             Statistics = new Statistics();
-            return InitializationResult.Ok;
+            return InitialisationResult.Ok;
         }
 
         public void Simulate(Seconds duration, float newCarsPerHundredSecondsPerCrossroad) => Simulate(duration, newCarsPerHundredSecondsPerCrossroad, 1.Seconds());
@@ -84,7 +84,7 @@ namespace RoadTrafficSimulator
             Time += time;
             HashSet<Car> releasedCars = new HashSet<Car>();
             foreach (Car c in stagedCars)
-                if (c.Initialize())
+                if (c.Initialise())
                     releasedCars.Add(c);
             foreach (Car c in releasedCars)
                 stagedCars.Remove(c);
