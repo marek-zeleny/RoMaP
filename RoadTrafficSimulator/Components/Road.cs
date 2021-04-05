@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+using System.Collections.Generic;
 
 using DataStructures.Graphs;
 using RoadTrafficSimulator.ValueTypes;
@@ -9,12 +11,17 @@ namespace RoadTrafficSimulator.Components
     class Road : Edge<Coords, int>
     {
         public const int maxLaneCount = 3;
+        private const int averageDurationHistorySize = 10;
 
         private MetersPerSecond maxSpeed;
         private Lane[] lanes;
         private int laneCount;
+        private Queue<Seconds> averageDurationHistory;
+        private Statistics statistics;
 
         public Meters Length { get; }
+        public Seconds AverageDuration { get; private set; }
+        public MetersPerSecond AverageSpeed { get; private set; }
         public MetersPerSecond MaxSpeed
         {
             get => maxSpeed;
@@ -25,6 +32,16 @@ namespace RoadTrafficSimulator.Components
                 else
                     maxSpeed = value;
                 SetWeight((Length / maxSpeed).Weight());
+            }
+        }
+        public int CarCount
+        {
+            get
+            {
+                int count = 0;
+                for (int i = 0; i < LaneCount; i++)
+                    count += lanes[i].CarCount;
+                return count;
             }
         }
         public int LaneCount
@@ -45,7 +62,7 @@ namespace RoadTrafficSimulator.Components
         }
         public Crossroad Destination { get => (Crossroad)ToNode; }
 
-        public Road(int id, Crossroad from, Crossroad to, Meters length, MetersPerSecond maxSpeed)
+        public Road(int id, Crossroad from, Crossroad to, Meters length, MetersPerSecond maxSpeed, IClock clock)
             : base(id, from, to, (length / maxSpeed).Weight())
         {
             Length = length;
@@ -53,12 +70,18 @@ namespace RoadTrafficSimulator.Components
             lanes = new Lane[maxLaneCount];
             LaneCount = 1;
             lanes[0].Initialise();
+            statistics = new Statistics(clock, Id);
         }
+
+        #region methods
 
         public bool Initialise()
         {
             for (int i = 0; i < LaneCount; i++)
                 lanes[i].Initialise();
+            AverageDuration = Length / MaxSpeed;
+            AverageSpeed = MaxSpeed;
+            averageDurationHistory = new Queue<Seconds>(averageDurationHistorySize);
             return true;
         }
 
@@ -82,8 +105,16 @@ namespace RoadTrafficSimulator.Components
         {
             for (int i = 0; i < LaneCount; i++)
             {
-                if (lanes[i].TryGetOff(this, car))
+                if (lanes[i].TryGetOff(this, car, out Seconds arriveTime))
+                {
+                    Seconds duration = statistics.CarGotOff(car.Id, arriveTime);
+                    if (averageDurationHistory.Count >= averageDurationHistorySize)
+                        averageDurationHistory.Dequeue();
+                    averageDurationHistory.Enqueue(duration);
+                    Seconds totalDuration = averageDurationHistory.Aggregate((acc, dur) => acc + dur);
+                    AverageDuration = totalDuration / averageDurationHistory.Count;
                     return;
+                }
             }
             throw new ArgumentException("The car must be first in a lane to get off the road.", nameof(car));
         }
@@ -92,19 +123,40 @@ namespace RoadTrafficSimulator.Components
         {
             for (int i = 0; i < LaneCount; i++)
                 lanes[i].ForAllCars(car => car.Tick(time));
+
+            int carCount = 0;
+            MetersPerSecond totalSpeed = 0.MetersPerSecond();
             for (int i = 0; i < LaneCount; i++)
-                lanes[i].ForAllCars(car => car.FinishCrossingRoads(time));
+                lanes[i].ForAllCars(car =>
+                {
+                    car.FinishCrossingRoads(time);
+                    carCount++;
+                    totalSpeed += car.CurrentSpeed;
+                });
+            if (carCount == 0)
+                AverageSpeed = MaxSpeed;
+            else
+                AverageSpeed = totalSpeed / carCount;
+            statistics.Update(CarCount, AverageSpeed, AverageDuration);
         }
+
+        #endregion methods
+
+        #region subclasses
 
         private struct Lane
         {
             private Car firstCar;
             private Car lastCar;
+            private Queue<Seconds> arriveTimes;
+
+            public int CarCount { get => arriveTimes.Count; }
 
             public void Initialise()
             {
                 firstCar = null;
                 lastCar = null;
+                arriveTimes = new Queue<Seconds>();
             }
 
             public Meters FreeSpace(Meters length)
@@ -122,18 +174,24 @@ namespace RoadTrafficSimulator.Components
                 else
                     lastCar.SetCarBehind(road, car);
                 lastCar = car;
+                Seconds time = road.statistics.CarGotOn(car.Id);
+                arriveTimes.Enqueue(time);
                 return true;
             }
 
-            public bool TryGetOff(Road road, Car car)
+            public bool TryGetOff(Road road, Car car, out Seconds arriveTime)
             {
                 if (car != firstCar)
+                {
+                    arriveTime = default;
                     return false;
+                }
                 firstCar = firstCar.CarBehind;
                 if (firstCar == null)
                     lastCar = null;
                 else
                     firstCar.RemoveCarInFront(road);
+                arriveTime = arriveTimes.Dequeue();
                 return true;
             }
 
@@ -153,11 +211,65 @@ namespace RoadTrafficSimulator.Components
 
         public class Statistics : StatisticsBase
         {
-            public Statistics(IClock clock)
+            Item<List<Timestamp<CarPassage>>> carLog = new Item<List<Timestamp<CarPassage>>>(DetailLevel.Medium,
+                new List<Timestamp<CarPassage>>());
+            Item<List<Timestamp<Throughput>>> throughputLog = new Item<List<Timestamp<Throughput>>>(DetailLevel.High,
+                new List<Timestamp<Throughput>>());
+
+            public int RoadId { get; }
+            public IReadOnlyList<Timestamp<CarPassage>> CarLog { get => carLog.Get(); }
+            public IReadOnlyList<Timestamp<Throughput>> ThroughputLog { get => throughputLog.Get(); }
+
+            public Statistics(IClock clock, int roadId)
                 : base(clock)
             {
+                RoadId = roadId;
+            }
 
+            public void Update(int carCount, MetersPerSecond averageSpeed, Seconds averageDuration)
+            {
+                throughputLog.Get()?.Add(new Timestamp<Throughput>(clock.Time,
+                    new Throughput(carCount, averageSpeed, averageDuration)));
+            }
+
+            public Seconds CarGotOn(int carId)
+            {
+                return clock.Time;
+            }
+
+            public Seconds CarGotOff(int carId, Seconds arriveTime)
+            {
+                carLog.Get()?.Add(new Timestamp<CarPassage>(clock.Time, new CarPassage(carId, arriveTime)));
+                return clock.Time - arriveTime;
+            }
+
+            public struct CarPassage
+            {
+                public readonly int carId;
+                public readonly Seconds arriveTime;
+
+                public CarPassage(int carId, Seconds arriveTime)
+                {
+                    this.carId = carId;
+                    this.arriveTime = arriveTime;
+                }
+            }
+
+            public struct Throughput
+            {
+                public int carCount;
+                public readonly MetersPerSecond averageSpeed;
+                public readonly Seconds averageDuration;
+
+                public Throughput(int carCount, MetersPerSecond averageSpeed, Seconds averageDuration)
+                {
+                    this.carCount = carCount;
+                    this.averageSpeed = averageSpeed;
+                    this.averageDuration = averageDuration;
+                }
             }
         }
+
+        #endregion subclasses
     }
 }
