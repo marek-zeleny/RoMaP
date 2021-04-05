@@ -27,9 +27,13 @@ namespace RoadTrafficSimulator.ValueTypes
 
         public static Meters operator *(int i, Meters m) => m * i;
 
-        public static Meters operator *(Meters m, double i) => new Meters((int)(m.value * i));
+        public static Meters operator /(Meters m, int i) => new Meters(m.value / i);
 
-        public static Meters operator *(double i, Meters m) => m * i;
+        public static Meters operator *(Meters m, double d) => new Meters((int)(m.value * d));
+
+        public static Meters operator *(double d, Meters m) => m * d;
+
+        public static Meters operator /(Meters m, double d) => new Meters((int)(m.value / d));
 
         public override string ToString() => string.Format("{0:N0}m", value);
     }
