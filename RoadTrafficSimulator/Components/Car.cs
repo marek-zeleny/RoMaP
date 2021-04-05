@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Diagnostics;
 
 using RoadTrafficSimulator.ValueTypes;
@@ -11,15 +10,16 @@ namespace RoadTrafficSimulator.Components
 {
     class Car
     {
-        private static int nextID = 0;
+        private static int nextId = 0;
 
         private readonly Action<Statistics> finishDriveAction;
         private Navigation navigation;
+        private Statistics statistics;
         private Meters distance;
         private bool newRoad;
         private Meters remainingDistanceAfterCrossing;
 
-        public int ID { get; }
+        public int Id { get; }
         public Meters Length { get; }
         public MetersPerSecond CurrentSpeed { get; private set; }
         public Meters DistanceRear { get => distance - Length; }
@@ -29,11 +29,14 @@ namespace RoadTrafficSimulator.Components
         public Car(Meters length, IReadOnlyGraph<Coords, int> map, Crossroad start, Crossroad finish, IClock clock,
             Action<Statistics> finishDriveAction)
         {
-            ID = nextID++;
+            Id = nextId++;
             Length = length;
-            navigation = new Navigation(map, start, finish, clock);
+            navigation = new Navigation(map, start, finish, clock, out Seconds expectedDuration);
+            statistics = new Statistics(clock, Id, expectedDuration, navigation.CurrentRoad.Id);
             this.finishDriveAction = finishDriveAction;
         }
+
+        #region methods
 
         public bool Initialise()
         {
@@ -50,6 +53,7 @@ namespace RoadTrafficSimulator.Components
             {
                 Meters drivenDistance = Move(time * navigation.CurrentRoad.MaxSpeed);
                 CurrentSpeed = drivenDistance / time;
+                statistics.Update(drivenDistance, CurrentSpeed);
                 TryFinishDrive();
             }
         }
@@ -124,6 +128,7 @@ namespace RoadTrafficSimulator.Components
 
             navigation.CurrentRoad.GetOff(this);
             navigation.MoveToNextRoad();
+            statistics.MovedToNextRoad(navigation.CurrentRoad.Id);
             distance = 0.Meters();
             CarInFront = newCarInFront;
             CarBehind = null;
@@ -139,78 +144,65 @@ namespace RoadTrafficSimulator.Components
         {
             if (navigation.NextRoad == null && distance == navigation.CurrentRoad.Length)
             {
+                CurrentSpeed = 0.MetersPerSecond();
                 navigation.CurrentRoad.GetOff(this);
-                navigation.Statistics.Finish();
-                finishDriveAction(navigation.Statistics);
+                statistics.Finish();
+                finishDriveAction(statistics);
             }
         }
 
-        private class Navigation
-        {
-            private IEnumerator<Road> remainingPath;
-            private bool nextRoadExists;
-            
-            public Road CurrentRoad { get; private set; }
-            public Road NextRoad { get => nextRoadExists ? remainingPath.Current : null; }
-            public Statistics Statistics { get; }
-
-            public Navigation(IReadOnlyGraph<Coords, int> map, Crossroad start, Crossroad finish, IClock clock)
-            {
-                var e = map.FindShortestPath(Algorithms.GraphType.NonnegativeWeights, start, finish,
-                    out Weight expectedDuration);
-                remainingPath = e.Select(edge => (Road)edge).GetEnumerator();
-                if (!remainingPath.MoveNext())
-                    throw new ArgumentException($"There doesn't exist any path from {nameof(start)} to" +
-                        $"{nameof(finish)} in the {nameof(map)}.");
-                CurrentRoad = remainingPath.Current;
-                nextRoadExists = remainingPath.MoveNext();
-                Statistics = new Statistics(clock, ((int)expectedDuration).Seconds(), CurrentRoad);
-            }
-
-            public void MoveToNextRoad()
-            {
-                if (!nextRoadExists)
-                    throw new InvalidOperationException("Cannot move to the next road when the navigation is already" +
-                        "at the end of the path.");
-                CurrentRoad = remainingPath.Current;
-                Statistics.NextRoad(CurrentRoad);
-                nextRoadExists = remainingPath.MoveNext();
-            }
-        }
+        #endregion methods
 
         public class Statistics : StatisticsBase
         {
+            private Item<Seconds> startTime = new Item<Seconds>(DetailLevel.Low);
+            private Item<Seconds> finishTime = new Item<Seconds>(DetailLevel.Low);
+            private Item<Meters> distance = new Item<Meters>(DetailLevel.Low, 0.Meters());
+            private Item<Seconds> expectedDuration = new Item<Seconds>(DetailLevel.Low);
+            private Item<List<Timestamp<int>>> roadLog = new Item<List<Timestamp<int>>>(DetailLevel.Medium,
+                new List<Timestamp<int>>());
+            private Item<List<Timestamp<MetersPerSecond>>> speedLog = new Item<List<Timestamp<MetersPerSecond>>>(
+                DetailLevel.High, new List<Timestamp<MetersPerSecond>>());
+
+            public int CarId { get; }
+            public Seconds StartTime { get => startTime; }
+            public Seconds FinishTime { get => finishTime; }
+            public Meters Distance { get => distance; }
+            public Seconds ExpectedDuration { get => expectedDuration; }
+            public Seconds Duration { get => FinishTime - StartTime; }
             /// <summary>
             /// Records each road and time the car got on that road.
             /// </summary>
-            public List<Timestamp<Road>> RoadLog { get; private set; }
-            public Meters Distance { get; private set; }
-            public Seconds End { get; private set; }
-            public Seconds ExpectedDuration { get; }
-            public Seconds Duration { get => End - RoadLog[0].time; }
+            public IReadOnlyList<Timestamp<int>> RoadLog { get => roadLog.Get(); }
+            /// <summary>
+            /// Periodically records the car's speed.
+            /// </summary>
+            public IReadOnlyList<Timestamp<MetersPerSecond>> SpeedLog { get => speedLog.Get(); }
 
-            public Statistics(IClock clock, Seconds expectedDuration, Road firstRoad)
+
+            public Statistics(IClock clock, int CarId, Seconds expectedDuration, int firstRoadId)
                 : base(clock)
             {
-                ExpectedDuration = expectedDuration;
-                RoadLog = new List<Timestamp<Road>> { new Timestamp<Road>(clock.Time, firstRoad) };
+                this.CarId = CarId;
+                this.expectedDuration.Set(expectedDuration);
+                startTime.Set(clock.Time);
+                roadLog.Get()?.Add(new Timestamp<int>(clock.Time, firstRoadId));
             }
 
-            public void NextRoad(Road road)
+            public void Update(Meters addedDistance, MetersPerSecond speed)
             {
-                UpdateDistance();
-                RoadLog.Add(new Timestamp<Road>(clock.Time, road));
+                distance.Set(Distance + addedDistance);
+                speedLog.Get()?.Add(new Timestamp<MetersPerSecond>(clock.Time, speed));
+            }
+
+            public void MovedToNextRoad(int roadId)
+            {
+                roadLog.Get()?.Add(new Timestamp<int>(clock.Time, roadId));
             }
 
             public void Finish()
             {
-                UpdateDistance();
-                End = clock.Time;
-            }
-
-            private void UpdateDistance()
-            {
-                Distance += RoadLog[RoadLog.Count - 1].data.Length;
+                finishTime.Set(clock.Time);
             }
         }
     }

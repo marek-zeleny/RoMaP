@@ -60,7 +60,7 @@ namespace RoadTrafficSimulator.Statistics
                 var last = s.RoadLog[s.RoadLog.Count - 1];
                 var from = first.Road.FromNode.Id;
                 var to = last.Road.ToNode.Id;
-                writer.WriteLine($"{from.x},{from.y},{to.x},{to.y},{(int)first.Time},{(int)s.End},{(int)s.ExpectedDuration},{(int)s.Distance}");
+                writer.WriteLine($"{from.x},{from.y},{to.x},{to.y},{(int)first.Time},{(int)s.Finish},{(int)s.ExpectedDuration},{(int)s.Distance}");
             }
             writer.Flush();
         }
