@@ -17,7 +17,7 @@ namespace DataStructures.Graphs
         public TEdgeId Id { get; }
         public IReadOnlyNode<TNodeId, TEdgeId> FromNode { get => fromNode; }
         public IReadOnlyNode<TNodeId, TEdgeId> ToNode { get => toNode; }
-        public Weight Weight { get; private set; }
+        public Weight Weight { get; protected set; }
 
         /// <summary>
         /// Creates a new edge with a given <paramref name="id"/> between nodes <paramref name="from"/> and
@@ -47,7 +47,7 @@ namespace DataStructures.Graphs
 
         public INode<TNodeId, TEdgeId> GetToNode() => toNode;
 
-        public void SetWeight(Weight value) => Weight = value;
+        public virtual void SetWeight(Weight value) => Weight = value;
 
         public bool Equals(IReadOnlyEdge<TNodeId, TEdgeId> other)
         {

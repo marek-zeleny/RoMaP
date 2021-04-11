@@ -10,30 +10,44 @@ namespace RoadTrafficSimulator.Components
 {
     class Road : Edge<Coords, int>
     {
+        public static readonly Meters minLength = 10.Meters();
+        public static readonly MetersPerSecond minMaxSpeed = 3.MetersPerSecond();
         public const int maxLaneCount = 3;
         private const int averageDurationHistorySize = 10;
 
+        private Meters length;
         private MetersPerSecond maxSpeed;
         private Lane[] lanes;
         private int laneCount;
         private Queue<Seconds> averageDurationHistory;
         private Statistics statistics;
 
-        public Meters Length { get; }
-        public Seconds AverageDuration { get; private set; }
-        public MetersPerSecond AverageSpeed { get; private set; }
+        public Meters Length
+        {
+            get => length;
+            set
+            {
+                if (value < minLength)
+                    length = minLength;
+                else
+                    length = value;
+                Weight = (Length / MaxSpeed).Weight();
+            }
+        }
         public MetersPerSecond MaxSpeed
         {
             get => maxSpeed;
             set
             {
-                if (value < 1)
-                    maxSpeed = 1.MetersPerSecond();
+                if (value < minMaxSpeed)
+                    maxSpeed = minMaxSpeed;
                 else
                     maxSpeed = value;
-                SetWeight((Length / maxSpeed).Weight());
+                Weight = (Length / MaxSpeed).Weight();
             }
         }
+        public Seconds AverageDuration { get; private set; }
+        public MetersPerSecond AverageSpeed { get; private set; }
         public int CarCount
         {
             get
@@ -63,14 +77,24 @@ namespace RoadTrafficSimulator.Components
         public Crossroad Destination { get => (Crossroad)ToNode; }
 
         public Road(int id, Crossroad from, Crossroad to, Meters length, MetersPerSecond maxSpeed, IClock clock)
-            : base(id, from, to, (length / maxSpeed).Weight())
+            : base(id, from, to)
         {
-            Length = length;
-            MaxSpeed = maxSpeed;
+            if (length < minLength)
+                length = minLength;
+            if (maxSpeed < minMaxSpeed)
+                maxSpeed = minMaxSpeed;
+            this.length = length;
+            this.maxSpeed = maxSpeed;
+            Weight = (length / maxSpeed).Weight();
             lanes = new Lane[maxLaneCount];
             LaneCount = 1;
             lanes[0].Initialise();
             statistics = new Statistics(clock, Id);
+        }
+
+        public override void SetWeight(Weight value)
+        {
+            throw new InvalidOperationException($"Cannot explicitly set weight of a {nameof(Road)}.");
         }
 
         #region methods
