@@ -76,7 +76,7 @@ namespace RoadTrafficSimulator.Components
         }
         public Crossroad Destination { get => (Crossroad)ToNode; }
 
-        public Road(int id, Crossroad from, Crossroad to, Meters length, MetersPerSecond maxSpeed, IClock clock)
+        public Road(int id, Crossroad from, Crossroad to, Meters length, MetersPerSecond maxSpeed)
             : base(id, from, to)
         {
             if (length < minLength)
@@ -89,23 +89,23 @@ namespace RoadTrafficSimulator.Components
             lanes = new Lane[maxLaneCount];
             LaneCount = 1;
             lanes[0].Initialise();
-            statistics = new Statistics(clock, Id);
         }
+
+        #region methods
 
         public override void SetWeight(Weight value)
         {
             throw new InvalidOperationException($"Cannot explicitly set weight of a {nameof(Road)}.");
         }
 
-        #region methods
-
-        public bool Initialise()
+        public bool Initialise(IClock clock)
         {
             for (int i = 0; i < LaneCount; i++)
                 lanes[i].Initialise();
             AverageDuration = Length / MaxSpeed;
             AverageSpeed = MaxSpeed;
             averageDurationHistory = new Queue<Seconds>(averageDurationHistorySize);
+            statistics = new Statistics(clock, Id);
             return true;
         }
 
