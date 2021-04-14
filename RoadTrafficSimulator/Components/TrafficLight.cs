@@ -6,17 +6,16 @@ using RoadTrafficSimulator.ValueTypes;
 
 namespace RoadTrafficSimulator.Components
 {
-    class TrafficLight
+    class TrafficLight : ICrossingAlgorithm
     {
         private const int maxSettingsCount = 5;
 
-        private ICollection<Direction> defaultDirections = new List<Direction>(1);
+        private HashSet<Direction> defaultDirections = new HashSet<Direction>(4);
         private List<Setting> settings;
-        private bool allowAll = false;
-        private IEnumerator<Setting> settingEnumerator;
+        private IEnumerator<Setting> settingsEnumerator;
         private Seconds currentTime;
 
-        private bool CurrentSettingExpired { get => currentTime >= settingEnumerator.Current.Duration; }
+        private bool CurrentSettingExpired { get => currentTime >= settingsEnumerator.Current.Duration; }
 
         public IReadOnlyList<Setting> Settings { get => settings; }
 
@@ -25,6 +24,8 @@ namespace RoadTrafficSimulator.Components
             settings = new List<Setting>(maxSettingsCount);
             settings.Add(new Setting());
         }
+
+        #region methods
 
         public void AddDefaultDirection(int fromId, int toId)
         {
@@ -51,13 +52,17 @@ namespace RoadTrafficSimulator.Components
             return true;
         }
 
+        public void RemoveEdge(int id)
+        {
+            foreach (Setting setting in Settings)
+                setting.RemoveDirectionsWithId(id);
+            defaultDirections.RemoveWhere(dir => id == dir.fromRoadId || id == dir.toRoadId);
+        }
+
         public bool Initialize(Dictionary<Direction, bool> verifier)
         {
-            if (settings.Count == 1)
-            {
-                allowAll = true;
+            if (settings.Count <= 1)
                 return true;
-            }
 
             foreach (Setting s in settings)
                 foreach (Direction d in s)
@@ -65,35 +70,37 @@ namespace RoadTrafficSimulator.Components
             foreach (var (_, b) in verifier)
                 if (!b)
                     return false;
-            settingEnumerator = GetEnumerator();
-            return settingEnumerator.MoveNext();
+            settingsEnumerator = GetSettingsEnumerator();
+            return settingsEnumerator.MoveNext();
         }
 
         public void Tick(Seconds time)
         {
-            if (allowAll)
+            if (settings.Count <= 1)
                 return;
-            if (currentTime > settingEnumerator.Current.Duration)
+            if (currentTime > settingsEnumerator.Current.Duration)
             {
-                currentTime -= settingEnumerator.Current.Duration;
-                settingEnumerator.MoveNext();
+                currentTime -= settingsEnumerator.Current.Duration;
+                settingsEnumerator.MoveNext();
             }
             currentTime += time;
         }
 
-        public bool DirectionAllowed(int fromId, int toId)
+        public bool CanCross(int fromRoadId, int toRoadId)
         {
-            if (allowAll)
-                return true;
-            return !CurrentSettingExpired && settingEnumerator.Current.ContainsDirection(fromId, toId);
+            if (settings.Count <= 1)
+                return false;
+            return !CurrentSettingExpired && settingsEnumerator.Current.ContainsDirection(fromRoadId, toRoadId);
         }
 
-        private IEnumerator<Setting> GetEnumerator()
+        private IEnumerator<Setting> GetSettingsEnumerator()
         {
             while (settings.Count > 0)
                 foreach (Setting s in settings)
                     yield return s;
         }
+
+        #endregion methods
 
         public class Setting : IReadOnlyCollection<Direction>
         {
@@ -126,14 +133,9 @@ namespace RoadTrafficSimulator.Components
                 allowedDirections.Remove(new Direction(fromId, toId));
             }
 
-            public void RemoveDirectionsWithFromId(int id)
+            public void RemoveDirectionsWithId(int id)
             {
-                allowedDirections.RemoveWhere(dir => dir.fromId == id);
-            }
-
-            public void RemoveDirectionsWithToId(int id)
-            {
-                allowedDirections.RemoveWhere(dir => dir.toId == id);
+                allowedDirections.RemoveWhere(dir => id == dir.fromRoadId || id == dir.toRoadId);
             }
 
             public bool ContainsDirection(int fromId, int toId)
@@ -144,19 +146,6 @@ namespace RoadTrafficSimulator.Components
             public IEnumerator<Direction> GetEnumerator() => allowedDirections.GetEnumerator();
 
             IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-        }
-
-        public struct Direction
-        {
-            public readonly int fromId, toId;
-
-            public Direction(int fromId, int toId)
-            {
-                this.fromId = fromId;
-                this.toId = toId;
-            }
-
-            public override string ToString() => string.Format("Dir: {0} -> {1}", fromId, toId);
         }
     }
 }

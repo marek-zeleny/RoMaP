@@ -11,6 +11,7 @@ namespace RoadTrafficSimulator.Components
         private byte carSpawnRate = 10;
 
         public TrafficLight TrafficLight { get; }
+        public PriorityCrossing PriorityCrossing { get; }
         public byte CarSpawnRate
         {
             get => carSpawnRate;
@@ -29,14 +30,15 @@ namespace RoadTrafficSimulator.Components
             : base(id)
         {
             TrafficLight = new TrafficLight();
+            PriorityCrossing = new PriorityCrossing();
         }
 
         public bool Initialise()
         {
-            Dictionary<TrafficLight.Direction, bool> trafficLightVerifier = new Dictionary<TrafficLight.Direction, bool>(InDegree * OutDegree);
+            var trafficLightVerifier = new Dictionary<Direction, bool>(InDegree * OutDegree);
             foreach (Road inRoad in GetInEdges())
                 foreach (Road outRoad in GetOutEdges())
-                    trafficLightVerifier.Add(new TrafficLight.Direction(inRoad.Id, outRoad.Id), false);
+                    trafficLightVerifier.Add(new Direction(inRoad.Id, outRoad.Id), false);
             return TrafficLight.Initialize(trafficLightVerifier);
         }
 
@@ -45,12 +47,19 @@ namespace RoadTrafficSimulator.Components
             TrafficLight.Tick(time);
         }
 
+        public bool CanCross(int fromRoadId, int toRoadId)
+        {
+            if (TrafficLight.Settings.Count > 1)
+                return TrafficLight.CanCross(fromRoadId, toRoadId);
+            else
+                return PriorityCrossing.CanCross(fromRoadId, toRoadId);
+        }
+
         public override bool RemoveInEdge(int id)
         {
             bool result = base.RemoveInEdge(id);
             if (result)
-                foreach (var setting in TrafficLight.Settings)
-                    setting.RemoveDirectionsWithFromId(id);
+                TrafficLight.RemoveEdge(id);
             return result;
         }
 
@@ -58,8 +67,7 @@ namespace RoadTrafficSimulator.Components
         {
             bool result = base.RemoveOutEdge(id);
             if (result)
-                foreach (var setting in TrafficLight.Settings)
-                    setting.RemoveDirectionsWithToId(id);
+                TrafficLight.RemoveEdge(id);
             return result;
         }
     }

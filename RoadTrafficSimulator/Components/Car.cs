@@ -120,7 +120,7 @@ namespace RoadTrafficSimulator.Components
         private Meters CrossToNextRoad(Meters remainingDistance)
         {
             MetersPerSecond oldSpeed = navigation.CurrentRoad.MaxSpeed;
-            bool canCross = navigation.CurrentRoad.Destination.TrafficLight.DirectionAllowed(navigation.CurrentRoad.Id,
+            bool canCross = navigation.CurrentRoad.Destination.CanCross(navigation.CurrentRoad.Id,
                 navigation.NextRoad.Id);
             if (!canCross
                 || !navigation.NextRoad.TryGetOn(this, out Car newCarInFront))
