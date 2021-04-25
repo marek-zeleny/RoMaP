@@ -10,7 +10,45 @@ namespace RoadTrafficSimulator.Components
 {
     class Car
     {
+        #region static
+
+        private static readonly Meters minDistanceBetweenCars = 1.Meters();
+        private static readonly MetersPerSecondPerSecond deceleration = 5.MetersPerSecondPerSecond();
+        private static readonly MetersPerSecondPerSecond acceleration = 4.MetersPerSecondPerSecond();
+        private static readonly Seconds minTimeInterval = 1.Seconds();
+        private static readonly Seconds reactionTime = 1.Seconds();
         private static int nextId = 0;
+
+        private static Meters CalculateBrakingDistance(MetersPerSecond speed)
+        {
+            // n = floor(v / (a_d * t_m))
+            // b(v) = n * t_m * (v - 1/2 * a_d * t_m * (n + 1))
+            // For more information and derivation of this formula see the programming documentation
+            MetersPerSecond decelerationStep = deceleration * minTimeInterval;
+            int steps = (int)speed / (decelerationStep);
+            MetersPerSecond subtractedSpeed = (decelerationStep * (steps + 1)) / 2;
+            Meters distance = steps * minTimeInterval * (speed - subtractedSpeed);
+            return distance;
+        }
+
+        private static Meters CalculateBrakingDistanceDiff(MetersPerSecond speed1, MetersPerSecond speed2)
+        {
+            // Uses the same formula as the function above, but calculates the difference efficiently
+            // b(v1) - b(v2) = t_m * (n * v1 - m * v2 + 1/2 * a_d * t_m * (m * (m + 1) - n * (n + 1)))
+            // For derivation see the programming documentation
+            MetersPerSecond decelerationStep = deceleration * minTimeInterval;
+            int steps1 = (int)speed1 / decelerationStep;
+            int steps2 = (int)speed2 / decelerationStep;
+            // If n == m, the formula can be much simplified
+            if (steps1 == steps2)
+                return minTimeInterval * steps1 * (speed1 - speed2);
+            int stepsSquareDiff = steps2 * (steps2 + 1) - steps1 * (steps1 + 1);
+            MetersPerSecond speedDiff = steps1 * speed1 - steps2 * speed2;
+            Meters distance = minTimeInterval * (speedDiff + (decelerationStep * stepsSquareDiff) / 2);
+            return distance;
+        }
+
+        #endregion static
 
         private readonly Action<Statistics> finishDriveAction;
         private Navigation navigation;
@@ -51,7 +89,10 @@ namespace RoadTrafficSimulator.Components
             // If the car already crossed from a different road during this tick, do nothing
             if (!newRoad)
             {
-                Meters drivenDistance = Move(time * navigation.CurrentRoad.MaxSpeed);
+                MetersPerSecond maxSpeed = CurrentSpeed + acceleration * time;
+                if (maxSpeed > navigation.CurrentRoad.MaxSpeed)
+                    maxSpeed = navigation.CurrentRoad.MaxSpeed;
+                Meters drivenDistance = Move(maxSpeed * time);
                 CurrentSpeed = drivenDistance / time;
                 statistics.Update(drivenDistance, CurrentSpeed);
                 TryFinishDrive();
@@ -92,6 +133,14 @@ namespace RoadTrafficSimulator.Components
 
         private Meters KeepDistance(Meters maxDistance)
         {
+            // Calculate the optimal speed using the following formula
+            // v = (s_d - d + b(v') - b(v)) / t_r
+            // For more details and derivation of this formula see the programming documentation
+            Meters distanceBetweenCars = CarInFront.DistanceRear - distance;
+            Meters brakingDistanceDiff = CalculateBrakingDistanceDiff(CurrentSpeed, CarInFront.CurrentSpeed);
+            Meters freeDistance = distanceBetweenCars - minDistanceBetweenCars + brakingDistanceDiff;
+            MetersPerSecond optimalSpeed = freeDistance / minTimeInterval;
+            // TODO: use the calculated optimal speed (some refactoring with crossing roads needed)
             Meters spaceInFront = CarInFront.DistanceRear - distance;
             if (maxDistance < spaceInFront)
             {

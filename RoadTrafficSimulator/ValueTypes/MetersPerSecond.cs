@@ -25,6 +25,9 @@ namespace RoadTrafficSimulator.ValueTypes
 
         public static Seconds operator /(Meters m, MetersPerSecond mps) => new Seconds(m / mps.value);
 
+        public static MetersPerSecondPerSecond operator /(MetersPerSecond mps, Seconds s) =>
+            new MetersPerSecondPerSecond(mps.value / s);
+
         public static MetersPerSecond operator *(MetersPerSecond mps, int i) => new MetersPerSecond(mps.value * i);
 
         public static MetersPerSecond operator *(int i, MetersPerSecond mps) => mps * i;

@@ -12,6 +12,10 @@ namespace RoadTrafficSimulator.ValueTypes
 
         public static MetersPerSecond MetersPerSecond(this int value) => new MetersPerSecond(value);
 
+        public static MetersPerSecondPerSecond MetersPerSecondPerSecond(this int value) =>
+            new MetersPerSecondPerSecond(value);
+
+
         public static Weight Weight(this Seconds value) => new Weight(value);
     }
 }
