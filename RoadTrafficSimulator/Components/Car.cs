@@ -15,8 +15,8 @@ namespace RoadTrafficSimulator.Components
         private static readonly Meters minDistanceBetweenCars = 1.Meters();
         private static readonly MetersPerSecondPerSecond deceleration = 5.MetersPerSecondPerSecond();
         private static readonly MetersPerSecondPerSecond acceleration = 4.MetersPerSecondPerSecond();
-        private static readonly Seconds minTimeInterval = 1.Seconds();
-        private static readonly Seconds reactionTime = 1.Seconds();
+        private static readonly Milliseconds minTimeInterval = 1.Seconds();
+        private static readonly Milliseconds reactionTime = 1.Seconds();
         private static int nextId = 0;
 
         private static Meters CalculateBrakingDistance(MetersPerSecond speed)
@@ -69,7 +69,7 @@ namespace RoadTrafficSimulator.Components
         {
             Id = nextId++;
             Length = length;
-            navigation = new Navigation(map, start, finish, clock, out Seconds expectedDuration);
+            navigation = new Navigation(map, start, finish, clock, out Milliseconds expectedDuration);
             statistics = new Statistics(clock, Id, expectedDuration, navigation.CurrentRoad.Id);
             this.finishDriveAction = finishDriveAction;
         }
@@ -84,7 +84,7 @@ namespace RoadTrafficSimulator.Components
             return true;
         }
 
-        public void Tick(Seconds time)
+        public void Tick(Milliseconds time)
         {
             // If the car already crossed from a different road during this tick, do nothing
             if (!newRoad)
@@ -99,7 +99,7 @@ namespace RoadTrafficSimulator.Components
             }
         }
 
-        public void FinishCrossingRoads(Seconds time)
+        public void FinishCrossingRoads(Milliseconds time)
         {
             if (newRoad && remainingDistanceAfterCrossing > 0)
             {
@@ -204,21 +204,21 @@ namespace RoadTrafficSimulator.Components
 
         public class Statistics : StatisticsBase
         {
-            private Item<Seconds> startTime = new Item<Seconds>(DetailLevel.Low);
-            private Item<Seconds> finishTime = new Item<Seconds>(DetailLevel.Low);
+            private Item<Milliseconds> startTime = new Item<Milliseconds>(DetailLevel.Low);
+            private Item<Milliseconds> finishTime = new Item<Milliseconds>(DetailLevel.Low);
             private Item<Meters> distance = new Item<Meters>(DetailLevel.Low, 0.Meters());
-            private Item<Seconds> expectedDuration = new Item<Seconds>(DetailLevel.Low);
+            private Item<Milliseconds> expectedDuration = new Item<Milliseconds>(DetailLevel.Low);
             private Item<List<Timestamp<int>>> roadLog = new Item<List<Timestamp<int>>>(DetailLevel.Medium,
                 new List<Timestamp<int>>());
             private Item<List<Timestamp<MetersPerSecond>>> speedLog = new Item<List<Timestamp<MetersPerSecond>>>(
                 DetailLevel.High, new List<Timestamp<MetersPerSecond>>());
 
             public int CarId { get; }
-            public Seconds StartTime { get => startTime; }
-            public Seconds FinishTime { get => finishTime; }
+            public Milliseconds StartTime { get => startTime; }
+            public Milliseconds FinishTime { get => finishTime; }
             public Meters Distance { get => distance; }
-            public Seconds ExpectedDuration { get => expectedDuration; }
-            public Seconds Duration { get => FinishTime - StartTime; }
+            public Milliseconds ExpectedDuration { get => expectedDuration; }
+            public Milliseconds Duration { get => FinishTime - StartTime; }
             /// <summary>
             /// Records each road and time the car got on that road.
             /// </summary>
@@ -229,7 +229,7 @@ namespace RoadTrafficSimulator.Components
             public IReadOnlyList<Timestamp<MetersPerSecond>> SpeedLog { get => speedLog.Get(); }
 
 
-            public Statistics(IClock clock, int CarId, Seconds expectedDuration, int firstRoadId)
+            public Statistics(IClock clock, int CarId, Milliseconds expectedDuration, int firstRoadId)
                 : base(clock)
             {
                 this.CarId = CarId;

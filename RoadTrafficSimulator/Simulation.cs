@@ -9,7 +9,7 @@ namespace RoadTrafficSimulator
 {
     interface IClock
     {
-        Seconds Time { get; }
+        Milliseconds Time { get; }
     }
 
     class Simulation: IClock
@@ -20,7 +20,7 @@ namespace RoadTrafficSimulator
         private IEnumerator<Crossroad> randomCrossroads;
         private HashSet<Car> stagedCars;
 
-        public Seconds Time { get; private set; }
+        public Milliseconds Time { get; private set; }
         public Map Map { get; set; }
         public StatisticsCollector Statistics { get; private set; }
 
@@ -53,9 +53,9 @@ namespace RoadTrafficSimulator
             return InitialisationResult.Ok;
         }
 
-        public void Simulate(Seconds duration, float newCarsPerHundredSecondsPerCrossroad) => Simulate(duration, newCarsPerHundredSecondsPerCrossroad, 1.Seconds());
+        public void Simulate(Milliseconds duration, float newCarsPerHundredSecondsPerCrossroad) => Simulate(duration, newCarsPerHundredSecondsPerCrossroad, 1.Seconds());
 
-        public void Simulate(Seconds duration, float newCarsPerHundredSecondsPerCrossroad, Seconds step)
+        public void Simulate(Milliseconds duration, float newCarsPerHundredSecondsPerCrossroad, Milliseconds step)
         {
             int newCarsPerHundredSeconds = (int)(newCarsPerHundredSecondsPerCrossroad * Map.CrossroadCount);
             while (Time < duration)
@@ -79,7 +79,7 @@ namespace RoadTrafficSimulator
             Statistics.AddCars();
         }
 
-        public void Tick(Seconds time)
+        public void Tick(Milliseconds time)
         {
             Time += time;
             HashSet<Car> releasedCars = new HashSet<Car>();

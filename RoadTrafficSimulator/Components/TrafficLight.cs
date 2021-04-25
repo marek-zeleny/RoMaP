@@ -13,7 +13,7 @@ namespace RoadTrafficSimulator.Components
         private HashSet<Direction> defaultDirections = new HashSet<Direction>(4);
         private List<Setting> settings;
         private IEnumerator<Setting> settingsEnumerator;
-        private Seconds currentTime;
+        private Milliseconds currentTime;
 
         private bool CurrentSettingExpired { get => currentTime >= settingsEnumerator.Current.Duration; }
 
@@ -74,7 +74,7 @@ namespace RoadTrafficSimulator.Components
             return settingsEnumerator.MoveNext();
         }
 
-        public void Tick(Seconds time)
+        public void Tick(Milliseconds time)
         {
             if (settings.Count <= 1)
                 return;
@@ -106,7 +106,7 @@ namespace RoadTrafficSimulator.Components
         {
             private HashSet<Direction> allowedDirections = new HashSet<Direction>(4);
 
-            public Seconds Duration { get; set; } = 20.Seconds();
+            public Milliseconds Duration { get; set; } = 20.Seconds();
 
             public int Count { get => allowedDirections.Count; }
 

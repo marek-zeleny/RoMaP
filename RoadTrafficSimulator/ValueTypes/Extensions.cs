@@ -8,7 +8,9 @@ namespace RoadTrafficSimulator.ValueTypes
     {
         public static Meters Meters(this int value) => new Meters(value);
 
-        public static Seconds Seconds(this int value) => new Seconds(value);
+        public static Milliseconds Milliseconds(this int value) => new Milliseconds(value);
+
+        public static Milliseconds Seconds(this int value) => new Milliseconds(value * 1000);
 
         public static MetersPerSecond MetersPerSecond(this int value) => new MetersPerSecond(value);
 
@@ -16,6 +18,6 @@ namespace RoadTrafficSimulator.ValueTypes
             new MetersPerSecondPerSecond(value);
 
 
-        public static Weight Weight(this Seconds value) => new Weight(value);
+        public static Weight Weight(this Milliseconds value) => new Weight(value);
     }
 }

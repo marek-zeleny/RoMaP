@@ -16,7 +16,7 @@ namespace RoadTrafficSimulator.Components
         public Road NextRoad { get => nextRoadExists ? remainingPath.Current : null; }
 
         public Navigation(IReadOnlyGraph<Coords, int> map, Crossroad start, Crossroad finish, IClock clock,
-            out Seconds expectedDuration)
+            out Milliseconds expectedDuration)
         {
             var e = map.FindShortestPath(Algorithms.GraphType.NonnegativeWeights, start, finish,
                 out Weight pathWeight);

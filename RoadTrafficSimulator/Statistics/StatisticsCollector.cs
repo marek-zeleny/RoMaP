@@ -35,7 +35,7 @@ namespace RoadTrafficSimulator.Statistics
             return (totalDistance / CarsFinished).Meters();
         }
 
-        public Seconds GetAverageDuration()
+        public Milliseconds GetAverageDuration()
         {
             if (CarsFinished == 0)
                 return 0.Seconds();
@@ -43,7 +43,7 @@ namespace RoadTrafficSimulator.Statistics
             return (totalDuration / CarsFinished).Seconds();
         }
 
-        public Seconds GetAverageDelay()
+        public Milliseconds GetAverageDelay()
         {
             if (CarsFinished == 0)
                 return 0.Seconds();

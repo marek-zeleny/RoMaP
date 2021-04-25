@@ -26,13 +26,13 @@ namespace RoadTrafficSimulator.ValueTypes
             MetersPerSecondPerSecond mpss2) =>
             new MetersPerSecondPerSecond(mpss1.value - mpss2.value);
 
-        public static MetersPerSecond operator *(MetersPerSecondPerSecond mpss, Seconds s) =>
-            new MetersPerSecond(mpss.value * s);
+        public static MetersPerSecond operator *(MetersPerSecondPerSecond mpss, Milliseconds ms) =>
+            new MetersPerSecond(mpss.value * ms / 1000);
 
-        public static MetersPerSecond operator *(Seconds s, MetersPerSecondPerSecond mpss) => mpss * s;
+        public static MetersPerSecond operator *(Milliseconds ms, MetersPerSecondPerSecond mpss) => mpss * ms;
 
-        public static Seconds operator /(MetersPerSecond mps, MetersPerSecondPerSecond mpss) =>
-            new Seconds(mps / mpss.value);
+        public static Milliseconds operator /(MetersPerSecond mps, MetersPerSecondPerSecond mpss) =>
+            new Milliseconds(1000 * mps / mpss.value);
 
         public static MetersPerSecondPerSecond operator *(MetersPerSecondPerSecond mpss, int i) =>
             new MetersPerSecondPerSecond(mpss.value * i);
