@@ -12,39 +12,40 @@ namespace RoadTrafficSimulator.Components
     {
         #region static
 
-        private static readonly Meters minDistanceBetweenCars = 1.Meters();
-        private static readonly MetersPerSecondPerSecond deceleration = 5.MetersPerSecondPerSecond();
-        private static readonly MetersPerSecondPerSecond acceleration = 4.MetersPerSecondPerSecond();
+        private static readonly Millimetres minDistanceBetweenCars = 1.Metres();
+        private static readonly MetresPerSecondPerSecond deceleration = 5.MetresPerSecondPerSecond();
+        private static readonly MetresPerSecondPerSecond acceleration = 4.MetresPerSecondPerSecond();
+        // Can't be less than 1s, otherwise it will become 0 when multiplied by (any) acceleration
         private static readonly Milliseconds minTimeInterval = 1.Seconds();
         private static readonly Milliseconds reactionTime = 1.Seconds();
         private static int nextId = 0;
 
-        private static Meters CalculateBrakingDistance(MetersPerSecond speed)
+        private static Millimetres CalculateBrakingDistance(MetresPerSecond speed)
         {
             // n = floor(v / (a_d * t_m))
             // b(v) = n * t_m * (v - 1/2 * a_d * t_m * (n + 1))
             // For more information and derivation of this formula see the programming documentation
-            MetersPerSecond decelerationStep = deceleration * minTimeInterval;
+            MetresPerSecond decelerationStep = deceleration * minTimeInterval;
             int steps = (int)speed / (decelerationStep);
-            MetersPerSecond subtractedSpeed = (decelerationStep * (steps + 1)) / 2;
-            Meters distance = steps * minTimeInterval * (speed - subtractedSpeed);
+            MetresPerSecond subtractedSpeed = (decelerationStep * (steps + 1)) / 2;
+            Millimetres distance = steps * minTimeInterval * (speed - subtractedSpeed);
             return distance;
         }
 
-        private static Meters CalculateBrakingDistanceDiff(MetersPerSecond speed1, MetersPerSecond speed2)
+        private static Millimetres CalculateBrakingDistanceDiff(MetresPerSecond speed1, MetresPerSecond speed2)
         {
             // Uses the same formula as the function above, but calculates the difference efficiently
             // b(v1) - b(v2) = t_m * (n * v1 - m * v2 + 1/2 * a_d * t_m * (m * (m + 1) - n * (n + 1)))
             // For derivation see the programming documentation
-            MetersPerSecond decelerationStep = deceleration * minTimeInterval;
+            MetresPerSecond decelerationStep = deceleration * minTimeInterval;
             int steps1 = (int)speed1 / decelerationStep;
             int steps2 = (int)speed2 / decelerationStep;
             // If n == m, the formula can be much simplified
             if (steps1 == steps2)
                 return minTimeInterval * steps1 * (speed1 - speed2);
             int stepsSquareDiff = steps2 * (steps2 + 1) - steps1 * (steps1 + 1);
-            MetersPerSecond speedDiff = steps1 * speed1 - steps2 * speed2;
-            Meters distance = minTimeInterval * (speedDiff + (decelerationStep * stepsSquareDiff) / 2);
+            MetresPerSecond speedDiff = steps1 * speed1 - steps2 * speed2;
+            Millimetres distance = minTimeInterval * (speedDiff + (decelerationStep * stepsSquareDiff) / 2);
             return distance;
         }
 
@@ -53,18 +54,18 @@ namespace RoadTrafficSimulator.Components
         private readonly Action<Statistics> finishDriveAction;
         private Navigation navigation;
         private Statistics statistics;
-        private Meters distance;
+        private Millimetres distance;
         private bool newRoad;
-        private Meters remainingDistanceAfterCrossing;
+        private Millimetres remainingDistanceAfterCrossing;
 
         public int Id { get; }
-        public Meters Length { get; }
-        public MetersPerSecond CurrentSpeed { get; private set; }
-        public Meters DistanceRear { get => distance - Length; }
+        public Millimetres Length { get; }
+        public MetresPerSecond CurrentSpeed { get; private set; }
+        public Millimetres DistanceRear { get => distance - Length; }
         private Car CarInFront { get; set; }
         public Car CarBehind { get; private set; }
 
-        public Car(Meters length, IReadOnlyGraph<Coords, int> map, Crossroad start, Crossroad finish, IClock clock,
+        public Car(Millimetres length, IReadOnlyGraph<Coords, int> map, Crossroad start, Crossroad finish, IClock clock,
             Action<Statistics> finishDriveAction)
         {
             Id = nextId++;
@@ -89,10 +90,10 @@ namespace RoadTrafficSimulator.Components
             // If the car already crossed from a different road during this tick, do nothing
             if (!newRoad)
             {
-                MetersPerSecond maxSpeed = CurrentSpeed + acceleration * time;
+                MetresPerSecond maxSpeed = CurrentSpeed + acceleration * time;
                 if (maxSpeed > navigation.CurrentRoad.MaxSpeed)
                     maxSpeed = navigation.CurrentRoad.MaxSpeed;
-                Meters drivenDistance = Move(maxSpeed * time);
+                Millimetres drivenDistance = Move(maxSpeed * time);
                 CurrentSpeed = drivenDistance / time;
                 statistics.Update(drivenDistance, CurrentSpeed);
                 TryFinishDrive();
@@ -103,8 +104,8 @@ namespace RoadTrafficSimulator.Components
         {
             if (newRoad && remainingDistanceAfterCrossing > 0)
             {
-                Meters drivenDistance = Move(remainingDistanceAfterCrossing);
-                remainingDistanceAfterCrossing = 0.Meters();
+                Millimetres drivenDistance = Move(remainingDistanceAfterCrossing);
+                remainingDistanceAfterCrossing = 0.Metres();
                 CurrentSpeed += drivenDistance / time;
                 TryFinishDrive();
             }
@@ -123,7 +124,7 @@ namespace RoadTrafficSimulator.Components
             CarInFront = null;
         }
 
-        private Meters Move(Meters maxDistance)
+        private Millimetres Move(Millimetres maxDistance)
         {
             if (CarInFront == null)
                 return ApproachCrossroad(maxDistance);
@@ -131,17 +132,17 @@ namespace RoadTrafficSimulator.Components
                 return KeepDistance(maxDistance);
         }
 
-        private Meters KeepDistance(Meters maxDistance)
+        private Millimetres KeepDistance(Millimetres maxDistance)
         {
             // Calculate the optimal speed using the following formula
             // v = (s_d - d + b(v') - b(v)) / t_r
             // For more details and derivation of this formula see the programming documentation
-            Meters distanceBetweenCars = CarInFront.DistanceRear - distance;
-            Meters brakingDistanceDiff = CalculateBrakingDistanceDiff(CurrentSpeed, CarInFront.CurrentSpeed);
-            Meters freeDistance = distanceBetweenCars - minDistanceBetweenCars + brakingDistanceDiff;
-            MetersPerSecond optimalSpeed = freeDistance / minTimeInterval;
+            Millimetres distanceBetweenCars = CarInFront.DistanceRear - distance;
+            Millimetres brakingDistanceDiff = CalculateBrakingDistanceDiff(CurrentSpeed, CarInFront.CurrentSpeed);
+            Millimetres freeDistance = distanceBetweenCars - minDistanceBetweenCars + brakingDistanceDiff;
+            MetresPerSecond optimalSpeed = freeDistance / minTimeInterval;
             // TODO: use the calculated optimal speed (some refactoring with crossing roads needed)
-            Meters spaceInFront = CarInFront.DistanceRear - distance;
+            Millimetres spaceInFront = CarInFront.DistanceRear - distance;
             if (maxDistance < spaceInFront)
             {
                 distance += maxDistance;
@@ -151,9 +152,9 @@ namespace RoadTrafficSimulator.Components
             return spaceInFront;
         }
 
-        private Meters ApproachCrossroad(Meters maxDistance)
+        private Millimetres ApproachCrossroad(Millimetres maxDistance)
         {
-            Meters spaceInFront = navigation.CurrentRoad.Length - distance;
+            Millimetres spaceInFront = navigation.CurrentRoad.Length - distance;
             if (maxDistance <= spaceInFront)
             {
                 distance += maxDistance;
@@ -166,24 +167,24 @@ namespace RoadTrafficSimulator.Components
             return spaceInFront + CrossToNextRoad(maxDistance - spaceInFront);
         }
 
-        private Meters CrossToNextRoad(Meters remainingDistance)
+        private Millimetres CrossToNextRoad(Millimetres remainingDistance)
         {
-            MetersPerSecond oldSpeed = navigation.CurrentRoad.MaxSpeed;
+            MetresPerSecond oldSpeed = navigation.CurrentRoad.MaxSpeed;
             bool canCross = navigation.CurrentRoad.Destination.CanCross(navigation.CurrentRoad.Id,
                 navigation.NextRoad.Id);
             if (!canCross
                 || !navigation.NextRoad.TryGetOn(this, out Car newCarInFront))
-                return 0.Meters();
+                return 0.Metres();
 
             navigation.CurrentRoad.GetOff(this);
             navigation.MoveToNextRoad();
             statistics.MovedToNextRoad(navigation.CurrentRoad.Id);
-            distance = 0.Meters();
+            distance = 0.Metres();
             CarInFront = newCarInFront;
             CarBehind = null;
-            MetersPerSecond newSpeed = navigation.CurrentRoad.MaxSpeed;
+            MetresPerSecond newSpeed = navigation.CurrentRoad.MaxSpeed;
             remainingDistance *= (double)newSpeed / oldSpeed;
-            Meters moved = Move(remainingDistance);
+            Millimetres moved = Move(remainingDistance);
             remainingDistanceAfterCrossing = remainingDistance - moved;
             newRoad = true;
             return moved;
@@ -193,7 +194,7 @@ namespace RoadTrafficSimulator.Components
         {
             if (navigation.NextRoad == null && distance == navigation.CurrentRoad.Length)
             {
-                CurrentSpeed = 0.MetersPerSecond();
+                CurrentSpeed = 0.MetresPerSecond();
                 navigation.CurrentRoad.GetOff(this);
                 statistics.Finish();
                 finishDriveAction(statistics);
@@ -206,17 +207,17 @@ namespace RoadTrafficSimulator.Components
         {
             private Item<Milliseconds> startTime = new Item<Milliseconds>(DetailLevel.Low);
             private Item<Milliseconds> finishTime = new Item<Milliseconds>(DetailLevel.Low);
-            private Item<Meters> distance = new Item<Meters>(DetailLevel.Low, 0.Meters());
+            private Item<Millimetres> distance = new Item<Millimetres>(DetailLevel.Low, 0.Metres());
             private Item<Milliseconds> expectedDuration = new Item<Milliseconds>(DetailLevel.Low);
             private Item<List<Timestamp<int>>> roadLog = new Item<List<Timestamp<int>>>(DetailLevel.Medium,
                 new List<Timestamp<int>>());
-            private Item<List<Timestamp<MetersPerSecond>>> speedLog = new Item<List<Timestamp<MetersPerSecond>>>(
-                DetailLevel.High, new List<Timestamp<MetersPerSecond>>());
+            private Item<List<Timestamp<MetresPerSecond>>> speedLog = new Item<List<Timestamp<MetresPerSecond>>>(
+                DetailLevel.High, new List<Timestamp<MetresPerSecond>>());
 
             public int CarId { get; }
             public Milliseconds StartTime { get => startTime; }
             public Milliseconds FinishTime { get => finishTime; }
-            public Meters Distance { get => distance; }
+            public Millimetres Distance { get => distance; }
             public Milliseconds ExpectedDuration { get => expectedDuration; }
             public Milliseconds Duration { get => FinishTime - StartTime; }
             /// <summary>
@@ -226,7 +227,7 @@ namespace RoadTrafficSimulator.Components
             /// <summary>
             /// Periodically records the car's speed.
             /// </summary>
-            public IReadOnlyList<Timestamp<MetersPerSecond>> SpeedLog { get => speedLog.Get(); }
+            public IReadOnlyList<Timestamp<MetresPerSecond>> SpeedLog { get => speedLog.Get(); }
 
 
             public Statistics(IClock clock, int CarId, Milliseconds expectedDuration, int firstRoadId)
@@ -238,10 +239,10 @@ namespace RoadTrafficSimulator.Components
                 roadLog.Get()?.Add(new Timestamp<int>(clock.Time, firstRoadId));
             }
 
-            public void Update(Meters addedDistance, MetersPerSecond speed)
+            public void Update(Millimetres addedDistance, MetresPerSecond speed)
             {
                 distance.Set(Distance + addedDistance);
-                speedLog.Get()?.Add(new Timestamp<MetersPerSecond>(clock.Time, speed));
+                speedLog.Get()?.Add(new Timestamp<MetresPerSecond>(clock.Time, speed));
             }
 
             public void MovedToNextRoad(int roadId)

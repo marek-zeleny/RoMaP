@@ -27,18 +27,18 @@ namespace RoadTrafficSimulator.Statistics
             finishedCars.Add(stats);
         }
 
-        public Meters GetAverageDistance()
+        public Millimetres GetAverageDistance()
         {
             if (CarsFinished == 0)
-                return 0.Meters();
+                return 0.Metres();
             int totalDistance = finishedCars.Sum(stats => stats.Distance);
-            return (totalDistance / CarsFinished).Meters();
+            return (totalDistance / CarsFinished).Metres();
         }
 
         public Milliseconds GetAverageDuration()
         {
             if (CarsFinished == 0)
-                return 0.Seconds();
+                return 0.Milliseconds();
             int totalDuration = finishedCars.Sum(stats => stats.Duration);
             return (totalDuration / CarsFinished).Seconds();
         }
@@ -46,7 +46,7 @@ namespace RoadTrafficSimulator.Statistics
         public Milliseconds GetAverageDelay()
         {
             if (CarsFinished == 0)
-                return 0.Seconds();
+                return 0.Milliseconds();
             int totalDelay = finishedCars.Sum(stats => stats.Duration - stats.ExpectedDuration);
             return (totalDelay / CarsFinished).Seconds();
         }

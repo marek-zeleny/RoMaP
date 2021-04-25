@@ -217,7 +217,7 @@ namespace RoadTrafficSimulator
         {
             if (freezeMaxSpeed || selectedRoad == null)
                 return;
-            selectedRoad.MaxSpeed = ((int)numericUpDownMaxSpeed.Value).MetersPerSecond();
+            selectedRoad.MaxSpeed = ((int)numericUpDownMaxSpeed.Value).MetresPerSecond();
             // Must check whether the road accepted this max speed
             freezeMaxSpeed = true;
             numericUpDownMaxSpeed.Value = selectedRoad.MaxSpeed;

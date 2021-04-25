@@ -48,7 +48,7 @@ namespace RoadTrafficSimulator
                 r.Initialise();
             randomCrossroads = GetRandomCrossroads().GetEnumerator();
             stagedCars = new HashSet<Car>();
-            Time = 0.Seconds();
+            Time = 0.Milliseconds();
             Statistics = new StatisticsCollector();
             return InitialisationResult.Ok;
         }
@@ -74,7 +74,7 @@ namespace RoadTrafficSimulator
             do
                 finish = GetRandomCrossroad();
             while (finish == start);
-            Meters length = carLengthDistribution[random.Next(carLengthDistribution.Length)].Meters();
+            Millimetres length = carLengthDistribution[random.Next(carLengthDistribution.Length)].Metres();
             stagedCars.Add(new Car(length, Map, start, finish, this, DriveFinished));
             Statistics.AddCars();
         }

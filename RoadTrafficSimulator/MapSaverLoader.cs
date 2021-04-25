@@ -184,7 +184,7 @@ namespace RoadTrafficSimulator
                 }
             }
             // Build the road and get new road IDs
-            if (!builder.FinishRoad(maxSpeed.MetersPerSecond()))
+            if (!builder.FinishRoad(maxSpeed.MetresPerSecond()))
             {
                 builder.DestroyRoad();
                 return false;

@@ -10,19 +10,19 @@ namespace RoadTrafficSimulator.Components
 {
     class Road : Edge<Coords, int>
     {
-        public static readonly Meters minLength = 10.Meters();
-        public static readonly MetersPerSecond minMaxSpeed = 3.MetersPerSecond();
+        public static readonly Millimetres minLength = 10.Metres();
+        public static readonly MetresPerSecond minMaxSpeed = 3.MetresPerSecond();
         public const int maxLaneCount = 3;
         private const int averageDurationHistorySize = 10;
 
-        private Meters length;
-        private MetersPerSecond maxSpeed;
+        private Millimetres length;
+        private MetresPerSecond maxSpeed;
         private Lane[] lanes;
         private int laneCount;
         private Queue<Milliseconds> averageDurationHistory;
         private Statistics statistics;
 
-        public Meters Length
+        public Millimetres Length
         {
             get => length;
             set
@@ -34,7 +34,7 @@ namespace RoadTrafficSimulator.Components
                 Weight = (Length / MaxSpeed).Weight();
             }
         }
-        public MetersPerSecond MaxSpeed
+        public MetresPerSecond MaxSpeed
         {
             get => maxSpeed;
             set
@@ -47,7 +47,7 @@ namespace RoadTrafficSimulator.Components
             }
         }
         public Milliseconds AverageDuration { get; private set; }
-        public MetersPerSecond AverageSpeed { get; private set; }
+        public MetresPerSecond AverageSpeed { get; private set; }
         public int CarCount
         {
             get
@@ -76,7 +76,7 @@ namespace RoadTrafficSimulator.Components
         }
         public Crossroad Destination { get => (Crossroad)ToNode; }
 
-        public Road(int id, Crossroad from, Crossroad to, Meters length, MetersPerSecond maxSpeed)
+        public Road(int id, Crossroad from, Crossroad to, Millimetres length, MetresPerSecond maxSpeed)
             : base(id, from, to)
         {
             if (length < minLength)
@@ -112,10 +112,10 @@ namespace RoadTrafficSimulator.Components
         public bool TryGetOn(Car car, out Car carInFront)
         {
             int maxIndex = 0;
-            Meters maxSpace = lanes[0].FreeSpace(Length);
+            Millimetres maxSpace = lanes[0].FreeSpace(Length);
             for (int i = 1; i < LaneCount; i++)
             {
-                Meters space = lanes[i].FreeSpace(Length);
+                Millimetres space = lanes[i].FreeSpace(Length);
                 if (space > maxSpace)
                 {
                     maxIndex = i;
@@ -149,7 +149,7 @@ namespace RoadTrafficSimulator.Components
                 lanes[i].ForAllCars(car => car.Tick(time));
 
             int carCount = 0;
-            MetersPerSecond totalSpeed = 0.MetersPerSecond();
+            MetresPerSecond totalSpeed = 0.MetresPerSecond();
             for (int i = 0; i < LaneCount; i++)
                 lanes[i].ForAllCars(car =>
                 {
@@ -183,7 +183,7 @@ namespace RoadTrafficSimulator.Components
                 arriveTimes = new Queue<Milliseconds>();
             }
 
-            public Meters FreeSpace(Meters length)
+            public Millimetres FreeSpace(Millimetres length)
             {
                 return lastCar == null ? length : lastCar.DistanceRear;
             }
@@ -250,7 +250,7 @@ namespace RoadTrafficSimulator.Components
                 RoadId = roadId;
             }
 
-            public void Update(int carCount, MetersPerSecond averageSpeed, Milliseconds averageDuration)
+            public void Update(int carCount, MetresPerSecond averageSpeed, Milliseconds averageDuration)
             {
                 throughputLog.Get()?.Add(new Timestamp<Throughput>(clock.Time,
                     new Throughput(carCount, averageSpeed, averageDuration)));
@@ -282,10 +282,10 @@ namespace RoadTrafficSimulator.Components
             public struct Throughput
             {
                 public int carCount;
-                public readonly MetersPerSecond averageSpeed;
+                public readonly MetresPerSecond averageSpeed;
                 public readonly Milliseconds averageDuration;
 
-                public Throughput(int carCount, MetersPerSecond averageSpeed, Milliseconds averageDuration)
+                public Throughput(int carCount, MetresPerSecond averageSpeed, Milliseconds averageDuration)
                 {
                     this.carCount = carCount;
                     this.averageSpeed = averageSpeed;
