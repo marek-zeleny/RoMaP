@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 using RoadTrafficSimulator.ValueTypes;
 using DataStructures.Graphs;
@@ -16,6 +17,17 @@ namespace RoadTrafficSimulator.Components
         public int RoadCount => graph.EdgeCount;
         int IReadOnlyGraph<Coords, int>.NodeCount => graph.NodeCount;
         int IReadOnlyGraph<Coords, int>.EdgeCount => graph.EdgeCount;
+
+        public Road AddRoad(Road road)
+        {
+            Debug.Assert(road.Id < nextRoadId);
+            Debug.Assert(graph.GetEdge(road.Id) == default);
+            graph.AddNode((Crossroad)road.FromNode);
+            graph.AddNode((Crossroad)road.ToNode);
+            bool result = graph.AddEdge(road);
+            Debug.Assert(result);
+            return road;
+        }
 
         public Road AddRoad(Coords fromId, Coords toId, Meters length, MetersPerSecond maxSpeed)
         {

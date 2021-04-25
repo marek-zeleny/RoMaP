@@ -20,6 +20,7 @@ namespace RoadTrafficSimulator.Components
         {
             var e = map.FindShortestPath(Algorithms.GraphType.NonnegativeWeights, start, finish,
                 out Weight pathWeight);
+            // TODO: try remainingPath = ((IEnumerable<Road>)e).GetEnumerator();
             remainingPath = e.Select(edge => (Road)edge).GetEnumerator();
             if (!remainingPath.MoveNext())
                 throw new ArgumentException($"There doesn't exist any path from {nameof(start)} to" +
