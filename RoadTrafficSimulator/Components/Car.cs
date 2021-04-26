@@ -12,41 +12,37 @@ namespace RoadTrafficSimulator.Components
     {
         #region static
 
+        private static int nextId = 0;
         private static readonly Millimetres minDistanceBetweenCars = 1.Metres();
         private static readonly MetresPerSecondPerSecond deceleration = 5.MetresPerSecondPerSecond();
         private static readonly MetresPerSecondPerSecond acceleration = 4.MetresPerSecondPerSecond();
         // Can't be less than 1s, otherwise it will become 0 when multiplied by (any) acceleration
-        private static readonly Milliseconds minTimeInterval = 1.Seconds();
         private static readonly Milliseconds reactionTime = 1.Seconds();
-        private static int nextId = 0;
 
-        private static Millimetres CalculateBrakingDistance(MetresPerSecond speed)
+        private static MetresPerSecond CalculateOptimalSpeed(Millimetres freeSpace, MetresPerSecond carInFrontSpeed)
         {
-            // n = floor(v / (a_d * t_m))
-            // b(v) = n * t_m * (v - 1/2 * a_d * t_m * (n + 1))
-            // For more information and derivation of this formula see the programming documentation
-            MetresPerSecond decelerationStep = deceleration * minTimeInterval;
-            int steps = (int)speed / (decelerationStep);
-            MetresPerSecond subtractedSpeed = (decelerationStep * (steps + 1)) / 2;
-            Millimetres distance = steps * minTimeInterval * (speed - subtractedSpeed);
-            return distance;
-        }
-
-        private static Millimetres CalculateBrakingDistanceDiff(MetresPerSecond speed1, MetresPerSecond speed2)
-        {
-            // Uses the same formula as the function above, but calculates the difference efficiently
-            // b(v1) - b(v2) = t_m * (n * v1 - m * v2 + 1/2 * a_d * t_m * (m * (m + 1) - n * (n + 1)))
-            // For derivation see the programming documentation
-            MetresPerSecond decelerationStep = deceleration * minTimeInterval;
-            int steps1 = (int)speed1 / decelerationStep;
-            int steps2 = (int)speed2 / decelerationStep;
-            // If n == m, the formula can be much simplified
-            if (steps1 == steps2)
-                return minTimeInterval * steps1 * (speed1 - speed2);
-            int stepsSquareDiff = steps2 * (steps2 + 1) - steps1 * (steps1 + 1);
-            MetresPerSecond speedDiff = steps1 * speed1 - steps2 * speed2;
-            Millimetres distance = minTimeInterval * (speedDiff + (decelerationStep * stepsSquareDiff) / 2);
-            return distance;
+            // Calculate optimal speed using the following formula, the result is nonnegative
+            // v = sqrt((a_d t_r)^2 + 2 a_d (s_d - d) + v_f^2) - a_d t_r
+            // For more details and derivation of this formula see the programming documentation
+            // Has to be calculated in integers instead of the type system because of nonstandard intermediate units
+            // (m^2 / s^2); all defined multiplications and divisions should be done within the type system for safety
+            int a_d = deceleration;
+            int s = freeSpace; // s_d - d
+            int v_f = carInFrontSpeed;
+            int v;
+            if (v_f == 0)
+            {
+                // If v_f = 0 (the car approaches a crossroad or the car in front doesn't move), we also set t_r = 0
+                // v = sqrt(2 a_d (s_d - d))
+                v = (int)Math.Sqrt(2 * a_d * s);
+            }
+            else
+            {
+                int v_d = deceleration * reactionTime; // a_d * t_r
+                v = (int)Math.Sqrt(v_d * v_d + 2 * a_d * s + v_f * v_f) - v_d;
+            }
+            Debug.Assert(v >= 0);
+            return v.MetresPerSecond();
         }
 
         #endregion static
@@ -56,7 +52,7 @@ namespace RoadTrafficSimulator.Components
         private Statistics statistics;
         private Millimetres distance;
         private bool newRoad;
-        private Millimetres remainingDistanceAfterCrossing;
+        private Milliseconds remainingTimeAfterCrossing;
 
         public int Id { get; }
         public Millimetres Length { get; }
@@ -88,28 +84,15 @@ namespace RoadTrafficSimulator.Components
         public void Tick(Milliseconds time)
         {
             // If the car already crossed from a different road during this tick, do nothing
-            if (!newRoad)
+            if (newRoad)
+                newRoad = false;
+            else
             {
-                MetresPerSecond maxSpeed = CurrentSpeed + acceleration * time;
-                if (maxSpeed > navigation.CurrentRoad.MaxSpeed)
-                    maxSpeed = navigation.CurrentRoad.MaxSpeed;
-                Millimetres drivenDistance = Move(maxSpeed * time);
+                Millimetres drivenDistance = Move(time);
                 CurrentSpeed = drivenDistance / time;
                 statistics.Update(drivenDistance, CurrentSpeed);
                 TryFinishDrive();
             }
-        }
-
-        public void FinishCrossingRoads(Milliseconds time)
-        {
-            if (newRoad && remainingDistanceAfterCrossing > 0)
-            {
-                Millimetres drivenDistance = Move(remainingDistanceAfterCrossing);
-                remainingDistanceAfterCrossing = 0.Metres();
-                CurrentSpeed += drivenDistance / time;
-                TryFinishDrive();
-            }
-            newRoad = false;
         }
 
         public void SetCarBehind(Road road, Car car)
@@ -124,70 +107,72 @@ namespace RoadTrafficSimulator.Components
             CarInFront = null;
         }
 
-        private Millimetres Move(Millimetres maxDistance)
+        private Millimetres Move(Milliseconds time)
         {
             if (CarInFront == null)
-                return ApproachCrossroad(maxDistance);
+                return ApproachCrossroad(time);
             else
-                return KeepDistance(maxDistance);
+                return ApproachCar(time);
         }
 
-        private Millimetres KeepDistance(Millimetres maxDistance)
+        private Millimetres ApproachCar(Milliseconds time)
         {
-            // Calculate the optimal speed using the following formula
-            // v = (s_d - d + b(v') - b(v)) / t_r
-            // For more details and derivation of this formula see the programming documentation
-            Millimetres distanceBetweenCars = CarInFront.DistanceRear - distance;
-            Millimetres brakingDistanceDiff = CalculateBrakingDistanceDiff(CurrentSpeed, CarInFront.CurrentSpeed);
-            Millimetres freeDistance = distanceBetweenCars - minDistanceBetweenCars + brakingDistanceDiff;
-            MetresPerSecond optimalSpeed = freeDistance / minTimeInterval;
-            // TODO: use the calculated optimal speed (some refactoring with crossing roads needed)
-            Millimetres spaceInFront = CarInFront.DistanceRear - distance;
-            if (maxDistance < spaceInFront)
+            Millimetres freeSpace = CarInFront.DistanceRear - distance - minDistanceBetweenCars;
+            MetresPerSecond speed = CalculateOptimalSpeed(freeSpace, CarInFront.CurrentSpeed);
+
+            MetresPerSecond maxSpeed = CurrentSpeed + acceleration * time;
+            if (maxSpeed > navigation.CurrentRoad.MaxSpeed)
+                maxSpeed = navigation.CurrentRoad.MaxSpeed;
+            if (speed > maxSpeed)
+                speed = maxSpeed;
+
+            Millimetres travelledDistance = speed * time;
+            Debug.Assert(travelledDistance <= freeSpace);
+            distance += travelledDistance;
+            return travelledDistance;
+        }
+
+        private Millimetres ApproachCrossroad(Milliseconds time)
+        {
+            Millimetres freeSpace = navigation.CurrentRoad.Length - distance;
+            Millimetres travelledDistance;
+            MetresPerSecond maxSpeed = CurrentSpeed + acceleration * time;
+            if (maxSpeed > navigation.CurrentRoad.MaxSpeed)
+                maxSpeed = navigation.CurrentRoad.MaxSpeed;
+            if (navigation.CurrentRoad.Destination.CanCross(navigation.CurrentRoad.Id, navigation.NextRoad.Id))
             {
-                distance += maxDistance;
-                return maxDistance;
+                travelledDistance = maxSpeed * time;
+                if (travelledDistance >= freeSpace)
+                {
+                    Milliseconds remainingTime = (travelledDistance - freeSpace) / maxSpeed;
+                    travelledDistance = freeSpace + TryCrossToNextRoad(remainingTime);
+                }
             }
-            distance += spaceInFront;
-            return spaceInFront;
-        }
-
-        private Millimetres ApproachCrossroad(Millimetres maxDistance)
-        {
-            Millimetres spaceInFront = navigation.CurrentRoad.Length - distance;
-            if (maxDistance <= spaceInFront)
+            else
             {
-                distance += maxDistance;
-                return maxDistance;
+                MetresPerSecond speed = CalculateOptimalSpeed(freeSpace, 0.MetresPerSecond());
+                if (speed > maxSpeed)
+                    speed = maxSpeed;
+                travelledDistance = speed * time;
+                Debug.Assert(travelledDistance <= freeSpace);
             }
-
-            distance += spaceInFront;
-            if (navigation.NextRoad == null)
-                return spaceInFront;
-            return spaceInFront + CrossToNextRoad(maxDistance - spaceInFront);
+            return travelledDistance;
         }
 
-        private Millimetres CrossToNextRoad(Millimetres remainingDistance)
+        private Millimetres TryCrossToNextRoad(Milliseconds remainingTime)
         {
-            MetresPerSecond oldSpeed = navigation.CurrentRoad.MaxSpeed;
-            bool canCross = navigation.CurrentRoad.Destination.CanCross(navigation.CurrentRoad.Id,
-                navigation.NextRoad.Id);
-            if (!canCross
-                || !navigation.NextRoad.TryGetOn(this, out Car newCarInFront))
+            if (!navigation.NextRoad.TryGetOn(this, out Car newCarInFront))
                 return 0.Metres();
 
+            newRoad = true;
             navigation.CurrentRoad.GetOff(this);
             navigation.MoveToNextRoad();
             statistics.MovedToNextRoad(navigation.CurrentRoad.Id);
             distance = 0.Metres();
             CarInFront = newCarInFront;
             CarBehind = null;
-            MetresPerSecond newSpeed = navigation.CurrentRoad.MaxSpeed;
-            remainingDistance *= (double)newSpeed / oldSpeed;
-            Millimetres moved = Move(remainingDistance);
-            remainingDistanceAfterCrossing = remainingDistance - moved;
-            newRoad = true;
-            return moved;
+            Millimetres travelledDistance = Move(remainingTime);
+            return travelledDistance;
         }
 
         private void TryFinishDrive()

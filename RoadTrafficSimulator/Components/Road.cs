@@ -145,15 +145,16 @@ namespace RoadTrafficSimulator.Components
 
         public void Tick(Milliseconds time)
         {
+            // We don't want to include into statistics cars that got off the road (it could mess up average speed)
             for (int i = 0; i < LaneCount; i++)
                 lanes[i].ForAllCars(car => car.Tick(time));
-
+            // Cars that haven't yet gotten onto the road will be missed in this round of statistics, but that's a small
+            // error
             int carCount = 0;
             MetresPerSecond totalSpeed = 0.MetresPerSecond();
             for (int i = 0; i < LaneCount; i++)
                 lanes[i].ForAllCars(car =>
                 {
-                    car.FinishCrossingRoads(time);
                     carCount++;
                     totalSpeed += car.CurrentSpeed;
                 });
