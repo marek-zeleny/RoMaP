@@ -27,18 +27,13 @@ namespace RoadTrafficSimulator.ValueTypes
             MetresPerSecondPerSecond mpss2) =>
             new MetresPerSecondPerSecond(mpss1.value - mpss2.value);
 
-        public static MetresPerSecond operator *(MetresPerSecondPerSecond mpss, Milliseconds ms)
-        {
-            MetresPerSecond mps = new MetresPerSecond(mpss.value * ms / 1000);
-            // TODO: Figure out a way to make this operation safe
-            Debug.Assert(mps != 0 || mpss == 0 || ms == 0);
-            return mps;
-        }
+        public static MillimetresPerSecond operator *(MetresPerSecondPerSecond mpss, Milliseconds ms) =>
+            new MillimetresPerSecond(mpss.value * (int)ms);
 
-        public static MetresPerSecond operator *(Milliseconds ms, MetresPerSecondPerSecond mpss) => mpss * ms;
+        public static MillimetresPerSecond operator *(Milliseconds ms, MetresPerSecondPerSecond mpss) => mpss * ms;
 
-        public static Milliseconds operator /(MetresPerSecond mps, MetresPerSecondPerSecond mpss) =>
-            new Milliseconds(1000 * mps / mpss.value);
+        public static Milliseconds operator /(MillimetresPerSecond mmps, MetresPerSecondPerSecond mpss) =>
+            new Milliseconds(1000 * (int)mmps / mpss.value);
 
         public static MetresPerSecondPerSecond operator *(MetresPerSecondPerSecond mpss, int i) =>
             new MetresPerSecondPerSecond(mpss.value * i);

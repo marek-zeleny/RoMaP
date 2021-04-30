@@ -31,24 +31,25 @@ namespace RoadTrafficSimulator.Statistics
         {
             if (CarsFinished == 0)
                 return 0.Metres();
-            int totalDistance = finishedCars.Sum(stats => stats.Distance);
-            return (totalDistance / CarsFinished).Metres();
+            Millimetres totalDistance = new Millimetres(finishedCars.Sum(stats => stats.Distance));
+            return totalDistance / CarsFinished;
         }
 
         public Milliseconds GetAverageDuration()
         {
             if (CarsFinished == 0)
                 return 0.Milliseconds();
-            int totalDuration = finishedCars.Sum(stats => stats.Duration);
-            return (totalDuration / CarsFinished).Seconds();
+            Milliseconds totalDuration = new Milliseconds(finishedCars.Sum(stats => stats.Duration));
+            return totalDuration / CarsFinished;
         }
 
         public Milliseconds GetAverageDelay()
         {
             if (CarsFinished == 0)
                 return 0.Milliseconds();
-            int totalDelay = finishedCars.Sum(stats => stats.Duration - stats.ExpectedDuration);
-            return (totalDelay / CarsFinished).Seconds();
+            Milliseconds totalDelay = new Milliseconds(
+                finishedCars.Sum(stats => stats.Duration - stats.ExpectedDuration));
+            return totalDelay / CarsFinished;
         }
 
         public void ExportCSV(TextWriter writer)

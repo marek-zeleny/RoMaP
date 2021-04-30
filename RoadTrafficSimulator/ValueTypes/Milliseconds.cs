@@ -15,15 +15,18 @@ namespace RoadTrafficSimulator.ValueTypes
 
         public static explicit operator Milliseconds(int i) => new Milliseconds(i);
 
-        public static Milliseconds operator +(Milliseconds ms1, Milliseconds ms2) => new Milliseconds(ms1.value + ms2.value);
+        public static Milliseconds operator +(Milliseconds ms1, Milliseconds ms2) =>
+            new Milliseconds(ms1.value + ms2.value);
 
         public static Milliseconds operator -(Milliseconds ms) => new Milliseconds(-ms.value);
 
-        public static Milliseconds operator -(Milliseconds ms1, Milliseconds ms2) => new Milliseconds(ms1.value - ms2.value);
+        public static Milliseconds operator -(Milliseconds ms1, Milliseconds ms2) =>
+            new Milliseconds(ms1.value - ms2.value);
 
-        public static Millimetres operator *(Milliseconds ms, MetresPerSecond mps) => new Millimetres(ms.value * mps);
+        public static Millimetres operator *(Milliseconds ms, MillimetresPerSecond mmps) =>
+            new Millimetres(ms.value * (int)mmps / 1000);
 
-        public static Millimetres operator *(MetresPerSecond mps, Milliseconds ms) => ms * mps;
+        public static Millimetres operator *(MillimetresPerSecond mmps, Milliseconds ms) => ms * mmps;
 
         public static Milliseconds operator *(Milliseconds ms, int i) => new Milliseconds(ms.value * i);
 

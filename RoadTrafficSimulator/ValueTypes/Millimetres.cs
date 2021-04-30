@@ -23,8 +23,8 @@ namespace RoadTrafficSimulator.ValueTypes
         public static Millimetres operator -(Millimetres mm1, Millimetres mm2) =>
             new Millimetres(mm1.value - mm2.value);
 
-        public static MetresPerSecond operator /(Millimetres mm, Milliseconds ms) =>
-            new MetresPerSecond(mm.value / ms);
+        public static MillimetresPerSecond operator /(Millimetres mm, Milliseconds ms) =>
+            new MillimetresPerSecond(1000 * mm.value / (int)ms);
 
         public static Millimetres operator *(Millimetres mm, int i) => new Millimetres(mm.value * i);
 

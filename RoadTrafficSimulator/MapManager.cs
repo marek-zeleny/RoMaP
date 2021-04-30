@@ -15,7 +15,7 @@ namespace RoadTrafficSimulator
         #region static
 
         private const int K = 100;
-        private static readonly MetresPerSecond defaultMaxSpeed = 14.MetresPerSecond();
+        private static readonly MillimetresPerSecond defaultMaxSpeed = 14.MetresPerSecond();
 
         public static readonly Millimetres roadSegmentLength = 100.Metres();
         public static readonly Coords[] allowedDirections = new Coords[]
@@ -278,7 +278,7 @@ namespace RoadTrafficSimulator
                 return FinishRoad(defaultMaxSpeed);
             }
 
-            public bool FinishRoad(MetresPerSecond maxSpeed)
+            public bool FinishRoad(MillimetresPerSecond maxSpeed)
             {
                 if (Route.Count < 2)
                     return false;

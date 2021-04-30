@@ -222,7 +222,7 @@ namespace RoadTrafficSimulator
                 string[] directions = fields[i].Split(entitySeparator);
                 if (!int.TryParse(directions[0], out int duration))
                     return false;
-                setting.Duration = duration.Seconds();
+                setting.Duration = duration.Seconds(); // TODO: Change to new Milliseconds(duration) after saving existing maps in the new format
                 for (int j = 1; j < directions.Length; j++)
                 {
                     string[] split = directions[j].Split(valueSeparator);

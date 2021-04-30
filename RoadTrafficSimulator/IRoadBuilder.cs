@@ -9,7 +9,7 @@ namespace RoadTrafficSimulator
         bool CanContinue { get; }
         bool AddSegment(Coords nextCoords);
         bool FinishRoad();
-        bool FinishRoad(MetresPerSecond maxSpeed);
+        bool FinishRoad(MillimetresPerSecond maxSpeed);
         void DestroyRoad();
     }
 }

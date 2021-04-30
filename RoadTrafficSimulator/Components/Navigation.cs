@@ -27,7 +27,7 @@ namespace RoadTrafficSimulator.Components
                     $"{nameof(finish)} in the {nameof(map)}.");
             CurrentRoad = remainingPath.Current;
             nextRoadExists = remainingPath.MoveNext();
-            expectedDuration = ((int)pathWeight).Seconds();
+            expectedDuration = new Milliseconds((int)pathWeight);
         }
 
         public void MoveToNextRoad()
