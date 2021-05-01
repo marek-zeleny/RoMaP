@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 using DataStructures.Miscellaneous;
@@ -33,18 +34,57 @@ namespace DataStructures.Graphs
         };
 
         /// <summary>
+        /// Path of edges in a <see cref="IReadOnlyGraph{TNodeId, TEdgeId}"/>.
+        /// </summary>
+        /// <inheritdoc cref="IReadOnlyGraph{TNodeId, TEdgeId}"/>
+        public readonly struct Path<TNodeId, TEdgeId>
+            where TNodeId : IEquatable<TNodeId>
+            where TEdgeId : IEquatable<TEdgeId>
+        {
+            /// <summary>
+            /// Gets edges on the path.
+            /// </summary>
+            public IEnumerable<IReadOnlyEdge<TNodeId, TEdgeId>> Edges { get; }
+            /// <summary>
+            /// Gets total weight of the path.
+            /// </summary>
+            public Weight Weight { get; }
+
+            /// <summary>
+            /// Creates a new path with given <paramref name="edges"/> and <paramref name="weight"/>.
+            /// </summary>
+            /// <param name="edges">Edges on the path.</param>
+            /// <param name="weight">Total weight of the path.</param>
+            public Path(IEnumerable<IReadOnlyEdge<TNodeId, TEdgeId>> edges, Weight weight)
+            {
+                Edges = edges;
+                Weight = weight;
+            }
+
+            public override string ToString() => $"Path: W{Weight}";
+        }
+
+        /// <summary>
         /// Finds a shortest path in a <see cref="IReadOnlyGraph{TNodeId, TEdgeId}"/> between two
         /// <see cref="IReadOnlyNode{TNodeId, TEdgeId}"/>s.
         /// </summary>
         /// <remarks>
         /// Algorithm for finding the path is chosen based on <paramref name="graphType"/>.
+        /// <list type="bullet">
+        /// <item>
         /// <see cref="GraphType.Acyclic"/> uses DAG (Directed Acyclic Graph) algorithm with time complexity
         /// O(<c>n</c> + <c>m</c>),
+        /// </item>
+        /// <item>
         /// <see cref="GraphType.NonnegativeWeights"/> uses Dijkstra's algorithm with time complexity
         /// O((<c>n</c> + <c>m</c>) * log(<c>n</c>)),
+        /// </item>
+        /// <item>
         /// <see cref="GraphType.General"/> uses Bellman-Ford algorithm with time complexity O(<c>n</c> * <c>m</c>)
         /// for a graph with <c>n</c> nodes and <c>m</c> edges.
-        /// If the graph doesn't fulfil requirements for the given <paramref name="graphType"/>, the behaviour is
+        /// </item>
+        /// </list>
+        /// If <paramref name="graph"/> doesn't fulfil requirements for the given <paramref name="graphType"/>, the behaviour is
         /// undefined.
         /// </remarks>
         /// <param name="graph"><see cref="IReadOnlyGraph{TNodeId, TEdgeId}"/> to search.</param>
@@ -52,15 +92,11 @@ namespace DataStructures.Graphs
         /// <see cref="GraphType"/> of the graph. This parameter determines what search algorithm is used.
         /// See remarks for more information.
         /// </param>
-        /// <param name="startNode">Starting <see cref="IReadOnlyNode{TNodeId, TEdgeId}"/> of the path.</param>
-        /// <param name="endNode">Ending <see cref="IReadOnlyNode{TNodeId, TEdgeId}"/> of the path.</param>
-        /// <param name="pathWeight">
-        /// Outputs total weight of the shortest path that was found. If the search isn't successful, the value is
-        /// undefined.
-        /// </param>
+        /// <param name="startNode">ID of the first <see cref="IReadOnlyNode{TNodeId, TEdgeId}"/> on the path.</param>
+        /// <param name="endNode">ID of the last <see cref="IReadOnlyNode{TNodeId, TEdgeId}"/> on the path.</param>
         /// <returns>
-        /// <see cref="IEnumerable{T}"/> of type <see cref="IReadOnlyEdge{TNodeId, TEdgeId}"/> with edges on the
-        /// shortest path from <paramref name="startNode"/> to <paramref name="endNode"/>.
+        /// <see cref="Path{TNodeId, TEdgeId}"/> containing a shortest path from <paramref name="startNode"/> to
+        /// <paramref name="endNode"/>.
         /// </returns>
         /// <exception cref="ArgumentException">
         /// <paramref name="startNode"/> or <paramref name="endNode"/> is not present in the <paramref name="graph"/>.
@@ -68,20 +104,92 @@ namespace DataStructures.Graphs
         /// <exception cref="InconsistentGraphException{TNodeId, TEdgeId}">
         /// <paramref name="graph"/> is not consistent.
         /// </exception>
-        public static IEnumerable<IReadOnlyEdge<TNodeId, TEdgeId>> FindShortestPath<TNodeId, TEdgeId>(
+        /// <inheritdoc cref="IReadOnlyGraph{TNodeId, TEdgeId}"/>
+        public static Path<TNodeId, TEdgeId> FindShortestPath<TNodeId, TEdgeId>(
             this IReadOnlyGraph<TNodeId, TEdgeId> graph,
             GraphType graphType,
-            IReadOnlyNode<TNodeId, TEdgeId> startNode,
-            IReadOnlyNode<TNodeId, TEdgeId> endNode,
-            out Weight pathWeight
+            TNodeId startNode,
+            TNodeId endNode
             )
             where TNodeId : IEquatable<TNodeId>
             where TEdgeId : IEquatable<TEdgeId>
         {
-            switch(graphType)
+            var start = graph.GetNode(startNode);
+            if (start == default)
+                throw new ArgumentException($"Node with ID {startNode} is not present in the graph.",
+                    nameof(startNode));
+            var end = graph.GetNode(endNode);
+            if (end == default)
+                throw new ArgumentException($"Node with ID {endNode} is not present in the graph.",
+                    nameof(endNode));
+
+            switch (graphType)
             {
                 case GraphType.NonnegativeWeights:
-                    return graph.DijkstrasAlgorithm(startNode, endNode, out pathWeight);
+                    return graph.DijkstrasAlgorithm(start, end)[end.Id];
+                default:
+                    throw new NotImplementedException();
+            }
+        }
+
+        /// <summary>
+        /// Finds shortest paths in a <see cref="IReadOnlyGraph{TNodeId, TEdgeId}"/> from a
+        /// <see cref="IReadOnlyNode{TNodeId, TEdgeId}"/> to all other nodes.
+        /// </summary>
+        /// <remarks>
+        /// Algorithm for finding the path is chosen based on <paramref name="graphType"/>.
+        /// <list type="bullet">
+        /// <item>
+        /// <see cref="GraphType.Acyclic"/> uses DAG (Directed Acyclic Graph) algorithm with time complexity
+        /// O(<c>n</c> + <c>m</c>),
+        /// </item>
+        /// <item>
+        /// <see cref="GraphType.NonnegativeWeights"/> uses Dijkstra's algorithm with time complexity
+        /// O((<c>n</c> + <c>m</c>) * log(<c>n</c>)),
+        /// </item>
+        /// <item>
+        /// <see cref="GraphType.General"/> uses Bellman-Ford algorithm with time complexity O(<c>n</c> * <c>m</c>)
+        /// for a graph with <c>n</c> nodes and <c>m</c> edges.
+        /// </item>
+        /// </list>
+        /// If <paramref name="graph"/> doesn't fulfil requirements for the given <paramref name="graphType"/>, the behaviour is
+        /// undefined.
+        /// </remarks>
+        /// <param name="graph"><see cref="IReadOnlyGraph{TNodeId, TEdgeId}"/> to search.</param>
+        /// <param name="graphType">
+        /// <see cref="GraphType"/> of the graph. This parameter determines what search algorithm is used.
+        /// See remarks for more information.
+        /// </param>
+        /// <param name="startNode">ID of the first <see cref="IReadOnlyNode{TNodeId, TEdgeId}"/> on the path.</param>
+        /// <returns>
+        /// <see cref="IDictionary{TKey, TValue}"/> with <typeparamref name="TNodeId"/> as key and
+        /// <see cref="Path{TNodeId, TEdgeId}"/> as value, containing shortest paths from <paramref name="startNode"/>
+        /// to all other nodes in the <paramref name="graph"/>.
+        /// </returns>
+        /// <exception cref="ArgumentException">
+        /// <paramref name="startNode"/> is not present in the <paramref name="graph"/>.
+        /// </exception>
+        /// <exception cref="InconsistentGraphException{TNodeId, TEdgeId}">
+        /// <paramref name="graph"/> is not consistent.
+        /// </exception>
+        /// <inheritdoc cref="IReadOnlyGraph{TNodeId, TEdgeId}"/>
+        public static IDictionary<TNodeId, Path<TNodeId, TEdgeId>> FindShortestPaths<TNodeId, TEdgeId>(
+            this IReadOnlyGraph<TNodeId, TEdgeId> graph,
+            GraphType graphType,
+            TNodeId startNode
+            )
+            where TNodeId : IEquatable<TNodeId>
+            where TEdgeId : IEquatable<TEdgeId>
+        {
+            var start = graph.GetNode(startNode);
+            if (start == default)
+                throw new ArgumentException($"Node with ID {startNode} is not present in the graph.",
+                    nameof(startNode));
+
+            switch (graphType)
+            {
+                case GraphType.NonnegativeWeights:
+                    return graph.DijkstrasAlgorithm(start);
                 default:
                     throw new NotImplementedException();
             }
@@ -92,19 +200,25 @@ namespace DataStructures.Graphs
         #region implementation
 
         /// <summary>
-        /// Finds a shortest path in a <see cref="IReadOnlyGraph{TNodeId, TEdgeId}"/> with nonnegative weights between
-        /// two <see cref="IReadOnlyNode{TNodeId, TEdgeId}"/>s using Dijkstra's algorithm.
+        /// Finds shortest paths in a <see cref="IReadOnlyGraph{TNodeId, TEdgeId}"/> with non-negative weights from a
+        /// <see cref="IReadOnlyNode{TNodeId, TEdgeId}"/> to another node or to all other nodes in the
+        /// <paramref name="graph"/> using Dijkstra's algorithm.
         /// </summary>
+        /// <remarks>
+        /// If <paramref name="endNode"/> is <c>null</c>, the returned dictionary will contain paths to all other nodes
+        /// in the <paramref name="graph"/>. Otherwise, only <paramref name="endNode"/> guaranteed to be in the returned
+        /// dictionary. This option is provided for better performance when only a path to a specific node is required.
+        /// </remarks>
         /// <param name="graph"><see cref="IReadOnlyGraph{TNodeId, TEdgeId}"/> to search.</param>
         /// <param name="startNode">Starting <see cref="IReadOnlyNode{TNodeId, TEdgeId}"/> of the path.</param>
-        /// <param name="endNode">Ending <see cref="IReadOnlyNode{TNodeId, TEdgeId}"/> of the path.</param>
-        /// <param name="pathWeight">
-        /// Outputs total weight of the shortest path that was found. If the search isn't successful, the value is
-        /// undefined.
+        /// <param name="endNode">
+        /// Ending <see cref="IReadOnlyNode{TNodeId, TEdgeId}"/> of the path or <c>null</c> if paths to all other nodes
+        /// are required.
         /// </param>
         /// <returns>
-        /// <see cref="IEnumerable{T}"/> of type <see cref="IReadOnlyEdge{TNodeId, TEdgeId}"/> with edges on the
-        /// shortest path from <paramref name="startNode"/> to <paramref name="endNode"/>.
+        /// <see cref="IDictionary{TKey, TValue}"/> with <typeparamref name="TNodeId"/> as key and
+        /// <see cref="Path{TNodeId, TEdgeId}"/> as value, containing shortest paths from <paramref name="startNode"/>
+        /// to other nodes in the <paramref name="graph"/>. See remarks for more detail.
         /// </returns>
         /// <exception cref="ArgumentException">
         /// <paramref name="startNode"/> or <paramref name="endNode"/> is not present in the <paramref name="graph"/>.
@@ -112,41 +226,42 @@ namespace DataStructures.Graphs
         /// <exception cref="InconsistentGraphException{TNodeId, TEdgeId}">
         /// <paramref name="graph"/> is not consistent.
         /// </exception>
-        private static IEnumerable<IReadOnlyEdge<TNodeId, TEdgeId>> DijkstrasAlgorithm<TNodeId, TEdgeId>(
+        /// <inheritdoc cref="IReadOnlyGraph{TNodeId, TEdgeId}"/>
+        private static IDictionary<TNodeId, Path<TNodeId, TEdgeId>> DijkstrasAlgorithm<TNodeId, TEdgeId>(
             this IReadOnlyGraph<TNodeId, TEdgeId> graph,
             IReadOnlyNode<TNodeId, TEdgeId> startNode,
-            IReadOnlyNode<TNodeId, TEdgeId> endNode,
-            out Weight pathWeight
+            IReadOnlyNode<TNodeId, TEdgeId> endNode = null
             )
             where TNodeId : IEquatable<TNodeId>
             where TEdgeId : IEquatable<TEdgeId>
         {
-            var unsolvedNodes = new BinaryHeap<Path<TNodeId, TEdgeId>, IReadOnlyNode<TNodeId, TEdgeId>>(
+            // Initialisation
+            var unsolvedNodes = new BinaryHeap<InternalPath<TNodeId, TEdgeId>, IReadOnlyNode<TNodeId, TEdgeId>>(
                 graph.GetNodes(),
-                () => new Path<TNodeId, TEdgeId>());
+                () => new InternalPath<TNodeId, TEdgeId>());
             try
             {
-                unsolvedNodes.DecreaseKey(startNode, path => path.TotalWeight = 0.Weight());
+                unsolvedNodes.DecreaseKey(startNode, path => path.Weight = 0.Weight());
             }
             catch (ValueNotFoundException e)
             {
                 throw new ArgumentException($"{nameof(startNode)} is not present in the graph.", nameof(startNode), e);
             }
-            var solvedNodes = new HashSet<IReadOnlyNode<TNodeId, TEdgeId>>();
-
+            var solvedNodes = new Dictionary<TNodeId, Path<TNodeId, TEdgeId>>();
+            // Computation part of the algorithm
             while (!unsolvedNodes.IsEmpty
                 && unsolvedNodes.PeekMin().Value != endNode
-                && unsolvedNodes.PeekMin().Key.TotalWeight < double.PositiveInfinity
+                && unsolvedNodes.PeekMin().Key.Weight < Weight.positiveInfinity
                 )
             {
                 var (path, node) = unsolvedNodes.ExtractMin();
-                solvedNodes.Add(node);
+                solvedNodes.Add(node.Id, new Path<TNodeId, TEdgeId>(path.Edges.Reverse(), path.Weight));
                 foreach (var edge in node.GetOutEdges())
                 {
-                    if (solvedNodes.Contains(edge.ToNode))
+                    if (solvedNodes.ContainsKey(edge.ToNode.Id))
                         continue;
-                    Weight currWeight = unsolvedNodes[edge.ToNode].TotalWeight;
-                    Weight newWeight = path.TotalWeight + edge.Weight;
+                    Weight currWeight = unsolvedNodes[edge.ToNode].Weight;
+                    Weight newWeight = path.Weight + edge.Weight;
                     if (newWeight < currWeight)
                     {
                         try
@@ -156,7 +271,7 @@ namespace DataStructures.Graphs
                                 currPath =>
                                 {
                                     currPath.Edges = path.Edges.AddFront(edge);
-                                    currPath.TotalWeight = newWeight;
+                                    currPath.Weight = newWeight;
                                 });
                         }
                         catch (ValueNotFoundException e)
@@ -169,11 +284,20 @@ namespace DataStructures.Graphs
                 }
             }
 
-            if (unsolvedNodes.IsEmpty)
-                throw new ArgumentException($"{nameof(endNode)} is not present in the graph.", nameof(endNode));
-            var (foundPath, _) = unsolvedNodes.PeekMin();
-            pathWeight = foundPath.TotalWeight;
-            return foundPath.Edges.Reverse();
+            if (endNode == null)
+                // Adding unreachable nodes
+                foreach (var (path, node) in unsolvedNodes)
+                    // Edges are not reversed because they should be empty
+                    solvedNodes.Add(node.Id, new Path<TNodeId, TEdgeId>(path.Edges, path.Weight));
+            else
+            {
+                if (unsolvedNodes.IsEmpty)
+                    throw new ArgumentException($"{nameof(endNode)} is not present in the graph.", nameof(endNode));
+                var (path, node) = unsolvedNodes.PeekMin();
+                Debug.Assert(node == endNode);
+                solvedNodes.Add(node.Id, new Path<TNodeId, TEdgeId>(path.Edges.Reverse(), path.Weight));
+            }
+            return solvedNodes;
         }
 
         #region helper_classes
@@ -181,43 +305,44 @@ namespace DataStructures.Graphs
         /// <summary>
         /// Path of edges in a <see cref="IReadOnlyGraph{TNodeId, TEdgeId}"/>.
         /// </summary>
-        private class Path<TNodeId, TEdgeId>
-            : IComparable<Path<TNodeId, TEdgeId>>
+        /// <inheritdoc cref="IReadOnlyGraph{TNodeId, TEdgeId}"/>
+        private class InternalPath<TNodeId, TEdgeId>
+            : IComparable<InternalPath<TNodeId, TEdgeId>>
             where TNodeId : IEquatable<TNodeId>
             where TEdgeId : IEquatable<TEdgeId>
         {
             /// <summary>
-            /// Gets or sets edges of the path.
+            /// Gets or sets edges on the path.
             /// </summary>
             public SinglyLinkedList<IReadOnlyEdge<TNodeId, TEdgeId>> Edges { get; set; }
             /// <summary>
             /// Gets or sets total weight of the path.
             /// </summary>
-            public Weight TotalWeight { get; set; }
+            public Weight Weight { get; set; }
 
             /// <summary>
             /// Creates an empty path with infinite total weight.
             /// </summary>
-            public Path()
+            public InternalPath()
             {
                 Edges = new SinglyLinkedList<IReadOnlyEdge<TNodeId, TEdgeId>>();
-                TotalWeight = double.PositiveInfinity.Weight();
+                Weight = Weight.positiveInfinity;
             }
 
             /// <summary>
-            /// Creates a new path with given <paramref name="edges"/> and <paramref name="totalWeight"/>.
+            /// Creates a new path with given <paramref name="edges"/> and <paramref name="weight"/>.
             /// </summary>
             /// <param name="edges">Edges on the path.</param>
-            /// <param name="totalWeight">Total weight of the path.</param>
-            public Path(SinglyLinkedList<IReadOnlyEdge<TNodeId, TEdgeId>> edges, Weight totalWeight)
+            /// <param name="weight">Total weight of the path.</param>
+            public InternalPath(SinglyLinkedList<IReadOnlyEdge<TNodeId, TEdgeId>> edges, Weight weight)
             {
                 Edges = edges;
-                TotalWeight = totalWeight;
+                Weight = weight;
             }
 
-            public int CompareTo(Path<TNodeId, TEdgeId> other) => TotalWeight.CompareTo(other.TotalWeight);
+            public int CompareTo(InternalPath<TNodeId, TEdgeId> other) => Weight.CompareTo(other.Weight);
 
-            public override string ToString() => $"Path: TW{TotalWeight}";
+            public override string ToString() => $"Internal path: W{Weight}";
         }
 
         #endregion helper_classes

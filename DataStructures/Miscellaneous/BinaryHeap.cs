@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -9,7 +10,7 @@ namespace DataStructures.Miscellaneous
     /// </summary>
     /// <inheritdoc cref="IHeap{TKey, TValue}"/>
     public class BinaryHeap<TKey, TValue>
-        : IHeap<TKey, TValue>
+        : IHeap<TKey, TValue>, IEnumerable<KeyValuePair<TKey, TValue>>
         where TKey : IComparable<TKey>
         where TValue : IEquatable<TValue>
     {
@@ -267,6 +268,10 @@ namespace DataStructures.Miscellaneous
             indexer[heap[i1].Value] = i1;
             indexer[heap[i2].Value] = i2;
         }
+
+        public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() => heap.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
     /// <summary>

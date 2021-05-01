@@ -65,6 +65,9 @@ namespace DataStructures.Graphs
     /// </summary>
     public struct Weight : IComparable<Weight>
     {
+        public static readonly Weight positiveInfinity = new Weight(double.PositiveInfinity);
+        public static readonly Weight negativeInfinity = new Weight(double.NegativeInfinity);
+
         private readonly double value;
 
         public Weight(double value)
