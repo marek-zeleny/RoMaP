@@ -84,8 +84,10 @@ namespace DataStructures.Graphs
         /// for a graph with <c>n</c> nodes and <c>m</c> edges.
         /// </item>
         /// </list>
-        /// If <paramref name="graph"/> doesn't fulfil requirements for the given <paramref name="graphType"/>, the behaviour is
-        /// undefined.
+        /// If <paramref name="graph"/> doesn't fulfil requirements for the given <paramref name="graphType"/>, the
+        /// behaviour is undefined.
+        /// The algorithm can use a custom <paramref name="weightFunction"/> for computing weights. If no function is
+        /// given, a default implementation is used (returns <see cref="IReadOnlyEdge{TNodeId, TEdgeId}.Weight"/>).
         /// </remarks>
         /// <param name="graph"><see cref="IReadOnlyGraph{TNodeId, TEdgeId}"/> to search.</param>
         /// <param name="graphType">
@@ -94,6 +96,10 @@ namespace DataStructures.Graphs
         /// </param>
         /// <param name="startNode">ID of the first <see cref="IReadOnlyNode{TNodeId, TEdgeId}"/> on the path.</param>
         /// <param name="endNode">ID of the last <see cref="IReadOnlyNode{TNodeId, TEdgeId}"/> on the path.</param>
+        /// <param name="weightFunction">
+        /// Function for computing weight of an <see cref="IReadOnlyEdge{TNodeId, TEdgeId}"/>. If <c>null</c>, a default
+        /// implementation will be used (see remarks).
+        /// </param>
         /// <returns>
         /// <see cref="Path{TNodeId, TEdgeId}"/> containing a shortest path from <paramref name="startNode"/> to
         /// <paramref name="endNode"/>.
@@ -109,7 +115,8 @@ namespace DataStructures.Graphs
             this IReadOnlyGraph<TNodeId, TEdgeId> graph,
             GraphType graphType,
             TNodeId startNode,
-            TNodeId endNode
+            TNodeId endNode,
+            Func<IReadOnlyEdge<TNodeId, TEdgeId>, Weight> weightFunction = null
             )
             where TNodeId : IEquatable<TNodeId>
             where TEdgeId : IEquatable<TEdgeId>
@@ -126,7 +133,7 @@ namespace DataStructures.Graphs
             switch (graphType)
             {
                 case GraphType.NonnegativeWeights:
-                    return graph.DijkstrasAlgorithm(start, end)[end.Id];
+                    return graph.DijkstrasAlgorithm(start, end, weightFunction)[end.Id];
                 default:
                     throw new NotImplementedException();
             }
@@ -152,8 +159,10 @@ namespace DataStructures.Graphs
         /// for a graph with <c>n</c> nodes and <c>m</c> edges.
         /// </item>
         /// </list>
-        /// If <paramref name="graph"/> doesn't fulfil requirements for the given <paramref name="graphType"/>, the behaviour is
-        /// undefined.
+        /// If <paramref name="graph"/> doesn't fulfil requirements for the given <paramref name="graphType"/>,
+        /// the behaviour is undefined.
+        /// The algorithm can use a custom <paramref name="weightFunction"/> for computing weights. If no function is
+        /// given, a default implementation is used (returns <see cref="IReadOnlyEdge{TNodeId, TEdgeId}.Weight"/>).
         /// </remarks>
         /// <param name="graph"><see cref="IReadOnlyGraph{TNodeId, TEdgeId}"/> to search.</param>
         /// <param name="graphType">
@@ -161,6 +170,10 @@ namespace DataStructures.Graphs
         /// See remarks for more information.
         /// </param>
         /// <param name="startNode">ID of the first <see cref="IReadOnlyNode{TNodeId, TEdgeId}"/> on the path.</param>
+        /// <param name="weightFunction">
+        /// Function for computing weight of an <see cref="IReadOnlyEdge{TNodeId, TEdgeId}"/>. If <c>null</c>, a default
+        /// implementation will be used (see remarks).
+        /// </param>
         /// <returns>
         /// <see cref="IDictionary{TKey, TValue}"/> with <typeparamref name="TNodeId"/> as key and
         /// <see cref="Path{TNodeId, TEdgeId}"/> as value, containing shortest paths from <paramref name="startNode"/>
@@ -176,7 +189,8 @@ namespace DataStructures.Graphs
         public static IDictionary<TNodeId, Path<TNodeId, TEdgeId>> FindShortestPaths<TNodeId, TEdgeId>(
             this IReadOnlyGraph<TNodeId, TEdgeId> graph,
             GraphType graphType,
-            TNodeId startNode
+            TNodeId startNode,
+            Func<IReadOnlyEdge<TNodeId, TEdgeId>, Weight> weightFunction = null
             )
             where TNodeId : IEquatable<TNodeId>
             where TEdgeId : IEquatable<TEdgeId>
@@ -189,7 +203,7 @@ namespace DataStructures.Graphs
             switch (graphType)
             {
                 case GraphType.NonnegativeWeights:
-                    return graph.DijkstrasAlgorithm(start);
+                    return graph.DijkstrasAlgorithm(start, null, weightFunction);
                 default:
                     throw new NotImplementedException();
             }
@@ -208,12 +222,18 @@ namespace DataStructures.Graphs
         /// If <paramref name="endNode"/> is <c>null</c>, the returned dictionary will contain paths to all other nodes
         /// in the <paramref name="graph"/>. Otherwise, only <paramref name="endNode"/> guaranteed to be in the returned
         /// dictionary. This option is provided for better performance when only a path to a specific node is required.
+        /// The algorithm can use a custom <paramref name="weightFunction"/> for computing weights. If no function is
+        /// given, a default implementation is used (returns <see cref="IReadOnlyEdge{TNodeId, TEdgeId}.Weight"/>).
         /// </remarks>
         /// <param name="graph"><see cref="IReadOnlyGraph{TNodeId, TEdgeId}"/> to search.</param>
         /// <param name="startNode">Starting <see cref="IReadOnlyNode{TNodeId, TEdgeId}"/> of the path.</param>
         /// <param name="endNode">
         /// Ending <see cref="IReadOnlyNode{TNodeId, TEdgeId}"/> of the path or <c>null</c> if paths to all other nodes
         /// are required.
+        /// </param>
+        /// <param name="weightFunction">
+        /// Function for computing weight of an <see cref="IReadOnlyEdge{TNodeId, TEdgeId}"/>. If <c>null</c>, a default
+        /// implementation will be used (see remarks).
         /// </param>
         /// <returns>
         /// <see cref="IDictionary{TKey, TValue}"/> with <typeparamref name="TNodeId"/> as key and
@@ -230,12 +250,15 @@ namespace DataStructures.Graphs
         private static IDictionary<TNodeId, Path<TNodeId, TEdgeId>> DijkstrasAlgorithm<TNodeId, TEdgeId>(
             this IReadOnlyGraph<TNodeId, TEdgeId> graph,
             IReadOnlyNode<TNodeId, TEdgeId> startNode,
-            IReadOnlyNode<TNodeId, TEdgeId> endNode = null
+            IReadOnlyNode<TNodeId, TEdgeId> endNode = null,
+            Func<IReadOnlyEdge<TNodeId, TEdgeId>, Weight> weightFunction = null
             )
             where TNodeId : IEquatable<TNodeId>
             where TEdgeId : IEquatable<TEdgeId>
         {
             // Initialisation
+            if (weightFunction == null)
+                weightFunction = edge => edge.Weight;
             var unsolvedNodes = new BinaryHeap<InternalPath<TNodeId, TEdgeId>, IReadOnlyNode<TNodeId, TEdgeId>>(
                 graph.GetNodes(),
                 () => new InternalPath<TNodeId, TEdgeId>());
@@ -261,7 +284,7 @@ namespace DataStructures.Graphs
                     if (solvedNodes.ContainsKey(edge.ToNode.Id))
                         continue;
                     Weight currWeight = unsolvedNodes[edge.ToNode].Weight;
-                    Weight newWeight = path.Weight + edge.Weight;
+                    Weight newWeight = path.Weight + weightFunction(edge);
                     if (newWeight < currWeight)
                     {
                         try
