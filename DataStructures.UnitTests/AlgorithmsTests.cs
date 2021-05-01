@@ -1,20 +1,123 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using System;
-
-using DataStructures.Graphs;
 using System.Collections.Generic;
 using System.Linq;
+
+using DataStructures.Graphs;
 
 namespace DataStructures.UnitTests
 {
     [TestClass]
     public class AlgorithmsTests
     {
+        private struct Path
+        {
+            public int from;
+            public int to;
+            public Weight weight;
+            public List<IReadOnlyEdge<int, int>> edges;
+        }
+
+        private IReadOnlyGraph<int, int> smallGraph;
+        private IReadOnlyList<Path> smallGraphExamplePaths;
+        private IReadOnlyGraph<int, int> largeGraph;
+        private IReadOnlyList<Path> largeGraphExamplePaths;
+
+        [TestInitialize]
+        public void InitializeGraphs()
+        {
+            InitialiseSmallGraph();
+            InitialiseLargeGraph();
+        }
+
+        [DataTestMethod]
+        [DataRow(Algorithms.GraphType.Acyclic)]
+        [DataRow(Algorithms.GraphType.NonnegativeWeights)]
+        [DataRow(Algorithms.GraphType.General)]
+        [ExpectedException(typeof(ArgumentException))]
+        public void FindShortestPath_NonexistingStart_ExpectedArgumentException(Algorithms.GraphType graphType)
+        {
+            smallGraph.FindShortestPath(graphType, -5, 1);
+        }
+
+        [DataTestMethod]
+        [DataRow(Algorithms.GraphType.Acyclic)]
+        [DataRow(Algorithms.GraphType.NonnegativeWeights)]
+        [DataRow(Algorithms.GraphType.General)]
+        [ExpectedException(typeof(ArgumentException))]
+        public void FindShortestPath_NonexistingEnd_ExpectedArgumentException(Algorithms.GraphType graphType)
+        {
+            smallGraph.FindShortestPath(graphType, 1, -3);
+        }
+
+        [DataTestMethod]
+        [DataRow(Algorithms.GraphType.Acyclic)]
+        [DataRow(Algorithms.GraphType.NonnegativeWeights)]
+        [DataRow(Algorithms.GraphType.General)]
+        [ExpectedException(typeof(ArgumentException))]
+        public void FindShortestPaths_NonexistingStart_ExpectedArgumentException(Algorithms.GraphType graphType)
+        {
+            smallGraph.FindShortestPaths(graphType, -5);
+        }
+
         [TestMethod]
         public void FindShortestPath_NonnegativeWeights_SmallGraph()
         {
-            // Arrange
+            FindShortestPath(smallGraph, smallGraphExamplePaths, Algorithms.GraphType.NonnegativeWeights);
+        }
+
+        [TestMethod]
+        public void FindShortestPath_NonnegativeWeights_LargeGraph()
+        {
+            FindShortestPath(largeGraph, largeGraphExamplePaths, Algorithms.GraphType.NonnegativeWeights);
+        }
+
+        [TestMethod]
+        public void FindShortestPaths_NonnegativeWeights_SmallGraph()
+        {
+            FindShortestPaths(smallGraph, smallGraphExamplePaths, Algorithms.GraphType.NonnegativeWeights);
+        }
+
+        [TestMethod]
+        public void FindShortestPaths_NonnegativeWeights_LargeGraph()
+        {
+            FindShortestPaths(largeGraph, largeGraphExamplePaths, Algorithms.GraphType.NonnegativeWeights);
+        }
+
+        private void FindShortestPath(IReadOnlyGraph<int, int> graph, IReadOnlyList<Path> examplePaths,
+            Algorithms.GraphType graphType)
+        {
+            foreach (var exPath in examplePaths)
+            {
+                // Act
+                var path = graph.FindShortestPath(graphType, exPath.from, exPath.to);
+
+                // Assert
+                CollectionAssert.AreEqual(exPath.edges, path.Edges.ToList());
+                Assert.AreEqual(exPath.weight, path.Weight);
+            }
+        }
+
+        private void FindShortestPaths(IReadOnlyGraph<int, int> graph, IReadOnlyList<Path> examplePaths,
+            Algorithms.GraphType graphType)
+        {
+            var paths = new Dictionary<int, IDictionary<int, Algorithms.Path<int, int>>>(examplePaths.Count);
+            foreach (var exPath in examplePaths)
+            {
+                // Act
+                if (!paths.ContainsKey(exPath.from))
+                    paths[exPath.from] = graph.FindShortestPaths(graphType, exPath.from);
+
+                // Assert
+                var path = paths[exPath.from][exPath.to];
+                CollectionAssert.AreEqual(exPath.edges, path.Edges.ToList());
+                Assert.AreEqual(exPath.weight, path.Weight);
+            }
+        }
+
+        private void InitialiseSmallGraph()
+        {
             IGraph<int, int> graph = new Graph<int, int>();
             INode<int, int> node1 = new Node<int, int>(1);
             INode<int, int> node2 = new Node<int, int>(2);
@@ -32,27 +135,21 @@ namespace DataStructures.UnitTests
             graph.AddEdge(edge2);
             graph.AddEdge(edge3);
 
-            // Act
-            var path1 = graph.FindShortestPath(Algorithms.GraphType.NonnegativeWeights, node1, node3, out Weight pathWeight1);
-            var path2 = graph.FindShortestPath(Algorithms.GraphType.NonnegativeWeights, node2, node1, out Weight pathWeight2);
-            var path3 = graph.FindShortestPath(Algorithms.GraphType.NonnegativeWeights, node3, node3, out Weight pathWeight3);
+            var path1to3 = new List<IReadOnlyEdge<int, int>> { edge1, edge3 };
+            var path2to1 = new List<IReadOnlyEdge<int, int>>();
+            var path3to3 = new List<IReadOnlyEdge<int, int>>();
 
-            // Assert
-            var expectedPath1 = new List<IReadOnlyEdge<int, int>> { edge1, edge3 };
-            var expectedPath2 = new List<IReadOnlyEdge<int, int>>();
-            var expectedPath3 = new List<IReadOnlyEdge<int, int>>();
-            CollectionAssert.AreEqual(expectedPath1, path1.ToList());
-            CollectionAssert.AreEqual(expectedPath2, path2.ToList());
-            CollectionAssert.AreEqual(expectedPath3, path3.ToList());
-            Assert.AreEqual(12.Weight(), pathWeight1);
-            Assert.AreEqual(double.PositiveInfinity.Weight(), pathWeight2);
-            Assert.AreEqual(0.Weight(), pathWeight3);
+            var examplePaths = new List<Path>(3);
+            examplePaths.Add(new Path { from = 1, to = 3, weight = 12.Weight(), edges = path1to3 });
+            examplePaths.Add(new Path { from = 2, to = 1, weight = Weight.positiveInfinity, edges = path2to1 });
+            examplePaths.Add(new Path { from = 3, to = 3, weight = 0.Weight(), edges = path3to3 });
+
+            smallGraph = graph;
+            smallGraphExamplePaths = examplePaths;
         }
 
-        [TestMethod]
-        public void FindShortestPath_NonnegativeWeights_LargeGraph()
+        private void InitialiseLargeGraph()
         {
-            // Arrange
             IGraph<int, int> graph = new Graph<int, int>();
             INode<int, int> node1 = new Node<int, int>(1);
             INode<int, int> node2 = new Node<int, int>(2);
@@ -108,13 +205,12 @@ namespace DataStructures.UnitTests
             graph.AddEdge(edge15);
             graph.AddEdge(edge16);
 
-            // Act
-            var path1 = graph.FindShortestPath(Algorithms.GraphType.NonnegativeWeights, node2, node9, out Weight pathWeight1);
+            var path2to9 = new List<IReadOnlyEdge<int, int>> { edge3, edge6, edge10, edge16 };
+            var examplePaths = new List<Path>(1);
+            examplePaths.Add(new Path { from = 2, to = 9, edges = path2to9, weight = 25.Weight() });
 
-            // Assert
-            var expectedPath1 = new List<IReadOnlyEdge<int, int>> { edge3, edge6, edge10, edge16 };
-            CollectionAssert.AreEqual(expectedPath1, path1.ToList());
-            Assert.AreEqual(25.Weight(), pathWeight1);
+            largeGraph = graph;
+            largeGraphExamplePaths = examplePaths;
         }
     }
 }
