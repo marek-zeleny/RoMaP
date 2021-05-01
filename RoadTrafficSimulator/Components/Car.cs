@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 
 using RoadTrafficSimulator.ValueTypes;
-using DataStructures.Graphs;
 using RoadTrafficSimulator.Statistics;
 
 namespace RoadTrafficSimulator.Components
@@ -20,10 +19,10 @@ namespace RoadTrafficSimulator.Components
 
         private static MillimetresPerSecond CalculateOptimalSpeed(Millimetres freeSpace, MillimetresPerSecond carInFrontSpeed)
         {
-            // Calculate optimal speed using the following formula, the result is nonnegative
+            // Calculate optimal speed using the following formula, the result is non-negative
             // v = sqrt((a_d t_r)^2 + 2 a_d (s_d - d) + v_f^2) - a_d t_r
             // For more details and derivation of this formula see the programming documentation
-            // Has to be calculated in integers instead of the type system because of nonstandard intermediate units
+            // Has to be calculated in integers instead of the type system because of non-standard intermediate units
             // (mm^2 / s^2), also need to use 64-bit integers because of large intermediate results
             // All defined multiplications and divisions should be done within the type system for safety
 
@@ -49,7 +48,7 @@ namespace RoadTrafficSimulator.Components
         #endregion static
 
         private readonly Action<Statistics> finishDriveAction;
-        private Navigation navigation;
+        private INavigation navigation;
         private Statistics statistics;
         private Millimetres distance;
         private bool newRoad;
@@ -62,13 +61,12 @@ namespace RoadTrafficSimulator.Components
         private Car CarInFront { get; set; }
         public Car CarBehind { get; private set; }
 
-        public Car(Millimetres length, IReadOnlyGraph<Coords, int> map, Crossroad start, Crossroad finish, IClock clock,
-            Action<Statistics> finishDriveAction)
+        public Car(Millimetres length, INavigation navigation, Action<Statistics> finishDriveAction)
         {
             Id = nextId++;
             Length = length;
-            navigation = new Navigation(map, start, finish, clock, out Milliseconds expectedDuration);
-            statistics = new Statistics(clock, Id, expectedDuration, navigation.CurrentRoad.Id);
+            this.navigation = navigation;
+            statistics = new Statistics(navigation.Clock, Id, navigation.RemainingDuration, navigation.CurrentRoad.Id);
             this.finishDriveAction = finishDriveAction;
         }
 
