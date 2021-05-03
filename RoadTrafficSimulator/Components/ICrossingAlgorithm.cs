@@ -7,7 +7,7 @@ namespace RoadTrafficSimulator.Components
         bool CanCross(int fromRoadId, int toRoadId);
     }
 
-    public struct Direction : IEquatable<Direction>
+    public readonly struct Direction : IEquatable<Direction>
     {
         public readonly int fromRoadId, toRoadId;
 
@@ -31,7 +31,7 @@ namespace RoadTrafficSimulator.Components
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(fromRoadId, toRoadId);
+            return HashCode.Combine(fromRoadId.GetHashCode(), toRoadId.GetHashCode());
         }
 
         public static bool operator ==(Direction first, Direction second)

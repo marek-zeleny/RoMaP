@@ -1,9 +1,19 @@
 ﻿using System;
+using System.Diagnostics;
 
 namespace RoadTrafficSimulator.ValueTypes
 {
-    struct MillimetresPerSecond
+    readonly struct MillimetresPerSecond
     {
+        public const int precision = 1000;
+        private const string unit = "mmps";
+        private const int convertToTimeCoef = Milliseconds.precision * precision / Millimetres.precision;
+
+        static MillimetresPerSecond()
+        {
+            Debug.Assert(convertToTimeCoef > 0);
+        }
+
         private readonly int value;
 
         public MillimetresPerSecond(int value)
@@ -25,7 +35,7 @@ namespace RoadTrafficSimulator.ValueTypes
             new MillimetresPerSecond(mmps1.value - mmps2.value);
 
         public static Milliseconds operator /(Millimetres mm, MillimetresPerSecond mmps) =>
-            new Milliseconds(1000 * (int)mm / mmps.value);
+            new Milliseconds(convertToTimeCoef * (int)mm / mmps.value);
 
         public static MetresPerSecondPerSecond operator /(MillimetresPerSecond mmps, Milliseconds ms) =>
             new MetresPerSecondPerSecond(mmps.value / (int)ms);
@@ -38,6 +48,6 @@ namespace RoadTrafficSimulator.ValueTypes
         public static MillimetresPerSecond operator /(MillimetresPerSecond mmps, int i) =>
             new MillimetresPerSecond(mmps.value / i);
 
-        public override string ToString() => string.Format("{0:N0}mmps", value);
+        public override string ToString() => $"{value:N0}{unit}";
     }
 }

@@ -2,7 +2,7 @@
 
 namespace RoadTrafficSimulator.ValueTypes
 {
-    struct Coords : IEquatable<Coords>
+    readonly struct Coords : IEquatable<Coords>
     {
         public readonly int x, y;
 
@@ -23,7 +23,12 @@ namespace RoadTrafficSimulator.ValueTypes
             return false;
         }
 
-        public override string ToString() => string.Format("({0};{1})", x, y);
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(x.GetHashCode(), y.GetHashCode());
+        }
+
+        public override string ToString() => $"({x};{y})";
 
         public static bool operator ==(Coords first, Coords second) => first.Equals(second);
 

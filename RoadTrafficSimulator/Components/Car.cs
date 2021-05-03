@@ -24,10 +24,12 @@ namespace RoadTrafficSimulator.Components
             // For more details and derivation of this formula see the programming documentation
             // Has to be calculated in integers instead of the type system because of non-standard intermediate units
             // (mm^2 / s^2), also need to use 64-bit integers because of large intermediate results
-            // All defined multiplications and divisions should be done within the type system for safety
+            // All defined multiplications and divisions should be done within the type system or use the precision
+            // constants for correct conversion
 
-            // CAREFUL! Needs to be converted to mm^2 / s^2
-            long x = (long)deceleration * (long)freeSpace * 1000; // a_d (s_d - d)
+            long convertCoef = (MillimetresPerSecond.precision * MillimetresPerSecond.precision) /
+                (MetresPerSecondPerSecond.precision * Millimetres.precision);
+            long x = (long)deceleration * (long)freeSpace * convertCoef; // a_d (s_d - d)
             long v_f = carInFrontSpeed;
             long v;
             if (v_f == 0)

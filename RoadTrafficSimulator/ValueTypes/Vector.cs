@@ -2,7 +2,7 @@
 
 namespace RoadTrafficSimulator.ValueTypes
 {
-    struct Vector : IEquatable<Vector>
+    readonly struct Vector : IEquatable<Vector>
     {
         public readonly Coords from, to;
 
@@ -33,7 +33,12 @@ namespace RoadTrafficSimulator.ValueTypes
             return false;
         }
 
-        public override string ToString() => string.Format("<{0},{1}>", from, to);
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(from.GetHashCode(), to.GetHashCode());
+        }
+
+        public override string ToString() => $"<{from},{to}>";
 
         public static bool operator ==(Vector first, Vector second) => first.Equals(second);
 
