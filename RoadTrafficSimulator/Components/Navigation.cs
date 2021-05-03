@@ -19,10 +19,18 @@ namespace RoadTrafficSimulator.Components
 
     class CentralNavigation
     {
-        private struct Timestamp
+        private readonly struct Timestamp
         {
-            public Milliseconds time;
-            public Algorithms.Path<Coords, int> path;
+            public readonly Milliseconds searchTime;
+            public readonly Road nextRoad; // null if this is the destination node
+            public readonly Weight remainingWeight;
+
+            public Timestamp(Milliseconds searchTime, Road nextRoad, Weight remainingWeight)
+            {
+                this.searchTime = searchTime;
+                this.nextRoad = nextRoad;
+                this.remainingWeight = remainingWeight;
+            }
         }
 
         private Map map;
@@ -43,22 +51,35 @@ namespace RoadTrafficSimulator.Components
                 return new PassiveNavigation(this, from, to);
         }
 
-        private Algorithms.Path<Coords, int> GetFastestPath(Coords from, Coords to)
+        private (Road nextRoad, Weight remainingWeight) GetNextRoad(Coords from, Coords destination)
         {
-            UpdateCache(from, to);
-            return pathsCache[from][to].path;
+            UpdateCache(from, destination);
+            Timestamp t = pathsCache[from][destination];
+            return (t.nextRoad, t.remainingWeight);
         }
 
         private void UpdateCache(Coords from, Coords to)
         {
             if (pathsCache.ContainsKey(from)
                 && pathsCache[from].ContainsKey(to)
-                && pathsCache[from][to].time >= clock.Time)
+                && pathsCache[from][to].searchTime >= clock.Time)
                 return;
+
             var paths = map.FindShortestPaths(Algorithms.GraphType.NonnegativeWeights, from,
                 edge => ((Road)edge).AverageDuration.Weight());
-            foreach (var (destination, path) in paths)
-                pathsCache[from][destination] = new Timestamp { time = clock.Time, path = path };
+            foreach (var (dest, path) in paths)
+            {
+                Debug.Assert(path.TotalWeight < Weight.positiveInfinity);
+                Road prevRoad = null;
+                foreach (var segment in path.ReversedPathSegments)
+                {
+                    if (pathsCache[segment.Edge.ToNode.Id][dest].searchTime < clock.Time)
+                        pathsCache[segment.Edge.ToNode.Id][dest] = new Timestamp(
+                            clock.Time, prevRoad, path.TotalWeight - segment.TotalWeight);
+                    prevRoad = (Road)segment.Edge;
+                }
+                pathsCache[from][dest] = new Timestamp(clock.Time, prevRoad, path.TotalWeight);
+            }
         }
 
         private class PassiveNavigation : INavigation
@@ -76,12 +97,13 @@ namespace RoadTrafficSimulator.Components
             {
                 this.central = central;
                 var path = central.map.FindShortestPath(Algorithms.GraphType.NonnegativeWeights, start, finish);
-                Debug.Assert(path.Weight < Weight.positiveInfinity);
-                RemainingDuration = new Milliseconds((int)path.Weight);
+                Debug.Assert(path.TotalWeight < Weight.positiveInfinity);
+                RemainingDuration = new Milliseconds((int)path.TotalWeight);
 
                 // TODO: try remainingPath = ((IEnumerable<Road>)e).GetEnumerator();
-                remainingPath = path.Edges.Select(edge => (Road)edge).GetEnumerator();
-                Debug.Assert(remainingPath.MoveNext());
+                remainingPath = path.GetEdges().Select(edge => (Road)edge).GetEnumerator();
+                bool success = remainingPath.MoveNext();
+                Debug.Assert(success);
                 CurrentRoad = remainingPath.Current;
                 nextRoadExists = remainingPath.MoveNext();
             }
@@ -99,8 +121,9 @@ namespace RoadTrafficSimulator.Components
 
         private class ActiveNavigation : INavigation
         {
-            private CentralNavigation central;
-            private Coords destination;
+            private readonly CentralNavigation central;
+            private readonly Coords destination;
+            private Milliseconds nextRemainingDuration;
 
             public IClock Clock => central.clock;
             public Milliseconds RemainingDuration { get; private set; }
@@ -111,17 +134,11 @@ namespace RoadTrafficSimulator.Components
             {
                 this.central = central;
                 destination = finish;
-                var path = central.GetFastestPath(start, finish);
-                Debug.Assert(path.Weight < Weight.positiveInfinity);
-                RemainingDuration = new Milliseconds((int)path.Weight);
 
-                var edges = path.Edges.GetEnumerator();
-                Debug.Assert(edges.MoveNext());
-                CurrentRoad = (Road)edges.Current;
-                if (edges.MoveNext())
-                    NextRoad = (Road)edges.Current;
-                else
-                    NextRoad = null;
+                var (firstRoad, totalWeight) = central.GetNextRoad(start, finish);
+                RemainingDuration = new Milliseconds((int)totalWeight);
+                CurrentRoad = firstRoad;
+                UpdateNextRoad();
             }
 
             public void MoveToNextRoad()
@@ -130,13 +147,15 @@ namespace RoadTrafficSimulator.Components
                     throw new InvalidOperationException("Cannot move to the next road when the navigation is already" +
                         "at the end of the path.");
                 CurrentRoad = NextRoad;
-                var path = central.GetFastestPath(CurrentRoad.ToNode.Id, destination);
-                Debug.Assert(path.Weight < Weight.positiveInfinity);
-                RemainingDuration = new Milliseconds((int)path.Weight);
+                RemainingDuration = nextRemainingDuration;
+                UpdateNextRoad();
+            }
 
-                var edges = path.Edges.GetEnumerator();
-                Debug.Assert(edges.MoveNext());
-                NextRoad = (Road)edges.Current;
+            private void UpdateNextRoad()
+            {
+                var (nextRoad, remainingWeight) = central.GetNextRoad(CurrentRoad.ToNode.Id, destination);
+                nextRemainingDuration = new Milliseconds((int)remainingWeight);
+                NextRoad = nextRoad;
             }
         }
     }
