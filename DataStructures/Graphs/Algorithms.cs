@@ -42,26 +42,71 @@ namespace DataStructures.Graphs
             where TEdgeId : IEquatable<TEdgeId>
         {
             /// <summary>
-            /// Gets edges on the path.
+            /// Segment of a <see cref="Path{TNodeId, TEdgeId}"/>.
             /// </summary>
-            public IEnumerable<IReadOnlyEdge<TNodeId, TEdgeId>> Edges { get; }
+            /// <remarks>
+            /// Contains an edge and a total <see cref="Weight"/> of the path from the starting node up to this edge.
+            /// </remarks>
+            public readonly struct Segment
+            {
+                /// <summary>
+                /// Gets the edge of forming the <see cref="Segment"/>.
+                /// </summary>
+                public IReadOnlyEdge<TNodeId, TEdgeId> Edge { get; }
+                /// <summary>
+                /// Gets total weight of a <see cref="Path{TNodeId, TEdgeId}"/> from the starting node up to the
+                /// segment's <see cref="Edge"/>.
+                /// </summary>
+                public Weight TotalWeight { get; }
+
+                /// <summary>
+                /// Creates a new path segment of a given <paramref name="edge"/> and <paramref name="totalWeight"/>.
+                /// </summary>
+                /// <param name="edge">Edge forming the segment.</param>
+                /// <param name="totalWeight">Total weight of the path up to the created segment.</param>
+                public Segment(IReadOnlyEdge<TNodeId, TEdgeId> edge, Weight totalWeight)
+                {
+                    Edge = edge;
+                    TotalWeight = totalWeight;
+                }
+
+                public override string ToString() => $"Path segment: TW{TotalWeight}";
+            }
+
             /// <summary>
             /// Gets total weight of the path.
             /// </summary>
-            public Weight Weight { get; }
+            public Weight TotalWeight { get; }
+            /// <summary>
+            /// Gets raw path segments forming the <see cref="Path{TNodeId, TEdgeId}"/>, ordered form end to start.
+            /// </summary>
+            /// <remarks>
+            /// This is an O(1) operation.
+            /// </remarks>
+            public IEnumerable<Segment> ReversedPathSegments { get; }
 
             /// <summary>
-            /// Creates a new path with given <paramref name="edges"/> and <paramref name="weight"/>.
+            /// Creates a new path consisting of given <see cref="Segment"/>s.
             /// </summary>
-            /// <param name="edges">Edges on the path.</param>
-            /// <param name="weight">Total weight of the path.</param>
-            public Path(IEnumerable<IReadOnlyEdge<TNodeId, TEdgeId>> edges, Weight weight)
+            /// <param name="reversedPathSegments">Segments forming the path (ordered form end to start).</param>
+            public Path(IEnumerable<Segment> reversedPathSegments)
             {
-                Edges = edges;
-                Weight = weight;
+                TotalWeight = reversedPathSegments.First().TotalWeight;
+                ReversedPathSegments = reversedPathSegments.SkipLast(1);
             }
 
-            public override string ToString() => $"Path: W{Weight}";
+            /// <summary>
+            /// Gets edges forming the <see cref="Path{TNodeId, TEdgeId}"/> in the forward order (from start to end).
+            /// </summary>
+            /// <remarks>
+            /// This is an O(<c>n</c>) operation for <c>n</c> edges, since the edges are stored in reversed order.
+            /// </remarks>
+            public IEnumerable<IReadOnlyEdge<TNodeId, TEdgeId>> GetEdges()
+            {
+                return ReversedPathSegments.Reverse().Select(segment => segment.Edge);
+            }
+
+            public override string ToString() => $"Path: W{TotalWeight}";
         }
 
         /// <summary>
@@ -256,46 +301,58 @@ namespace DataStructures.Graphs
             where TNodeId : IEquatable<TNodeId>
             where TEdgeId : IEquatable<TEdgeId>
         {
+            // Local functions
+            static Path<TNodeId, TEdgeId>.Segment GetDefaultSegment() =>
+                new Path<TNodeId, TEdgeId>.Segment(null, Weight.positiveInfinity);
+
+            static SinglyLinkedList<Path<TNodeId, TEdgeId>.Segment> InitialisePath() =>
+                new SinglyLinkedList<Path<TNodeId, TEdgeId>.Segment>(GetDefaultSegment());
+
+            IComparer<SinglyLinkedList<Path<TNodeId, TEdgeId>.Segment>> pathComparer =
+                Comparer<SinglyLinkedList<Path<TNodeId, TEdgeId>.Segment>>.Create(
+                    (l1, l2) => l1.FirstNode.Data.TotalWeight.CompareTo(l2.FirstNode.Data.TotalWeight));
+
             // Initialisation
             if (weightFunction == null)
                 weightFunction = edge => edge.Weight;
-            var unsolvedNodes = new BinaryHeap<InternalPath<TNodeId, TEdgeId>, IReadOnlyNode<TNodeId, TEdgeId>>(
-                graph.GetNodes(),
-                () => new InternalPath<TNodeId, TEdgeId>());
+            var unsolvedNodes =
+                new BinaryHeap<SinglyLinkedList<Path<TNodeId, TEdgeId>.Segment>, IReadOnlyNode<TNodeId, TEdgeId>>(
+                    graph.GetNodes(),
+                    InitialisePath,
+                    pathComparer);
             try
             {
-                unsolvedNodes.DecreaseKey(startNode, path => path.Weight = 0.Weight());
+                var startPath = new SinglyLinkedList<Path<TNodeId, TEdgeId>.Segment>(
+                    new Path<TNodeId, TEdgeId>.Segment(null, 0.Weight()));
+                unsolvedNodes.DecreaseKey(startNode, startPath);
             }
             catch (ValueNotFoundException e)
             {
                 throw new ArgumentException($"{nameof(startNode)} is not present in the graph.", nameof(startNode), e);
             }
             var solvedNodes = new Dictionary<TNodeId, Path<TNodeId, TEdgeId>>();
+
             // Computation part of the algorithm
             while (!unsolvedNodes.IsEmpty
                 && unsolvedNodes.PeekMin().Value != endNode
-                && unsolvedNodes.PeekMin().Key.Weight < Weight.positiveInfinity
+                && unsolvedNodes.PeekMin().Key.FirstNode.Data.TotalWeight < Weight.positiveInfinity
                 )
             {
                 var (path, node) = unsolvedNodes.ExtractMin();
-                solvedNodes.Add(node.Id, new Path<TNodeId, TEdgeId>(path.Edges.Reverse(), path.Weight));
+                solvedNodes.Add(node.Id, new Path<TNodeId, TEdgeId>(path));
                 foreach (var edge in node.GetOutEdges())
                 {
                     if (solvedNodes.ContainsKey(edge.ToNode.Id))
                         continue;
-                    Weight currWeight = unsolvedNodes[edge.ToNode].Weight;
-                    Weight newWeight = path.Weight + weightFunction(edge);
+                    Weight currWeight = unsolvedNodes[edge.ToNode].FirstNode.Data.TotalWeight;
+                    Weight newWeight = path.FirstNode.Data.TotalWeight + weightFunction(edge);
                     if (newWeight < currWeight)
                     {
                         try
                         {
                             unsolvedNodes.DecreaseKey(
                                 edge.ToNode,
-                                currPath =>
-                                {
-                                    currPath.Edges = path.Edges.AddFront(edge);
-                                    currPath.Weight = newWeight;
-                                });
+                                path.AddFront(new Path<TNodeId, TEdgeId>.Segment(edge, newWeight)));
                         }
                         catch (ValueNotFoundException e)
                         {
@@ -310,65 +367,17 @@ namespace DataStructures.Graphs
             if (endNode == null)
                 // Adding unreachable nodes
                 foreach (var (path, node) in unsolvedNodes)
-                    // Edges are not reversed because they should be empty
-                    solvedNodes.Add(node.Id, new Path<TNodeId, TEdgeId>(path.Edges, path.Weight));
+                    solvedNodes.Add(node.Id, new Path<TNodeId, TEdgeId>(path));
             else
             {
                 if (unsolvedNodes.IsEmpty)
                     throw new ArgumentException($"{nameof(endNode)} is not present in the graph.", nameof(endNode));
                 var (path, node) = unsolvedNodes.PeekMin();
                 Debug.Assert(node == endNode);
-                solvedNodes.Add(node.Id, new Path<TNodeId, TEdgeId>(path.Edges.Reverse(), path.Weight));
+                solvedNodes.Add(node.Id, new Path<TNodeId, TEdgeId>(path));
             }
             return solvedNodes;
         }
-
-        #region helper_classes
-
-        /// <summary>
-        /// Path of edges in a <see cref="IReadOnlyGraph{TNodeId, TEdgeId}"/>.
-        /// </summary>
-        /// <inheritdoc cref="IReadOnlyGraph{TNodeId, TEdgeId}"/>
-        private class InternalPath<TNodeId, TEdgeId>
-            : IComparable<InternalPath<TNodeId, TEdgeId>>
-            where TNodeId : IEquatable<TNodeId>
-            where TEdgeId : IEquatable<TEdgeId>
-        {
-            /// <summary>
-            /// Gets or sets edges on the path.
-            /// </summary>
-            public SinglyLinkedList<IReadOnlyEdge<TNodeId, TEdgeId>> Edges { get; set; }
-            /// <summary>
-            /// Gets or sets total weight of the path.
-            /// </summary>
-            public Weight Weight { get; set; }
-
-            /// <summary>
-            /// Creates an empty path with infinite total weight.
-            /// </summary>
-            public InternalPath()
-            {
-                Edges = new SinglyLinkedList<IReadOnlyEdge<TNodeId, TEdgeId>>();
-                Weight = Weight.positiveInfinity;
-            }
-
-            /// <summary>
-            /// Creates a new path with given <paramref name="edges"/> and <paramref name="weight"/>.
-            /// </summary>
-            /// <param name="edges">Edges on the path.</param>
-            /// <param name="weight">Total weight of the path.</param>
-            public InternalPath(SinglyLinkedList<IReadOnlyEdge<TNodeId, TEdgeId>> edges, Weight weight)
-            {
-                Edges = edges;
-                Weight = weight;
-            }
-
-            public int CompareTo(InternalPath<TNodeId, TEdgeId> other) => Weight.CompareTo(other.Weight);
-
-            public override string ToString() => $"Internal path: W{Weight}";
-        }
-
-        #endregion helper_classes
 
         #endregion implementation
     }

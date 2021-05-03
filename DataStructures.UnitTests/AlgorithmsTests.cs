@@ -94,8 +94,8 @@ namespace DataStructures.UnitTests
                 var path = graph.FindShortestPath(graphType, exPath.from, exPath.to);
 
                 // Assert
-                CollectionAssert.AreEqual(exPath.edges, path.Edges.ToList());
-                Assert.AreEqual(exPath.weight, path.Weight);
+                CollectionAssert.AreEqual(exPath.edges, path.GetEdges().ToList());
+                Assert.AreEqual(exPath.weight, path.TotalWeight);
             }
         }
 
@@ -111,8 +111,8 @@ namespace DataStructures.UnitTests
 
                 // Assert
                 var path = paths[exPath.from][exPath.to];
-                CollectionAssert.AreEqual(exPath.edges, path.Edges.ToList());
-                Assert.AreEqual(exPath.weight, path.Weight);
+                CollectionAssert.AreEqual(exPath.edges, path.GetEdges().ToList());
+                Assert.AreEqual(exPath.weight, path.TotalWeight);
             }
         }
 

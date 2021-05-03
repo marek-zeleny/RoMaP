@@ -63,7 +63,7 @@ namespace DataStructures.Graphs
     /// <summary>
     /// Represents weight of an <see cref="IEdge{TNodeId, TEdgeId}"/> in a <see cref="IGraph{TNodeId, TEdgeId}"/>.
     /// </summary>
-    public struct Weight : IComparable<Weight>
+    public readonly struct Weight : IComparable<Weight>
     {
         public static readonly Weight positiveInfinity = new Weight(double.PositiveInfinity);
         public static readonly Weight negativeInfinity = new Weight(double.NegativeInfinity);
@@ -85,7 +85,7 @@ namespace DataStructures.Graphs
 
         public static Weight operator -(Weight w1, Weight w2) => new Weight(w1.value - w2.value);
 
-        public override string ToString() => value.ToString();
+        public override string ToString() => $"{value:N}";
 
         public int CompareTo(Weight other) => value.CompareTo(other.value);
     }

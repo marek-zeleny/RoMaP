@@ -13,8 +13,6 @@ namespace DataStructures.Miscellaneous
     /// <typeparam name="TKey">Type of keys in the heap.</typeparam>
     /// <typeparam name="TValue">Type of values in the heap.</typeparam>
     public interface IHeap<TKey, TValue>
-        where TKey : IComparable<TKey>
-        where TValue : IEquatable<TValue>
     {
         /// <summary>
         /// Indicates whether the heap is empty.

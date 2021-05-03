@@ -21,7 +21,7 @@ namespace DataStructures.Miscellaneous
         /// <remarks>
         /// The class is immutable.
         /// </remarks>
-        private class Node
+        public class Node
         {
             /// <summary>
             /// Gets data stored in the node.
@@ -44,10 +44,13 @@ namespace DataStructures.Miscellaneous
                 Data = data;
             }
 
-            public override string ToString() => string.Format("Node: {0}", Data);
+            public override string ToString() => string.Format("SLLNode: {0}", Data);
         }
 
-        private readonly Node firstNode;
+        /// <summary>
+        /// Gets the first node in the list.
+        /// </summary>
+        public Node FirstNode { get; }
 
         /// <summary>
         /// Creates a new list with one node containing the given <paramref name="data"/>.
@@ -55,7 +58,7 @@ namespace DataStructures.Miscellaneous
         /// <param name="data">Data stored in the created node.</param>
         public SinglyLinkedList(T data)
         {
-            firstNode = new Node(data);
+            FirstNode = new Node(data);
         }
 
         /// <summary>
@@ -64,7 +67,7 @@ namespace DataStructures.Miscellaneous
         /// <param name="node">Node that initiates the created list.</param>
         private SinglyLinkedList(Node node)
         {
-            firstNode = node;
+            FirstNode = node;
         }
 
         /// <summary>
@@ -72,23 +75,23 @@ namespace DataStructures.Miscellaneous
         /// </summary>
         /// <remarks>
         /// Since <see cref="SinglyLinkedList{T}"/> is immutable, the original list remains untouched and the new list
-        /// only containes the new node that is linked to the original list. This is an O(1) operation.
+        /// only contains the new node that is linked to the original list. This is an O(1) operation.
         /// </remarks>
         /// <param name="data">Data stored in the prepended node.</param>
         /// <returns>The created list with <paramref name="data"/> in the first node.</returns>
         public SinglyLinkedList<T> AddFront(T data)
         {
-            return new SinglyLinkedList<T>(new Node(data, firstNode));
+            return new SinglyLinkedList<T>(new Node(data, FirstNode));
         }
 
         public IEnumerator<T> GetEnumerator()
         {
-            for (Node curr = firstNode; curr != null; curr = curr.Next)
+            for (Node curr = FirstNode; curr != null; curr = curr.Next)
                 yield return curr.Data;
         }
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        public override string ToString() => string.Format("LinkedList: First node: {0}", firstNode);
+        public override string ToString() => string.Format("LinkedList: First node: {0}", FirstNode);
     }
 }

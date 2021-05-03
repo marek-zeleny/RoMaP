@@ -11,11 +11,13 @@ namespace DataStructures.Miscellaneous
     /// <inheritdoc cref="IHeap{TKey, TValue}"/>
     public class BinaryHeap<TKey, TValue>
         : IHeap<TKey, TValue>, IEnumerable<KeyValuePair<TKey, TValue>>
-        where TKey : IComparable<TKey>
-        where TValue : IEquatable<TValue>
     {
+        private static readonly bool keyIsReferenceType = !typeof(TKey).IsValueType;
+
         private List<KeyValuePair<TKey, TValue>> heap;
         private Dictionary<TValue, int> indexer;
+        private IComparer<TKey> keyComparer;
+        private IEqualityComparer<TValue> valueComparer;
 
         /// <summary>
         /// Gets the key associated with <paramref name="value"/>.
@@ -33,24 +35,43 @@ namespace DataStructures.Miscellaneous
         /// <summary>
         /// Creates an empty binary heap.
         /// </summary>
-        public BinaryHeap()
+        /// <param name="keyComparer">
+        /// <see cref="IComparer{T}"/> to use when comparing keys. If null, <see cref="Comparer{T}.Default"/> is used.
+        /// </param>
+        /// <param name="valueComparer">
+        /// <see cref="IEqualityComparer{T}"/> to use when comparing values for equality. If null,
+        /// <see cref="EqualityComparer{T}.Default"/> is used.
+        /// </param>
+        public BinaryHeap(IComparer<TKey> keyComparer = null, IEqualityComparer<TValue> valueComparer = null)
         {
+            this.keyComparer = keyComparer ?? Comparer<TKey>.Default;
+            this.valueComparer = valueComparer ?? EqualityComparer<TValue>.Default;
             heap = new List<KeyValuePair<TKey, TValue>>();
-            indexer = new Dictionary<TValue, int>();
+            indexer = new Dictionary<TValue, int>(this.valueComparer);
         }
 
         /// <summary>
         /// Creates an empty binary heap with a given initial <paramref name="capacity"/>.
         /// </summary>
         /// <param name="capacity">Initial capacity of the heap.</param>
-        public BinaryHeap(int capacity)
+        /// <param name="keyComparer">
+        /// <see cref="IComparer{T}"/> to use when comparing keys. If null, <see cref="Comparer{T}.Default"/> is used.
+        /// </param>
+        /// <param name="valueComparer">
+        /// <see cref="IEqualityComparer{T}"/> to use when comparing values for equality. If null,
+        /// <see cref="EqualityComparer{T}.Default"/> is used.
+        /// </param>
+        public BinaryHeap(int capacity,
+            IComparer<TKey> keyComparer = null, IEqualityComparer<TValue> valueComparer = null)
         {
+            this.keyComparer = keyComparer ?? Comparer<TKey>.Default;
+            this.valueComparer = valueComparer ?? EqualityComparer<TValue>.Default;
             heap = new List<KeyValuePair<TKey, TValue>>(capacity);
-            indexer = new Dictionary<TValue, int>(capacity);
+            indexer = new Dictionary<TValue, int>(capacity, this.valueComparer);
         }
 
         /// <summary>
-        /// Creates a binary heap and fills it with given <paramref name="values"/>, givin each value a
+        /// Creates a binary heap and fills it with given <paramref name="values"/>, giving each value a
         /// <paramref name="defaultKey"/>.
         /// </summary>
         /// <remarks>
@@ -58,15 +79,25 @@ namespace DataStructures.Miscellaneous
         /// </remarks>
         /// <param name="values"><see cref="IEnumerable{T}"/> of values to fill the heap with.</param>
         /// <param name="defaultKey">Default key to associate with all <paramref name="values"/>.</param>
+        /// <param name="keyComparer">
+        /// <see cref="IComparer{T}"/> to use when comparing keys. If null, <see cref="Comparer{T}.Default"/> is used.
+        /// </param>
+        /// <param name="valueComparer">
+        /// <see cref="IEqualityComparer{T}"/> to use when comparing values for equality. If null,
+        /// <see cref="EqualityComparer{T}.Default"/> is used.
+        /// </param>
         /// <exception cref="ArgumentException">
-        /// <paramref name="values"/> contain duplicite elements.
+        /// <paramref name="values"/> contain duplicate elements.
         /// </exception>
-        public BinaryHeap(IEnumerable<TValue> values, TKey defaultKey)
+        public BinaryHeap(IEnumerable<TValue> values, TKey defaultKey,
+            IComparer<TKey> keyComparer = null, IEqualityComparer<TValue> valueComparer = null)
         {
+            this.keyComparer = keyComparer ?? Comparer<TKey>.Default;
+            this.valueComparer = valueComparer ?? EqualityComparer<TValue>.Default;
             heap = new List<KeyValuePair<TKey, TValue>>(values.Select(
                 value => new KeyValuePair<TKey, TValue>(defaultKey, value)
                 ));
-            indexer = new Dictionary<TValue, int>(heap.Count);
+            indexer = new Dictionary<TValue, int>(heap.Count, this.valueComparer);
             for (int i = 0; i < heap.Count; i++)
                 indexer.Add(heap[i].Value, i);
         }
@@ -76,21 +107,34 @@ namespace DataStructures.Miscellaneous
         /// value with the given <paramref name="generateKey"/> function.
         /// </summary>
         /// <remarks>
-        /// If <paramref name="generateKey"/> generates keys that are not equal via the <see cref="IEquatable{T}"/> 
-        /// interface, the heap will be incorrectly initialised and further behaviour will be undefined.
+        /// If <paramref name="generateKey"/> generates keys that are not equal via the <paramref name="keyComparer"/>,
+        /// the heap will be incorrectly initialised and further behaviour will be undefined.
         /// This is an O(<c>n</c>) operation where <c>n</c> is the length of <paramref name="values"/>.
         /// </remarks>
         /// <param name="values"><see cref="IEnumerable{T}"/> of values to fill the heap with.</param>
         /// <param name="generateKey">
         /// Function that generates keys. It must return keys that are equal when compared with
-        /// <see cref="IEquatable{T}.Equals(T)"/>
+        /// <paramref name="keyComparer">.
         /// </param>
-        public BinaryHeap(IEnumerable<TValue> values, Func<TKey> generateKey)
+        /// <param name="keyComparer">
+        /// <see cref="IComparer{T}"/> to use when comparing keys. If null, <see cref="Comparer{T}.Default"/> is used.
+        /// </param>
+        /// <param name="valueComparer">
+        /// <see cref="IEqualityComparer{T}"/> to use when comparing values for equality. If null,
+        /// <see cref="EqualityComparer{T}.Default"/> is used.
+        /// </param>
+        /// <exception cref="ArgumentException">
+        /// <paramref name="values"/> contain duplicate elements.
+        /// </exception>
+        public BinaryHeap(IEnumerable<TValue> values, Func<TKey> generateKey,
+            IComparer<TKey> keyComparer = null, IEqualityComparer<TValue> valueComparer = null)
         {
+            this.keyComparer = keyComparer ?? Comparer<TKey>.Default;
+            this.valueComparer = valueComparer ?? EqualityComparer<TValue>.Default;
             heap = new List<KeyValuePair<TKey, TValue>>(values.Select(
                 value => new KeyValuePair<TKey, TValue>(generateKey(), value)
                 ));
-            indexer = new Dictionary<TValue, int>(heap.Count);
+            indexer = new Dictionary<TValue, int>(heap.Count, this.valueComparer);
             for (int i = 0; i < heap.Count; i++)
                 indexer.Add(heap[i].Value, i);
         }
@@ -169,7 +213,7 @@ namespace DataStructures.Miscellaneous
         /// </exception>
         public void DecreaseKey(TValue value, Action<TKey> decreaseAction)
         {
-            if (typeof(TKey).IsValueType)
+            if (!keyIsReferenceType)
                 throw new InvalidOperationException($"{nameof(TKey)} cannot be a value type.");
             int index;
             try
@@ -209,7 +253,7 @@ namespace DataStructures.Miscellaneous
             {
                 throw new ValueNotFoundException(e);
             }
-            if (newKey.CompareTo(heap[index].Key) > 0)
+            if (keyComparer.Compare(newKey, heap[index].Key) > 0)
                 throw new ArgumentException("The new key cannot be greater than the current key.", nameof(newKey));
             heap[index] = new KeyValuePair<TKey, TValue>(newKey, value);
             BubbleUp(index);
@@ -222,7 +266,7 @@ namespace DataStructures.Miscellaneous
         private void BubbleUp(int index)
         {
             int parentIndex = (index - 1) / 2;
-            while (heap[index].Key.CompareTo(heap[parentIndex].Key) < 0)
+            while (keyComparer.Compare(heap[index].Key, heap[parentIndex].Key) < 0)
             {
                 Switch(index, parentIndex);
                 index = parentIndex;
@@ -238,9 +282,9 @@ namespace DataStructures.Miscellaneous
         {
             int childIndex = index * 2 + 1;
             bool b1 = heap.Count > childIndex
-                && heap[index].Key.CompareTo(heap[childIndex].Key) > 0;
+                && keyComparer.Compare(heap[index].Key, heap[childIndex].Key) > 0;
             bool b2 = heap.Count > childIndex + 1
-                && heap[index].Key.CompareTo(heap[childIndex + 1].Key) > 0;
+                && keyComparer.Compare(heap[index].Key, heap[childIndex + 1].Key) > 0;
             while (b1 || b2)
             {
                 if (b2)
@@ -249,9 +293,9 @@ namespace DataStructures.Miscellaneous
                 index = childIndex;
                 childIndex = index * 2 + 1;
                 b1 = heap.Count > childIndex
-                    && heap[index].Key.CompareTo(heap[childIndex].Key) > 0;
+                    && keyComparer.Compare(heap[index].Key, heap[childIndex].Key) > 0;
                 b2 = heap.Count > childIndex + 1
-                    && heap[index].Key.CompareTo(heap[childIndex + 1].Key) > 0;
+                    && keyComparer.Compare(heap[index].Key, heap[childIndex + 1].Key) > 0;
             }
         }
 
