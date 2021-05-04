@@ -11,7 +11,7 @@ namespace RoadTrafficSimulator.Components
     interface INavigation
     {
         IClock Clock { get; }
-        Milliseconds RemainingDuration { get; }
+        Time RemainingDuration { get; }
         Road CurrentRoad { get; }
         Road NextRoad { get; }
         void MoveToNextRoad();
@@ -21,11 +21,11 @@ namespace RoadTrafficSimulator.Components
     {
         private readonly struct Timestamp
         {
-            public readonly Milliseconds searchTime;
+            public readonly Time searchTime;
             public readonly Road nextRoad; // null if this is the destination node
             public readonly Weight remainingWeight;
 
-            public Timestamp(Milliseconds searchTime, Road nextRoad, Weight remainingWeight)
+            public Timestamp(Time searchTime, Road nextRoad, Weight remainingWeight)
             {
                 this.searchTime = searchTime;
                 this.nextRoad = nextRoad;
@@ -89,7 +89,7 @@ namespace RoadTrafficSimulator.Components
             private bool nextRoadExists;
 
             public IClock Clock => central.clock;
-            public Milliseconds RemainingDuration { get; private set; }
+            public Time RemainingDuration { get; private set; }
             public Road CurrentRoad { get; private set; }
             public Road NextRoad { get => nextRoadExists ? remainingPath.Current : null; }
 
@@ -98,7 +98,7 @@ namespace RoadTrafficSimulator.Components
                 this.central = central;
                 var path = central.map.FindShortestPath(Algorithms.GraphType.NonnegativeWeights, start, finish);
                 Debug.Assert(path.TotalWeight < Weight.positiveInfinity);
-                RemainingDuration = new Milliseconds((int)path.TotalWeight);
+                RemainingDuration = new Time((int)path.TotalWeight);
 
                 // TODO: try remainingPath = ((IEnumerable<Road>)e).GetEnumerator();
                 remainingPath = path.GetEdges().Select(edge => (Road)edge).GetEnumerator();
@@ -113,7 +113,7 @@ namespace RoadTrafficSimulator.Components
                 if (!nextRoadExists)
                     throw new InvalidOperationException("Cannot move to the next road when the navigation is already" +
                         "at the end of the path.");
-                RemainingDuration -= new Milliseconds((int)CurrentRoad.Weight);
+                RemainingDuration -= new Time((int)CurrentRoad.Weight);
                 CurrentRoad = remainingPath.Current;
                 nextRoadExists = remainingPath.MoveNext();
             }
@@ -123,10 +123,10 @@ namespace RoadTrafficSimulator.Components
         {
             private readonly CentralNavigation central;
             private readonly Coords destination;
-            private Milliseconds nextRemainingDuration;
+            private Time nextRemainingDuration;
 
             public IClock Clock => central.clock;
-            public Milliseconds RemainingDuration { get; private set; }
+            public Time RemainingDuration { get; private set; }
             public Road CurrentRoad { get; private set; }
             public Road NextRoad { get; private set; }
 
@@ -136,7 +136,7 @@ namespace RoadTrafficSimulator.Components
                 destination = finish;
 
                 var (firstRoad, totalWeight) = central.GetNextRoad(start, finish);
-                RemainingDuration = new Milliseconds((int)totalWeight);
+                RemainingDuration = new Time((int)totalWeight);
                 CurrentRoad = firstRoad;
                 UpdateNextRoad();
             }
@@ -154,7 +154,7 @@ namespace RoadTrafficSimulator.Components
             private void UpdateNextRoad()
             {
                 var (nextRoad, remainingWeight) = central.GetNextRoad(CurrentRoad.ToNode.Id, destination);
-                nextRemainingDuration = new Milliseconds((int)remainingWeight);
+                nextRemainingDuration = new Time((int)remainingWeight);
                 NextRoad = nextRoad;
             }
         }

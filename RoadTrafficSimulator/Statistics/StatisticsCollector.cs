@@ -27,27 +27,27 @@ namespace RoadTrafficSimulator.Statistics
             finishedCars.Add(stats);
         }
 
-        public Millimetres GetAverageDistance()
+        public Distance GetAverageDistance()
         {
             if (CarsFinished == 0)
                 return 0.Metres();
-            Millimetres totalDistance = new Millimetres(finishedCars.Sum(stats => stats.Distance));
+            Distance totalDistance = new Distance(finishedCars.Sum(stats => stats.Distance));
             return totalDistance / CarsFinished;
         }
 
-        public Milliseconds GetAverageDuration()
+        public Time GetAverageDuration()
         {
             if (CarsFinished == 0)
                 return 0.Milliseconds();
-            Milliseconds totalDuration = new Milliseconds(finishedCars.Sum(stats => stats.Duration));
+            Time totalDuration = new Time(finishedCars.Sum(stats => stats.Duration));
             return totalDuration / CarsFinished;
         }
 
-        public Milliseconds GetAverageDelay()
+        public Time GetAverageDelay()
         {
             if (CarsFinished == 0)
                 return 0.Milliseconds();
-            Milliseconds totalDelay = new Milliseconds(
+            Time totalDelay = new Time(
                 finishedCars.Sum(stats => stats.Duration - stats.ExpectedDuration));
             return totalDelay / CarsFinished;
         }

@@ -9,7 +9,7 @@ namespace RoadTrafficSimulator
 {
     interface IClock
     {
-        Milliseconds Time { get; }
+        Time Time { get; }
     }
 
     class Simulation: IClock
@@ -20,7 +20,7 @@ namespace RoadTrafficSimulator
         private IEnumerator<Crossroad> randomCrossroads;
         private HashSet<Car> stagedCars;
 
-        public Milliseconds Time { get; private set; }
+        public Time Time { get; private set; }
         public Map Map { get; set; }
         public StatisticsCollector Statistics { get; private set; }
 
@@ -53,9 +53,9 @@ namespace RoadTrafficSimulator
             return InitialisationResult.Ok;
         }
 
-        public void Simulate(Milliseconds duration, float newCarsPerHundredSecondsPerCrossroad) => Simulate(duration, newCarsPerHundredSecondsPerCrossroad, 1.Seconds());
+        public void Simulate(Time duration, float newCarsPerHundredSecondsPerCrossroad) => Simulate(duration, newCarsPerHundredSecondsPerCrossroad, 1.Seconds());
 
-        public void Simulate(Milliseconds duration, float newCarsPerHundredSecondsPerCrossroad, Milliseconds step)
+        public void Simulate(Time duration, float newCarsPerHundredSecondsPerCrossroad, Time step)
         {
             int newCarsPerHundredSeconds = (int)(newCarsPerHundredSecondsPerCrossroad * Map.CrossroadCount);
             while (Time < duration)
@@ -74,12 +74,12 @@ namespace RoadTrafficSimulator
             do
                 finish = GetRandomCrossroad();
             while (finish == start);
-            Millimetres length = carLengthDistribution[random.Next(carLengthDistribution.Length)].Metres();
+            Distance length = carLengthDistribution[random.Next(carLengthDistribution.Length)].Metres();
             stagedCars.Add(new Car(length, Map, start, finish, this, DriveFinished));
             Statistics.AddCars();
         }
 
-        public void Tick(Milliseconds time)
+        public void Tick(Time time)
         {
             Time += time;
             HashSet<Car> releasedCars = new HashSet<Car>();

@@ -9,14 +9,14 @@ namespace RoadTrafficSimulator.ValueTypes
     {
         private static class Coefficients
         {
-            public const int metres = ValueTypes.Millimetres.precision;
-            public const int millimetres = ValueTypes.Millimetres.precision / 1000;
-            public const int seconds = ValueTypes.Milliseconds.precision;
-            public const int milliseconds = ValueTypes.Milliseconds.precision / 1000;
-            public const int metresPerSecond = ValueTypes.MillimetresPerSecond.precision;
-            public const int millimetresPerSecond = ValueTypes.MillimetresPerSecond.precision / 1000;
-            public const int kilometresPerHour = ValueTypes.MillimetresPerSecond.precision * 10 / 36;
-            public const int metresPerSecondPerSecond = ValueTypes.MetresPerSecondPerSecond.precision;
+            public const int metres = Distance.precision;
+            public const int millimetres = Distance.precision / 1000;
+            public const int seconds = Time.precision;
+            public const int milliseconds = Time.precision / 1000;
+            public const int metresPerSecond = Speed.precision;
+            public const int millimetresPerSecond = Speed.precision / 1000;
+            public const int kilometresPerHour = Speed.precision * 10 / 36;
+            public const int metresPerSecondPerSecond = Acceleration.precision;
 
             static Coefficients()
             {
@@ -31,27 +31,25 @@ namespace RoadTrafficSimulator.ValueTypes
             }
         }
 
-        public static Millimetres Metres(this int value) => new Millimetres(value * Coefficients.metres);
+        public static Distance Metres(this int value) => new Distance(value * Coefficients.metres);
 
-        public static Millimetres Millimetres(this int value) => new Millimetres(value * Coefficients.millimetres);
+        public static Distance Millimetres(this int value) => new Distance(value * Coefficients.millimetres);
 
-        public static Milliseconds Seconds(this int value) => new Milliseconds(value * Coefficients.seconds);
+        public static Time Seconds(this int value) => new Time(value * Coefficients.seconds);
 
-        public static Milliseconds Milliseconds(this int value) => new Milliseconds(value * Coefficients.milliseconds);
+        public static Time Milliseconds(this int value) => new Time(value * Coefficients.milliseconds);
 
-        public static MillimetresPerSecond MetresPerSecond(this int value) =>
-            new MillimetresPerSecond(value * Coefficients.metresPerSecond);
+        public static Speed MetresPerSecond(this int value) => new Speed(value * Coefficients.metresPerSecond);
 
-        public static MillimetresPerSecond MillimetresPerSecond(this int value) =>
-            new MillimetresPerSecond(value * Coefficients.millimetresPerSecond);
+        public static Speed MillimetresPerSecond(this int value) =>
+            new Speed(value * Coefficients.millimetresPerSecond);
 
-        public static MillimetresPerSecond KilometresPerHour(this int value) =>
-            new MillimetresPerSecond(value * Coefficients.kilometresPerHour);
+        public static Speed KilometresPerHour(this int value) => new Speed(value * Coefficients.kilometresPerHour);
 
-        public static MetresPerSecondPerSecond MetresPerSecondPerSecond(this int value) =>
-            new MetresPerSecondPerSecond(value * Coefficients.metresPerSecondPerSecond);
+        public static Acceleration MetresPerSecondPerSecond(this int value) =>
+            new Acceleration(value * Coefficients.metresPerSecondPerSecond);
 
 
-        public static Weight Weight(this Milliseconds value) => new Weight(value);
+        public static Weight Weight(this Time value) => new Weight(value);
     }
 }

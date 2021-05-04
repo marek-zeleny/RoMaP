@@ -15,9 +15,9 @@ namespace RoadTrafficSimulator
         #region static
 
         private const int K = 100;
-        private static readonly MillimetresPerSecond defaultMaxSpeed = 14.MetresPerSecond();
+        private static readonly Speed defaultMaxSpeed = 14.MetresPerSecond();
 
-        public static readonly Millimetres roadSegmentLength = 100.Metres();
+        public static readonly Distance roadSegmentLength = 100.Metres();
         public static readonly Coords[] allowedDirections = new Coords[]
         {
                 new Coords(1, 0),
@@ -278,7 +278,7 @@ namespace RoadTrafficSimulator
                 return FinishRoad(defaultMaxSpeed);
             }
 
-            public bool FinishRoad(MillimetresPerSecond maxSpeed)
+            public bool FinishRoad(Speed maxSpeed)
             {
                 if (Route.Count < 2)
                     return false;
@@ -287,7 +287,7 @@ namespace RoadTrafficSimulator
                 TryGetOrAddCrossroad(from).Highlight = Highlight.Normal;
                 TryGetOrAddCrossroad(to).Highlight = Highlight.Normal;
                 this.road.Highlight = Highlight.Normal;
-                Millimetres roadLength = (Route.Count - 1) * roadSegmentLength;
+                Distance roadLength = (Route.Count - 1) * roadSegmentLength;
                 Components.Road road = map.AddRoad(from, to, roadLength, maxSpeed);
                 this.road.SetRoadId(road.Id);
                 if (this.road.IsTwoWay)

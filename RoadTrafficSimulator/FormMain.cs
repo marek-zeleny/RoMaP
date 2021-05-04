@@ -295,7 +295,7 @@ namespace RoadTrafficSimulator
             {
                 case DialogResult.Yes:
                     ShowInfo(string.Format("Starting simulation of {0} hours with {1:0.00} car frequency...", duration, carFrequency));
-                    Milliseconds durationSeconds = (duration * 3600).Seconds();
+                    Time durationSeconds = (duration * 3600).Seconds();
                     float newCarsPerHundredSecondsPerCrossroad = trackBarCarFrequency.Value * carFrequencyQuotient;
                     simulation.Simulate(durationSeconds, newCarsPerHundredSecondsPerCrossroad);
                     ShowInfo("The simulation has ended.");

@@ -42,7 +42,7 @@ namespace RoadTrafficSimulator.Components
             return TrafficLight.Initialize(trafficLightVerifier);
         }
 
-        public void Tick(Milliseconds time)
+        public void Tick(Time time)
         {
             TrafficLight.Tick(time);
         }

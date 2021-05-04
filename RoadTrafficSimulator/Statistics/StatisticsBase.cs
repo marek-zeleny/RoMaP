@@ -54,10 +54,10 @@ namespace RoadTrafficSimulator.Statistics
 
         public struct Timestamp<T>
         {
-            public readonly Milliseconds time;
+            public readonly Time time;
             public readonly T data;
 
-            public Timestamp(Milliseconds time, T data)
+            public Timestamp(Time time, T data)
             {
                 this.time = time;
                 this.data = data;

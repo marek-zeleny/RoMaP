@@ -29,7 +29,7 @@ namespace RoadTrafficSimulator.Components
             return road;
         }
 
-        public Road AddRoad(Coords fromId, Coords toId, Millimetres length, MillimetresPerSecond maxSpeed)
+        public Road AddRoad(Coords fromId, Coords toId, Distance length, Speed maxSpeed)
         {
             Crossroad from = (Crossroad)graph.GetNode(fromId);
             Crossroad to = (Crossroad)graph.GetNode(toId);
