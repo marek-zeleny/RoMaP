@@ -5,6 +5,7 @@ using System.Linq;
 
 using DataStructures.Graphs;
 using RoadTrafficSimulator.ValueTypes;
+using RoadTrafficSimulator.Statistics;
 
 namespace RoadTrafficSimulator.Components
 {

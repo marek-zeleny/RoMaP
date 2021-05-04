@@ -7,26 +7,33 @@ using RoadTrafficSimulator.Statistics;
 
 namespace RoadTrafficSimulator
 {
-    interface IClock
-    {
-        Time Time { get; }
-    }
-
-    class Simulation: IClock
+    class Simulation
     {
         private static readonly int[] carLengthDistribution = new int[] { 2, 3, 3, 3, 3, 4, 4, 10, 10, 15 };
 
+        private class SimulationClock : IClock
+        {
+            public Time Time { get; private set; }
+
+            public void Tick(Time interval) => Time += interval;
+
+            public void Reset() => Time = new Time();
+        }
+
         private Random random = new Random();
+        private SimulationClock clock;
+        private CentralNavigation centralNavigation;
         private IEnumerator<Crossroad> randomCrossroads;
         private HashSet<Car> stagedCars;
 
-        public Time Time { get; private set; }
+        public IClock Clock { get => clock; }
         public Map Map { get; set; }
         public StatisticsCollector Statistics { get; private set; }
 
         public Simulation(Map map)
         {
             Map = map;
+            clock = new SimulationClock();
         }
 
         public enum InitialisationResult { Ok, Error_MapIsNull, Error_NoMap, Error_InvalidCrossroad }
@@ -45,43 +52,47 @@ namespace RoadTrafficSimulator
                     return InitialisationResult.Error_InvalidCrossroad;
                 }
             foreach (Road r in Map.GetEdges())
-                r.Initialise();
+                r.Initialise(clock);
+            clock.Reset();
+            centralNavigation = new CentralNavigation(Map, clock);
             randomCrossroads = GetRandomCrossroads().GetEnumerator();
             stagedCars = new HashSet<Car>();
-            Time = 0.Milliseconds();
             Statistics = new StatisticsCollector();
             return InitialisationResult.Ok;
         }
 
-        public void Simulate(Time duration, float newCarsPerHundredSecondsPerCrossroad) => Simulate(duration, newCarsPerHundredSecondsPerCrossroad, 1.Seconds());
-
-        public void Simulate(Time duration, float newCarsPerHundredSecondsPerCrossroad, Time step)
+        public void Simulate(SimulationSettings settings)
         {
-            int newCarsPerHundredSeconds = (int)(newCarsPerHundredSecondsPerCrossroad * Map.CrossroadCount);
-            while (Time < duration)
+            while (clock.Time < settings.Duration)
             {
-                if (Time % 100 < step)
-                    for (int i = 0; i < newCarsPerHundredSeconds; i++)
-                        GenerateCar();
-                Tick(step);
+                double carsPerSecond = settings.GetCarSpawnRate(clock.Time) * Map.CrossroadCount;
+                double newCarProbability = carsPerSecond * settings.TimeStep / Time.precision;
+                for (; newCarProbability > 0; newCarProbability--)
+                    GenerateCar(settings.ActiveNavigationRate, newCarProbability);
+                Tick(settings.TimeStep);
             }
         }
 
-        public void GenerateCar()
+        public void GenerateCar(float activeNavigationRate, double probability = 1f)
         {
+            if (probability < 1f && random.NextDouble() >= probability)
+                return;
+
             Crossroad start = GetRandomCrossroad();
             Crossroad finish;
             do
                 finish = GetRandomCrossroad();
             while (finish == start);
             Distance length = carLengthDistribution[random.Next(carLengthDistribution.Length)].Metres();
-            stagedCars.Add(new Car(length, Map, start, finish, this, DriveFinished));
-            Statistics.AddCars();
+            bool active = random.NextDouble() < activeNavigationRate;
+            INavigation navigation = centralNavigation.GetNavigation(start.Id, finish.Id, active);
+            stagedCars.Add(new Car(length, navigation, DriveFinished));
+            Statistics.AddCars(1);
         }
 
         public void Tick(Time time)
         {
-            Time += time;
+            clock.Tick(time);
             HashSet<Car> releasedCars = new HashSet<Car>();
             foreach (Car c in stagedCars)
                 if (c.Initialise())
@@ -114,6 +125,23 @@ namespace RoadTrafficSimulator
             int count = crossroads.Count;
             while (true)
                 yield return crossroads[random.Next(count)];
+        }
+    }
+
+    class SimulationSettings
+    {
+        // New cars per second
+        private float[] carSpawnRateDistribution;
+
+        public Time Duration { get; }
+        public Time TimeStep { get; set; }
+        public float ActiveNavigationRate { get; }
+
+        /// <returns>New cars per second per crossroad.</returns>
+        public float GetCarSpawnRate(Time simulationTime)
+        {
+            int index = carSpawnRateDistribution.Length * (int)simulationTime / (int)Duration;
+            return carSpawnRateDistribution[index];
         }
     }
 }
