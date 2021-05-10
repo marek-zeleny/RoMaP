@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json;
 using System.IO;
 using System.Linq;
 
@@ -10,10 +11,22 @@ namespace RoadTrafficSimulator.Statistics
 {
     class StatisticsCollector
     {
+        private Dictionary<Type, List<StatisticsBase>> data = new Dictionary<Type, List<StatisticsBase>>(2);
+
         private List<Car.Statistics> finishedCars = new List<Car.Statistics>();
 
         public int CarsFinished { get => finishedCars.Count; }
         public int CarsTotal { get; private set; }
+
+        public void TrackStatistics(StatisticsBase statistics, Type owner)
+        {
+            if (!data.TryGetValue(owner, out var statList))
+            {
+                statList = new List<StatisticsBase>();
+                data[owner] = statList;
+            }
+            statList.Add(statistics);
+        }
 
         public void AddCars(int count = 1)
         {
@@ -64,6 +77,21 @@ namespace RoadTrafficSimulator.Statistics
                 writer.WriteLine($"{from.x},{from.y},{to.x},{to.y},{(int)first.Time},{(int)s.Finish},{(int)s.ExpectedDuration},{(int)s.Distance}");
             }
             writer.Flush();
+        }
+
+        public void ExportJson(string path)
+        {
+            foreach (var (source, stats) in data)
+            {
+                string fileName = source.Name + "-statistics";
+                string filePath = Path.ChangeExtension(Path.Combine(path, fileName), "json");
+                using (Stream stream = File.OpenWrite(filePath)) // TODO: Find the best (and safest) way to open a file
+                {
+                    Utf8JsonWriter writer = new Utf8JsonWriter(stream); // TODO: Set options appropriately
+                    foreach (var stat in stats)
+                        stat.Serialise(writer);
+                }
+            }
         }
     }
 }

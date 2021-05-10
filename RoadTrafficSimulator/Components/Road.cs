@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
+using System.Text.Json;
 
 using DataStructures.Graphs;
 using RoadTrafficSimulator.ValueTypes;
@@ -98,14 +99,14 @@ namespace RoadTrafficSimulator.Components
             throw new InvalidOperationException($"Cannot explicitly set weight of a {nameof(Road)}.");
         }
 
-        public bool Initialise(IClock clock)
+        public bool Initialise(StatisticsCollector collector, IClock clock)
         {
             for (int i = 0; i < LaneCount; i++)
                 lanes[i].Initialise();
             AverageDuration = Length / MaxSpeed;
             AverageSpeed = MaxSpeed;
             averageDurationHistory = new Queue<Time>(averageDurationHistorySize);
-            statistics = new Statistics(clock, Id);
+            statistics = new Statistics(collector, clock, Id);
             return true;
         }
 
@@ -245,8 +246,8 @@ namespace RoadTrafficSimulator.Components
             public IReadOnlyList<Timestamp<CarPassage>> CarLog { get => carLog.Get(); }
             public IReadOnlyList<Timestamp<Throughput>> ThroughputLog { get => throughputLog.Get(); }
 
-            public Statistics(IClock clock, int roadId)
-                : base(clock)
+            public Statistics(StatisticsCollector collector, IClock clock, int roadId)
+                : base(collector, typeof(Road), clock)
             {
                 RoadId = roadId;
             }
@@ -266,6 +267,29 @@ namespace RoadTrafficSimulator.Components
             {
                 carLog.Get()?.Add(new Timestamp<CarPassage>(clock.Time, new CarPassage(carId, arriveTime)));
                 return clock.Time - arriveTime;
+            }
+
+            public override void Serialise(Utf8JsonWriter writer)
+            {
+                static void SerialiseCarPassage(Utf8JsonWriter writer, CarPassage passage)
+                {
+                    writer.WriteNumber("arriveTime", passage.arriveTime);
+                    writer.WriteNumber("carId", passage.carId);
+                }
+                static void SerialiseThroughput(Utf8JsonWriter writer, Throughput throughput)
+                {
+                    writer.WriteNumber("carCount", throughput.carCount);
+                    writer.WriteNumber("averageSpeed", throughput.averageSpeed);
+                    writer.WriteNumber("averageDuration", throughput.averageDuration);
+                }
+
+                writer.WriteStartObject();
+                writer.WriteNumber("id", RoadId);
+
+                SerialiseTimestampListItem(writer, carLog, "carLog", SerialiseCarPassage);
+                SerialiseTimestampListItem(writer, throughputLog, "throughputLog", SerialiseThroughput);
+
+                writer.WriteEndObject();
             }
 
             public struct CarPassage

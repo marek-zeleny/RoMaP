@@ -51,13 +51,14 @@ namespace RoadTrafficSimulator
                     invalidCrossroad = c;
                     return InitialisationResult.Error_InvalidCrossroad;
                 }
+
+            Statistics = new StatisticsCollector();
             foreach (Road r in Map.GetEdges())
-                r.Initialise(clock);
+                r.Initialise(Statistics, clock);
             clock.Reset();
             centralNavigation = new CentralNavigation(Map, clock);
             randomCrossroads = GetRandomCrossroads().GetEnumerator();
             stagedCars = new HashSet<Car>();
-            Statistics = new StatisticsCollector();
             return InitialisationResult.Ok;
         }
 
@@ -86,7 +87,7 @@ namespace RoadTrafficSimulator
             Distance length = carLengthDistribution[random.Next(carLengthDistribution.Length)].Metres();
             bool active = random.NextDouble() < activeNavigationRate;
             INavigation navigation = centralNavigation.GetNavigation(start.Id, finish.Id, active);
-            stagedCars.Add(new Car(length, navigation, DriveFinished));
+            stagedCars.Add(new Car(length, navigation, DriveFinished, Statistics));
             Statistics.AddCars(1);
         }
 

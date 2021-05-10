@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json;
 using System.Diagnostics;
 
 using RoadTrafficSimulator.ValueTypes;
@@ -62,12 +63,14 @@ namespace RoadTrafficSimulator.Components
         private Car CarInFront { get; set; }
         public Car CarBehind { get; private set; }
 
-        public Car(Distance length, INavigation navigation, Action<Statistics> finishDriveAction)
+        public Car(Distance length, INavigation navigation, Action<Statistics> finishDriveAction,
+            StatisticsCollector collector)
         {
             Id = nextId++;
             Length = length;
             this.navigation = navigation;
-            statistics = new Statistics(navigation.Clock, Id, navigation.RemainingDuration, navigation.CurrentRoad.Id);
+            statistics = new Statistics(collector, navigation.Clock,
+                Id, navigation.RemainingDuration, navigation.CurrentRoad.Id);
             this.finishDriveAction = finishDriveAction;
         }
 
@@ -215,8 +218,9 @@ namespace RoadTrafficSimulator.Components
             public IReadOnlyList<Timestamp<Speed>> SpeedLog { get => speedLog.Get(); }
 
 
-            public Statistics(IClock clock, int CarId, Time expectedDuration, int firstRoadId)
-                : base(clock)
+            public Statistics(StatisticsCollector collector, IClock clock,
+                int CarId, Time expectedDuration, int firstRoadId)
+                : base(collector, typeof(Car), clock)
             {
                 this.CarId = CarId;
                 this.expectedDuration.Set(expectedDuration);
@@ -238,6 +242,26 @@ namespace RoadTrafficSimulator.Components
             public void Finish()
             {
                 finishTime.Set(clock.Time);
+            }
+
+            public override void Serialise(Utf8JsonWriter writer)
+            {
+                static int SerialiseTime(Time t) => t;
+                static int SerialiseDistance(Distance d) => d;
+                static void SerialiseRoadId(Utf8JsonWriter writer, int id) => writer.WriteNumber("roadId", id);
+                static void SerialiseSpeed(Utf8JsonWriter writer, Speed s) => writer.WriteNumber("speed", s);
+
+                writer.WriteStartObject();
+                writer.WriteNumber("id", CarId);
+
+                SerialiseIntItem(writer, startTime, nameof(startTime), SerialiseTime);
+                SerialiseIntItem(writer, finishTime, nameof(finishTime), SerialiseTime);
+                SerialiseIntItem(writer, expectedDuration, nameof(expectedDuration), SerialiseTime);
+                SerialiseIntItem(writer, distance, nameof(distance), SerialiseDistance);
+                SerialiseTimestampListItem(writer, roadLog, nameof(roadLog), SerialiseRoadId);
+                SerialiseTimestampListItem(writer, speedLog, nameof(speedLog), SerialiseSpeed);
+
+                writer.WriteEndObject();
             }
         }
     }
