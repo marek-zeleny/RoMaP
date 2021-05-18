@@ -16,7 +16,8 @@ namespace RoadTrafficSimulator
         private const float minZoom = 0.2f;
         private const float maxZoom = 5f;
         private const float carFrequencyQuotient = 0.03f;
-        private static readonly string savePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "RoadTrafficSimulator");
+        private static readonly string savePath = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "RoadTrafficSimulator");
 
         private enum Mode { Build_Road, Select_Crossroad, Select_Road };
 
@@ -28,7 +29,7 @@ namespace RoadTrafficSimulator
         private IRoadBuilder currentRoadBuilder;
         private CrossroadView selectedCrossroad;
         private RoadView selectedRoad;
-        private Point previousMouseLocation;
+        private Point prevMouseLocation;
         private bool drag;
         private bool dragOccured;
         private bool freezeMaxSpeed;
@@ -44,7 +45,7 @@ namespace RoadTrafficSimulator
                     zoom = maxZoom;
                 else
                     zoom = value;
-                buttonZoom.Text = string.Format("Zoom: {0:0.0}x", zoom);
+                buttonZoom.Text = $"Zoom: {zoom:0.0}x";
             }
         }
 
@@ -57,8 +58,12 @@ namespace RoadTrafficSimulator
             MaximizeBox = false;
             // Enable double-buffering for panelMap
             typeof(Panel).InvokeMember("DoubleBuffered",
-                System.Reflection.BindingFlags.SetProperty | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic,
-                null, panelMap, new object[] { true });
+                System.Reflection.BindingFlags.SetProperty
+                | System.Reflection.BindingFlags.Instance
+                | System.Reflection.BindingFlags.NonPublic,
+                null,
+                panelMap,
+                new object[] { true });
             // Add MouseWheel event for panelMap
             panelMap.MouseWheel += panelMap_MouseWheel;
             // Initialize comboBoxMode
@@ -144,7 +149,7 @@ namespace RoadTrafficSimulator
                 dragOccured = true;
                 panelMap.Invalidate();
             }
-            previousMouseLocation = e.Location;
+            prevMouseLocation = e.Location;
         }
         private void panelMap_MouseWheel(object sender, MouseEventArgs e)
         {
@@ -228,17 +233,17 @@ namespace RoadTrafficSimulator
         {
             if (selectedCrossroad != null)
                 selectedCrossroad.CarSpawnRate = (byte)trackBarCarSpawnRate.Value;
-            labelCarSpawnRate.Text = string.Format("Car spawn rate: {0} %", trackBarCarSpawnRate.Value);
+            labelCarSpawnRate.Text = $"Car spawn rate: {trackBarCarSpawnRate.Value} %";
         }
 
         private void trackBarDuration_Scroll(object sender, EventArgs e)
         {
-            labelDuration.Text = string.Format("Duration: {0}h", trackBarDuration.Value);
+            labelDuration.Text = $"Duration: {trackBarDuration.Value}h";
         }
 
         private void trackBarCarFrequency_Scroll(object sender, EventArgs e)
         {
-            labelCarFrequency.Text = string.Format("Car frequency: {0:0.00}", (float)trackBarCarFrequency.Value / 100);
+            labelCarFrequency.Text = $"Car frequency: {(float)trackBarCarFrequency.Value / 100:0.00}";
         }
 
         private void comboBoxMode_SelectedIndexChanged(object sender, EventArgs e)
@@ -267,15 +272,14 @@ namespace RoadTrafficSimulator
                             "You have to create a map before starting the simulation.";
                         break;
                     case Simulation.InitialisationResult.Error_InvalidCrossroad:
-                        message = string.Format(
-                            "Map check complete: the traffic light at {0} is inconsistent.\n" +
-                            "Please make sure that every possible direction is allowed at that crossroad.",
-                            invalidCrossroad.Id);
+                        message =
+                            $"Map check complete: the traffic light at {invalidCrossroad.Id} is inconsistent.\n" +
+                            "Please make sure that every possible direction is allowed at that crossroad.";
                         break;
                     default:
                         message =
                             "Map check complete: cannot start the simulation for an unknown reason.\n" +
-                            "If the problem occures repeatedly, please restart the application.";
+                            "If the problem occurs repeatedly, please restart the application.";
                         break;
                 }
                 MessageBox.Show(message, "Map Inconsistent", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
@@ -286,15 +290,15 @@ namespace RoadTrafficSimulator
         {
             int duration = trackBarDuration.Value;
             float carFrequency = trackBarCarFrequency.Value / 100f;
-            string message = string.Format(
-                "Map check complete: all traffic lights are set up correctly.\n" +
-                "Do you want to start the simulation of {0} hours with {1:0.00} car frequency?"
-                , duration, carFrequency);
-            DialogResult result = MessageBox.Show(message, "Start Simulation", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
+            string message = 
+                $"Map check complete: all traffic lights are set up correctly.\n" +
+                $"Do you want to start the simulation of {duration} hours with {carFrequency:0.00} car frequency?";
+            DialogResult result = MessageBox.Show(message, "Start Simulation",
+                MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
             switch (result)
             {
                 case DialogResult.Yes:
-                    ShowInfo(string.Format("Starting simulation of {0} hours with {1:0.00} car frequency...", duration, carFrequency));
+                    ShowInfo($"Starting simulation of {duration} hours with {carFrequency:0.00} car frequency...");
                     Time durationSeconds = (duration * 3600).Seconds();
                     float newCarsPerHundredSecondsPerCrossroad = trackBarCarFrequency.Value * carFrequencyQuotient;
                     simulation.Simulate(durationSeconds, newCarsPerHundredSecondsPerCrossroad);
@@ -332,7 +336,7 @@ namespace RoadTrafficSimulator
             }
             catch (Exception e) when (e is IOException || e is UnauthorizedAccessException || e is SecurityException)
             {
-                string message = string.Format("An error occured while saving the map: {0}", e.Message);
+                string message = $"An error occurred while saving the map: {e.Message}";
                 MessageBox.Show(message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 successful = false;
             }
@@ -349,14 +353,16 @@ namespace RoadTrafficSimulator
             string message =
                 "Are you sure you want to load a new map?\n" +
                 "The currently built map will be lost unless it's already saved.";
-            DialogResult result = MessageBox.Show(message, "Load Map", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2);
+            DialogResult result = MessageBox.Show(message, "Load Map",
+                MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2);
             if (result == DialogResult.Yes)
             {
                 OpenFileDialog fileDialog = new OpenFileDialog()
                 {
                     Title = "Load map",
                     Filter = "Map files (*.map)|*.map",
-                    InitialDirectory = Directory.Exists(savePath) ? savePath : Environment.GetFolderPath(Environment.SpecialFolder.Desktop)
+                    InitialDirectory = Directory.Exists(savePath)
+                        ? savePath : Environment.GetFolderPath(Environment.SpecialFolder.Desktop)
                 };
                 if (fileDialog.ShowDialog() == DialogResult.OK)
                     LoadMap(fileDialog.FileName);
@@ -375,7 +381,7 @@ namespace RoadTrafficSimulator
             }
             catch (Exception e) when (e is IOException || e is UnauthorizedAccessException || e is SecurityException)
             {
-                string message = string.Format("An error occured while loading the map: {0}", e.Message);
+                string message = $"An error occurred while loading the map: {e.Message}";
                 MessageBox.Show(message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
@@ -423,7 +429,7 @@ namespace RoadTrafficSimulator
             }
             catch (Exception e) when (e is IOException || e is UnauthorizedAccessException || e is SecurityException)
             {
-                string message = string.Format("An error occured while exporting statistics: {0}", e.Message);
+                string message = $"An error occurred while exporting statistics: {e.Message}";
                 MessageBox.Show(message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 successful = false;
             }
@@ -445,14 +451,14 @@ namespace RoadTrafficSimulator
 
         private void Drag(Point mouseLocation)
         {
-            Point delta = new Point(mouseLocation.X - previousMouseLocation.X, mouseLocation.Y - previousMouseLocation.Y);
+            Point delta = new Point(mouseLocation.X - prevMouseLocation.X, mouseLocation.Y - prevMouseLocation.Y);
             origin.Offset(delta);
         }
 
         private void ChangeZoom(int direction, Point mouseLocation)
         {
             const float coefficient = 1.2f;
-            // For centering the zoom at coursor position
+            // For centring the zoom at cursor position
             float originalZoom = Zoom;
             Point newOrigin = origin;
             if (direction > 0)
@@ -577,10 +583,10 @@ namespace RoadTrafficSimulator
             switch (mode)
             {
                 case Mode.Select_Crossroad:
-                    labelCoords.Text = string.Format("Coords: {0}", selectedCrossroad?.Coords.ToString() ?? "(-;-)");
-                    labelInIndex.Text = string.Format("Incoming roads: {0}", selectedCrossroad?.InIndex.ToString() ?? "-");
-                    labelOutIndex.Text = string.Format("Outcoming roads: {0}", selectedCrossroad?.OutIndex.ToString() ?? "-");
-                    labelCarSpawnRate.Text = string.Format("Car spawn rate: {0} %", selectedCrossroad?.CarSpawnRate.ToString() ?? "-");
+                    labelCoords.Text = $"Coords: {selectedCrossroad?.Coords.ToString() ?? "(-;-)"}";
+                    labelInIndex.Text = $"Incoming roads: {selectedCrossroad?.InIndex.ToString() ?? "-"}";
+                    labelOutIndex.Text = $"Outcoming roads: {selectedCrossroad?.OutIndex.ToString() ?? "-"}";
+                    labelCarSpawnRate.Text = $"Car spawn rate: {selectedCrossroad?.CarSpawnRate.ToString() ?? "-"} %";
                     trackBarCarSpawnRate.Value = selectedCrossroad?.CarSpawnRate ?? 10;
                     trackBarCarSpawnRate.Enabled = selectedCrossroad != null;
                     buttonDestroyCrossroad.Enabled = selectedCrossroad != null;
@@ -591,8 +597,8 @@ namespace RoadTrafficSimulator
                         labelTwoWayRoad.Text = "-";
                     else
                         labelTwoWayRoad.Text = selectedRoad.TwoWayRoad ? "Two-way" : "One-way";
-                    labelFrom.Text = string.Format("From: {0}", selectedRoad?.From.ToString() ?? "(-;-)");
-                    labelTo.Text = string.Format("To: {0}", selectedRoad?.To.ToString() ?? "(-;-)");
+                    labelFrom.Text = $"From: {selectedRoad?.From.ToString() ?? "(-;-)"}";
+                    labelTo.Text = $"To: {selectedRoad?.To.ToString() ?? "(-;-)"}";
                     freezeMaxSpeed = true;
                     numericUpDownMaxSpeed.Value = selectedRoad?.MaxSpeed ?? numericUpDownMaxSpeed.Minimum;
                     freezeMaxSpeed = false;
@@ -605,7 +611,7 @@ namespace RoadTrafficSimulator
         private void ShowInfo(string info)
         {
             labelInfo.Text = info;
-            Debug.WriteLine(string.Format("{0}: {1}", DateTime.Now, info));
+            Debug.WriteLine($"{ DateTime.Now}: {info}");
             labelInfo.Refresh();
         }
 
