@@ -39,7 +39,7 @@ namespace RoadTrafficSimulator
          * direction: from , to
          */
 
-        public static void SaveMap(TextWriter writer, Components.Map map, IMap guiMap)
+        public static void SaveMap(TextWriter writer, Components.Map map, IGMap guiMap)
         {
             writer.WriteLine(keywordRoads);
             writer.WriteLine();
@@ -47,8 +47,8 @@ namespace RoadTrafficSimulator
             writer.WriteLine("{0} path: coords1 ; coords2 [; coords3 [; coords4] ...]", commentMark);
             writer.WriteLine("{0} coords: x , y", commentMark);
             writer.WriteLine();
-            foreach (IRoad guiRoad in guiMap.GetRoads())
-                writer.WriteLine(RoadToString(new RoadView((Components.Road)map.GetEdge(guiRoad.GetRoadIds().First()), guiRoad)));
+            foreach (IGRoad guiRoad in guiMap.GetRoads())
+                writer.WriteLine(RoadToString(new RoadView((Components.Road)map.GetEdge(guiRoad.GetRoads().First()), guiRoad)));
             writer.WriteLine();
 
             writer.WriteLine(keywordCrossroads);
@@ -58,7 +58,7 @@ namespace RoadTrafficSimulator
             writer.WriteLine("{0} settings: duration ; direction1 [; direction2 [; direction3] ...]", commentMark);
             writer.WriteLine("{0} direction: from , to", commentMark);
             writer.WriteLine();
-            foreach (ICrossroad guiCrossroad in guiMap.GetCrossroads())
+            foreach (IGCrossroad guiCrossroad in guiMap.GetCrossroads())
                 writer.WriteLine(CrossroadToString(new CrossroadView((Components.Crossroad)map.GetNode(guiCrossroad.CrossroadId), guiCrossroad)));
             writer.WriteLine();
             writer.WriteLine(keywordEnd);
@@ -66,7 +66,7 @@ namespace RoadTrafficSimulator
             writer.Flush();
         }
 
-        public static bool LoadMap(TextReader reader, Components.Map map, IMap guiMap)
+        public static bool LoadMap(TextReader reader, Components.Map map, IGMap guiMap)
         {
             string line;
             // Find the beginning of roads
@@ -112,7 +112,7 @@ namespace RoadTrafficSimulator
         private static string RoadToString(RoadView road)
         {
             StringBuilder sb = new StringBuilder();
-            foreach (int roadId in road.GuiRoad.GetRoadIds())
+            foreach (int roadId in road.GuiRoad.GetRoads())
                 sb.Append(roadId).Append(fieldSeparator);
             sb.Append(road.MaxSpeed).Append(fieldSeparator);
             foreach (Coords coords in road.GuiRoad.GetRoute())
@@ -140,7 +140,7 @@ namespace RoadTrafficSimulator
             return sb.ToString();
         }
 
-        private static bool ParseRoad(string line, Components.Map map, IMap guiMap, out (int, int)[] roadIdMappings)
+        private static bool ParseRoad(string line, Components.Map map, IGMap guiMap, out (int, int)[] roadIdMappings)
         {
             // Split line into fields and parse them: roadId [| backRoadId] | maxSpeed | path
             string[] fields = line.Split(fieldSeparator);
@@ -189,9 +189,9 @@ namespace RoadTrafficSimulator
                 builder.DestroyRoad();
                 return false;
             }
-            IRoad road = guiMap.GetRoad(new Vector(firstCoords, secondCoords), true);
+            IGRoad road = guiMap.GetRoad(new Vector(firstCoords, secondCoords), true);
             int j = 0;
-            foreach (int id in road.GetRoadIds())
+            foreach (int id in road.GetRoads())
                 roadIdMappings[j++].Item2 = id;
             return true;
         }

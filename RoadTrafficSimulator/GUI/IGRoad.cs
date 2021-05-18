@@ -3,24 +3,26 @@ using System.Collections.Generic;
 using System.Drawing;
 
 using RoadTrafficSimulator.ValueTypes;
+using RoadTrafficSimulator.Components;
 
 namespace RoadTrafficSimulator.GUI
 {
-    interface IRoad
+    interface IGRoad
     {
         Coords From { get; }
         Coords To { get; }
         bool IsTwoWay { get; }
         Highlight Highlight { set; }
-        IEnumerable<int> GetRoadIds();
+        IEnumerable<Road> GetRoads();
         IEnumerable<Coords> GetRoute();
         void Draw(Graphics graphics, Point from, Point to, int width);
     }
 
-    interface IMutableRoad : IRoad
+    interface IMutableRoad : IGRoad
     {
+        public enum Direction : byte { Forward, Backward }
+
         IList<Coords> Route { get; }
-        void SetRoadId(int id, Direction direction = Direction.Forward);
-        public enum Direction { Forward, Backward }
+        void SetRoad(Road road, Direction direction);
     }
 }

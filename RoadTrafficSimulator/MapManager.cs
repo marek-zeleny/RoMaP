@@ -57,12 +57,12 @@ namespace RoadTrafficSimulator
             return new Vector(from, to);
         }
 
-        public static IRoadBuilder CreateRoadBuilder(Components.Map map, IMap guiMap, Coords startingCoords, bool twoWayRoad)
+        public static IRoadBuilder CreateRoadBuilder(Map map, IGMap guiMap, Coords startingCoords, bool twoWayRoad)
         {
             return RoadBuilder.CreateRoadBuilder(map, guiMap, startingCoords, twoWayRoad);
         }
 
-        public static bool IsMapWithoutRoadsAt(IMap guiMap, Coords coords)
+        public static bool IsMapWithoutRoadsAt(IGMap guiMap, Coords coords)
         {
             foreach (Coords diff in allowedDirections)
                 if (guiMap.GetRoad(new Vector(coords, new Coords(coords.x + diff.x, coords.y + diff.y)), true) != null)
@@ -74,29 +74,29 @@ namespace RoadTrafficSimulator
 
         #region members
 
-        private Components.Map map;
-        private IMap guiMap = new GUI.Map();
+        private Map map;
+        private IGMap guiMap = new GMap();
 
-        public MapManager(Components.Map map)
+        public MapManager(Map map)
         {
             this.map = map;
         }
 
         public CrossroadView GetCrossroad(Coords coords)
         {
-            ICrossroad guiCrossroad = guiMap.GetCrossroad(coords);
+            IGCrossroad guiCrossroad = guiMap.GetCrossroad(coords);
             if (guiCrossroad == null)
                 return null;
-            Components.Crossroad crossroad = (Components.Crossroad)map.GetNode(coords);
+            Crossroad crossroad = (Crossroad)map.GetNode(coords);
             return new CrossroadView(crossroad, guiCrossroad);
         }
 
         public RoadView GetRoad(Vector vector)
         {
-            IRoad guiRoad = guiMap.GetRoad(vector, true);
+            IGRoad guiRoad = guiMap.GetRoad(vector, true);
             if (guiRoad == null)
                 return null;
-            Components.Road road = (Components.Road)map.GetEdge(guiRoad.GetRoadIds().First());
+            Road road = guiRoad.GetRoads().First();
             return new RoadView(road, guiRoad);
         }
 
@@ -113,9 +113,9 @@ namespace RoadTrafficSimulator
 
         public RoadView GetOppositeRoad(RoadView roadView)
         {
-            foreach (int id in roadView.GuiRoad.GetRoadIds())
+            foreach (int id in roadView.GuiRoad.GetRoads())
                 if (id != roadView.Id)
-                    return new RoadView((Components.Road)map.GetEdge(id), roadView.GuiRoad);
+                    return new RoadView((Road)map.GetEdge(id), roadView.GuiRoad);
             return null;
         }
 
@@ -124,17 +124,17 @@ namespace RoadTrafficSimulator
             return CreateRoadBuilder(map, guiMap, startingCoords, twoWayRoad);
         }
 
-        public bool DestroyCrossroad(ICrossroad crossroad)
+        public bool DestroyCrossroad(IGCrossroad crossroad)
         {
             map.RemoveCrossroad(crossroad.CrossroadId);
             return DestroyGuiCrossroad(crossroad);
         }
 
-        public bool DestroyRoad(IRoad road)
+        public bool DestroyRoad(IGRoad gRoad)
         {
-            foreach (int id in road.GetRoadIds())
-                map.RemoveRoad(id);
-            return DestroyGuiRoad(road);
+            foreach (Road road in gRoad.GetRoads())
+                map.RemoveRoad(road.Id);
+            return DestroyGuiRoad(gRoad);
         }
 
         public void Draw(Graphics graphics, Point origin, float zoom, int width, int height)
@@ -148,10 +148,10 @@ namespace RoadTrafficSimulator
             MapSaverLoader.SaveMap(writer, map, guiMap);
         }
 
-        public bool LoadMap(StreamReader reader, out Components.Map newMap)
+        public bool LoadMap(StreamReader reader, out Map newMap)
         {
-            newMap = new Components.Map();
-            IMap newGuiMap = new GUI.Map();
+            newMap = new Map();
+            IGMap newGuiMap = new GMap();
             bool result = MapSaverLoader.LoadMap(reader, newMap, newGuiMap);
             if (result)
             {
@@ -161,7 +161,7 @@ namespace RoadTrafficSimulator
             return result;
         }
 
-        private bool DestroyGuiCrossroad(ICrossroad crossroad)
+        private bool DestroyGuiCrossroad(IGCrossroad crossroad)
         {
             foreach (RoadView road in GetAllRoads(crossroad.CrossroadId))
                 if (!DestroyGuiRoad(road.GuiRoad))
@@ -170,7 +170,7 @@ namespace RoadTrafficSimulator
             return guiMap.GetCrossroad(crossroad.CrossroadId) == null;
         }
 
-        private bool DestroyGuiRoad(IRoad road)
+        private bool DestroyGuiRoad(IGRoad road)
         {
             var enumerator = road.GetRoute().GetEnumerator();
             enumerator.MoveNext();
@@ -224,7 +224,7 @@ namespace RoadTrafficSimulator
 
         private class RoadBuilder : IRoadBuilder
         {
-            public static IRoadBuilder CreateRoadBuilder(Components.Map map, IMap guiMap, Coords startingCoords, bool twoWayRoad)
+            public static IRoadBuilder CreateRoadBuilder(Map map, IGMap guiMap, Coords startingCoords, bool twoWayRoad)
             {
                 if (map.GetNode(startingCoords) == null && !IsMapWithoutRoadsAt(guiMap, startingCoords))
                     return null;
@@ -232,22 +232,21 @@ namespace RoadTrafficSimulator
                     return new RoadBuilder(map, guiMap, startingCoords, twoWayRoad);
             }
 
-            private Components.Map map;
-            private IMap guiMap;
+            private Map map;
+            private IGMap guiMap;
             private IMutableRoad road;
+            private bool twoWay;
 
             private IList<Coords> Route { get => road.Route; }
 
             public bool CanContinue { get; private set; }
 
-            private RoadBuilder(Components.Map map, IMap guiMap, Coords startingCoords, bool twoWayRoad)
+            private RoadBuilder(Map map, IGMap guiMap, Coords startingCoords, bool twoWay)
             {
                 this.map = map;
                 this.guiMap = guiMap;
-                if (twoWayRoad)
-                    road = new TwoWayRoad();
-                else
-                    road = new GUI.Road();
+                this.twoWay = twoWay;
+                road = new GRoad();
                 road.Route.Add(startingCoords);
                 road.Highlight = Highlight.High;
                 CanContinue = true;
@@ -288,15 +287,15 @@ namespace RoadTrafficSimulator
                 TryGetOrAddCrossroad(to).Highlight = Highlight.Normal;
                 this.road.Highlight = Highlight.Normal;
                 Distance roadLength = (Route.Count - 1) * roadSegmentLength;
-                Components.Road road = map.AddRoad(from, to, roadLength, maxSpeed);
-                this.road.SetRoadId(road.Id);
-                if (this.road.IsTwoWay)
+                Road road = map.AddRoad(from, to, roadLength, maxSpeed);
+                this.road.SetRoad(road, IMutableRoad.Direction.Forward);
+                if (twoWay)
                 {
-                    Components.Road backRoad = map.AddRoad(to, from, roadLength, maxSpeed);
-                    this.road.SetRoadId(backRoad.Id, IMutableRoad.Direction.Backward);
+                    Road backRoad = map.AddRoad(to, from, roadLength, maxSpeed);
+                    this.road.SetRoad(backRoad, IMutableRoad.Direction.Backward);
                     // Set TrafficLight to always allow backward direction
-                    ((Components.Crossroad)road.ToNode).TrafficLight.AddDefaultDirection(road.Id, backRoad.Id);
-                    ((Components.Crossroad)backRoad.ToNode).TrafficLight.AddDefaultDirection(backRoad.Id, road.Id);
+                    ((Crossroad)road.ToNode).TrafficLight.AddDefaultDirection(road.Id, backRoad.Id);
+                    ((Crossroad)backRoad.ToNode).TrafficLight.AddDefaultDirection(backRoad.Id, road.Id);
                 }
                 Invalidate();
                 return true;
@@ -313,12 +312,12 @@ namespace RoadTrafficSimulator
                 Invalidate();
             }
 
-            private ICrossroad TryGetOrAddCrossroad(Coords coords)
+            private IGCrossroad TryGetOrAddCrossroad(Coords coords)
             {
-                ICrossroad output = guiMap.GetCrossroad(coords);
+                IGCrossroad output = guiMap.GetCrossroad(coords);
                 if (output != null)
                     return output;
-                output = new GUI.Crossroad(coords);
+                output = new GCrossroad(coords);
                 guiMap.AddCrossroad(output, coords);
                 return output;
             }

@@ -5,7 +5,7 @@ using RoadTrafficSimulator.ValueTypes;
 
 namespace RoadTrafficSimulator.GUI
 {
-    class Crossroad : ICrossroad
+    class GCrossroad : IGCrossroad
     {
         private static readonly Color color = Color.Red;
 
@@ -13,14 +13,14 @@ namespace RoadTrafficSimulator.GUI
 
         public Coords CrossroadId { get; }
 
-        public Crossroad(Coords crossroadId)
+        public GCrossroad(Coords crossroadId)
         {
             CrossroadId = crossroadId;
         }
 
         public void Draw(Graphics graphics, Point point, int size)
         {
-            Color color = Crossroad.color;
+            Color color = GCrossroad.color;
             switch (Highlight)
             {
                 case Highlight.Low:
@@ -33,7 +33,7 @@ namespace RoadTrafficSimulator.GUI
             int halfSize = size / 2;
             point.Offset(-halfSize, -halfSize);
             Rectangle rectangle = new Rectangle(point, new Size(size, size));
-            graphics.FillRectangle(new SolidBrush(color), rectangle);
+            graphics.FillEllipse(new SolidBrush(color), rectangle);
         }
     }
 }

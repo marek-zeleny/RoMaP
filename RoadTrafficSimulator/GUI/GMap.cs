@@ -6,32 +6,32 @@ using RoadTrafficSimulator.ValueTypes;
 
 namespace RoadTrafficSimulator.GUI
 {
-    class Map : IMap
+    class GMap : IGMap
     {
         private const int crossroadSize = 20;
         private const int roadWidth = 7;
 
-        private Dictionary<Coords, ICrossroad> crossroads = new Dictionary<Coords, ICrossroad>();
-        private Dictionary<Vector, IRoad> roadSegments = new Dictionary<Vector, IRoad>();
+        private Dictionary<Coords, IGCrossroad> crossroads = new Dictionary<Coords, IGCrossroad>();
+        private Dictionary<Vector, IGRoad> roadSegments = new Dictionary<Vector, IGRoad>();
 
-        public bool AddCrossroad(ICrossroad crossroad, Coords coords) =>crossroads.TryAdd(coords, crossroad);
+        public bool AddCrossroad(IGCrossroad crossroad, Coords coords) =>crossroads.TryAdd(coords, crossroad);
 
-        public bool AddRoad(IRoad road, Vector vector) => roadSegments.TryAdd(vector, road);
+        public bool AddRoad(IGRoad road, Vector vector) => roadSegments.TryAdd(vector, road);
 
         public bool RemoveCrossroad(Coords coords) => crossroads.Remove(coords);
 
         public bool RemoveRoad(Vector vector) => roadSegments.Remove(vector);
 
-        public ICrossroad GetCrossroad(Coords coords)
+        public IGCrossroad GetCrossroad(Coords coords)
         {
-            if (!crossroads.TryGetValue(coords, out ICrossroad output))
+            if (!crossroads.TryGetValue(coords, out IGCrossroad output))
                 return null;
             return output;
         }
 
-        public IRoad GetRoad(Vector vector, bool ignoreDirection)
+        public IGRoad GetRoad(Vector vector, bool ignoreDirection)
         {
-            if (!roadSegments.TryGetValue(vector, out IRoad output))
+            if (!roadSegments.TryGetValue(vector, out IGRoad output))
             {
                 if (!ignoreDirection)
                     return null;
@@ -41,9 +41,9 @@ namespace RoadTrafficSimulator.GUI
             return output;
         }
 
-        public IEnumerable<ICrossroad> GetCrossroads() => crossroads.Select(pair => pair.Value);
+        public IEnumerable<IGCrossroad> GetCrossroads() => crossroads.Select(pair => pair.Value);
 
-        public IEnumerable<IRoad> GetRoads() => roadSegments.Select(pair => pair.Value).Distinct();
+        public IEnumerable<IGRoad> GetRoads() => roadSegments.Select(pair => pair.Value).Distinct();
 
         public void Draw(Graphics graphics, Point origin, float zoom, int width, int height)
         {
@@ -64,7 +64,7 @@ namespace RoadTrafficSimulator.GUI
             }
         }
 
-        private bool IsInRange (Point point, int width, int height)
+        private static bool IsInRange (Point point, int width, int height)
         {
             return point.X >= 0 && point.X <= width && point.Y >= 0 && point.Y <= height;
         }

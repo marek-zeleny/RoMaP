@@ -15,9 +15,9 @@ namespace RoadTrafficSimulator
         public Coords To { get => road.ToNode.Id; }
         public Speed MaxSpeed { get => road.MaxSpeed; set => road.MaxSpeed = value; }
         public bool TwoWayRoad { get => GuiRoad is TwoWayRoad; }
-        public IRoad GuiRoad { get; }
+        public IGRoad GuiRoad { get; }
 
-        public RoadView(Components.Road road, IRoad guiRoad)
+        public RoadView(Components.Road road, IGRoad guiRoad)
         {
             this.road = road;
             GuiRoad = guiRoad;

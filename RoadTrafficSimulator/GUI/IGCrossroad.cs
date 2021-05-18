@@ -5,7 +5,7 @@ using RoadTrafficSimulator.ValueTypes;
 
 namespace RoadTrafficSimulator.GUI
 {
-    interface ICrossroad
+    interface IGCrossroad
     {
         Highlight Highlight { set; }
         Coords CrossroadId { get; }
