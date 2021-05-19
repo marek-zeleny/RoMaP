@@ -13,8 +13,6 @@ namespace RoadTrafficSimulator
 {
     public partial class FormMain : Form
     {
-        private const float minZoom = 0.2f;
-        private const float maxZoom = 5f;
         private const float carFrequencyQuotient = 0.03f;
         private static readonly string savePath = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "RoadTrafficSimulator");
@@ -22,50 +20,18 @@ namespace RoadTrafficSimulator
         private enum Mode { Build_Road, Select_Crossroad, Select_Road };
 
         private MapManager mapManager;
-        private Point origin;
-        private float zoom; // Do not access directly, use property Zoom
         private Simulation simulation;
         private Mode mode;
         private IRoadBuilder currentRoadBuilder;
         private CrossroadView selectedCrossroad;
         private RoadView selectedRoad;
-        private Point prevMouseLocation;
-        private bool drag;
-        private bool dragOccured;
         private bool freezeMaxSpeed;
-
-        public float Zoom
-        {
-            get => zoom;
-            set
-            {
-                if (value < minZoom)
-                    zoom = minZoom;
-                else if (value > maxZoom)
-                    zoom = maxZoom;
-                else
-                    zoom = value;
-                buttonZoom.Text = $"Zoom: {zoom:0.0}x";
-            }
-        }
-
-        private Point PanelMapCenter { get => new Point(panelMap.Width / 2, panelMap.Height / 2); }
 
         public FormMain()
         {
             InitializeComponent();
             // Disable form resizing via maximizing the window
             MaximizeBox = false;
-            // Enable double-buffering for panelMap
-            typeof(Panel).InvokeMember("DoubleBuffered",
-                System.Reflection.BindingFlags.SetProperty
-                | System.Reflection.BindingFlags.Instance
-                | System.Reflection.BindingFlags.NonPublic,
-                null,
-                panelMap,
-                new object[] { true });
-            // Add MouseWheel event for panelMap
-            panelMap.MouseWheel += panelMap_MouseWheel;
             // Initialize comboBoxMode
             foreach (Mode m in Enum.GetValues(typeof(Mode)))
                 comboBoxMode.Items.Add(m.ToString().Replace('_', ' '));
@@ -74,23 +40,20 @@ namespace RoadTrafficSimulator
 
             Components.Map map = new Components.Map();
             mapManager = new MapManager(map);
-            origin = PanelMapCenter;
-            Zoom = 1f;
             simulation = new Simulation(map);
         }
 
         #region form_events
 
-        private void panelMap_Paint(object sender, PaintEventArgs e)
+        private void mapPanel_Paint(object sender, PaintEventArgs e)
         {
-            mapManager.Draw(e.Graphics, origin, Zoom, panelMap.Width, panelMap.Height);
+            mapManager.Draw(e.Graphics, mapPanel.Origin, mapPanel.Zoom, mapPanel.Width, mapPanel.Height);
         }
 
-        private void panelMap_MouseClick(object sender, MouseEventArgs e)
+        private void mapPanel_MouseClick(object sender, MouseEventArgs e)
         {
-            if (dragOccured)
-                return;
             if (e.Button == MouseButtons.Left)
+            {
                 switch (mode)
                 {
                     case Mode.Select_Crossroad:
@@ -103,7 +66,9 @@ namespace RoadTrafficSimulator
                         Build(e.Location);
                         break;
                 }
+            }
             else if (e.Button == MouseButtons.Right)
+            {
                 switch (mode)
                 {
                     case Mode.Select_Crossroad:
@@ -114,47 +79,16 @@ namespace RoadTrafficSimulator
                         DestroyBuild();
                         break;
                 }
-            panelMap.Invalidate();
+            }
         }
 
-        private void panelMap_MouseDoubleClick(object sender, MouseEventArgs e)
+        private void mapPanel_MouseDoubleClick(object sender, MouseEventArgs e)
         {
             if (mode == Mode.Build_Road)
             {
                 FinishBuild();
-                panelMap.Invalidate();
+                mapPanel.Invalidate();
             }
-        }
-
-        private void panelMap_MouseDown(object sender, MouseEventArgs e)
-        {
-            if (e.Button == MouseButtons.Left)
-                drag = true;
-        }
-
-        private void panelMap_MouseUp(object sender, MouseEventArgs e)
-        {
-            if (e.Button == MouseButtons.Left)
-            {
-                drag = false;
-                dragOccured = false;
-            }
-        }
-
-        private void panelMap_MouseMove(object sender, MouseEventArgs e)
-        {
-            if (drag)
-            {
-                Drag(e.Location);
-                dragOccured = true;
-                panelMap.Invalidate();
-            }
-            prevMouseLocation = e.Location;
-        }
-        private void panelMap_MouseWheel(object sender, MouseEventArgs e)
-        {
-            ChangeZoom(e.Delta, e.Location);
-            panelMap.Invalidate();
         }
 
         private void buttonTrafficLight_Click(object sender, EventArgs e)
@@ -171,7 +105,7 @@ namespace RoadTrafficSimulator
             {
                 mapManager.DestroyCrossroad(selectedCrossroad.GuiCrossroad);
                 UnselectCrossroad();
-                panelMap.Invalidate();
+                mapPanel.Invalidate();
             }
         }
 
@@ -181,7 +115,7 @@ namespace RoadTrafficSimulator
             {
                 mapManager.DestroyRoad(selectedRoad.GuiRoad);
                 UnselectRoad();
-                panelMap.Invalidate();
+                mapPanel.Invalidate();
             }
         }
 
@@ -193,7 +127,7 @@ namespace RoadTrafficSimulator
         private void buttonLoadMap_Click(object sender, EventArgs e)
         {
             InitializeLoadMap();
-            panelMap.Invalidate();
+            mapPanel.Invalidate();
         }
 
         private void buttonStartSimulation_Click(object sender, EventArgs e)
@@ -208,14 +142,12 @@ namespace RoadTrafficSimulator
 
         private void buttonCenter_Click(object sender, EventArgs e)
         {
-            origin = PanelMapCenter;
-            panelMap.Invalidate();
+            mapPanel.ResetOrigin();
         }
 
         private void buttonZoom_Click(object sender, EventArgs e)
         {
-            Zoom = 1f;
-            panelMap.Invalidate();
+            mapPanel.Zoom = 1f;
         }
 
         private void numericUpDownMaxSpeed_ValueChanged(object sender, EventArgs e)
@@ -249,7 +181,7 @@ namespace RoadTrafficSimulator
         private void comboBoxMode_SelectedIndexChanged(object sender, EventArgs e)
         {
             ChangeMode(Enum.Parse<Mode>(comboBoxMode.Text.Replace(' ', '_')));
-            panelMap.Invalidate();
+            mapPanel.Invalidate();
         }
 
         #endregion form_events
@@ -449,38 +381,10 @@ namespace RoadTrafficSimulator
             labelAvgDelay.Text = string.Format("Average delay: {0}", simulation.Statistics.GetAverageDelay());
         }
 
-        private void Drag(Point mouseLocation)
-        {
-            Point delta = new Point(mouseLocation.X - prevMouseLocation.X, mouseLocation.Y - prevMouseLocation.Y);
-            origin.Offset(delta);
-        }
-
-        private void ChangeZoom(int direction, Point mouseLocation)
-        {
-            const float coefficient = 1.2f;
-            // For centring the zoom at cursor position
-            float originalZoom = Zoom;
-            Point newOrigin = origin;
-            if (direction > 0)
-            {
-                Zoom *= coefficient;
-                newOrigin.X = (int)(newOrigin.X * coefficient - mouseLocation.X * (coefficient - 1));
-                newOrigin.Y = (int)(newOrigin.Y * coefficient - mouseLocation.Y * (coefficient - 1));
-            }
-            else if (direction < 0)
-            {
-                Zoom /= coefficient;
-                newOrigin.X = (int)((newOrigin.X + mouseLocation.X * (coefficient - 1)) / coefficient);
-                newOrigin.Y = (int)((newOrigin.Y + mouseLocation.Y * (coefficient - 1)) / coefficient);
-            }
-            if (Zoom != originalZoom)
-                origin = newOrigin;
-        }
-
         private void SelectCrossroad(Point mouseLocation)
         {
             UnselectCrossroad(false);
-            Coords coords = MapManager.CalculateCoords(mouseLocation, origin, Zoom);
+            Coords coords = MapManager.CalculateCoords(mouseLocation, mapPanel.Origin, mapPanel.Zoom);
             selectedCrossroad = mapManager.GetCrossroad(coords);
             if (selectedCrossroad != null)
                 selectedCrossroad.GuiCrossroad.Highlight = GUI.Highlight.High;
@@ -500,7 +404,7 @@ namespace RoadTrafficSimulator
         private void SelectRoad(Point mouseLocation)
         {
             UnselectRoad(false);
-            Vector vector = MapManager.CalculateVector(mouseLocation, origin, Zoom);
+            Vector vector = MapManager.CalculateVector(mouseLocation, mapPanel.Origin, mapPanel.Zoom);
             selectedRoad = mapManager.GetRoad(vector);
             if (selectedRoad != null)
                 selectedRoad.GuiRoad.Highlight = GUI.Highlight.High;
@@ -519,7 +423,7 @@ namespace RoadTrafficSimulator
 
         private void Build(Point mouseLocation)
         {
-            Coords coords = MapManager.CalculateCoords(mouseLocation, origin, Zoom);
+            Coords coords = MapManager.CalculateCoords(mouseLocation, mapPanel.Origin, mapPanel.Zoom);
             if (currentRoadBuilder == null)
                 currentRoadBuilder = mapManager.GetRoadBuilder(coords, checkBoxTwoWayRoad.Checked);
             else
