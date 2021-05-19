@@ -1,4 +1,4 @@
-﻿namespace RoadTrafficSimulator
+﻿namespace RoadTrafficSimulator.Forms
 {
     partial class FormMain
     {

@@ -9,7 +9,7 @@ using System.Windows.Forms;
 using RoadTrafficSimulator.Components;
 using RoadTrafficSimulator.ValueTypes;
 
-namespace RoadTrafficSimulator
+namespace RoadTrafficSimulator.Forms
 {
     public partial class FormTrafficLight : Form
     {

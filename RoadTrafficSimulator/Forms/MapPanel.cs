@@ -3,7 +3,7 @@ using System.Drawing;
 using System.ComponentModel;
 using System.Windows.Forms;
 
-namespace RoadTrafficSimulator
+namespace RoadTrafficSimulator.Forms
 {
     class MapPanel : Panel
     {
