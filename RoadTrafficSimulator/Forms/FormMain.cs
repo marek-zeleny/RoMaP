@@ -233,7 +233,7 @@ namespace RoadTrafficSimulator.Forms
                     ShowInfo($"Starting simulation of {duration} hours with {carFrequency:0.00} car frequency...");
                     Time durationSeconds = (duration * 3600).Seconds();
                     float newCarsPerHundredSecondsPerCrossroad = trackBarCarFrequency.Value * carFrequencyQuotient;
-                    simulation.Simulate(durationSeconds, newCarsPerHundredSecondsPerCrossroad);
+                    //simulation.Simulate(durationSeconds, newCarsPerHundredSecondsPerCrossroad);
                     ShowInfo("The simulation has ended.");
                     UpdateStatistics();
                     break;

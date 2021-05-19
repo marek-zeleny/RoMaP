@@ -113,9 +113,9 @@ namespace RoadTrafficSimulator
 
         public RoadView GetOppositeRoad(RoadView roadView)
         {
-            foreach (int id in roadView.GuiRoad.GetRoads())
-                if (id != roadView.Id)
-                    return new RoadView((Road)map.GetEdge(id), roadView.GuiRoad);
+            //foreach (int id in roadView.GuiRoad.GetRoads())
+            //    if (id != roadView.Id)
+            //        return new RoadView((Road)map.GetEdge(id), roadView.GuiRoad);
             return null;
         }
 

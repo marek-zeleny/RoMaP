@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
+using RoadTrafficSimulator.Forms;
+
 namespace RoadTrafficSimulator
 {
     static class Program

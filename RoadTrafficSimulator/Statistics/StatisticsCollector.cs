@@ -67,16 +67,16 @@ namespace RoadTrafficSimulator.Statistics
 
         public void ExportCSV(TextWriter writer)
         {
-            writer.WriteLine("From(x),From(y),To(x),To(y),Start(s),Finish(s),ExpectedDuration(s),Distance(m)");
-            foreach (var s in finishedCars)
-            {
-                var first = s.RoadLog[0];
-                var last = s.RoadLog[s.RoadLog.Count - 1];
-                var from = first.Road.FromNode.Id;
-                var to = last.Road.ToNode.Id;
-                writer.WriteLine($"{from.x},{from.y},{to.x},{to.y},{(int)first.Time},{(int)s.Finish},{(int)s.ExpectedDuration},{(int)s.Distance}");
-            }
-            writer.Flush();
+            //writer.WriteLine("From(x),From(y),To(x),To(y),Start(s),Finish(s),ExpectedDuration(s),Distance(m)");
+            //foreach (var s in finishedCars)
+            //{
+            //    var first = s.RoadLog[0];
+            //    var last = s.RoadLog[s.RoadLog.Count - 1];
+            //    var from = first.Road.FromNode.Id;
+            //    var to = last.Road.ToNode.Id;
+            //    writer.WriteLine($"{from.x},{from.y},{to.x},{to.y},{(int)first.Time},{(int)s.Finish},{(int)s.ExpectedDuration},{(int)s.Distance}");
+            //}
+            //writer.Flush();
         }
 
         public void ExportJson(string path)

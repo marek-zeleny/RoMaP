@@ -47,8 +47,8 @@ namespace RoadTrafficSimulator
             writer.WriteLine("{0} path: coords1 ; coords2 [; coords3 [; coords4] ...]", commentMark);
             writer.WriteLine("{0} coords: x , y", commentMark);
             writer.WriteLine();
-            foreach (IGRoad guiRoad in guiMap.GetRoads())
-                writer.WriteLine(RoadToString(new RoadView((Components.Road)map.GetEdge(guiRoad.GetRoads().First()), guiRoad)));
+            //foreach (IGRoad guiRoad in guiMap.GetRoads())
+            //    writer.WriteLine(RoadToString(new RoadView((Components.Road)map.GetEdge(guiRoad.GetRoads().First()), guiRoad)));
             writer.WriteLine();
 
             writer.WriteLine(keywordCrossroads);
@@ -112,8 +112,8 @@ namespace RoadTrafficSimulator
         private static string RoadToString(RoadView road)
         {
             StringBuilder sb = new StringBuilder();
-            foreach (int roadId in road.GuiRoad.GetRoads())
-                sb.Append(roadId).Append(fieldSeparator);
+            //foreach (int roadId in road.GuiRoad.GetRoads())
+            //    sb.Append(roadId).Append(fieldSeparator);
             sb.Append(road.MaxSpeed).Append(fieldSeparator);
             foreach (Coords coords in road.GuiRoad.GetRoute())
                 sb.Append(coords.x).Append(valueSeparator).Append(coords.y).Append(entitySeparator);
@@ -131,8 +131,8 @@ namespace RoadTrafficSimulator
             foreach (TrafficLight.Setting setting in crossroad.TrafficLight.Settings)
             {
                 sb.Append(setting.Duration).Append(entitySeparator);
-                foreach (TrafficLight.Direction direction in setting)
-                    sb.Append(direction.fromId).Append(valueSeparator).Append(direction.toId).Append(entitySeparator);
+                //foreach (TrafficLight.Direction direction in setting)
+                //    sb.Append(direction.fromId).Append(valueSeparator).Append(direction.toId).Append(entitySeparator);
                 sb.Remove(sb.Length - 1, 1);
                 sb.Append(fieldSeparator);
             }
@@ -191,8 +191,8 @@ namespace RoadTrafficSimulator
             }
             IGRoad road = guiMap.GetRoad(new Vector(firstCoords, secondCoords), true);
             int j = 0;
-            foreach (int id in road.GetRoads())
-                roadIdMappings[j++].Item2 = id;
+            //foreach (int id in road.GetRoads())
+            //    roadIdMappings[j++].Item2 = id;
             return true;
         }
 

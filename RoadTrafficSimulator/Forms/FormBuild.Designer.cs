@@ -29,7 +29,7 @@ namespace RoadTrafficSimulator.Forms
         /// </summary>
         private void InitializeComponent()
         {
-            this.mapPanel1 = new RoadTrafficSimulator.MapPanel();
+            this.mapPanel1 = new RoadTrafficSimulator.Forms.MapPanel();
             this.SuspendLayout();
             // 
             // mapPanel1
@@ -55,6 +55,6 @@ namespace RoadTrafficSimulator.Forms
 
         #endregion
 
-        private RoadTrafficSimulator.MapPanel mapPanel1;
+        private RoadTrafficSimulator.Forms.MapPanel mapPanel1;
     }
 }

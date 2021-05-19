@@ -83,6 +83,8 @@ namespace RoadTrafficSimulator.Components
             }
         }
 
+        #region nested_classes
+
         private class PassiveNavigation : INavigation
         {
             private CentralNavigation central;
@@ -159,5 +161,7 @@ namespace RoadTrafficSimulator.Components
                 NextRoad = nextRoad;
             }
         }
+
+        #endregion nested_classes
     }
 }

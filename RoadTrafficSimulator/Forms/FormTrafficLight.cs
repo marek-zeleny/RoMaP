@@ -173,7 +173,7 @@ namespace RoadTrafficSimulator.Forms
                         else
                         {
                             // If the selected road is two-way, disable the backward direction
-                            cb.Enabled = !selectedRoad.GuiRoad.GetRoads().Contains((int)id);
+                            //cb.Enabled = !selectedRoad.GuiRoad.GetRoads().Contains((int)id);
                             cb.Checked = currentSetting.ContainsDirection(selectedRoad.Id, id.Value);
                         }
                     }

@@ -66,7 +66,7 @@
             this.buttonSaveMap = new System.Windows.Forms.Button();
             this.groupBoxInfo = new System.Windows.Forms.GroupBox();
             this.labelInfo = new System.Windows.Forms.Label();
-            this.mapPanel = new RoadTrafficSimulator.MapPanel();
+            this.mapPanel = new RoadTrafficSimulator.Forms.MapPanel();
             this.groupBoxBuild.SuspendLayout();
             this.groupBoxCrossroad.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarCarSpawnRate)).BeginInit();
