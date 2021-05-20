@@ -52,8 +52,8 @@ namespace RoadTrafficSimulator.Forms
         private void buttonBuildMap_Click(object sender, EventArgs e)
         {
             FormBuild form = new FormBuild(mapManager);
-            form.FormClosed += (object sender, FormClosedEventArgs e) => Enabled = true;
-            Enabled = false;
+            form.FormClosed += (object sender, FormClosedEventArgs e) => Visible = true;
+            Visible = false;
             form.Show();
         }
 

@@ -72,6 +72,7 @@ namespace RoadTrafficSimulator.Forms
                 default:
                     break;
             }
+            mapPanel.Invalidate();
         }
 
         private void mapPanel_MouseDoubleClick(object sender, MouseEventArgs e)
@@ -80,11 +81,11 @@ namespace RoadTrafficSimulator.Forms
             {
                 case Mode.Build:
                     FinishBuild();
-                    mapPanel.Invalidate();
                     break;
                 default:
                     break;
             }
+            mapPanel.Invalidate();
         }
 
         private void mapPanel_ZoomChanged(object sender, EventArgs e)
@@ -144,9 +145,10 @@ namespace RoadTrafficSimulator.Forms
 
         private void numericUpDownMaxSpeed_ValueChanged(object sender, EventArgs e)
         {
-            if (freezeMaxSpeed || selectedRoad == null)
+            Debug.Assert(selectedRoad != null);
+            if (freezeMaxSpeed)
                 return;
-            selectedRoad.MaxSpeed = ((int)numericUpDownMaxSpeed.Value).MetresPerSecond();
+            selectedRoad.MaxSpeed = ((int)numericUpDownMaxSpeed.Value).KilometresPerHour();
             // Must check whether the road accepted this max speed
             freezeMaxSpeed = true;
             numericUpDownMaxSpeed.Value = selectedRoad.MaxSpeed;
@@ -305,7 +307,7 @@ namespace RoadTrafficSimulator.Forms
                 labelFrom.Text = $"From: {selectedRoad.From}";
                 labelTo.Text = $"To: {selectedRoad.To}";
                 freezeMaxSpeed = true;
-                numericUpDownMaxSpeed.Value = selectedRoad.MaxSpeed;
+                numericUpDownMaxSpeed.Value = selectedRoad.MaxSpeed.ToKilometresPerHour();
                 freezeMaxSpeed = false;
             }
         }

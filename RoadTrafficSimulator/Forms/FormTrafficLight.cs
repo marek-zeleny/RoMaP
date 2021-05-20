@@ -137,7 +137,7 @@ namespace RoadTrafficSimulator.Forms
         private void ShowProperties()
         {
             numericUpDownDuration.Enabled = trafficLight.Settings.Count > 1;
-            numericUpDownDuration.Value = currentSetting.Duration;
+            numericUpDownDuration.Value = currentSetting.Duration.ToSeconds();
             InitializeDirectionCheckBoxes();
         }
 
