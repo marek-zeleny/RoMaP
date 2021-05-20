@@ -7,12 +7,8 @@ namespace RoadTrafficSimulator.ValueTypes
     {
         public const int precision = 1000;
         private const string unit = "ms";
+        private const int convertToDistanceCoef = Distance.precision / (precision * Speed.precision);
         private const int convertToDistanceCoefInverse = precision * Speed.precision / Distance.precision;
-
-        static Time()
-        {
-            Debug.Assert(convertToDistanceCoefInverse > 0);
-        }
 
         private readonly int value;
 
@@ -31,16 +27,22 @@ namespace RoadTrafficSimulator.ValueTypes
 
         public static Time operator -(Time t1, Time t2) => new Time(t1.value - t2.value);
 
-        public static Distance operator *(Time t, Speed s) =>
-            new Distance(t.value * (int)s / convertToDistanceCoefInverse);
-
-        public static Distance operator *(Speed s, Time t) => t * s;
-
         public static Time operator *(Time t, int i) => new Time(t.value * i);
 
         public static Time operator *(int i, Time t) => t * i;
 
         public static Time operator /(Time t, int i) => new Time(t.value / i);
+
+        public static Distance operator *(Time t, Speed s)
+        {
+            // Statically evaluated
+            if (convertToDistanceCoef > 0)
+                return new Distance(t.value * (int)s * convertToDistanceCoef);
+            else
+                return new Distance(t.value * (int)s / convertToDistanceCoefInverse);
+        }
+
+        public static Distance operator *(Speed s, Time t) => t * s;
 
         public override string ToString() => $"{value:N0}{unit}";
     }

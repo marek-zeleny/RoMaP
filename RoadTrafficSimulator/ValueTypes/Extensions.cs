@@ -31,6 +31,8 @@ namespace RoadTrafficSimulator.ValueTypes
             }
         }
 
+        #region from_int_to_quant
+
         public static Distance Metres(this int value) => new Distance(value * Coefficients.metres);
 
         public static Distance Millimetres(this int value) => new Distance(value * Coefficients.millimetres);
@@ -48,6 +50,27 @@ namespace RoadTrafficSimulator.ValueTypes
 
         public static Acceleration MetresPerSecondPerSecond(this int value) =>
             new Acceleration(value * Coefficients.metresPerSecondPerSecond);
+
+        #endregion from_int_to_quant
+
+        #region from_quant_to_int
+
+        public static int ToMetres(this Distance d) => (int)d / Coefficients.metres;
+
+        public static int ToMillimetres(this Distance d) => (int)d / Coefficients.millimetres;
+
+        public static int ToSeconds(this Time t) => (int)t / Coefficients.seconds;
+
+        public static int ToMilliseconds(this Time t) => (int)t / Coefficients.milliseconds;
+
+        public static int ToMetresPerSecond(this Speed s) => (int)s / Coefficients.metresPerSecond;
+
+        public static int ToKilometresPerHour(this Speed s) => (int)s / Coefficients.kilometresPerHour;
+
+        public static int ToMetresPerSecondPerSecond(this Acceleration a) =>
+            (int)a / Coefficients.metresPerSecondPerSecond;
+
+        #endregion from_quant_to_int
 
 
         public static Weight Weight(this Time value) => new Weight(value);

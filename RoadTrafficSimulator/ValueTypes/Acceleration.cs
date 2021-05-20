@@ -7,14 +7,10 @@ namespace RoadTrafficSimulator.ValueTypes
     {
         public const int precision = 1;
         private const string unit = "mpss";
-        private const int convertToSpeedCoef = Speed.precision / Time.precision * precision;
+        private const int convertToSpeedCoef = Speed.precision / (Time.precision * precision);
+        private const int convertToSpeedCoefInverse = Time.precision * precision / Speed.precision;
         private const int convertToTimeCoef = Time.precision * precision / Speed.precision;
-
-        static Acceleration()
-        {
-            Debug.Assert(convertToSpeedCoef > 0);
-            Debug.Assert(convertToTimeCoef > 0);
-        }
+        private const int convertToTimeCoefInverse = Speed.precision / (Time.precision * precision);
 
         private readonly int value;
 
@@ -35,17 +31,31 @@ namespace RoadTrafficSimulator.ValueTypes
         public static Acceleration operator -(Acceleration a1, Acceleration a2) =>
             new Acceleration(a1.value - a2.value);
 
-        public static Speed operator *(Acceleration a, Time t) => new Speed(convertToSpeedCoef * a.value * (int)t);
-
-        public static Speed operator *(Time t, Acceleration a) => a * t;
-
-        public static Time operator /(Speed s, Acceleration a) => new Time(convertToTimeCoef * (int)s / a.value);
-
         public static Acceleration operator *(Acceleration a, int i) => new Acceleration(a.value * i);
 
         public static Acceleration operator *(int i, Acceleration a) => a * i;
 
         public static Acceleration operator /(Acceleration a, int i) => new Acceleration(a.value / i);
+
+        public static Speed operator *(Acceleration a, Time t)
+        {
+            // Statically evaluated
+            if (convertToSpeedCoef > 0)
+                return new Speed(convertToSpeedCoef * a.value * (int)t);
+            else
+                return new Speed(a.value * (int)t / convertToSpeedCoefInverse);
+        }
+
+        public static Speed operator *(Time t, Acceleration a) => a * t;
+
+        public static Time operator /(Speed s, Acceleration a)
+        {
+            // Statically evaluated
+            if (convertToTimeCoef > 0)
+                return new Time(convertToTimeCoef * (int)s / a.value);
+            else
+                return new Time((int)s / (a.value * convertToTimeCoefInverse));
+        }
 
         public override string ToString() => $"{value:N0}{unit}";
     }
