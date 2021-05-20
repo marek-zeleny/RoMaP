@@ -44,12 +44,12 @@ namespace RoadTrafficSimulator.Forms
         }
 
         [Browsable(true)]
-        [Category("PropertyChanged")]
+        [Category("Property Changed")]
         [Description("Occurs when the map origin moves.")]
         public event EventHandler OriginChanged;
 
         [Browsable(true)]
-        [Category("PropertyChanged")]
+        [Category("Property Changed")]
         [Description("Occurs when map zoom changes.")]
         public event EventHandler ZoomChanged;
 
@@ -104,7 +104,10 @@ namespace RoadTrafficSimulator.Forms
             if (drag)
             {
                 Point offset = new Point(e.Location.X - prevMouseLocation.X, e.Location.Y - prevMouseLocation.Y);
-                Origin.Offset(offset);
+                // Careful with mutable structs...
+                Point newOrigin = Origin;
+                newOrigin.Offset(offset);
+                Origin = newOrigin;
                 dragOccured = true;
             }
             prevMouseLocation = e.Location;
