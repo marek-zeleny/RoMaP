@@ -27,10 +27,9 @@ namespace RoadTrafficSimulator.Forms
         {
             InitializeComponent();
             // Initialize comboBoxMode
-            foreach (Mode m in Enum.GetValues(typeof(Mode)))
-                comboBoxMode.Items.Add(m.ToString().Replace('_', ' '));
-            comboBoxMode.SelectedIndex = 0;
-            mode = 0;
+            foreach (string name in Enum.GetNames<Mode>())
+                comboBoxMode.Items.Add(name.Replace('_', ' '));
+            comboBoxMode.SelectedIndex = 0; // Triggers comboBoxMode_SelectedIndexChanged()
 
             this.mapManager = mapManager;
         }
@@ -96,9 +95,7 @@ namespace RoadTrafficSimulator.Forms
         private void buttonTrafficLight_Click(object sender, EventArgs e)
         {
             FormTrafficLight form = new FormTrafficLight(mapManager, selectedCrossroad);
-            form.FormClosed += (object sender, FormClosedEventArgs e) => Enabled = true;
-            Enabled = false;
-            form.Show();
+            form.ShowDialog();
         }
 
         private void buttonDestroyCrossroad_Click(object sender, EventArgs e)
@@ -140,7 +137,7 @@ namespace RoadTrafficSimulator.Forms
 
         private void buttonFinish_Click(object sender, EventArgs e)
         {
-            Close();
+            Hide();
         }
 
         private void numericUpDownMaxSpeed_ValueChanged(object sender, EventArgs e)
@@ -376,12 +373,11 @@ namespace RoadTrafficSimulator.Forms
         private void LoadMap(string path)
         {
             bool successful = false;
-            Components.Map newMap = null;
             StreamReader sr = null;
             try
             {
                 sr = new StreamReader(path);
-                successful = mapManager.LoadMap(sr, out newMap);
+                successful = mapManager.LoadMap(sr);
             }
             catch (Exception e) when (
                 e is IOException ||

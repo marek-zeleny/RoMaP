@@ -6,6 +6,8 @@ using System.Security;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
+using RoadTrafficSimulator.ValueTypes;
+
 namespace RoadTrafficSimulator.Forms
 {
     public partial class FormMain : Form
@@ -16,15 +18,19 @@ namespace RoadTrafficSimulator.Forms
 
         private MapManager mapManager;
         private Simulation simulation;
+        private FormBuild buildForm;
+        private FormSimulationSettings settingsForm;
         private CrossroadView selectedCrossroad;
         private RoadView selectedRoad;
 
         public FormMain()
         {
             InitializeComponent();
-            Components.Map map = new Components.Map();
-            mapManager = new MapManager(map);
-            simulation = new Simulation(map);
+            mapManager = new MapManager();
+            simulation = new Simulation();
+            buildForm = new FormBuild(mapManager);
+            buildForm.VisibleChanged += (_, _) => Visible = !buildForm.Visible;
+            settingsForm = new FormSimulationSettings();
         }
 
         #region form_events
@@ -51,10 +57,12 @@ namespace RoadTrafficSimulator.Forms
 
         private void buttonBuildMap_Click(object sender, EventArgs e)
         {
-            FormBuild form = new FormBuild(mapManager);
-            form.FormClosed += (object sender, FormClosedEventArgs e) => Visible = true;
-            Visible = false;
-            form.Show();
+            buildForm.Show();
+        }
+
+        private void buttonSimulate_Click(object sender, EventArgs e)
+        {
+            InitializeSimulation();
         }
 
         #endregion form_events
@@ -63,13 +71,20 @@ namespace RoadTrafficSimulator.Forms
 
         private void InitializeSimulation()
         {
-            Simulation.InitialisationResult result = simulation.Initialise(out Components.Crossroad invalidCrossroad);
-            if (result == Simulation.InitialisationResult.Ok)
-                StartSimulation();
+            var initResult = simulation.Initialise(mapManager.Map, out Components.Crossroad invalidCrossroad);
+            if (initResult == Simulation.InitialisationResult.Ok)
+            {
+                var settingsResult = settingsForm.ShowDialog();
+                Debug.WriteLine($"Settings dialog result: {settingsResult}");
+                if (settingsResult == DialogResult.OK)
+                    StartSimulation(settingsForm.Settings);
+                else
+                    ShowInfo("The simulation was cancelled.");
+            }
             else
             {
                 string message;
-                switch (result)
+                switch (initResult)
                 {
                     case Simulation.InitialisationResult.Error_NoMap:
                         message =
@@ -91,68 +106,11 @@ namespace RoadTrafficSimulator.Forms
             }
         }
 
-        private void StartSimulation()
+        private void StartSimulation(SimulationSettings settings)
         {
-            /*/
-            int duration = trackBarDuration.Value;
-            float carFrequency = trackBarCarFrequency.Value / 100f;
-            string message = 
-                $"Map check complete: all traffic lights are set up correctly.\n" +
-                $"Do you want to start the simulation of {duration} hours with {carFrequency:0.00} car frequency?";
-            DialogResult result = MessageBox.Show(message, "Start Simulation",
-                MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
-            switch (result)
-            {
-                case DialogResult.Yes:
-                    ShowInfo($"Starting simulation of {duration} hours with {carFrequency:0.00} car frequency...");
-                    Time durationSeconds = (duration * 3600).Seconds();
-                    float newCarsPerHundredSecondsPerCrossroad = trackBarCarFrequency.Value * carFrequencyQuotient;
-                    //simulation.Simulate(durationSeconds, newCarsPerHundredSecondsPerCrossroad);
-                    ShowInfo("The simulation has ended.");
-                    UpdateStatistics();
-                    break;
-                default:
-                    ShowInfo("The simulation did not start.");
-                    break;
-            }
-            /**/
-        }
-
-        private void InitializeSaveMap()
-        {
-            if (!Directory.Exists(savePath))
-                Directory.CreateDirectory(savePath);
-            SaveFileDialog fileDialog = new SaveFileDialog()
-            {
-                Title = "Save map",
-                Filter = "Map files (*.map)|*.map",
-                InitialDirectory = savePath
-            };
-            if (fileDialog.ShowDialog() == DialogResult.OK)
-                SaveMap(fileDialog.FileName);
-        }
-
-        private void SaveMap(string path)
-        {
-            bool successful = true;
-            StreamWriter sw = null;
-            try
-            {
-                sw = new StreamWriter(path);
-                mapManager.SaveMap(sw);
-            }
-            catch (Exception e) when (e is IOException || e is UnauthorizedAccessException || e is SecurityException)
-            {
-                string message = $"An error occurred while saving the map: {e.Message}";
-                MessageBox.Show(message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                successful = false;
-            }
-            finally
-            {
-                sw?.Dispose();
-            }
-            if (successful)
-                ShowInfo("Map successfully saved.");
+            ShowInfo($"Starting simulation of {settings.Duration.ToHours()} hours...");
+            simulation.Simulate(settings);
+            ShowInfo("The simulation has ended.");
         }
 
         private void InitializeExportStats()
