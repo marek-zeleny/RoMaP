@@ -74,20 +74,16 @@ namespace RoadTrafficSimulator
 
         #region members
 
-        private Map map;
         private IGMap guiMap = new GMap();
 
-        public MapManager(Map map)
-        {
-            this.map = map;
-        }
+        public Map Map { get; private set; } = new Map();
 
         public CrossroadView GetCrossroad(Coords coords)
         {
             IGCrossroad guiCrossroad = guiMap.GetCrossroad(coords);
             if (guiCrossroad == null)
                 return null;
-            Crossroad crossroad = (Crossroad)map.GetNode(coords);
+            Crossroad crossroad = (Crossroad)Map.GetNode(coords);
             return new CrossroadView(crossroad, guiCrossroad);
         }
 
@@ -121,19 +117,19 @@ namespace RoadTrafficSimulator
 
         public IRoadBuilder GetRoadBuilder(Coords startingCoords, bool twoWayRoad = true)
         {
-            return CreateRoadBuilder(map, guiMap, startingCoords, twoWayRoad);
+            return CreateRoadBuilder(Map, guiMap, startingCoords, twoWayRoad);
         }
 
         public bool DestroyCrossroad(IGCrossroad crossroad)
         {
-            map.RemoveCrossroad(crossroad.CrossroadId);
+            Map.RemoveCrossroad(crossroad.CrossroadId);
             return DestroyGuiCrossroad(crossroad);
         }
 
         public bool DestroyRoad(IGRoad gRoad)
         {
             foreach (Road road in gRoad.GetRoads())
-                map.RemoveRoad(road.Id);
+                Map.RemoveRoad(road.Id);
             return DestroyGuiRoad(gRoad);
         }
 
@@ -145,17 +141,17 @@ namespace RoadTrafficSimulator
 
         public void SaveMap(StreamWriter writer)
         {
-            MapSaverLoader.SaveMap(writer, map, guiMap);
+            MapSaverLoader.SaveMap(writer, Map, guiMap);
         }
 
-        public bool LoadMap(StreamReader reader, out Map newMap)
+        public bool LoadMap(StreamReader reader)
         {
-            newMap = new Map();
+            Map newMap = new Map();
             IGMap newGuiMap = new GMap();
             bool result = MapSaverLoader.LoadMap(reader, newMap, newGuiMap);
             if (result)
             {
-                map = newMap;
+                Map = newMap;
                 guiMap = newGuiMap;
             }
             return result;
