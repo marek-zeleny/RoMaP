@@ -42,6 +42,9 @@ namespace RoadTrafficSimulator.Components
         {
             this.map = map;
             this.clock = clock;
+            pathsCache = new Dictionary<Coords, IDictionary<Coords, Timestamp>>(map.CrossroadCount);
+            foreach (var crossroad in map.GetNodes())
+                pathsCache[crossroad.Id] = new Dictionary<Coords, Timestamp>(map.CrossroadCount);
         }
 
         public INavigation GetNavigation(Coords from, Coords to, bool active)
@@ -61,9 +64,10 @@ namespace RoadTrafficSimulator.Components
 
         private void UpdateCache(Coords from, Coords to)
         {
-            if (pathsCache.ContainsKey(from)
-                && pathsCache[from].ContainsKey(to)
-                && pathsCache[from][to].searchTime >= clock.Time)
+            bool isUpToDate(Coords from, Coords to) =>
+                pathsCache[from].ContainsKey(to) && pathsCache[from][to].searchTime >= clock.Time;
+
+            if (isUpToDate(from, to))
                 return;
 
             var paths = map.FindShortestPaths(Algorithms.GraphType.NonnegativeWeights, from,
@@ -74,12 +78,14 @@ namespace RoadTrafficSimulator.Components
                 Road prevRoad = null;
                 foreach (var segment in path.ReversedPathSegments)
                 {
-                    if (pathsCache[segment.Edge.ToNode.Id][dest].searchTime < clock.Time)
-                        pathsCache[segment.Edge.ToNode.Id][dest] = new Timestamp(
+                    var source = segment.Edge.ToNode.Id;
+                    if (!isUpToDate(source, dest))
+                        pathsCache[source][dest] = new Timestamp(
                             clock.Time, prevRoad, path.TotalWeight - segment.TotalWeight);
                     prevRoad = (Road)segment.Edge;
                 }
-                pathsCache[from][dest] = new Timestamp(clock.Time, prevRoad, path.TotalWeight);
+                if (!isUpToDate(from, dest))
+                    pathsCache[from][dest] = new Timestamp(clock.Time, prevRoad, path.TotalWeight);
             }
         }
 
