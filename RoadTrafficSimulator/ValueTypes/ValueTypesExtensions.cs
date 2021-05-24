@@ -5,7 +5,7 @@ using DataStructures.Graphs;
 
 namespace RoadTrafficSimulator.ValueTypes
 {
-    static class Extensions
+    static class ValueTypesExtensions
     {
         private static class Coefficients
         {

@@ -3,7 +3,7 @@ using System.Diagnostics;
 
 namespace RoadTrafficSimulator.ValueTypes
 {
-    readonly struct Speed
+    readonly struct Speed : IComparable<Speed>
     {
         public const int precision = 1000;
         private const string unit = "mmps";
@@ -52,6 +52,8 @@ namespace RoadTrafficSimulator.ValueTypes
             else
                 return new Acceleration(s.value / ((int)t * convertToAccelerationCoefInverse));
         }
+
+        public int CompareTo(Speed other) => value.CompareTo(other.value);
 
         public override string ToString() => $"{value:N0}{unit}";
     }

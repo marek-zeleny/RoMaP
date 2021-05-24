@@ -3,7 +3,7 @@ using System.Diagnostics;
 
 namespace RoadTrafficSimulator.ValueTypes
 {
-    readonly struct Time
+    readonly struct Time : IComparable<Time>
     {
         public const int precision = 1000;
         private const string unit = "ms";
@@ -43,6 +43,8 @@ namespace RoadTrafficSimulator.ValueTypes
         }
 
         public static Distance operator *(Speed s, Time t) => t * s;
+
+        public int CompareTo(Time other) => value.CompareTo(other.value);
 
         public override string ToString() => $"{value:N0}{unit}";
     }
