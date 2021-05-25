@@ -49,12 +49,10 @@ namespace RoadTrafficSimulator.Components
 
         #endregion static
 
-        private readonly Action<Statistics> finishDriveAction;
-        private INavigation navigation;
-        private Statistics statistics;
+        private readonly INavigation navigation;
+        private readonly CarStatistics statistics;
         private Distance distance;
         private bool newRoad;
-        private Time remainingTimeAfterCrossing;
 
         public int Id { get; }
         public Distance Length { get; }
@@ -62,16 +60,15 @@ namespace RoadTrafficSimulator.Components
         public Distance DistanceRear { get => distance - Length; }
         private Car CarInFront { get; set; }
         public Car CarBehind { get; private set; }
+        public ICarStatistics Statistics { get => statistics; }
 
-        public Car(Distance length, INavigation navigation, Action<Statistics> finishDriveAction,
-            StatisticsCollector collector)
+        public Car(Distance length, INavigation navigation, StatisticsCollector collector)
         {
             Id = nextId++;
             Length = length;
             this.navigation = navigation;
-            statistics = new Statistics(collector, navigation.Clock,
+            statistics = new CarStatistics(collector, navigation.Clock,
                 Id, navigation.RemainingDuration, navigation.CurrentRoad.Id);
-            this.finishDriveAction = finishDriveAction;
         }
 
         #region methods
@@ -185,22 +182,39 @@ namespace RoadTrafficSimulator.Components
                 CurrentSpeed = 0.MetresPerSecond();
                 navigation.CurrentRoad.GetOff(this);
                 statistics.Finish();
-                finishDriveAction(statistics);
             }
         }
 
         #endregion methods
 
-        public class Statistics : StatisticsBase
+        #region subclasses
+
+        public interface ICarStatistics
         {
-            private Item<Time> startTime = new Item<Time>(DetailLevel.Low);
-            private Item<Time> finishTime = new Item<Time>(DetailLevel.Low);
-            private Item<Distance> distance = new Item<Distance>(DetailLevel.Low, 0.Metres());
-            private Item<Time> expectedDuration = new Item<Time>(DetailLevel.Low);
-            private Item<List<Timestamp<int>>> roadLog = new Item<List<Timestamp<int>>>(DetailLevel.Medium,
-                new List<Timestamp<int>>());
-            private Item<List<Timestamp<Speed>>> speedLog = new Item<List<Timestamp<Speed>>>(
-                DetailLevel.High, new List<Timestamp<Speed>>());
+            public int CarId { get; }
+            public Time StartTime { get; }
+            public Time FinishTime { get; }
+            public Distance Distance { get; }
+            public Time ExpectedDuration { get; }
+            public Time Duration { get; }
+            /// <summary>
+            /// Records each road and time the car got on that road.
+            /// </summary>
+            public IReadOnlyList<StatisticsBase.Timestamp<int>> RoadLog { get; }
+            /// <summary>
+            /// Periodically records the car's speed.
+            /// </summary>
+            public IReadOnlyList<StatisticsBase.Timestamp<Speed>> SpeedLog { get; }
+        }
+
+        private class CarStatistics : StatisticsBase, ICarStatistics
+        {
+            private Item<Time> startTime = new(DetailLevel.Low);
+            private Item<Time> finishTime = new(DetailLevel.Low);
+            private Item<Distance> distance = new(DetailLevel.Low, 0.Metres());
+            private Item<Time> expectedDuration = new(DetailLevel.Low);
+            private Item<List<Timestamp<int>>> roadLog = new(DetailLevel.Medium, new());
+            private Item<List<Timestamp<Speed>>> speedLog = new(DetailLevel.High, new());
 
             public int CarId { get; }
             public Time StartTime { get => startTime; }
@@ -218,7 +232,7 @@ namespace RoadTrafficSimulator.Components
             public IReadOnlyList<Timestamp<Speed>> SpeedLog { get => speedLog.Get(); }
 
 
-            public Statistics(StatisticsCollector collector, IClock clock,
+            public CarStatistics(StatisticsCollector collector, IClock clock,
                 int CarId, Time expectedDuration, int firstRoadId)
                 : base(collector, typeof(Car), clock)
             {
@@ -264,5 +278,7 @@ namespace RoadTrafficSimulator.Components
                 writer.WriteEndObject();
             }
         }
+
+        #endregion subclasses
     }
 }

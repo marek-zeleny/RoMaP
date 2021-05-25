@@ -21,7 +21,7 @@ namespace RoadTrafficSimulator.Components
         private Lane[] lanes;
         private int laneCount;
         private Queue<Time> averageDurationHistory;
-        private Statistics statistics;
+        private RoadStatistics statistics;
 
         public Distance Length
         {
@@ -76,6 +76,7 @@ namespace RoadTrafficSimulator.Components
             }
         }
         public Crossroad Destination { get => (Crossroad)ToNode; }
+        public IRoadStatistics Statistics { get => statistics; }
 
         public Road(int id, Crossroad from, Crossroad to, Distance length, Speed maxSpeed)
             : base(id, from, to)
@@ -106,7 +107,7 @@ namespace RoadTrafficSimulator.Components
             AverageDuration = Length / MaxSpeed;
             AverageSpeed = MaxSpeed;
             averageDurationHistory = new Queue<Time>(averageDurationHistorySize);
-            statistics = new Statistics(collector, clock, Id);
+            statistics = new RoadStatistics(collector, clock, Id);
             return true;
         }
 
@@ -235,18 +236,49 @@ namespace RoadTrafficSimulator.Components
             }
         }
 
-        public class Statistics : StatisticsBase
+        public interface IRoadStatistics
         {
-            Item<List<Timestamp<CarPassage>>> carLog = new Item<List<Timestamp<CarPassage>>>(DetailLevel.Medium,
-                new List<Timestamp<CarPassage>>());
-            Item<List<Timestamp<Throughput>>> throughputLog = new Item<List<Timestamp<Throughput>>>(DetailLevel.High,
-                new List<Timestamp<Throughput>>());
+            public int RoadId { get; }
+            public IReadOnlyList<StatisticsBase.Timestamp<CarPassage>> CarLog { get; }
+            public IReadOnlyList<StatisticsBase.Timestamp<Throughput>> ThroughputLog { get; }
+        }
+
+        public readonly struct CarPassage
+        {
+            public readonly int carId;
+            public readonly Time arriveTime;
+
+            public CarPassage(int carId, Time arriveTime)
+            {
+                this.carId = carId;
+                this.arriveTime = arriveTime;
+            }
+        }
+
+        public readonly struct Throughput
+        {
+            public readonly int carCount;
+            public readonly Speed averageSpeed;
+            public readonly Time averageDuration;
+
+            public Throughput(int carCount, Speed averageSpeed, Time averageDuration)
+            {
+                this.carCount = carCount;
+                this.averageSpeed = averageSpeed;
+                this.averageDuration = averageDuration;
+            }
+        }
+
+        private class RoadStatistics : StatisticsBase, IRoadStatistics
+        {
+            Item<List<Timestamp<CarPassage>>> carLog = new(DetailLevel.Medium, new());
+            Item<List<Timestamp<Throughput>>> throughputLog = new(DetailLevel.High, new());
 
             public int RoadId { get; }
             public IReadOnlyList<Timestamp<CarPassage>> CarLog { get => carLog.Get(); }
             public IReadOnlyList<Timestamp<Throughput>> ThroughputLog { get => throughputLog.Get(); }
 
-            public Statistics(StatisticsCollector collector, IClock clock, int roadId)
+            public RoadStatistics(StatisticsCollector collector, IClock clock, int roadId)
                 : base(collector, typeof(Road), clock)
             {
                 RoadId = roadId;
@@ -254,8 +286,7 @@ namespace RoadTrafficSimulator.Components
 
             public void Update(int carCount, Speed averageSpeed, Time averageDuration)
             {
-                throughputLog.Get()?.Add(new Timestamp<Throughput>(clock.Time,
-                    new Throughput(carCount, averageSpeed, averageDuration)));
+                throughputLog.Get()?.Add(new(clock.Time, new(carCount, averageSpeed, averageDuration)));
             }
 
             public Time CarGotOn(int carId)
@@ -265,7 +296,7 @@ namespace RoadTrafficSimulator.Components
 
             public Time CarGotOff(int carId, Time arriveTime)
             {
-                carLog.Get()?.Add(new Timestamp<CarPassage>(clock.Time, new CarPassage(carId, arriveTime)));
+                carLog.Get()?.Add(new(clock.Time, new(carId, arriveTime)));
                 return clock.Time - arriveTime;
             }
 
@@ -290,32 +321,6 @@ namespace RoadTrafficSimulator.Components
                 SerialiseTimestampListItem(writer, throughputLog, "throughputLog", SerialiseThroughput);
 
                 writer.WriteEndObject();
-            }
-
-            public struct CarPassage
-            {
-                public readonly int carId;
-                public readonly Time arriveTime;
-
-                public CarPassage(int carId, Time arriveTime)
-                {
-                    this.carId = carId;
-                    this.arriveTime = arriveTime;
-                }
-            }
-
-            public struct Throughput
-            {
-                public int carCount;
-                public readonly Speed averageSpeed;
-                public readonly Time averageDuration;
-
-                public Throughput(int carCount, Speed averageSpeed, Time averageDuration)
-                {
-                    this.carCount = carCount;
-                    this.averageSpeed = averageSpeed;
-                    this.averageDuration = averageDuration;
-                }
             }
         }
 

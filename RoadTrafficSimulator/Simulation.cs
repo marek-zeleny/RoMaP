@@ -21,8 +21,8 @@ namespace RoadTrafficSimulator
             public void Reset() => Time = new Time();
         }
 
-        private Random random = new Random();
-        private SimulationClock clock;
+        private readonly Random random;
+        private readonly SimulationClock clock;
         private Map map;
         private CentralNavigation centralNavigation;
         private IEnumerator<Crossroad> randomCrossroads;
@@ -33,6 +33,7 @@ namespace RoadTrafficSimulator
 
         public Simulation()
         {
+            random = new Random();
             clock = new SimulationClock();
         }
 
@@ -90,8 +91,7 @@ namespace RoadTrafficSimulator
             Distance length = carLengthDistribution[random.Next(carLengthDistribution.Length)].Metres();
             bool active = random.NextDouble() < activeNavigationRate;
             INavigation navigation = centralNavigation.GetNavigation(start.Id, finish.Id, active);
-            stagedCars.Add(new Car(length, navigation, DriveFinished, Statistics));
-            Statistics.AddCars(1);
+            stagedCars.Add(new Car(length, navigation, Statistics));
         }
 
         private void Tick(Time time)
@@ -107,11 +107,6 @@ namespace RoadTrafficSimulator
                 c.Tick(time);
             foreach (Road r in map.GetEdges())
                 r.Tick(time);
-        }
-
-        private void DriveFinished(Car.Statistics statistics)
-        {
-            Statistics.AddFinishedCar(statistics);
         }
 
         private Crossroad GetRandomCrossroad()
