@@ -11,65 +11,22 @@ using DataStructures.Miscellaneous;
 
 namespace RoadTrafficSimulator.Forms
 {
-    #region derived
-
-    class ChartInt : Chart<int>
-    {
-        ChartInt() : base(i => i) { }
-    }
-
-    class ChartDistance : Chart<Distance>
-    {
-        ChartDistance()
-            : base(dist => dist.ToMetres())
-        {
-            ValueUnit = "m";
-        }
-    }
-
-    class ChartTime : Chart<Time>
-    {
-        ChartTime()
-            : base(time => time.ToMinutes())
-        {
-            ValueUnit = "min";
-        }
-    }
-
-    class ChartSpeed : Chart<Speed>
-    {
-        ChartSpeed() : base(speed => speed.ToKilometresPerHour())
-        {
-            ValueUnit = "km/h";
-        }
-    }
-
-    class ChartThroughput : Chart<Components.Road.Statistics.Throughput>
-    {
-        ChartThroughput()
-            : base(throughput => throughput.averageSpeed.ToKilometresPerHour())
-        {
-            ValueUnit = "km/h";
-        }
-    }
-
-    #endregion derived
-
-    class Chart<TData> : Panel
+    class Chart<TData, TDataCarrier> : Panel
+        where TDataCarrier : class
     {
         public enum RangeMode { Fixed, FixedMin, FixedMax, Auto }
         public enum TimeUnit { Millisecond, Second, Minute, Hour, Day }
-        public delegate IReadOnlyList<StatisticsBase.Timestamp<TData>> DataListAggregator(StatisticsBase stats);
+        public delegate IReadOnlyList<Timestamp<TData>> DataListAggregator(TDataCarrier stats);
 
         private const int axisOffset = 25;
         // data
         private Func<TData, double> dataToDouble;
-        private StatisticsBase stats;
+        private TDataCarrier stats;
         private DataListAggregator statsAggregator;
-        private IReadOnlyList<StatisticsBase> statsList;
-        private Func<StatisticsBase, StatisticsBase.Timestamp<TData>> statsListAggregator;
+        private IReadOnlyList<TDataCarrier> statsList;
+        private Func<TDataCarrier, Timestamp<TData>> statsListAggregator;
         // cache
-        private Queue<StatisticsBase.Timestamp<TData>> dataCache;
+        private Queue<Timestamp<TData>> dataCache;
         private int cacheEndIndex;
         // properties
         private string caption;
@@ -178,7 +135,7 @@ namespace RoadTrafficSimulator.Forms
 
         #region interface
 
-        public void SetDataSource(StatisticsBase stats, DataListAggregator aggregator, IClock clock,
+        public void SetDataSource(TDataCarrier stats, DataListAggregator aggregator, IClock clock,
             Func<TData, double> dataToDouble = null)
         {
             statsList = null;
@@ -193,8 +150,8 @@ namespace RoadTrafficSimulator.Forms
             UpdateChart();
         }
 
-        public void SetDataSource(IReadOnlyList<StatisticsBase> statsList,
-            Func<StatisticsBase, StatisticsBase.Timestamp<TData>> aggregator, IClock clock,
+        public void SetDataSource(IReadOnlyList<TDataCarrier> statsList,
+            Func<TDataCarrier, Timestamp<TData>> aggregator, IClock clock,
             Func<TData, double> dataToDouble = null)
         {
             stats = null;
@@ -291,7 +248,7 @@ namespace RoadTrafficSimulator.Forms
             gr.DrawString(caption, font, brush, Width / 2, labelMargin, format);
         }
 
-        private void DrawData(Graphics gr, IEnumerable<StatisticsBase.Timestamp<TData>> data, double min, double max)
+        private void DrawData(Graphics gr, IEnumerable<Timestamp<TData>> data, double min, double max)
         {
             int top = axisOffset;
             int bot = Height - axisOffset;
@@ -303,7 +260,7 @@ namespace RoadTrafficSimulator.Forms
             double valueSpan = max - min;
             Time timeMin = clock.Time - TimeSpan;
 
-            PointF GetPoint(StatisticsBase.Timestamp<TData> timestamp)
+            PointF GetPoint(Timestamp<TData> timestamp)
             {
                 double relX = (double)(timestamp.time - timeMin) / TimeSpan;
                 double relY = (dataToDouble(timestamp.data) - min) / valueSpan;
@@ -337,10 +294,10 @@ namespace RoadTrafficSimulator.Forms
             gr.DrawString(text, font, brush, Width / 2, Height / 2, format);
         }
 
-        private IEnumerable<StatisticsBase.Timestamp<TData>> GetData()
+        private IEnumerable<Timestamp<TData>> GetData()
         {
             // Expects time linearity of the data
-            IEnumerable<StatisticsBase.Timestamp<TData>> newData;
+            IEnumerable<Timestamp<TData>> newData;
             if (stats != null)
             {
                 Debug.Assert(statsAggregator != null);
@@ -366,7 +323,7 @@ namespace RoadTrafficSimulator.Forms
             return dataCache;
         }
 
-        private (double min, double max) FindExtremes(IEnumerable<StatisticsBase.Timestamp<TData>> data)
+        private (double min, double max) FindExtremes(IEnumerable<Timestamp<TData>> data)
         {
             double min = dataToDouble(data.First().data);
             double max = min;

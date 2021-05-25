@@ -2,14 +2,18 @@
 using System.Windows.Forms;
 
 using RoadTrafficSimulator.ValueTypes;
+using RoadTrafficSimulator.Components;
 
 namespace RoadTrafficSimulator.Forms
 {
     public partial class SimulationPanel : UserControl
     {
+        Chart<Road.Throughput, Road.IRoadStatistics> chartAverageSpeed;
+
         public SimulationPanel()
         {
             InitializeComponent();
+            InitialiseChart();
             if (!DesignMode)
                 Deselect();
         }
@@ -44,6 +48,24 @@ namespace RoadTrafficSimulator.Forms
         {
             if (chartAverageSpeed.Visible)
                 chartAverageSpeed.UpdateChart();
+        }
+
+        private void InitialiseChart()
+        {
+            static double GetAverageSpeed(Road.Throughput throughput) => throughput.averageSpeed;
+
+            chartAverageSpeed = new Chart<Road.Throughput, Road.IRoadStatistics>(GetAverageSpeed)
+            {
+                Name = "chartAverageSpeed",
+                Caption = "Average speed",
+                TimeRepresentation = Chart<Road.Throughput, Road.IRoadStatistics>.TimeUnit.Minute,
+                TimeSpan = 10.Hours(),
+                ValueUnit = "km/h",
+                Dock = DockStyle.Fill,
+                TabIndex = 0,
+                TabStop = false
+            };
+            groupBoxRoad.Controls.Add(chartAverageSpeed);
         }
     }
 }

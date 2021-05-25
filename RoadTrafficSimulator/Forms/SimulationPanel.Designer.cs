@@ -45,7 +45,6 @@ namespace RoadTrafficSimulator.Forms
             // 
             // groupBoxRoad
             // 
-            this.groupBoxRoad.Controls.Add(this.chartAverageSpeed);
             this.groupBoxRoad.Controls.Add(this.labelMaxSpeed);
             this.groupBoxRoad.Controls.Add(this.labelTo);
             this.groupBoxRoad.Controls.Add(this.labelFrom);
@@ -159,20 +158,6 @@ namespace RoadTrafficSimulator.Forms
             this.labelCoords.TabIndex = 0;
             this.labelCoords.Text = "Coords: -;-";
             // 
-            // chartAverageSpeed
-            // 
-            this.chartAverageSpeed.Caption = "Average speed";
-            this.chartAverageSpeed.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.chartAverageSpeed.Location = new System.Drawing.Point(3, 79);
-            this.chartAverageSpeed.MaxValue = 130D;
-            this.chartAverageSpeed.MinValue = 0D;
-            this.chartAverageSpeed.Mode = RoadTrafficSimulator.Forms.Chart<RoadTrafficSimulator.Components.Road.Statistics.Throughput>.RangeMode.Fixed;
-            this.chartAverageSpeed.Name = "chartAverageSpeed";
-            this.chartAverageSpeed.Size = new System.Drawing.Size(367, 164);
-            this.chartAverageSpeed.TabIndex = 1;
-            this.chartAverageSpeed.TimeRepresentation = RoadTrafficSimulator.Forms.Chart<RoadTrafficSimulator.Components.Road.Statistics.Throughput>.TimeUnit.Minute;
-            this.chartAverageSpeed.ValueUnit = "km/h";
-            // 
             // SimulationPanel
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -197,18 +182,10 @@ namespace RoadTrafficSimulator.Forms
         private System.Windows.Forms.Label labelFrom;
         private System.Windows.Forms.Label labelTwoWayRoad;
         private System.Windows.Forms.Label labelMaxSpeed;
-        private ChartThroughput chartThroughput1;
-        private ChartThroughput chartThroughput2;
-        private ChartThroughput chartThroughput3;
-        private ChartThroughput chartThroughput4;
-        private ChartThroughput chartThroughput5;
-        private ChartThroughput chartThroughput6;
-        private ChartThroughput chartAverageSpeed;
         private System.Windows.Forms.GroupBox groupBoxCrossroad;
         private System.Windows.Forms.Label labelCarSpawnRate;
         private System.Windows.Forms.Label labelOutIndex;
         private System.Windows.Forms.Label labelInIndex;
         private System.Windows.Forms.Label labelCoords;
-        private ChartThroughput chartAverageSpe;
     }
 }
