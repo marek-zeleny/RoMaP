@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Windows.Forms;
 
 using RoadTrafficSimulator.ValueTypes;
 using RoadTrafficSimulator.Components;
+using RoadTrafficSimulator.Statistics;
 
 namespace RoadTrafficSimulator.Forms
 {
@@ -27,13 +29,16 @@ namespace RoadTrafficSimulator.Forms
             groupBoxCrossroad.Visible = true;
         }
 
-        internal void Select(RoadView road)
+        internal void Select(RoadView road, IClock clock)
         {
+            static IReadOnlyList<Timestamp<Road.Throughput>> GetThroughput(Road.IRoadStatistics stats) =>
+                stats.ThroughputLog;
+
             labelTwoWayRoad.Text = road.TwoWayRoad ? "Two-way" : "One-way";
             labelFrom.Text = $"From: {road.From}";
             labelTo.Text = $"To: {road.To}";
             labelMaxSpeed.Text = $"Max speed: {road.MaxSpeed.ToKilometresPerHour()} km/h";
-            // TODO: Set chart data source
+            chartAverageSpeed.SetDataSource(road.Statistics, GetThroughput, clock);
             chartAverageSpeed.MaxValue = road.MaxSpeed.ToKilometresPerHour();
             groupBoxRoad.Visible = true;
         }
@@ -60,6 +65,8 @@ namespace RoadTrafficSimulator.Forms
                 Caption = "Average speed",
                 TimeRepresentation = Chart<Road.Throughput, Road.IRoadStatistics>.TimeUnit.Minute,
                 TimeSpan = 10.Hours(),
+                Mode = Chart<Road.Throughput, Road.IRoadStatistics>.RangeMode.Fixed,
+                MinValue = 0,
                 ValueUnit = "km/h",
                 Dock = DockStyle.Fill,
                 TabIndex = 0,
