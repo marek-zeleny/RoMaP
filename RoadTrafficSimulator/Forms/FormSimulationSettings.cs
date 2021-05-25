@@ -14,6 +14,7 @@ namespace RoadTrafficSimulator.Forms
             High = 24
         }
 
+        private const float carFrequencyQuotient = 0.03f;
         private static readonly int[] durationTable = new int[]
         {
             1, 2, 3, 4, 5, 6,
@@ -106,7 +107,7 @@ namespace RoadTrafficSimulator.Forms
             {
                 // Reverse order because of reversed docking order of spawnRateBars in the form
                 TrackBar bar = spawnRateBars[^(i + 1)];
-                spawnRateDistribution[i] = (float)bar.Value / bar.Maximum;
+                spawnRateDistribution[i] = ((float)bar.Value / bar.Maximum) * carFrequencyQuotient;
             }
             Settings = new SimulationSettings(duration, navigationRate, spawnRateDistribution);
         }

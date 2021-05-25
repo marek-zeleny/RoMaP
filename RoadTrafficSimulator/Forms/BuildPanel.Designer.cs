@@ -73,7 +73,7 @@ namespace RoadTrafficSimulator.Forms
             this.comboBoxMode.Location = new System.Drawing.Point(0, 0);
             this.comboBoxMode.Margin = new System.Windows.Forms.Padding(2);
             this.comboBoxMode.Name = "comboBoxMode";
-            this.comboBoxMode.Size = new System.Drawing.Size(252, 23);
+            this.comboBoxMode.Size = new System.Drawing.Size(339, 23);
             this.comboBoxMode.TabIndex = 1;
             this.comboBoxMode.SelectedIndexChanged += new System.EventHandler(this.comboBoxMode_SelectedIndexChanged);
             // 
@@ -85,7 +85,7 @@ namespace RoadTrafficSimulator.Forms
             this.groupBoxBuild.Dock = System.Windows.Forms.DockStyle.Top;
             this.groupBoxBuild.Location = new System.Drawing.Point(0, 23);
             this.groupBoxBuild.Name = "groupBoxBuild";
-            this.groupBoxBuild.Size = new System.Drawing.Size(252, 41);
+            this.groupBoxBuild.Size = new System.Drawing.Size(339, 41);
             this.groupBoxBuild.TabIndex = 0;
             this.groupBoxBuild.TabStop = false;
             this.groupBoxBuild.Text = "Build Properties";
@@ -99,7 +99,7 @@ namespace RoadTrafficSimulator.Forms
             this.checkBoxTwoWayRoad.Dock = System.Windows.Forms.DockStyle.Top;
             this.checkBoxTwoWayRoad.Location = new System.Drawing.Point(3, 19);
             this.checkBoxTwoWayRoad.Name = "checkBoxTwoWayRoad";
-            this.checkBoxTwoWayRoad.Size = new System.Drawing.Size(246, 19);
+            this.checkBoxTwoWayRoad.Size = new System.Drawing.Size(333, 19);
             this.checkBoxTwoWayRoad.TabIndex = 2;
             this.checkBoxTwoWayRoad.Text = "Two-way road";
             this.checkBoxTwoWayRoad.UseVisualStyleBackColor = true;
@@ -118,7 +118,7 @@ namespace RoadTrafficSimulator.Forms
             this.groupBoxRoad.Margin = new System.Windows.Forms.Padding(1, 2, 1, 2);
             this.groupBoxRoad.Name = "groupBoxRoad";
             this.groupBoxRoad.Padding = new System.Windows.Forms.Padding(1, 2, 1, 2);
-            this.groupBoxRoad.Size = new System.Drawing.Size(252, 119);
+            this.groupBoxRoad.Size = new System.Drawing.Size(339, 119);
             this.groupBoxRoad.TabIndex = 0;
             this.groupBoxRoad.TabStop = false;
             this.groupBoxRoad.Text = "Road Properties";
@@ -131,7 +131,7 @@ namespace RoadTrafficSimulator.Forms
             this.buttonDestroyRoad.Location = new System.Drawing.Point(1, 92);
             this.buttonDestroyRoad.Margin = new System.Windows.Forms.Padding(1, 2, 1, 2);
             this.buttonDestroyRoad.Name = "buttonDestroyRoad";
-            this.buttonDestroyRoad.Size = new System.Drawing.Size(250, 25);
+            this.buttonDestroyRoad.Size = new System.Drawing.Size(337, 25);
             this.buttonDestroyRoad.TabIndex = 4;
             this.buttonDestroyRoad.Text = "Destroy Road";
             this.buttonDestroyRoad.UseVisualStyleBackColor = true;
@@ -146,7 +146,7 @@ namespace RoadTrafficSimulator.Forms
             this.flowLayoutPanelMaxSpeed.Location = new System.Drawing.Point(1, 63);
             this.flowLayoutPanelMaxSpeed.Margin = new System.Windows.Forms.Padding(2);
             this.flowLayoutPanelMaxSpeed.Name = "flowLayoutPanelMaxSpeed";
-            this.flowLayoutPanelMaxSpeed.Size = new System.Drawing.Size(250, 29);
+            this.flowLayoutPanelMaxSpeed.Size = new System.Drawing.Size(337, 29);
             this.flowLayoutPanelMaxSpeed.TabIndex = 0;
             // 
             // labelMaxSpeed
@@ -239,7 +239,7 @@ namespace RoadTrafficSimulator.Forms
             this.groupBoxCrossroad.Margin = new System.Windows.Forms.Padding(2);
             this.groupBoxCrossroad.Name = "groupBoxCrossroad";
             this.groupBoxCrossroad.Padding = new System.Windows.Forms.Padding(2);
-            this.groupBoxCrossroad.Size = new System.Drawing.Size(252, 171);
+            this.groupBoxCrossroad.Size = new System.Drawing.Size(339, 157);
             this.groupBoxCrossroad.TabIndex = 0;
             this.groupBoxCrossroad.TabStop = false;
             this.groupBoxCrossroad.Text = "Crossroad Properties";
@@ -247,7 +247,6 @@ namespace RoadTrafficSimulator.Forms
             // 
             // tableLayoutPanelCrossroadButtons
             // 
-            this.tableLayoutPanelCrossroadButtons.AutoSize = true;
             this.tableLayoutPanelCrossroadButtons.ColumnCount = 2;
             this.tableLayoutPanelCrossroadButtons.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanelCrossroadButtons.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
@@ -260,7 +259,7 @@ namespace RoadTrafficSimulator.Forms
             this.tableLayoutPanelCrossroadButtons.RowCount = 1;
             this.tableLayoutPanelCrossroadButtons.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanelCrossroadButtons.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanelCrossroadButtons.Size = new System.Drawing.Size(248, 46);
+            this.tableLayoutPanelCrossroadButtons.Size = new System.Drawing.Size(335, 32);
             this.tableLayoutPanelCrossroadButtons.TabIndex = 0;
             // 
             // buttonTrafficLight
@@ -270,7 +269,7 @@ namespace RoadTrafficSimulator.Forms
             this.buttonTrafficLight.Location = new System.Drawing.Point(2, 2);
             this.buttonTrafficLight.Margin = new System.Windows.Forms.Padding(2);
             this.buttonTrafficLight.Name = "buttonTrafficLight";
-            this.buttonTrafficLight.Size = new System.Drawing.Size(120, 42);
+            this.buttonTrafficLight.Size = new System.Drawing.Size(163, 28);
             this.buttonTrafficLight.TabIndex = 6;
             this.buttonTrafficLight.Text = "Customize Traffic Light";
             this.buttonTrafficLight.UseVisualStyleBackColor = true;
@@ -278,10 +277,10 @@ namespace RoadTrafficSimulator.Forms
             // buttonDestroyCrossroad
             // 
             this.buttonDestroyCrossroad.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.buttonDestroyCrossroad.Location = new System.Drawing.Point(126, 2);
+            this.buttonDestroyCrossroad.Location = new System.Drawing.Point(169, 2);
             this.buttonDestroyCrossroad.Margin = new System.Windows.Forms.Padding(2);
             this.buttonDestroyCrossroad.Name = "buttonDestroyCrossroad";
-            this.buttonDestroyCrossroad.Size = new System.Drawing.Size(120, 42);
+            this.buttonDestroyCrossroad.Size = new System.Drawing.Size(164, 28);
             this.buttonDestroyCrossroad.TabIndex = 7;
             this.buttonDestroyCrossroad.Text = "Destroy Crossroad";
             this.buttonDestroyCrossroad.UseVisualStyleBackColor = true;
@@ -293,7 +292,7 @@ namespace RoadTrafficSimulator.Forms
             this.trackBarCarSpawnRate.Maximum = 100;
             this.trackBarCarSpawnRate.Minimum = 1;
             this.trackBarCarSpawnRate.Name = "trackBarCarSpawnRate";
-            this.trackBarCarSpawnRate.Size = new System.Drawing.Size(248, 45);
+            this.trackBarCarSpawnRate.Size = new System.Drawing.Size(335, 45);
             this.trackBarCarSpawnRate.TabIndex = 5;
             this.trackBarCarSpawnRate.Value = 10;
             this.trackBarCarSpawnRate.Scroll += new System.EventHandler(this.trackBarCarSpawnRate_Scroll);
@@ -343,7 +342,6 @@ namespace RoadTrafficSimulator.Forms
             // 
             // tableLayoutPanelMapButtons
             // 
-            this.tableLayoutPanelMapButtons.AutoSize = true;
             this.tableLayoutPanelMapButtons.ColumnCount = 2;
             this.tableLayoutPanelMapButtons.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanelMapButtons.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
@@ -351,13 +349,13 @@ namespace RoadTrafficSimulator.Forms
             this.tableLayoutPanelMapButtons.Controls.Add(this.buttonSaveMap, 1, 0);
             this.tableLayoutPanelMapButtons.Controls.Add(this.buttonFinish, 0, 1);
             this.tableLayoutPanelMapButtons.Dock = System.Windows.Forms.DockStyle.Top;
-            this.tableLayoutPanelMapButtons.Location = new System.Drawing.Point(0, 354);
+            this.tableLayoutPanelMapButtons.Location = new System.Drawing.Point(0, 340);
             this.tableLayoutPanelMapButtons.Margin = new System.Windows.Forms.Padding(2);
             this.tableLayoutPanelMapButtons.Name = "tableLayoutPanelMapButtons";
             this.tableLayoutPanelMapButtons.RowCount = 2;
             this.tableLayoutPanelMapButtons.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
             this.tableLayoutPanelMapButtons.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 33.33334F));
-            this.tableLayoutPanelMapButtons.Size = new System.Drawing.Size(252, 70);
+            this.tableLayoutPanelMapButtons.Size = new System.Drawing.Size(339, 61);
             this.tableLayoutPanelMapButtons.TabIndex = 0;
             // 
             // buttonLoadMap
@@ -366,7 +364,7 @@ namespace RoadTrafficSimulator.Forms
             this.buttonLoadMap.Location = new System.Drawing.Point(2, 2);
             this.buttonLoadMap.Margin = new System.Windows.Forms.Padding(2);
             this.buttonLoadMap.Name = "buttonLoadMap";
-            this.buttonLoadMap.Size = new System.Drawing.Size(122, 30);
+            this.buttonLoadMap.Size = new System.Drawing.Size(165, 26);
             this.buttonLoadMap.TabIndex = 8;
             this.buttonLoadMap.Text = "Load Map";
             this.buttonLoadMap.UseVisualStyleBackColor = true;
@@ -374,10 +372,10 @@ namespace RoadTrafficSimulator.Forms
             // buttonSaveMap
             // 
             this.buttonSaveMap.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.buttonSaveMap.Location = new System.Drawing.Point(128, 2);
+            this.buttonSaveMap.Location = new System.Drawing.Point(171, 2);
             this.buttonSaveMap.Margin = new System.Windows.Forms.Padding(2);
             this.buttonSaveMap.Name = "buttonSaveMap";
-            this.buttonSaveMap.Size = new System.Drawing.Size(122, 30);
+            this.buttonSaveMap.Size = new System.Drawing.Size(166, 26);
             this.buttonSaveMap.TabIndex = 9;
             this.buttonSaveMap.Text = "Save Map";
             this.buttonSaveMap.UseVisualStyleBackColor = true;
@@ -386,10 +384,10 @@ namespace RoadTrafficSimulator.Forms
             // 
             this.tableLayoutPanelMapButtons.SetColumnSpan(this.buttonFinish, 2);
             this.buttonFinish.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.buttonFinish.Location = new System.Drawing.Point(2, 36);
+            this.buttonFinish.Location = new System.Drawing.Point(2, 32);
             this.buttonFinish.Margin = new System.Windows.Forms.Padding(2);
             this.buttonFinish.Name = "buttonFinish";
-            this.buttonFinish.Size = new System.Drawing.Size(248, 32);
+            this.buttonFinish.Size = new System.Drawing.Size(335, 27);
             this.buttonFinish.TabIndex = 10;
             this.buttonFinish.Text = "Finish";
             this.buttonFinish.UseVisualStyleBackColor = true;
@@ -405,7 +403,7 @@ namespace RoadTrafficSimulator.Forms
             this.Controls.Add(this.comboBoxMode);
             this.MinimumSize = new System.Drawing.Size(165, 0);
             this.Name = "BuildPanel";
-            this.Size = new System.Drawing.Size(252, 445);
+            this.Size = new System.Drawing.Size(339, 489);
             this.groupBoxBuild.ResumeLayout(false);
             this.groupBoxBuild.PerformLayout();
             this.groupBoxRoad.ResumeLayout(false);

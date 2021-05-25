@@ -31,7 +31,16 @@ namespace RoadTrafficSimulator.Forms
             }
         }
         public bool TwoWayRoad { get => checkBoxTwoWayRoad.Checked; }
-        public int MaxSpeed { get => (int)numericUpDownMaxSpeed.Value; set => numericUpDownMaxSpeed.Value = value; }
+        public int MaxSpeed
+        {
+            get => (int)numericUpDownMaxSpeed.Value;
+            set
+            {
+                lockMaxSpeed = true;
+                numericUpDownMaxSpeed.Value = value;
+                lockMaxSpeed = false;
+            }
+        }
         public int SpawnRate { get => trackBarCarSpawnRate.Value; }
 
         public BuildPanel()
@@ -44,6 +53,15 @@ namespace RoadTrafficSimulator.Forms
         }
 
         #region events
+
+        [Browsable(true)]
+        [Category("Action")]
+        [Description("Occurs when the Destroy Crossroad button is clicked.")]
+        public event EventHandler DestroyRoadClick
+        {
+            add => buttonDestroyRoad.Click += value;
+            remove => buttonDestroyRoad.Click -= value;
+        }
 
         [Browsable(true)]
         [Category("Action")]
@@ -116,31 +134,39 @@ namespace RoadTrafficSimulator.Forms
 
         #endregion events
 
-        internal void Select(CrossroadView crossroad)
+        internal void SelectCrossroad(CrossroadView crossroad)
         {
             Debug.Assert(CurrentMode == Mode.Select);
+            SuspendLayout();
             labelCoords.Text = $"Coords: {crossroad.Coords}";
             labelInIndex.Text = $"Incoming roads: {crossroad.InIndex}";
             labelOutIndex.Text = $"Outcoming roads: {crossroad.OutIndex}";
             labelCarSpawnRate.Text = $"Car spawn rate: {crossroad.CarSpawnRate} %";
             trackBarCarSpawnRate.Value = crossroad.CarSpawnRate;
+            groupBoxCrossroad.Visible = true;
+            ResumeLayout();
         }
 
-        internal void Select(RoadView road)
+        internal void SelectRoad(RoadView road)
         {
             Debug.Assert(CurrentMode == Mode.Select);
+            SuspendLayout();
             labelTwoWayRoad.Text = road.TwoWayRoad ? "Two-way" : "One-way";
             labelFrom.Text = $"From: {road.From}";
             labelTo.Text = $"To: {road.To}";
             lockMaxSpeed = true;
             numericUpDownMaxSpeed.Value = road.MaxSpeed.ToKilometresPerHour();
             lockMaxSpeed = false;
+            groupBoxRoad.Visible = true;
+            ResumeLayout();
         }
 
         internal void Deselect()
         {
+            SuspendLayout();
             groupBoxCrossroad.Visible = false;
             groupBoxRoad.Visible = false;
+            ResumeLayout();
         }
 
         private void numericUpDownMaxSpeed_ValueChanged(object sender, EventArgs e)
@@ -161,8 +187,8 @@ namespace RoadTrafficSimulator.Forms
             switch (newMode)
             {
                 case Mode.Build:
-                    groupBoxBuild.Visible = true;
                     Deselect();
+                    groupBoxBuild.Visible = true;
                     break;
                 case Mode.Select:
                     groupBoxBuild.Visible = false;

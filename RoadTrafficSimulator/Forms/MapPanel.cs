@@ -23,7 +23,7 @@ namespace RoadTrafficSimulator.Forms
             private set
             {
                 origin = value;
-                Invalidate();
+                Redraw();
                 OriginChanged?.Invoke(this, new EventArgs());
             }
         }
@@ -38,7 +38,7 @@ namespace RoadTrafficSimulator.Forms
                     zoom = maxZoom;
                 else
                     zoom = value;
-                Invalidate();
+                Redraw();
                 ZoomChanged?.Invoke(this, new EventArgs());
             }
         }
@@ -68,6 +68,11 @@ namespace RoadTrafficSimulator.Forms
             Zoom = 1f;
             // Panel properties
             Cursor = Cursors.Cross;
+        }
+
+        public void Redraw()
+        {
+            Invalidate();
         }
 
         public void ResetOrigin()
