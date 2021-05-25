@@ -200,11 +200,11 @@ namespace RoadTrafficSimulator.Components
             /// <summary>
             /// Records each road and time the car got on that road.
             /// </summary>
-            public IReadOnlyList<StatisticsBase.Timestamp<int>> RoadLog { get; }
+            public IReadOnlyList<Timestamp<int>> RoadLog { get; }
             /// <summary>
             /// Periodically records the car's speed.
             /// </summary>
-            public IReadOnlyList<StatisticsBase.Timestamp<Speed>> SpeedLog { get; }
+            public IReadOnlyList<Timestamp<Speed>> SpeedLog { get; }
         }
 
         private class CarStatistics : StatisticsBase, ICarStatistics

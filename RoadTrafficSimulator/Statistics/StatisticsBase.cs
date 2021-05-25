@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Text.Json;
 
-using RoadTrafficSimulator.ValueTypes;
-
 namespace RoadTrafficSimulator.Statistics
 {
     abstract class StatisticsBase
@@ -108,20 +106,6 @@ namespace RoadTrafficSimulator.Statistics
             public static implicit operator T(Item<T> item) => item.Get();
 
             public override string ToString() => IsActive ? data.ToString() : string.Empty;
-        }
-
-        public struct Timestamp<T>
-        {
-            public readonly Time time;
-            public readonly T data;
-
-            public Timestamp(Time time, T data)
-            {
-                this.time = time;
-                this.data = data;
-            }
-
-            public override string ToString() => $"{time}: {data}";
         }
 
         #endregion structures

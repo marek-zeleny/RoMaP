@@ -239,8 +239,8 @@ namespace RoadTrafficSimulator.Components
         public interface IRoadStatistics
         {
             public int RoadId { get; }
-            public IReadOnlyList<StatisticsBase.Timestamp<CarPassage>> CarLog { get; }
-            public IReadOnlyList<StatisticsBase.Timestamp<Throughput>> ThroughputLog { get; }
+            public IReadOnlyList<Timestamp<CarPassage>> CarLog { get; }
+            public IReadOnlyList<Timestamp<Throughput>> ThroughputLog { get; }
         }
 
         public readonly struct CarPassage
@@ -286,7 +286,8 @@ namespace RoadTrafficSimulator.Components
 
             public void Update(int carCount, Speed averageSpeed, Time averageDuration)
             {
-                throughputLog.Get()?.Add(new(clock.Time, new(carCount, averageSpeed, averageDuration)));
+                throughputLog.Get()?.Add(new Timestamp<Throughput>(
+                    clock.Time, new Throughput(carCount, averageSpeed, averageDuration)));
             }
 
             public Time CarGotOn(int carId)
@@ -296,7 +297,7 @@ namespace RoadTrafficSimulator.Components
 
             public Time CarGotOff(int carId, Time arriveTime)
             {
-                carLog.Get()?.Add(new(clock.Time, new(carId, arriveTime)));
+                carLog.Get()?.Add(new Timestamp<CarPassage>(clock.Time, new CarPassage(carId, arriveTime)));
                 return clock.Time - arriveTime;
             }
 
