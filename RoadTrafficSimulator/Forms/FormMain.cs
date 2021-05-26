@@ -35,7 +35,8 @@ namespace RoadTrafficSimulator.Forms
             //buildForm = new FormBuild(mapManager);
             //buildForm.VisibleChanged += (_, _) => Visible = !buildForm.Visible;
             settingsForm = new FormSimulationSettings();
-            ChangeMode(Mode.Simulate);
+            mode = Mode.Build;
+            ChangeMode();
         }
 
         #region form_events
@@ -74,6 +75,11 @@ namespace RoadTrafficSimulator.Forms
             }
         }
 
+        private void mapPanel_ZoomChanged(object sender, EventArgs e)
+        {
+            buttonZoom.Text = $"Zoom: {mapPanel.Zoom:0.0}x";
+        }
+
         private void buttonCenter_Click(object sender, EventArgs e)
         {
             mapPanel.ResetOrigin();
@@ -84,14 +90,14 @@ namespace RoadTrafficSimulator.Forms
             mapPanel.Zoom = 1f;
         }
 
+        private void buttonMode_Click(object sender, EventArgs e)
+        {
+            ChangeMode();
+        }
+
         private void buttonSimulate_Click(object sender, EventArgs e)
         {
             InitializeSimulation();
-        }
-
-        private void simulationPanel_BuildMapClick(object sender, EventArgs e)
-        {
-            ChangeMode(Mode.Build);
         }
 
         private void buildPanel_TrafficLightClick(object sender, EventArgs e)
@@ -126,11 +132,6 @@ namespace RoadTrafficSimulator.Forms
         {
             InitializeLoadMap();
             mapPanel.Redraw();
-        }
-
-        private void buildPanel_FinishClick(object sender, EventArgs e)
-        {
-            ChangeMode(Mode.Simulate);
         }
 
         private void buildPanel_MaxSpeedChanged(object sender, EventArgs e)
@@ -294,24 +295,12 @@ namespace RoadTrafficSimulator.Forms
             currentRoadBuilder = null;
         }
 
-        private void ChangeMode(Mode newMode)
+        private void ChangeMode()
         {
-            mode = newMode;
             SuspendLayout();
             switch (mode)
             {
                 case Mode.Simulate:
-                    DestroyBuild();
-                    buildPanel.Deselect();
-                    buildPanel.Visible = false;
-                    simulationPanel.Visible = true;
-                    buttonSimulate.Enabled = true;
-                    if (selectedRoad != null)
-                        simulationPanel.SelectRoad(selectedRoad, simulation.Clock);
-                    if (selectedCrossroad != null)
-                        simulationPanel.SelectCrossroad(selectedCrossroad);
-                    break;
-                case Mode.Build:
                     simulationPanel.Deselect();
                     simulationPanel.Visible = false;
                     buildPanel.Visible = true;
@@ -330,6 +319,21 @@ namespace RoadTrafficSimulator.Forms
                         default:
                             break;
                     }
+                    buttonMode.Text = "Finish Build";
+                    mode = Mode.Build;
+                    break;
+                case Mode.Build:
+                    DestroyBuild();
+                    buildPanel.Deselect();
+                    buildPanel.Visible = false;
+                    simulationPanel.Visible = true;
+                    buttonSimulate.Enabled = true;
+                    if (selectedRoad != null)
+                        simulationPanel.SelectRoad(selectedRoad, simulation.Clock);
+                    if (selectedCrossroad != null)
+                        simulationPanel.SelectCrossroad(selectedCrossroad);
+                    buttonMode.Text = "Build Map";
+                    mode = Mode.Simulate;
                     break;
                 default:
                     throw new InvalidOperationException();

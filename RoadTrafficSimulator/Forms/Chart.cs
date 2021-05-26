@@ -128,9 +128,10 @@ namespace RoadTrafficSimulator.Forms
 
         public Chart(Func<TData, double> dataToDouble)
         {
+            BackColor = Color.White;
             TimeRepresentation = TimeUnit.Second;
             this.dataToDouble = dataToDouble;
-            dataCache = new();
+            dataCache = new Queue<Timestamp<TData>>();
         }
 
         #region interface
@@ -302,12 +303,16 @@ namespace RoadTrafficSimulator.Forms
             {
                 Debug.Assert(statsAggregator != null);
                 var data = statsAggregator(stats);
+                if (data.Count == 0)
+                    return null;
                 newData = data.Slice(cacheEndIndex);
                 cacheEndIndex = data.Count;
             }
             else if (statsList != null)
             {
                 Debug.Assert(statsListAggregator != null);
+                if (statsList.Count == 0)
+                    return null;
                 newData = statsList.Slice(cacheEndIndex).Select(statsListAggregator);
                 cacheEndIndex = statsList.Count;
             }

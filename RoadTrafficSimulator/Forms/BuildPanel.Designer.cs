@@ -53,7 +53,6 @@ namespace RoadTrafficSimulator.Forms
             this.tableLayoutPanelMapButtons = new System.Windows.Forms.TableLayoutPanel();
             this.buttonLoadMap = new System.Windows.Forms.Button();
             this.buttonSaveMap = new System.Windows.Forms.Button();
-            this.buttonFinish = new System.Windows.Forms.Button();
             this.groupBoxBuild.SuspendLayout();
             this.groupBoxRoad.SuspendLayout();
             this.flowLayoutPanelMaxSpeed.SuspendLayout();
@@ -347,15 +346,13 @@ namespace RoadTrafficSimulator.Forms
             this.tableLayoutPanelMapButtons.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanelMapButtons.Controls.Add(this.buttonLoadMap, 0, 0);
             this.tableLayoutPanelMapButtons.Controls.Add(this.buttonSaveMap, 1, 0);
-            this.tableLayoutPanelMapButtons.Controls.Add(this.buttonFinish, 0, 1);
             this.tableLayoutPanelMapButtons.Dock = System.Windows.Forms.DockStyle.Top;
             this.tableLayoutPanelMapButtons.Location = new System.Drawing.Point(0, 340);
             this.tableLayoutPanelMapButtons.Margin = new System.Windows.Forms.Padding(2);
             this.tableLayoutPanelMapButtons.Name = "tableLayoutPanelMapButtons";
-            this.tableLayoutPanelMapButtons.RowCount = 2;
+            this.tableLayoutPanelMapButtons.RowCount = 1;
             this.tableLayoutPanelMapButtons.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
-            this.tableLayoutPanelMapButtons.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 33.33334F));
-            this.tableLayoutPanelMapButtons.Size = new System.Drawing.Size(339, 61);
+            this.tableLayoutPanelMapButtons.Size = new System.Drawing.Size(339, 29);
             this.tableLayoutPanelMapButtons.TabIndex = 0;
             // 
             // buttonLoadMap
@@ -364,7 +361,7 @@ namespace RoadTrafficSimulator.Forms
             this.buttonLoadMap.Location = new System.Drawing.Point(2, 2);
             this.buttonLoadMap.Margin = new System.Windows.Forms.Padding(2);
             this.buttonLoadMap.Name = "buttonLoadMap";
-            this.buttonLoadMap.Size = new System.Drawing.Size(165, 26);
+            this.buttonLoadMap.Size = new System.Drawing.Size(165, 25);
             this.buttonLoadMap.TabIndex = 8;
             this.buttonLoadMap.Text = "Load Map";
             this.buttonLoadMap.UseVisualStyleBackColor = true;
@@ -375,22 +372,10 @@ namespace RoadTrafficSimulator.Forms
             this.buttonSaveMap.Location = new System.Drawing.Point(171, 2);
             this.buttonSaveMap.Margin = new System.Windows.Forms.Padding(2);
             this.buttonSaveMap.Name = "buttonSaveMap";
-            this.buttonSaveMap.Size = new System.Drawing.Size(166, 26);
+            this.buttonSaveMap.Size = new System.Drawing.Size(166, 25);
             this.buttonSaveMap.TabIndex = 9;
             this.buttonSaveMap.Text = "Save Map";
             this.buttonSaveMap.UseVisualStyleBackColor = true;
-            // 
-            // buttonFinish
-            // 
-            this.tableLayoutPanelMapButtons.SetColumnSpan(this.buttonFinish, 2);
-            this.buttonFinish.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.buttonFinish.Location = new System.Drawing.Point(2, 32);
-            this.buttonFinish.Margin = new System.Windows.Forms.Padding(2);
-            this.buttonFinish.Name = "buttonFinish";
-            this.buttonFinish.Size = new System.Drawing.Size(335, 27);
-            this.buttonFinish.TabIndex = 10;
-            this.buttonFinish.Text = "Finish";
-            this.buttonFinish.UseVisualStyleBackColor = true;
             // 
             // BuildPanel
             // 
@@ -448,6 +433,5 @@ namespace RoadTrafficSimulator.Forms
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanelMapButtons;
         private System.Windows.Forms.Button buttonLoadMap;
         private System.Windows.Forms.Button buttonSaveMap;
-        private System.Windows.Forms.Button buttonFinish;
     }
 }

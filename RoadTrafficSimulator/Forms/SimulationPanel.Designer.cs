@@ -39,7 +39,6 @@ namespace RoadTrafficSimulator.Forms
             this.labelOutIndex = new System.Windows.Forms.Label();
             this.labelInIndex = new System.Windows.Forms.Label();
             this.labelCoords = new System.Windows.Forms.Label();
-            this.buttonBuild = new System.Windows.Forms.Button();
             this.groupBoxRoad.SuspendLayout();
             this.groupBoxCrossroad.SuspendLayout();
             this.SuspendLayout();
@@ -159,21 +158,10 @@ namespace RoadTrafficSimulator.Forms
             this.labelCoords.TabIndex = 0;
             this.labelCoords.Text = "Coords: -;-";
             // 
-            // buttonBuild
-            // 
-            this.buttonBuild.Dock = System.Windows.Forms.DockStyle.Top;
-            this.buttonBuild.Location = new System.Drawing.Point(0, 344);
-            this.buttonBuild.Name = "buttonBuild";
-            this.buttonBuild.Size = new System.Drawing.Size(316, 27);
-            this.buttonBuild.TabIndex = 1;
-            this.buttonBuild.Text = "Build Map";
-            this.buttonBuild.UseVisualStyleBackColor = true;
-            // 
             // SimulationPanel
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Controls.Add(this.buttonBuild);
             this.Controls.Add(this.groupBoxCrossroad);
             this.Controls.Add(this.groupBoxRoad);
             this.Name = "SimulationPanel";
@@ -199,6 +187,5 @@ namespace RoadTrafficSimulator.Forms
         private System.Windows.Forms.Label labelOutIndex;
         private System.Windows.Forms.Label labelInIndex;
         private System.Windows.Forms.Label labelCoords;
-        private System.Windows.Forms.Button buttonBuild;
     }
 }

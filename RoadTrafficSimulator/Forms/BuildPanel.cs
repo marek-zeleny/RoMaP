@@ -100,15 +100,6 @@ namespace RoadTrafficSimulator.Forms
         }
 
         [Browsable(true)]
-        [Category("Action")]
-        [Description("Occurs when the Finish button is clicked.")]
-        public event EventHandler FinishClick
-        {
-            add => buttonFinish.Click += value;
-            remove => buttonFinish.Click -= value;
-        }
-
-        [Browsable(true)]
         [Category("Property Changed")]
         [Description("Occurs when the CurrentMode property is changed.")]
         public event EventHandler CurrentModeChanged;

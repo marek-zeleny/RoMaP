@@ -21,15 +21,6 @@ namespace RoadTrafficSimulator.Forms
                 Deselect();
         }
 
-        [Browsable(true)]
-        [Category("Action")]
-        [Description("Occurs when the Build Map button is clicked.")]
-        public event EventHandler BuildMapClicked
-        {
-            add => buttonBuild.Click += value;
-            remove => buttonBuild.Click -= value;
-        }
-
         internal void SelectCrossroad(CrossroadView crossroad)
         {
             SuspendLayout();
