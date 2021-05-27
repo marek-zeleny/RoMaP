@@ -189,7 +189,7 @@ namespace RoadTrafficSimulator
                 builder.DestroyRoad();
                 return false;
             }
-            IGRoad road = guiMap.GetRoad(new Vector(firstCoords, secondCoords), true);
+            IGRoad road = guiMap.GetRoad(new Vector(firstCoords, secondCoords));
             int j = 0;
             //foreach (int id in road.GetRoads())
             //    roadIdMappings[j++].Item2 = id;

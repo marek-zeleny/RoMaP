@@ -13,7 +13,7 @@ namespace RoadTrafficSimulator.GUI
         bool RemoveCrossroad(Coords coords);
         bool RemoveRoad(Vector vector);
         IGCrossroad GetCrossroad(Coords coords);
-        IGRoad GetRoad(Vector vector, bool ignoreDirection = false);
+        IGRoad GetRoad(Vector vector);
         IEnumerable<IGCrossroad> GetCrossroads();
         IEnumerable<IGRoad> GetRoads();
         void Draw(Graphics graphics, Point origin, float zoom, int width, int height);

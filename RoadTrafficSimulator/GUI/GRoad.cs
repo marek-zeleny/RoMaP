@@ -1,25 +1,39 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 
 using RoadTrafficSimulator.ValueTypes;
 using RoadTrafficSimulator.Components;
+using DataStructures.Miscellaneous;
 
 namespace RoadTrafficSimulator.GUI
 {
-    class GRoad : IMutableRoad
+    class GRoad : IMutableGRoad
     {
         private static readonly Color color = Color.Blue;
         private static readonly Color arrowColor = Color.Yellow;
 
         private Road fRoad;
         private Road bRoad;
+        private Highlight fHighlight;
+        private Highlight bHighlight;
+        private readonly LinkedList<Coords> route = new();
 
-        public Coords From { get => Route[0]; }
-        public Coords To { get => Route[Route.Count - 1]; }
+        public Coords From { get => route.First.Value; }
+        public Coords To { get => route.Last.Value; }
         public bool IsTwoWay { get => fRoad != null && bRoad != null; }
-        public Highlight Highlight { private get; set; }
-        public IList<Coords> Route { get; } = new List<Coords>();
+        public ICollection<Coords> Route { get => route; }
+
+        public Road GetRoad(IGRoad.Direction direction)
+        {
+            return direction switch
+            {
+                IGRoad.Direction.Forward => fRoad,
+                IGRoad.Direction.Backward => bRoad,
+                _ => throw new NotImplementedException(),
+            };
+        }
 
         public IEnumerable<Road> GetRoads()
         {
@@ -29,24 +43,74 @@ namespace RoadTrafficSimulator.GUI
                 yield return bRoad;
         }
 
-        public void SetRoad(Road road, IMutableRoad.Direction direction)
+        public void SetRoad(Road road, IGRoad.Direction direction)
         {
-            if (direction == IMutableRoad.Direction.Forward)
-                fRoad = road;
-            else
-                bRoad = road;
+            switch (direction)
+            {
+                case IGRoad.Direction.Forward:
+                    fRoad = road;
+                    break;
+                case IGRoad.Direction.Backward:
+                    bRoad = road;
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
         }
 
-        public IEnumerable<Coords> GetRoute()
+        public IEnumerable<Coords> GetRoute(IGRoad.Direction direction)
         {
-            return Route;
+            return direction switch
+            {
+                IGRoad.Direction.Forward => fRoad != null ? route : null,
+                IGRoad.Direction.Backward => bRoad != null ? route.Reverse() : null,
+                _ => throw new NotImplementedException(),
+            };
         }
+
+        public IGRoad GetReversedGRoad()
+        {
+            return new ReversedGRoad(this);
+        }
+
+        public void Highlight(Highlight highlight)
+        {
+            fHighlight = highlight;
+            bHighlight = highlight;
+        }
+
+        public void Highlight(Highlight highlight, IGRoad.Direction direction)
+        {
+            switch (direction)
+            {
+                case IGRoad.Direction.Forward:
+                    Debug.Assert(fRoad != null);
+                    fHighlight = highlight;
+                    break;
+                case IGRoad.Direction.Backward:
+                    Debug.Assert(bRoad != null);
+                    bHighlight = highlight;
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
+        }
+
+        #region graphics
 
         public void Draw(Graphics graphics, Point from, Point to, int width)
         {
-            if (!IsTwoWay)
+            // one-way
+            if (fRoad == null)
             {
-                DrawLane(graphics, from, to, width);
+                Debug.Assert(bRoad != null);
+                DrawLane(graphics, to, from, width, bHighlight);
+                return;
+            }
+            else if (bRoad == null)
+            {
+                Debug.Assert(fRoad != null);
+                DrawLane(graphics, from, to, width, fHighlight);
                 return;
             }
             // two-way
@@ -55,7 +119,7 @@ namespace RoadTrafficSimulator.GUI
             Point from2 = to;
             Point to2 = from;
             int distance = width * 3 / 4;
-            if (Highlight == Highlight.High)
+            if (fHighlight == GUI.Highlight.High || bHighlight == GUI.Highlight.High)
                 distance = IncreaseWidth(width) * 3 / 4;
             int diffX = to.X - from.X;
             int diffY = to.Y - from.Y;
@@ -81,20 +145,19 @@ namespace RoadTrafficSimulator.GUI
                 from2.Offset(0, -distance);
                 to2.Offset(0, -distance);
             }
-            DrawLane(graphics, from1, to1, width);
-            DrawLane(graphics, from2, to2, width);
+            DrawLane(graphics, from1, to1, width, fHighlight);
+            DrawLane(graphics, from2, to2, width, bHighlight);
         }
 
-        private void DrawLane(Graphics graphics, Point from, Point to, int width)
+        private static void DrawLane(Graphics graphics, Point from, Point to, int width, Highlight highlight)
         {
-            // TODO: one-way
             Color color = GRoad.color;
-            switch (Highlight)
+            switch (highlight)
             {
-                case Highlight.Low:
+                case GUI.Highlight.Low:
                     color = Color.FromArgb(150, color);
                     break;
-                case Highlight.High:
+                case GUI.Highlight.High:
                     width = IncreaseWidth(width);
                     break;
             }
@@ -110,6 +173,42 @@ namespace RoadTrafficSimulator.GUI
         }
 
         private static int IncreaseWidth(int width) => width + width / 2;
+
+        #endregion graphics
+
+        private class ReversedGRoad : IGRoad
+        {
+            private static IGRoad.Direction Reverse(IGRoad.Direction direction)
+            {
+                return direction switch
+                {
+                    IGRoad.Direction.Forward => IGRoad.Direction.Backward,
+                    IGRoad.Direction.Backward => IGRoad.Direction.Forward,
+                    _ => throw new NotImplementedException(),
+                };
+            }
+
+            private readonly IGRoad gRoad;
+
+            public Coords From => gRoad.To;
+            public Coords To => gRoad.From;
+            public bool IsTwoWay => gRoad.IsTwoWay;
+
+            public ReversedGRoad(IGRoad gRoad)
+            {
+                this.gRoad = gRoad;
+            }
+
+            public Road GetRoad(IGRoad.Direction direction) => gRoad.GetRoad(Reverse(direction));
+            public IEnumerable<Road> GetRoads() => gRoad.GetRoads();
+            public IEnumerable<Coords> GetRoute(IGRoad.Direction direction) => gRoad.GetRoute(Reverse(direction));
+            public IGRoad GetReversedGRoad() => gRoad;
+            public void Highlight(Highlight highlight) => gRoad.Highlight(highlight);
+            public void Highlight(Highlight highlight, IGRoad.Direction direction) =>
+                gRoad.Highlight(highlight, Reverse(direction));
+            public void Draw(Graphics graphics, Point from, Point to, int width) =>
+                gRoad.Draw(graphics, from, to, width);
+        }
     }
 
     static class GraphicsExtensions

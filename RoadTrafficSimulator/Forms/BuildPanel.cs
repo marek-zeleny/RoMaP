@@ -125,28 +125,28 @@ namespace RoadTrafficSimulator.Forms
 
         #endregion events
 
-        internal void SelectCrossroad(CrossroadView crossroad)
+        internal void SelectCrossroad(Components.Crossroad crossroad)
         {
             Debug.Assert(CurrentMode == Mode.Select);
             SuspendLayout();
-            labelCoords.Text = $"Coords: {crossroad.Coords}";
-            labelInIndex.Text = $"Incoming roads: {crossroad.InIndex}";
-            labelOutIndex.Text = $"Outcoming roads: {crossroad.OutIndex}";
+            labelCoords.Text = $"Coords: {crossroad.Id}";
+            labelInIndex.Text = $"Incoming roads: {crossroad.InDegree}";
+            labelOutIndex.Text = $"Outcoming roads: {crossroad.OutDegree}";
             labelCarSpawnRate.Text = $"Car spawn rate: {crossroad.CarSpawnRate} %";
             trackBarCarSpawnRate.Value = crossroad.CarSpawnRate;
             groupBoxCrossroad.Visible = true;
             ResumeLayout();
         }
 
-        internal void SelectRoad(RoadView road)
+        internal void SelectRoad(GUI.IGRoad gRoad)
         {
             Debug.Assert(CurrentMode == Mode.Select);
             SuspendLayout();
-            labelTwoWayRoad.Text = road.TwoWayRoad ? "Two-way" : "One-way";
-            labelFrom.Text = $"From: {road.From}";
-            labelTo.Text = $"To: {road.To}";
+            labelTwoWayRoad.Text = gRoad.IsTwoWay ? "Two-way" : "One-way";
+            labelFrom.Text = $"From: {gRoad.From}";
+            labelTo.Text = $"To: {gRoad.To}";
             lockMaxSpeed = true;
-            numericUpDownMaxSpeed.Value = road.MaxSpeed.ToKilometresPerHour();
+            numericUpDownMaxSpeed.Value = gRoad.GetRoad().MaxSpeed.ToKilometresPerHour();
             lockMaxSpeed = false;
             groupBoxRoad.Visible = true;
             ResumeLayout();

@@ -21,26 +21,27 @@ namespace RoadTrafficSimulator.Forms
                 Deselect();
         }
 
-        internal void SelectCrossroad(CrossroadView crossroad)
+        internal void SelectCrossroad(Crossroad crossroad)
         {
             SuspendLayout();
-            labelCoords.Text = $"Coords: {crossroad.Coords}";
-            labelInIndex.Text = $"Incoming roads: {crossroad.InIndex}";
-            labelOutIndex.Text = $"Outcoming roads: {crossroad.OutIndex}";
+            labelCoords.Text = $"Coords: {crossroad.Id}";
+            labelInIndex.Text = $"Incoming roads: {crossroad.InDegree}";
+            labelOutIndex.Text = $"Outcoming roads: {crossroad.OutDegree}";
             labelCarSpawnRate.Text = $"Car spawn rate: {crossroad.CarSpawnRate} %";
             groupBoxCrossroad.Visible = true;
             ResumeLayout();
         }
 
-        internal void SelectRoad(RoadView road, IClock clock)
+        internal void SelectRoad(GUI.IGRoad gRoad, IClock clock)
         {
             static IReadOnlyList<Timestamp<Road.Throughput>> GetThroughput(Road.IRoadStatistics stats) =>
                 stats.ThroughputLog;
 
+            Road road = gRoad.GetRoad();
             SuspendLayout();
-            labelTwoWayRoad.Text = road.TwoWayRoad ? "Two-way" : "One-way";
-            labelFrom.Text = $"From: {road.From}";
-            labelTo.Text = $"To: {road.To}";
+            labelTwoWayRoad.Text = gRoad.IsTwoWay ? "Two-way" : "One-way";
+            labelFrom.Text = $"From: {gRoad.From}";
+            labelTo.Text = $"To: {gRoad.To}";
             labelMaxSpeed.Text = $"Max speed: {road.MaxSpeed.ToKilometresPerHour()} km/h";
             chartAverageSpeed.SetDataSource(road.Statistics, GetThroughput, clock);
             chartAverageSpeed.MaxValue = road.MaxSpeed.ToKilometresPerHour();

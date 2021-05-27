@@ -9,6 +9,7 @@ namespace RoadTrafficSimulator.GUI
     {
         Highlight Highlight { set; }
         Coords CrossroadId { get; }
+        (Coords, Coords)? MainRoadDirections { get; set; }
         void Draw(Graphics graphics, Point point, int size);
     }
 }

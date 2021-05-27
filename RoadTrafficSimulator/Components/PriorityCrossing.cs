@@ -7,7 +7,7 @@ namespace RoadTrafficSimulator.Components
 {
     class PriorityCrossing : ICrossingAlgorithm
     {
-        private Dictionary<Direction, DirectionInfo> directions;
+        private Dictionary<Direction, DirectionInfo> directions = new();
 
         public void AddInRoad(Crossroad crossroad, int id)
         {
@@ -23,23 +23,25 @@ namespace RoadTrafficSimulator.Components
 
         public void RemoveInRoad(int id)
         {
-            Func<Direction, bool> predicate = dir => dir.fromRoadId == id;
-            RemoveDirectionsWhere(predicate);
+            bool Predicate(Direction dir) => dir.fromRoadId == id;
+
+            RemoveDirectionsWhere(Predicate);
             foreach (var info in directions.Values)
-                info.RemovePriorDirectionsWhere(predicate);
+                info.RemovePriorDirectionsWhere(Predicate);
         }
 
         public void RemoveOutRoad(int id)
         {
-            Func<Direction, bool> predicate = dir => dir.toRoadId == id;
-            RemoveDirectionsWhere(predicate);
+            bool Predicate(Direction dir) => dir.toRoadId == id;
+
+            RemoveDirectionsWhere(Predicate);
             foreach (var info in directions.Values)
-                info.RemovePriorDirectionsWhere(predicate);
+                info.RemovePriorDirectionsWhere(Predicate);
         }
 
         public bool CanCross(int fromRoadId, int toRoadId)
         {
-            Direction dir = new Direction(fromRoadId, toRoadId);
+            Direction dir = new(fromRoadId, toRoadId);
             DirectionInfo info = directions[dir];
             info.waitingCars++;
             foreach (Direction prior in info.priorDirections)
@@ -50,7 +52,7 @@ namespace RoadTrafficSimulator.Components
 
         public void CarCrossed(int fromRoadId, int toRoadId)
         {
-            Direction dir = new Direction(fromRoadId, toRoadId);
+            Direction dir = new(fromRoadId, toRoadId);
             directions[dir].waitingCars--;
         }
 
@@ -67,7 +69,7 @@ namespace RoadTrafficSimulator.Components
         private class DirectionInfo
         {
             public int waitingCars = 0;
-            public LinkedList<Direction> priorDirections = new LinkedList<Direction>();
+            public LinkedList<Direction> priorDirections = new();
 
             public void RemovePriorDirectionsWhere(Func<Direction, bool> predicate)
             {

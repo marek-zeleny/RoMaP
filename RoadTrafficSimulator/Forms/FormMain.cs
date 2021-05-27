@@ -7,6 +7,7 @@ using System.Security;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
+using RoadTrafficSimulator.GUI;
 using RoadTrafficSimulator.ValueTypes;
 
 namespace RoadTrafficSimulator.Forms
@@ -23,8 +24,8 @@ namespace RoadTrafficSimulator.Forms
         //private FormBuild buildForm;
         private FormSimulationSettings settingsForm;
         private Mode mode;
-        private CrossroadView selectedCrossroad;
-        private RoadView selectedRoad;
+        private MapManager.CrossroadWrapper? selectedCrossroad;
+        private IGRoad selectedRoad;
         private IRoadBuilder currentRoadBuilder;
 
         public FormMain()
@@ -103,14 +104,14 @@ namespace RoadTrafficSimulator.Forms
         private void buildPanel_TrafficLightClick(object sender, EventArgs e)
         {
             Debug.Assert(selectedCrossroad != null);
-            FormTrafficLight form = new(mapManager, selectedCrossroad);
+            FormTrafficLight form = new(mapManager, selectedCrossroad.Value);
             form.ShowDialog();
         }
 
         private void buildPanel_DestroyCrossroadClick(object sender, EventArgs e)
         {
             Debug.Assert(selectedCrossroad != null);
-            mapManager.DestroyCrossroad(selectedCrossroad.GuiCrossroad);
+            mapManager.DestroyCrossroad(selectedCrossroad.Value.gCrossroad);
             Deselect();
             mapPanel.Redraw();
         }
@@ -118,7 +119,7 @@ namespace RoadTrafficSimulator.Forms
         private void buildPanel_DestroyRoadClick(object sender, EventArgs e)
         {
             Debug.Assert(selectedRoad != null);
-            mapManager.DestroyRoad(selectedRoad.GuiRoad);
+            mapManager.DestroyRoad(selectedRoad);
             Deselect();
             mapPanel.Redraw();
         }
@@ -137,15 +138,17 @@ namespace RoadTrafficSimulator.Forms
         private void buildPanel_MaxSpeedChanged(object sender, EventArgs e)
         {
             Debug.Assert(selectedRoad != null);
-            selectedRoad.MaxSpeed = buildPanel.MaxSpeed.KilometresPerHour();
+            Components.Road road = selectedRoad.GetRoad();
+            Debug.Assert(road != null);
+            road.MaxSpeed = buildPanel.MaxSpeed.KilometresPerHour();
             // Must check whether the road accepted this max speed
-            buildPanel.MaxSpeed = selectedRoad.MaxSpeed.ToKilometresPerHour();
+            buildPanel.MaxSpeed = road.MaxSpeed.ToKilometresPerHour();
         }
 
         private void buildPanel_SpawnRateChanged(object sender, EventArgs e)
         {
             Debug.Assert(selectedCrossroad != null);
-            selectedCrossroad.CarSpawnRate = (byte)buildPanel.SpawnRate;
+            selectedCrossroad.Value.crossroad.CarSpawnRate = (byte)buildPanel.SpawnRate;
         }
 
         private void buildPanel_CurrentModeChanged(object sender, EventArgs e)
@@ -165,7 +168,7 @@ namespace RoadTrafficSimulator.Forms
 
         #endregion form_events
 
-        #region helper_methods
+        #region control_methods
 
         private void Select(Point mouseLocation)
         {
@@ -179,7 +182,7 @@ namespace RoadTrafficSimulator.Forms
 
             Deselect();
             Coords coords = MapManager.CalculateCoords(mouseLocation, mapPanel.Origin, mapPanel.Zoom);
-            CrossroadView nearestCrossroad = mapManager.GetCrossroad(coords);
+            var nearestCrossroad = mapManager.GetCrossroad(coords);
             // No crossroad in the area - select nearby road (if exists)
             if (nearestCrossroad == null)
             {
@@ -196,10 +199,10 @@ namespace RoadTrafficSimulator.Forms
             double length = CalculateDistance(from, to);
             double distance = CalculateDistance(from, mouseLocation);
             if (distance < length * proximityCoeff)
-                SelectCrossroad(nearestCrossroad);
+                SelectCrossroad(nearestCrossroad.Value);
             else
             {
-                RoadView nearestRoad = mapManager.GetRoad(vector);
+                IGRoad nearestRoad = mapManager.GetRoad(vector);
                 if (nearestRoad != null)
                     SelectRoad(nearestRoad);
             }
@@ -209,12 +212,12 @@ namespace RoadTrafficSimulator.Forms
         {
             if (selectedCrossroad != null)
             {
-                selectedCrossroad.GuiCrossroad.Highlight = GUI.Highlight.Normal;
+                selectedCrossroad.Value.gCrossroad.Highlight = Highlight.Normal;
                 selectedCrossroad = null;
             }
             if (selectedRoad != null)
             {
-                selectedRoad.GuiRoad.Highlight = GUI.Highlight.Normal;
+                selectedRoad.Highlight(Highlight.Normal);
                 selectedRoad = null;
             }
             switch (mode)
@@ -230,34 +233,34 @@ namespace RoadTrafficSimulator.Forms
             }
         }
 
-        private void SelectCrossroad(CrossroadView view)
+        private void SelectCrossroad(MapManager.CrossroadWrapper crossroad)
         {
-            selectedCrossroad = view;
-            selectedCrossroad.GuiCrossroad.Highlight = GUI.Highlight.High;
+            selectedCrossroad = crossroad;
+            selectedCrossroad.Value.gCrossroad.Highlight = Highlight.High;
             switch (mode)
             {
                 case Mode.Simulate:
-                    simulationPanel.SelectCrossroad(view);
+                    simulationPanel.SelectCrossroad(crossroad.crossroad);
                     break;
                 case Mode.Build:
-                    buildPanel.SelectCrossroad(view);
+                    buildPanel.SelectCrossroad(crossroad.crossroad);
                     break;
                 default:
                     break;
             }
         }
 
-        private void SelectRoad(RoadView view)
+        private void SelectRoad(IGRoad road)
         {
-            selectedRoad = view;
-            selectedRoad.GuiRoad.Highlight = GUI.Highlight.High;
+            selectedRoad = road;
+            selectedRoad.Highlight(Highlight.High);
             switch (mode)
             {
                 case Mode.Simulate:
-                    simulationPanel.SelectRoad(view, simulation.Clock);
+                    simulationPanel.SelectRoad(road, simulation.Clock);
                     break;
                 case Mode.Build:
-                    buildPanel.SelectRoad(view);
+                    buildPanel.SelectRoad(road);
                     break;
                 default:
                     break;
@@ -314,7 +317,7 @@ namespace RoadTrafficSimulator.Forms
                             if (selectedRoad != null)
                                 buildPanel.SelectRoad(selectedRoad);
                             if (selectedCrossroad != null)
-                                buildPanel.SelectCrossroad(selectedCrossroad);
+                                buildPanel.SelectCrossroad(selectedCrossroad.Value.crossroad);
                             break;
                         default:
                             break;
@@ -331,7 +334,7 @@ namespace RoadTrafficSimulator.Forms
                     if (selectedRoad != null)
                         simulationPanel.SelectRoad(selectedRoad, simulation.Clock);
                     if (selectedCrossroad != null)
-                        simulationPanel.SelectCrossroad(selectedCrossroad);
+                        simulationPanel.SelectCrossroad(selectedCrossroad.Value.crossroad);
                     buttonMode.Text = "Build Map";
                     mode = Mode.Simulate;
                     break;
@@ -341,6 +344,10 @@ namespace RoadTrafficSimulator.Forms
             ResumeLayout();
             mapPanel.Redraw();
         }
+
+        #endregion control_methods
+
+        #region action_methods
 
         private void InitializeSimulation()
         {
@@ -530,6 +537,6 @@ namespace RoadTrafficSimulator.Forms
             labelInfo.Refresh();
         }
 
-        #endregion helper_methods
+        #endregion action_methods
     }
 }

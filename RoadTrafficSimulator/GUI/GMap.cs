@@ -29,16 +29,14 @@ namespace RoadTrafficSimulator.GUI
             return output;
         }
 
-        public IGRoad GetRoad(Vector vector, bool ignoreDirection)
+        public IGRoad GetRoad(Vector vector)
         {
-            if (!roadSegments.TryGetValue(vector, out IGRoad output))
-            {
-                if (!ignoreDirection)
-                    return null;
-                else if (!roadSegments.TryGetValue(vector.Reverse(), out output))
-                    return null;
-            }
-            return output;
+            if (roadSegments.TryGetValue(vector, out IGRoad output))
+                return output;
+            else if (roadSegments.TryGetValue(vector.Reverse(), out output))
+                return output.GetReversedGRoad();
+            else
+                return null;
         }
 
         public IEnumerable<IGCrossroad> GetCrossroads() => crossroads.Select(pair => pair.Value);
