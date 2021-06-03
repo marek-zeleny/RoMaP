@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
-using System.Linq;
 using System.Security;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -21,7 +20,6 @@ namespace RoadTrafficSimulator.Forms
 
         private MapManager mapManager;
         private Simulation simulation;
-        //private FormBuild buildForm;
         private FormSimulationSettings settingsForm;
         private Mode mode;
         private MapManager.CrossroadWrapper? selectedCrossroad;
@@ -33,8 +31,6 @@ namespace RoadTrafficSimulator.Forms
             InitializeComponent();
             mapManager = new MapManager();
             simulation = new Simulation();
-            //buildForm = new FormBuild(mapManager);
-            //buildForm.VisibleChanged += (_, _) => Visible = !buildForm.Visible;
             settingsForm = new FormSimulationSettings();
             mode = Mode.Build;
             ChangeMode();
@@ -172,40 +168,16 @@ namespace RoadTrafficSimulator.Forms
 
         private void Select(Point mouseLocation)
         {
-            const double proximityCoeff = 0.2;
-            static double CalculateDistance(Point p1, Point p2)
-            {
-                int dx = p1.X - p2.X;
-                int dy = p1.Y - p2.Y;
-                return Math.Sqrt(dx * dx + dy * dy);
-            }
+            const double crossroadMaxProximity = 0.2;
 
             Deselect();
-            Coords coords = MapManager.CalculateCoords(mouseLocation, mapPanel.Origin, mapPanel.Zoom);
-            var nearestCrossroad = mapManager.GetCrossroad(coords);
-            // No crossroad in the area - select nearby road (if exists)
-            if (nearestCrossroad == null)
-            {
-                var roads = mapManager.GetAllRoads(coords);
-                if (roads.Any())
-                    SelectRoad(roads.First());
-                return;
-            }
-            // Crossroad nearby - decide based on the distance from mouseLocation
-            Vector vector = MapManager.CalculateVector(mouseLocation, mapPanel.Origin, mapPanel.Zoom);
-            Debug.Assert(vector.from == coords);
-            Point from = MapManager.CalculatePoint(vector.from, mapPanel.Origin, mapPanel.Zoom);
-            Point to = MapManager.CalculatePoint(vector.to, mapPanel.Origin, mapPanel.Zoom);
-            double length = CalculateDistance(from, to);
-            double distance = CalculateDistance(from, mouseLocation);
-            if (distance < length * proximityCoeff)
-                SelectCrossroad(nearestCrossroad.Value);
-            else
-            {
-                IGRoad nearestRoad = mapManager.GetRoad(vector);
-                if (nearestRoad != null)
-                    SelectRoad(nearestRoad);
-            }
+            var crossroad = mapManager.GetNearestCrossroad(mouseLocation, mapPanel.Origin, mapPanel.Zoom,
+                out double proximity);
+            var road = mapManager.GetNearestRoad(mouseLocation, mapPanel.Origin, mapPanel.Zoom);
+            if (crossroad != null && proximity <= crossroadMaxProximity)
+                SelectCrossroad(crossroad.Value);
+            else if (road != null)
+                SelectRoad(road);
         }
 
         private void Deselect()
@@ -252,15 +224,21 @@ namespace RoadTrafficSimulator.Forms
 
         private void SelectRoad(IGRoad road)
         {
-            selectedRoad = road;
-            selectedRoad.Highlight(Highlight.High);
+            if (road.GetRoad() != null)
+                selectedRoad = road;
+            else
+            {
+                Debug.Assert(road.GetRoad(IGRoad.Direction.Backward) != null);
+                selectedRoad = road.GetReversedGRoad();
+            }
+            selectedRoad.Highlight(Highlight.High, IGRoad.Direction.Forward);
             switch (mode)
             {
                 case Mode.Simulate:
-                    simulationPanel.SelectRoad(road, simulation.Clock);
+                    simulationPanel.SelectRoad(selectedRoad, simulation.Clock);
                     break;
                 case Mode.Build:
-                    buildPanel.SelectRoad(road);
+                    buildPanel.SelectRoad(selectedRoad);
                     break;
                 default:
                     break;
