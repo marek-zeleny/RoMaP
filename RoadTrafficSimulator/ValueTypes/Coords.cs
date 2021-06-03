@@ -33,5 +33,9 @@ namespace RoadTrafficSimulator.ValueTypes
         public static bool operator ==(Coords first, Coords second) => first.Equals(second);
 
         public static bool operator !=(Coords first, Coords second) => !(first == second);
+
+        public static Coords operator +(Coords first, Coords second) => new(first.x + second.x, first.y + second.y);
+
+        public static Coords operator -(Coords first, Coords second) => new(first.x - second.x, first.y - second.y);
     }
 }

@@ -17,9 +17,9 @@ namespace RoadTrafficSimulator.ValueTypes
             return new Vector(to, from);
         }
 
-        public (int, int) Diff()
+        public Coords Diff()
         {
-            return (to.x - from.x, to.y - from.y);
+            return to - from;
         }
 
         public bool Equals(Vector other) => from.Equals(other.from) && to.Equals(other.to);
