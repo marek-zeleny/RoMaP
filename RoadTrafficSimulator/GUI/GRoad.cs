@@ -101,16 +101,15 @@ namespace RoadTrafficSimulator.GUI
         public void Draw(Graphics graphics, Point from, Point to, int width)
         {
             // one-way
-            if (fRoad == null)
+            if (bRoad == null)
             {
-                Debug.Assert(bRoad != null);
-                DrawLane(graphics, to, from, width, bHighlight);
+                // Might also be during the building phase - both roads are null
+                DrawLane(graphics, from, to, width, fHighlight);
                 return;
             }
-            else if (bRoad == null)
+            else if (fRoad == null)
             {
-                Debug.Assert(fRoad != null);
-                DrawLane(graphics, from, to, width, fHighlight);
+                DrawLane(graphics, to, from, width, bHighlight);
                 return;
             }
             // two-way

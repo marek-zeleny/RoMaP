@@ -14,13 +14,31 @@ namespace RoadTrafficSimulator.GUI
         private Dictionary<Coords, IGCrossroad> crossroads = new Dictionary<Coords, IGCrossroad>();
         private Dictionary<Vector, IGRoad> roadSegments = new Dictionary<Vector, IGRoad>();
 
-        public bool AddCrossroad(IGCrossroad crossroad, Coords coords) =>crossroads.TryAdd(coords, crossroad);
+        public bool AddCrossroad(IGCrossroad crossroad, Coords coords)
+        {
+            return crossroads.TryAdd(coords, crossroad);
+        }
 
-        public bool AddRoad(IGRoad road, Vector vector) => roadSegments.TryAdd(vector, road);
+        public bool AddRoad(IGRoad road, Vector vector)
+        {
+            if (roadSegments.ContainsKey(vector.Reverse()))
+                return false;
+            else
+                return roadSegments.TryAdd(vector, road);
+        }
 
-        public bool RemoveCrossroad(Coords coords) => crossroads.Remove(coords);
+        public bool RemoveCrossroad(Coords coords)
+        {
+            return crossroads.Remove(coords);
+        }
 
-        public bool RemoveRoad(Vector vector) => roadSegments.Remove(vector);
+        public bool RemoveRoad(Vector vector)
+        {
+            if (roadSegments.Remove(vector))
+                return true;
+            else
+                return roadSegments.Remove(vector.Reverse());
+        }
 
         public IGCrossroad GetCrossroad(Coords coords)
         {
