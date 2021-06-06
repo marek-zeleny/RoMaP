@@ -55,11 +55,26 @@ namespace RoadTrafficSimulator.Components
                 return PriorityCrossing.CanCross(fromRoadId, toRoadId);
         }
 
+        public override void AddInEdge(IEdge<Coords, int> edge)
+        {
+            base.AddInEdge(edge);
+            PriorityCrossing.AddInRoad(this, edge.Id);
+        }
+
+        public override void AddOutEdge(IEdge<Coords, int> edge)
+        {
+            base.AddOutEdge(edge);
+            PriorityCrossing.AddOutRoad(this, edge.Id);
+        }
+
         public override bool RemoveInEdge(int id)
         {
             bool result = base.RemoveInEdge(id);
             if (result)
+            {
                 TrafficLight.RemoveEdge(id);
+                PriorityCrossing.RemoveInRoad(id);
+            }
             return result;
         }
 
@@ -67,7 +82,10 @@ namespace RoadTrafficSimulator.Components
         {
             bool result = base.RemoveOutEdge(id);
             if (result)
+            {
                 TrafficLight.RemoveEdge(id);
+                PriorityCrossing.RemoveOutRoad(id);
+            }
             return result;
         }
     }

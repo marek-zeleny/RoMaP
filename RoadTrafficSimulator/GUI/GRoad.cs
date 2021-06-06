@@ -11,7 +11,7 @@ namespace RoadTrafficSimulator.GUI
 {
     class GRoad : IMutableGRoad
     {
-        private static readonly Color color = Color.Blue;
+        private static readonly Color defaultColor = Color.Blue;
         private static readonly Color arrowColor = Color.Yellow;
 
         private Road fRoad;
@@ -98,18 +98,28 @@ namespace RoadTrafficSimulator.GUI
 
         #region graphics
 
-        public void Draw(Graphics graphics, Point from, Point to, int width)
+        public void Draw(Graphics graphics, Point from, Point to, int width, bool simulationMode)
         {
+            Color GetRoadColor(Road road)
+            {
+                if (!simulationMode)
+                    return defaultColor;
+                float speedRatio = (float)road.AverageSpeed / road.MaxSpeed;
+                int red = (int)(255 * (1 - speedRatio));
+                int green = (int)(255 * speedRatio);
+                return Color.FromArgb(red, green, 0);
+            }
+
             // one-way
             if (bRoad == null)
             {
                 // Might also be during the building phase - both roads are null
-                DrawLane(graphics, from, to, width, fHighlight);
+                DrawLane(graphics, from, to, width, fHighlight, GetRoadColor(fRoad));
                 return;
             }
             else if (fRoad == null)
             {
-                DrawLane(graphics, to, from, width, bHighlight);
+                DrawLane(graphics, to, from, width, bHighlight, GetRoadColor(bRoad));
                 return;
             }
             // two-way
@@ -144,13 +154,13 @@ namespace RoadTrafficSimulator.GUI
                 from2.Offset(0, -distance);
                 to2.Offset(0, -distance);
             }
-            DrawLane(graphics, from1, to1, width, fHighlight);
-            DrawLane(graphics, from2, to2, width, bHighlight);
+            DrawLane(graphics, from1, to1, width, fHighlight, GetRoadColor(fRoad));
+            DrawLane(graphics, from2, to2, width, bHighlight, GetRoadColor(bRoad));
         }
 
-        private static void DrawLane(Graphics graphics, Point from, Point to, int width, Highlight highlight)
+        private static void DrawLane(Graphics graphics, Point from, Point to, int width,
+            Highlight highlight, Color color)
         {
-            Color color = GRoad.color;
             switch (highlight)
             {
                 case GUI.Highlight.Low:
@@ -205,8 +215,8 @@ namespace RoadTrafficSimulator.GUI
             public void Highlight(Highlight highlight) => gRoad.Highlight(highlight);
             public void Highlight(Highlight highlight, IGRoad.Direction direction) =>
                 gRoad.Highlight(highlight, Reverse(direction));
-            public void Draw(Graphics graphics, Point from, Point to, int width) =>
-                gRoad.Draw(graphics, from, to, width);
+            public void Draw(Graphics graphics, Point from, Point to, int width, bool simulationMode) =>
+                gRoad.Draw(graphics, from, to, width, simulationMode);
         }
     }
 

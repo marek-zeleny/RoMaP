@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading;
 
 using RoadTrafficSimulator.Components;
 using RoadTrafficSimulator.ValueTypes;
@@ -24,6 +25,7 @@ namespace RoadTrafficSimulator
         private readonly Random random;
         private readonly SimulationClock clock;
         private Map map;
+        private SimulationSettings settings;
         private CentralNavigation centralNavigation;
         private IEnumerator<Crossroad> randomCrossroads;
         private HashSet<Car> stagedCars;
@@ -64,10 +66,19 @@ namespace RoadTrafficSimulator
             return InitialisationResult.Ok;
         }
 
-        public void Simulate(SimulationSettings settings)
+        public void StartSimulation(SimulationSettings settings, out Func<Time, bool> continueFunc)
         {
             Debug.Assert(map != null);
-            while (clock.Time < settings.Duration)
+            this.settings = settings;
+            continueFunc = ContinueSimulation;
+        }
+
+        private bool ContinueSimulation(Time duration)
+        {
+            Time end = clock.Time + duration;
+            if (end > settings.Duration)
+                end = settings.Duration;
+            while (clock.Time < end)
             {
                 double carsPerSecond = settings.GetCarSpawnRate(clock.Time) * map.CrossroadCount;
                 // Not using TimeStep.ToSeconds() to achieve better precision
@@ -76,6 +87,7 @@ namespace RoadTrafficSimulator
                     GenerateCar(settings.ActiveNavigationRate, newCarProbability);
                 Tick(settings.TimeStep);
             }
+            return clock.Time < settings.Duration;
         }
 
         private void GenerateCar(float activeNavigationRate, double probability = 1f)

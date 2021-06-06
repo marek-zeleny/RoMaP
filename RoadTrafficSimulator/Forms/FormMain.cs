@@ -20,6 +20,7 @@ namespace RoadTrafficSimulator.Forms
 
         private MapManager mapManager;
         private Simulation simulation;
+        private Func<Time, bool> continueSimulation;
         private FormSimulationSettings settingsForm;
         private Mode mode;
         private MapManager.CrossroadWrapper? selectedCrossroad;
@@ -32,6 +33,7 @@ namespace RoadTrafficSimulator.Forms
             mapManager = new MapManager();
             simulation = new Simulation();
             settingsForm = new FormSimulationSettings();
+            mapPanel.ResetOrigin();
             mode = Mode.Build;
             ChangeMode();
         }
@@ -40,7 +42,8 @@ namespace RoadTrafficSimulator.Forms
 
         private void mapPanel_Paint(object sender, PaintEventArgs e)
         {
-            mapManager.Draw(e.Graphics, mapPanel.Origin, mapPanel.Zoom, mapPanel.Width, mapPanel.Height);
+            mapManager.Draw(e.Graphics, mapPanel.Origin, mapPanel.Zoom, mapPanel.Width, mapPanel.Height,
+                mode == Mode.Simulate);
         }
 
         private void mapPanel_MouseClick(object sender, MouseEventArgs e)
@@ -160,6 +163,15 @@ namespace RoadTrafficSimulator.Forms
                 default:
                     break;
             }
+        }
+
+        private void timerSimulation_Tick(object sender, EventArgs e)
+        {
+            if (!continueSimulation(10.Seconds()))
+                EndSimulation();
+            mapPanel.Redraw();
+            if (selectedRoad != null)
+                simulationPanel.UpdateChart();
         }
 
         #endregion form_events
@@ -367,7 +379,13 @@ namespace RoadTrafficSimulator.Forms
         private void StartSimulation(SimulationSettings settings)
         {
             ShowInfo($"Starting simulation of {settings.Duration.ToHours()} hours...");
-            simulation.Simulate(settings);
+            simulation.StartSimulation(settings, out continueSimulation);
+            timerSimulation.Start();
+        }
+
+        private void EndSimulation()
+        {
+            timerSimulation.Stop();
             ShowInfo("The simulation has ended.");
         }
 

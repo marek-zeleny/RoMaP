@@ -128,7 +128,10 @@ namespace RoadTrafficSimulator.Forms
 
         public Chart(Func<TData, double> dataToDouble)
         {
+            // Panel properties
+            DoubleBuffered = true;
             BackColor = Color.White;
+            // Custom properties
             TimeRepresentation = TimeUnit.Second;
             this.dataToDouble = dataToDouble;
             dataCache = new Queue<Timestamp<TData>>();
@@ -270,7 +273,7 @@ namespace RoadTrafficSimulator.Forms
                 return new(x, y);
             }
 
-            bool PointInRange(PointF point) => point.Y >= min && point.Y <= max;
+            bool PointInRange(PointF point) => point.Y >= top && point.Y <= bot;
 
             PointF lastPoint = GetPoint(data.First());
             foreach (var timestamp in data.Skip(1))

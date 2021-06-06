@@ -16,7 +16,7 @@ namespace RoadTrafficSimulator.GUI
         IGRoad GetRoad(Vector vector);
         IEnumerable<IGCrossroad> GetCrossroads();
         IEnumerable<IGRoad> GetRoads();
-        void Draw(Graphics graphics, Point origin, float zoom, int width, int height);
+        void Draw(Graphics graphics, Point origin, float zoom, int width, int height, bool simulationMode);
     }
 
     enum Highlight : sbyte

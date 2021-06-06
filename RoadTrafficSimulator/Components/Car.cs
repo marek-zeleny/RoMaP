@@ -139,7 +139,9 @@ namespace RoadTrafficSimulator.Components
             Speed maxSpeed = CurrentSpeed + acceleration * time;
             if (maxSpeed > navigation.CurrentRoad.MaxSpeed)
                 maxSpeed = navigation.CurrentRoad.MaxSpeed;
-            if (navigation.CurrentRoad.Destination.CanCross(navigation.CurrentRoad.Id, navigation.NextRoad.Id))
+            bool freeToGo = navigation.NextRoad == null ||
+                navigation.CurrentRoad.Destination.CanCross(navigation.CurrentRoad.Id, navigation.NextRoad.Id);
+            if (freeToGo)
             {
                 travelledDistance = maxSpeed * time;
                 if (travelledDistance >= freeSpace)

@@ -16,6 +16,7 @@ namespace RoadTrafficSimulator.Forms
         public SimulationPanel()
         {
             InitializeComponent();
+            DoubleBuffered = true;
             InitialiseChart();
             if (!DesignMode)
                 Deselect();
@@ -65,14 +66,14 @@ namespace RoadTrafficSimulator.Forms
 
         private void InitialiseChart()
         {
-            static double GetAverageSpeed(Road.Throughput throughput) => throughput.averageSpeed;
+            static double GetAverageSpeed(Road.Throughput throughput) => throughput.averageSpeed.ToKilometresPerHour();
 
             chartAverageSpeed = new Chart<Road.Throughput, Road.IRoadStatistics>(GetAverageSpeed)
             {
                 Name = nameof(chartAverageSpeed),
                 Caption = "Average speed",
                 TimeRepresentation = Chart<Road.Throughput, Road.IRoadStatistics>.TimeUnit.Minute,
-                TimeSpan = 10.Hours(),
+                TimeSpan = 20.Minutes(),
                 Mode = Chart<Road.Throughput, Road.IRoadStatistics>.RangeMode.Fixed,
                 MinValue = 0,
                 ValueUnit = "km/h",

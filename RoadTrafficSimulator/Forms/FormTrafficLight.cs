@@ -49,7 +49,7 @@ namespace RoadTrafficSimulator.Forms
 
         private void panelMap_Paint(object sender, PaintEventArgs e)
         {
-            mapManager.Draw(e.Graphics, origin, zoom, panelMap.Width, panelMap.Height);
+            mapManager.Draw(e.Graphics, origin, zoom, panelMap.Width, panelMap.Height, false);
         }
 
         private void panelMap_MouseClick(object sender, MouseEventArgs e)

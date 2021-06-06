@@ -46,6 +46,7 @@ namespace RoadTrafficSimulator.Forms
         public BuildPanel()
         {
             InitializeComponent();
+            DoubleBuffered = true;
             // Initialize comboBoxMode
             foreach (string name in Enum.GetNames<Mode>())
                 comboBoxMode.Items.Add(name.Replace('_', ' '));

@@ -157,7 +157,10 @@ namespace RoadTrafficSimulator.Components
                         "at the end of the path.");
                 CurrentRoad = NextRoad;
                 RemainingDuration = nextRemainingDuration;
-                UpdateNextRoad();
+                if (CurrentRoad.Destination.Id == destination)
+                    NextRoad = null;
+                else
+                    UpdateNextRoad();
             }
 
             private void UpdateNextRoad()

@@ -55,19 +55,12 @@ namespace RoadTrafficSimulator.Forms
 
         public MapPanel()
         {
-            // Enable double-buffering
-            typeof(Panel).InvokeMember("DoubleBuffered",
-                System.Reflection.BindingFlags.SetProperty
-                | System.Reflection.BindingFlags.Instance
-                | System.Reflection.BindingFlags.NonPublic,
-                null,
-                this,
-                new object[] { true });
+            // Panel properties
+            DoubleBuffered = true;
+            Cursor = Cursors.Cross;
             // Custom properties
             Origin = Center;
             Zoom = 1f;
-            // Panel properties
-            Cursor = Cursors.Cross;
         }
 
         public void Redraw()

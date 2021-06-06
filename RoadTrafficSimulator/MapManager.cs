@@ -21,15 +21,54 @@ namespace RoadTrafficSimulator
         private static readonly Speed defaultMaxSpeed = 50.KilometresPerHour();
 
         public static readonly Distance roadSegmentDefaultLength = 100.Metres();
+        // Must be ordered in the counter-clockwise direction
         public static readonly Coords[] allowedDirections = new Coords[]
         {
                 new Coords(1, 0),
+                new Coords(0, -1),
                 new Coords(-1, 0),
                 new Coords(0, 1),
-                new Coords(0, -1)
         };
 
         public static RoadSide roadSide = RoadSide.Right;
+
+        /// <summary>
+        /// Gets allowed directions in the correct order according to <see cref="roadSide"/> starting from the
+        /// <paramref name="i"/>th index.
+        /// </summary>
+        public static IEnumerable<Coords> GetAllowedDirections(int i = 0)
+        {
+            yield return allowedDirections[i];
+            int m = allowedDirections.Length;
+            switch (roadSide)
+            {
+                case RoadSide.Right:
+                    for (int j = (i + 1) % m; j != i; j = (j + 1) % m)
+                        yield return allowedDirections[j];
+                    break;
+                case RoadSide.Left:
+                    for (int j = (i - 1 + m) % m; j != i; j = (j - 1 + m) % m)
+                        yield return allowedDirections[j];
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
+        }
+
+        /// <summary>
+        /// Gets allowed directions in the correct order according to <see cref="roadSide"/> starting from
+        /// <paramref name="startDirection"/>.
+        /// </summary>
+        public static IEnumerable<Coords> GetAllowedDirections(Coords startDirection)
+        {
+            int i = 0;
+            for (; i < allowedDirections.Length; i++)
+                if (allowedDirections[i] == startDirection)
+                    break;
+            if (i == allowedDirections.Length)
+                throw new ArgumentException("The given start direction isn't allowed.", nameof(startDirection));
+            return GetAllowedDirections(i);
+        }
 
         public static int DotProduct(Point p1, Point p2)
         {
@@ -216,15 +255,28 @@ namespace RoadTrafficSimulator
             }
         }
 
+        /// <summary>
+        /// Gets all roads going from <paramref name="coords"/> in the correct direction according to
+        /// <see cref="roadSide"/>.
+        /// May return the same road multiple times (twice) if it just passes through.
+        /// </summary>
         public IEnumerable<IGRoad> GetAllRoads(Coords coords)
         {
-            // May return the same road multiple times (twice) if it just passes through
-            foreach (Coords diff in allowedDirections)
-            {
-                IGRoad road = GetRoad(new Vector(coords, coords + diff));
-                if (road != null)
-                    yield return road;
-            }
+            IGRoad Selector(Coords diff) => GetRoad(new Vector(coords, coords + diff));
+
+            return GetAllowedDirections().Select(Selector).Where(gRoad => gRoad != null);
+        }
+
+        /// <summary>
+        /// Gets all roads going from the starting point of <paramref name="vector"/> in the correct direction according
+        /// to <see cref="roadSide"/>, starting from the direction of <paramref name="vector"/>.
+        /// May return the same road multiple times (twice) if it just passes through.
+        /// </summary>
+        public IEnumerable<IGRoad> GetAllRoads(Vector vector)
+        {
+            IGRoad Selector(Coords diff) => GetRoad(new Vector(vector.from, vector.from + diff));
+
+            return GetAllowedDirections(vector.Diff()).Select(Selector).Where(gRoad => gRoad != null);
         }
 
         public IRoadBuilder GetRoadBuilder(Coords startingCoords, bool twoWayRoad = true)
@@ -245,10 +297,10 @@ namespace RoadTrafficSimulator
             return DestroyGuiRoad(gRoad);
         }
 
-        public void Draw(Graphics graphics, Point origin, float zoom, int width, int height)
+        public void Draw(Graphics graphics, Point origin, float zoom, int width, int height, bool simulationMode)
         {
             DrawGrid(graphics, origin, zoom, width, height);
-            guiMap.Draw(graphics, origin, zoom, width, height);
+            guiMap.Draw(graphics, origin, zoom, width, height, simulationMode);
         }
 
         public void SaveMap(StreamWriter writer)
@@ -299,7 +351,7 @@ namespace RoadTrafficSimulator
             Coords last = enumerator.Current;
             if (!guiMap.RemoveRoad(new Vector(prelast, last)))
                 return false;
-            CheckMainRoad(road.From, last);
+            CheckMainRoad(road.From, last - prelast);
             while (enumerator.MoveNext())
             {
                 if (!guiMap.RemoveRoad(new Vector(last, enumerator.Current)))
@@ -307,7 +359,7 @@ namespace RoadTrafficSimulator
                 prelast = last;
                 last = enumerator.Current;
             }
-            CheckMainRoad(road.To, prelast);
+            CheckMainRoad(road.To, prelast - last);
             // Destroy crossroads that became stand-alone after destroying this road
             if (IsMapWithoutRoadsAt(guiMap, road.From))
                 if (!guiMap.RemoveCrossroad(road.From))
@@ -362,15 +414,15 @@ namespace RoadTrafficSimulator
 
         private class RoadBuilder : IRoadBuilder
         {
-            public static IRoadBuilder CreateRoadBuilder(Map map, IGMap guiMap, Coords startingCoords, bool twoWayRoad)
+            public static IRoadBuilder CreateRoadBuilder(MapManager mapManager, IGMap guiMap, Coords startingCoords, bool twoWayRoad)
             {
-                if (map.GetNode(startingCoords) == null && !IsMapWithoutRoadsAt(guiMap, startingCoords))
+                if (mapManager.Map.GetNode(startingCoords) == null && !IsMapWithoutRoadsAt(guiMap, startingCoords))
                     return null;
                 else
-                    return new RoadBuilder(map, guiMap, startingCoords, twoWayRoad);
+                    return new RoadBuilder(mapManager, guiMap, startingCoords, twoWayRoad);
             }
 
-            private Map map;
+            private MapManager mapManager;
             private IGMap gMap;
             private IMutableGRoad gRoad;
             private bool twoWay;
@@ -379,9 +431,9 @@ namespace RoadTrafficSimulator
 
             public bool CanContinue { get; private set; }
 
-            private RoadBuilder(Map map, IGMap gMap, Coords startCoords, bool twoWay)
+            private RoadBuilder(MapManager mapManager, IGMap gMap, Coords startCoords, bool twoWay)
             {
-                this.map = map;
+                this.mapManager = mapManager;
                 this.gMap = gMap;
                 this.twoWay = twoWay;
                 gRoad = new GRoad();
@@ -405,7 +457,7 @@ namespace RoadTrafficSimulator
                 if (!gMap.AddRoad(gRoad, vector))
                     return false;
                 Route.Add(nextCoords);
-                CanContinue = map.GetNode(nextCoords) == null;
+                CanContinue = mapManager.Map.GetNode(nextCoords) == null;
                 return true;
             }
 
@@ -422,11 +474,11 @@ namespace RoadTrafficSimulator
                 TryGetOrAddCrossroad(gRoad.To).Highlight = Highlight.Normal;
                 gRoad.Highlight(Highlight.Normal);
                 Distance roadLength = (Route.Count - 1) * roadSegmentDefaultLength;
-                Road road = map.AddRoad(gRoad.From, gRoad.To, roadLength, maxSpeed);
+                Road road = mapManager.Map.AddRoad(gRoad.From, gRoad.To, roadLength, maxSpeed);
                 gRoad.SetRoad(road, IGRoad.Direction.Forward);
                 if (twoWay)
                 {
-                    Road backRoad = map.AddRoad(gRoad.To, gRoad.From, roadLength, maxSpeed);
+                    Road backRoad = mapManager.Map.AddRoad(gRoad.To, gRoad.From, roadLength, maxSpeed);
                     gRoad.SetRoad(backRoad, IGRoad.Direction.Backward);
                     // Set TrafficLight to always allow backward direction
                     ((Crossroad)road.ToNode).TrafficLight.AddDefaultDirection(road.Id, backRoad.Id);
@@ -439,7 +491,7 @@ namespace RoadTrafficSimulator
             public void DestroyRoad()
             {
                 Coords last = Route.First();
-                if (map.GetNode(last) == null)
+                if (mapManager.Map.GetNode(last) == null)
                     gMap.RemoveCrossroad(last);
                 else
                     gMap.GetCrossroad(last).Highlight = Highlight.Normal;
@@ -467,14 +519,14 @@ namespace RoadTrafficSimulator
                     if (c.Equals(newCoords))
                         return false;
                 // Always allow if there is a (different from the starting one) crossroad at newCoords
-                if (map.GetNode(newCoords) != null)
+                if (mapManager.Map.GetNode(newCoords) != null)
                     return true;
                 return IsMapWithoutRoadsAt(gMap, newCoords);
             }
 
             private void Invalidate()
             {
-                map = null;
+                mapManager = null;
                 gMap = null;
                 gRoad = null;
             }

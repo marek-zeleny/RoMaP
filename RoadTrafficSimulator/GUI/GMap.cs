@@ -61,7 +61,7 @@ namespace RoadTrafficSimulator.GUI
 
         public IEnumerable<IGRoad> GetRoads() => roadSegments.Select(pair => pair.Value).Distinct();
 
-        public void Draw(Graphics graphics, Point origin, float zoom, int width, int height)
+        public void Draw(Graphics graphics, Point origin, float zoom, int width, int height, bool simulationMode)
         {
             int realRoadWidth = (int)(roadWidth * zoom);
             foreach (var (vector, road) in roadSegments)
@@ -69,7 +69,7 @@ namespace RoadTrafficSimulator.GUI
                 Point from = MapManager.CalculatePoint(vector.from, origin, zoom);
                 Point to = MapManager.CalculatePoint(vector.to, origin, zoom);
                 if (IsInRange(from, width, height) || IsInRange(to, width, height))
-                    road.Draw(graphics, from, to, realRoadWidth);
+                    road.Draw(graphics, from, to, realRoadWidth, simulationMode);
             }
             int realCrossroadSize = (int)(crossroadSize * zoom);
             foreach (var (coords, crossroad) in crossroads)

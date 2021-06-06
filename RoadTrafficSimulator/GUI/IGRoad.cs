@@ -20,7 +20,7 @@ namespace RoadTrafficSimulator.GUI
         IGRoad GetReversedGRoad();
         void Highlight(Highlight highlight);
         void Highlight(Highlight highlight, Direction direction);
-        void Draw(Graphics graphics, Point from, Point to, int width);
+        void Draw(Graphics graphics, Point from, Point to, int width, bool simulationMode);
     }
 
     interface IMutableGRoad : IGRoad

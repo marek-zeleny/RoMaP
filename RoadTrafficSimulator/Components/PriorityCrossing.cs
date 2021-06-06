@@ -39,6 +39,13 @@ namespace RoadTrafficSimulator.Components
                 info.RemovePriorDirectionsWhere(Predicate);
         }
 
+        public void AddPriority(Direction priorityFrom, Direction priorityTo)
+        {
+            var priors = directions[priorityFrom].priorDirections;
+            if (!priors.Contains(priorityTo))
+                priors.AddLast(priorityTo);
+        }
+
         public bool CanCross(int fromRoadId, int toRoadId)
         {
             Direction dir = new(fromRoadId, toRoadId);
