@@ -149,9 +149,10 @@ namespace RoadTrafficSimulator
             return (before1 || after2) ^ switched;
         }
 
-        public static IRoadBuilder CreateRoadBuilder(Map map, IGMap guiMap, Coords startingCoords, bool twoWayRoad)
+        public static IRoadBuilder CreateRoadBuilder(MapManager mapManager, IGMap guiMap, Coords startingCoords,
+            bool twoWayRoad)
         {
-            return RoadBuilder.CreateRoadBuilder(map, guiMap, startingCoords, twoWayRoad);
+            return RoadBuilder.CreateRoadBuilder(mapManager, guiMap, startingCoords, twoWayRoad);
         }
 
         public static bool IsMapWithoutRoadsAt(IGMap guiMap, Coords coords)
@@ -256,8 +257,7 @@ namespace RoadTrafficSimulator
         }
 
         /// <summary>
-        /// Gets all roads going from <paramref name="coords"/> in the correct direction according to
-        /// <see cref="roadSide"/>.
+        /// Gets all roads going from <paramref name="coords"/> sorted according to <see cref="roadSide"/>.
         /// May return the same road multiple times (twice) if it just passes through.
         /// </summary>
         public IEnumerable<IGRoad> GetAllRoads(Coords coords)
@@ -268,8 +268,8 @@ namespace RoadTrafficSimulator
         }
 
         /// <summary>
-        /// Gets all roads going from the starting point of <paramref name="vector"/> in the correct direction according
-        /// to <see cref="roadSide"/>, starting from the direction of <paramref name="vector"/>.
+        /// Gets all roads going from the starting point of <paramref name="vector"/> sorted according to
+        /// <see cref="roadSide"/>, starting from the direction of <paramref name="vector"/>.
         /// May return the same road multiple times (twice) if it just passes through.
         /// </summary>
         public IEnumerable<IGRoad> GetAllRoads(Vector vector)
@@ -281,7 +281,7 @@ namespace RoadTrafficSimulator
 
         public IRoadBuilder GetRoadBuilder(Coords startingCoords, bool twoWayRoad = true)
         {
-            return CreateRoadBuilder(Map, guiMap, startingCoords, twoWayRoad);
+            return CreateRoadBuilder(this, guiMap, startingCoords, twoWayRoad);
         }
 
         public bool DestroyCrossroad(IGCrossroad crossroad)
@@ -476,14 +476,18 @@ namespace RoadTrafficSimulator
                 Distance roadLength = (Route.Count - 1) * roadSegmentDefaultLength;
                 Road road = mapManager.Map.AddRoad(gRoad.From, gRoad.To, roadLength, maxSpeed);
                 gRoad.SetRoad(road, IGRoad.Direction.Forward);
+                Crossroad from = (Crossroad)road.FromNode;
+                Crossroad to = (Crossroad)road.ToNode;
                 if (twoWay)
                 {
                     Road backRoad = mapManager.Map.AddRoad(gRoad.To, gRoad.From, roadLength, maxSpeed);
                     gRoad.SetRoad(backRoad, IGRoad.Direction.Backward);
                     // Set TrafficLight to always allow backward direction
-                    ((Crossroad)road.ToNode).TrafficLight.AddDefaultDirection(road.Id, backRoad.Id);
-                    ((Crossroad)backRoad.ToNode).TrafficLight.AddDefaultDirection(backRoad.Id, road.Id);
+                    from.TrafficLight.AddDefaultDirection(backRoad.Id, road.Id);
+                    to.TrafficLight.AddDefaultDirection(road.Id, backRoad.Id);
                 }
+                UpdatePriorityCrossing(from);
+                UpdatePriorityCrossing(to);
                 Invalidate();
                 return true;
             }
@@ -522,6 +526,45 @@ namespace RoadTrafficSimulator
                 if (mapManager.Map.GetNode(newCoords) != null)
                     return true;
                 return IsMapWithoutRoadsAt(gMap, newCoords);
+            }
+
+            private void UpdatePriorityCrossing(Crossroad crossroad)
+            {
+                // TODO: Account for main roads
+                foreach (var from in mapManager.GetAllRoads(crossroad.Id))
+                {
+                    Road fromRoad = from.GetRoad(IGRoad.Direction.Backward);
+                    if (fromRoad == null)
+                        continue;
+
+                    foreach (var to in mapManager.GetAllRoads(crossroad.Id))
+                    {
+                        Road toRoad = to.GetRoad(IGRoad.Direction.Forward);
+                        if (toRoad == null)
+                            continue;
+                        Direction priorityFrom = new(fromRoad.Id, toRoad.Id);
+                        Vector vector = new(from.From, from.GetRoute().Skip(1).First());
+                        var roads = mapManager.GetAllRoads(vector);
+                        bool Pred(IGRoad road) => road != to;
+
+                        foreach (var priorFrom in roads.TakeWhile(Pred))
+                        {
+                            Road priorFromRoad = priorFrom.GetRoad(IGRoad.Direction.Backward);
+                            if (priorFromRoad == null)
+                                continue;
+
+                            foreach (var priorTo in roads.SkipWhile(Pred))
+                            {
+                                Road priorToRoad = priorTo.GetRoad(IGRoad.Direction.Forward);
+                                if (priorToRoad == null)
+                                    continue;
+                                Direction priorityTo = new(priorFromRoad.Id, priorToRoad.Id);
+
+                                crossroad.PriorityCrossing.AddPriority(priorityFrom, priorityTo);
+                            }
+                        }
+                    }
+                }
             }
 
             private void Invalidate()
