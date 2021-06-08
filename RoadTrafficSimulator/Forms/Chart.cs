@@ -142,14 +142,17 @@ namespace RoadTrafficSimulator.Forms
         public void SetDataSource(TDataCarrier stats, DataListAggregator aggregator, IClock clock,
             Func<TData, double> dataToDouble = null)
         {
-            statsList = null;
-            statsListAggregator = null;
+            lock (dataCache)
+            {
+                statsList = null;
+                statsListAggregator = null;
 
-            this.stats = stats;
-            statsAggregator = aggregator;
-            this.clock = clock;
-            if (dataToDouble != null)
-                this.dataToDouble = dataToDouble;
+                this.stats = stats;
+                statsAggregator = aggregator;
+                this.clock = clock;
+                if (dataToDouble != null)
+                    this.dataToDouble = dataToDouble;
+            }
             ClearCache();
             UpdateChart();
         }
@@ -158,14 +161,17 @@ namespace RoadTrafficSimulator.Forms
             Func<TDataCarrier, Timestamp<TData>> aggregator, IClock clock,
             Func<TData, double> dataToDouble = null)
         {
-            stats = null;
-            statsAggregator = null;
+            lock (dataCache)
+            {
+                stats = null;
+                statsAggregator = null;
 
-            this.statsList = statsList;
-            statsListAggregator = aggregator;
-            this.clock = clock;
-            if (dataToDouble != null)
-                this.dataToDouble = dataToDouble;
+                this.statsList = statsList;
+                statsListAggregator = aggregator;
+                this.clock = clock;
+                if (dataToDouble != null)
+                    this.dataToDouble = dataToDouble;
+            }
             ClearCache();
             UpdateChart();
         }
@@ -269,7 +275,7 @@ namespace RoadTrafficSimulator.Forms
                 double relX = (double)(timestamp.time - timeMin) / TimeSpan;
                 double relY = (dataToDouble(timestamp.data) - min) / valueSpan;
                 float x = left + (float)(width * relX);
-                float y = top + (float)(height * relY);
+                float y = bot - (float)(height * relY);
                 return new(x, y);
             }
 
@@ -302,33 +308,37 @@ namespace RoadTrafficSimulator.Forms
         {
             // Expects time linearity of the data
             IEnumerable<Timestamp<TData>> newData;
-            if (stats != null)
+            lock (dataCache)
             {
-                Debug.Assert(statsAggregator != null);
-                var data = statsAggregator(stats);
-                if (data.Count == 0)
+                if (stats != null)
+                {
+                    Debug.Assert(statsAggregator != null);
+                    var data = statsAggregator(stats);
+                    if (data.Count == 0)
+                        return null;
+                    newData = data.Slice(cacheEndIndex);
+                    cacheEndIndex = data.Count;
+                }
+                else if (statsList != null)
+                {
+                    Debug.Assert(statsListAggregator != null);
+                    if (statsList.Count == 0)
+                        return null;
+                    newData = statsList.Slice(cacheEndIndex).Select(statsListAggregator);
+                    cacheEndIndex = statsList.Count;
+                }
+                else
                     return null;
-                newData = data.Slice(cacheEndIndex);
-                cacheEndIndex = data.Count;
-            }
-            else if (statsList != null)
-            {
-                Debug.Assert(statsListAggregator != null);
-                if (statsList.Count == 0)
-                    return null;
-                newData = statsList.Slice(cacheEndIndex).Select(statsListAggregator);
-                cacheEndIndex = statsList.Count;
-            }
-            else
-                return null;
 
-            Debug.Assert(clock != null);
-            Time since = clock.Time - TimeSpan;
-            while (dataCache.Count > 0 && dataCache.Peek().time < since)
-                dataCache.Dequeue();
-            foreach (var item in newData.SkipWhile(timestamp => timestamp.time < since))
-                dataCache.Enqueue(item);
-            return dataCache;
+                Debug.Assert(clock != null);
+                Time since = clock.Time - TimeSpan;
+                while (dataCache.Count > 0 && dataCache.Peek().time < since)
+                    dataCache.Dequeue();
+                foreach (var item in newData.SkipWhile(timestamp => timestamp.time < since))
+                    dataCache.Enqueue(item);
+
+                return dataCache.Count > 0 ? dataCache : null;
+            }
         }
 
         private (double min, double max) FindExtremes(IEnumerable<Timestamp<TData>> data)
@@ -348,8 +358,11 @@ namespace RoadTrafficSimulator.Forms
 
         private void ClearCache()
         {
-            dataCache.Clear();
-            cacheEndIndex = 0;
+            lock (dataCache)
+            {
+                dataCache.Clear();
+                cacheEndIndex = 0;
+            }
         }
 
         #endregion helper_functions
