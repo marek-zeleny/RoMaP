@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Windows.Forms;
 
 using RoadTrafficSimulator.ValueTypes;
@@ -11,15 +12,69 @@ namespace RoadTrafficSimulator.Forms
 {
     public partial class SimulationPanel : UserControl
     {
-        Chart<Road.Throughput, Road.IRoadStatistics> chartAverageSpeed;
+        private static readonly int[] simulationSpeedTable = new int[]
+        {
+            1,
+            2,
+            5,
+            10,
+            20,
+            50,
+            100,
+            200,
+            500,
+            1000,
+        };
+
+        private static string TimeToString(Time time)
+        {
+            int days = time.ToDays();
+            time -= days.Days();
+            int hours = time.ToHours();
+            Debug.Assert(hours < 24);
+            time -= hours.Hours();
+            int minutes = time.ToMinutes();
+            Debug.Assert(minutes < 60);
+            time -= minutes.Minutes();
+            int seconds = time.ToSeconds();
+            Debug.Assert(seconds < 60);
+            return $"{days}d {hours:00}:{minutes:00}:{seconds:00}";
+        }
+
+        private Chart<Road.Throughput, Road.IRoadStatistics> chartAverageSpeed;
+        private Time simulationTime;
+
+        public int SimulationSpeed { get => simulationSpeedTable[trackBarSimulationSpeed.Value]; }
+
+        internal Time SimulationTime
+        {
+            get => simulationTime;
+            set
+            {
+                simulationTime = value;
+                labelSimulationTime.Text = $"Simulation time:\n{TimeToString(simulationTime)}";
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Property Changed")]
+        [Description("Occurs when the SimulationSpeed property is changed.")]
+        public event EventHandler SimulationSpeedChanged;
 
         public SimulationPanel()
         {
             InitializeComponent();
             DoubleBuffered = true;
+            trackBarSimulationSpeed.Maximum = simulationSpeedTable.Length - 1;
             InitialiseChart();
             if (!DesignMode)
                 Deselect();
+        }
+
+        private void trackBarSimulationSpeed_Scroll(object sender, EventArgs e)
+        {
+            labelSimulationSpeed.Text = $"Simulation speed: {SimulationSpeed}x";
+            SimulationSpeedChanged?.Invoke(this, new EventArgs());
         }
 
         internal void SelectCrossroad(Crossroad crossroad)

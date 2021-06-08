@@ -11,6 +11,8 @@ namespace RoadTrafficSimulator
 {
     class Simulation
     {
+        public static readonly Time MinTimeStep = 100.Milliseconds();
+
         private static readonly int[] carLengthDistribution = new int[] { 2, 3, 3, 3, 3, 4, 4, 10, 10, 15 };
 
         private class SimulationClock : IClock
@@ -151,7 +153,7 @@ namespace RoadTrafficSimulator
         public SimulationSettings(Time duration, float activeNavigationRate, float[] carSpawnRateDistribution)
         {
             Duration = duration;
-            TimeStep = 300.Milliseconds();
+            TimeStep = Simulation.MinTimeStep;
             ActiveNavigationRate = activeNavigationRate;
             this.carSpawnRateDistribution = carSpawnRateDistribution;
         }

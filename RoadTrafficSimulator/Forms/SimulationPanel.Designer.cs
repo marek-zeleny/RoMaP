@@ -39,8 +39,14 @@ namespace RoadTrafficSimulator.Forms
             this.labelOutIndex = new System.Windows.Forms.Label();
             this.labelInIndex = new System.Windows.Forms.Label();
             this.labelCoords = new System.Windows.Forms.Label();
+            this.trackBarSimulationSpeed = new System.Windows.Forms.TrackBar();
+            this.groupBoxSimulation = new System.Windows.Forms.GroupBox();
+            this.labelSimulationTime = new System.Windows.Forms.Label();
+            this.labelSimulationSpeed = new System.Windows.Forms.Label();
             this.groupBoxRoad.SuspendLayout();
             this.groupBoxCrossroad.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.trackBarSimulationSpeed)).BeginInit();
+            this.groupBoxSimulation.SuspendLayout();
             this.SuspendLayout();
             // 
             // groupBoxRoad
@@ -50,9 +56,9 @@ namespace RoadTrafficSimulator.Forms
             this.groupBoxRoad.Controls.Add(this.labelFrom);
             this.groupBoxRoad.Controls.Add(this.labelTwoWayRoad);
             this.groupBoxRoad.Dock = System.Windows.Forms.DockStyle.Top;
-            this.groupBoxRoad.Location = new System.Drawing.Point(0, 0);
+            this.groupBoxRoad.Location = new System.Drawing.Point(0, 142);
             this.groupBoxRoad.Name = "groupBoxRoad";
-            this.groupBoxRoad.Size = new System.Drawing.Size(316, 262);
+            this.groupBoxRoad.Size = new System.Drawing.Size(325, 262);
             this.groupBoxRoad.TabIndex = 0;
             this.groupBoxRoad.TabStop = false;
             this.groupBoxRoad.Text = "Road";
@@ -108,9 +114,9 @@ namespace RoadTrafficSimulator.Forms
             this.groupBoxCrossroad.Controls.Add(this.labelInIndex);
             this.groupBoxCrossroad.Controls.Add(this.labelCoords);
             this.groupBoxCrossroad.Dock = System.Windows.Forms.DockStyle.Top;
-            this.groupBoxCrossroad.Location = new System.Drawing.Point(0, 262);
+            this.groupBoxCrossroad.Location = new System.Drawing.Point(0, 404);
             this.groupBoxCrossroad.Name = "groupBoxCrossroad";
-            this.groupBoxCrossroad.Size = new System.Drawing.Size(316, 82);
+            this.groupBoxCrossroad.Size = new System.Drawing.Size(325, 82);
             this.groupBoxCrossroad.TabIndex = 0;
             this.groupBoxCrossroad.TabStop = false;
             this.groupBoxCrossroad.Text = "Crossroad";
@@ -158,18 +164,68 @@ namespace RoadTrafficSimulator.Forms
             this.labelCoords.TabIndex = 0;
             this.labelCoords.Text = "Coords: -;-";
             // 
+            // trackBarSimulationSpeed
+            // 
+            this.trackBarSimulationSpeed.Dock = System.Windows.Forms.DockStyle.Top;
+            this.trackBarSimulationSpeed.LargeChange = 2;
+            this.trackBarSimulationSpeed.Location = new System.Drawing.Point(3, 34);
+            this.trackBarSimulationSpeed.Maximum = 9;
+            this.trackBarSimulationSpeed.Name = "trackBarSimulationSpeed";
+            this.trackBarSimulationSpeed.Size = new System.Drawing.Size(319, 45);
+            this.trackBarSimulationSpeed.TabIndex = 1;
+            this.trackBarSimulationSpeed.Scroll += new System.EventHandler(this.trackBarSimulationSpeed_Scroll);
+            // 
+            // groupBoxSimulation
+            // 
+            this.groupBoxSimulation.AutoSize = true;
+            this.groupBoxSimulation.Controls.Add(this.labelSimulationTime);
+            this.groupBoxSimulation.Controls.Add(this.trackBarSimulationSpeed);
+            this.groupBoxSimulation.Controls.Add(this.labelSimulationSpeed);
+            this.groupBoxSimulation.Dock = System.Windows.Forms.DockStyle.Top;
+            this.groupBoxSimulation.Location = new System.Drawing.Point(0, 0);
+            this.groupBoxSimulation.Name = "groupBoxSimulation";
+            this.groupBoxSimulation.Size = new System.Drawing.Size(325, 142);
+            this.groupBoxSimulation.TabIndex = 2;
+            this.groupBoxSimulation.TabStop = false;
+            this.groupBoxSimulation.Text = "Simulation";
+            // 
+            // labelSimulationTime
+            // 
+            this.labelSimulationTime.AutoSize = true;
+            this.labelSimulationTime.Dock = System.Windows.Forms.DockStyle.Top;
+            this.labelSimulationTime.Font = new System.Drawing.Font("Segoe UI", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.labelSimulationTime.Location = new System.Drawing.Point(3, 79);
+            this.labelSimulationTime.Name = "labelSimulationTime";
+            this.labelSimulationTime.Size = new System.Drawing.Size(176, 60);
+            this.labelSimulationTime.TabIndex = 3;
+            this.labelSimulationTime.Text = "Simulation time:\r\n0d 00:00:00";
+            // 
+            // labelSimulationSpeed
+            // 
+            this.labelSimulationSpeed.AutoSize = true;
+            this.labelSimulationSpeed.Dock = System.Windows.Forms.DockStyle.Top;
+            this.labelSimulationSpeed.Location = new System.Drawing.Point(3, 19);
+            this.labelSimulationSpeed.Name = "labelSimulationSpeed";
+            this.labelSimulationSpeed.Size = new System.Drawing.Size(116, 15);
+            this.labelSimulationSpeed.TabIndex = 2;
+            this.labelSimulationSpeed.Text = "Simulation speed: 1x";
+            // 
             // SimulationPanel
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.groupBoxCrossroad);
             this.Controls.Add(this.groupBoxRoad);
+            this.Controls.Add(this.groupBoxSimulation);
             this.Name = "SimulationPanel";
-            this.Size = new System.Drawing.Size(316, 404);
+            this.Size = new System.Drawing.Size(325, 547);
             this.groupBoxRoad.ResumeLayout(false);
             this.groupBoxRoad.PerformLayout();
             this.groupBoxCrossroad.ResumeLayout(false);
             this.groupBoxCrossroad.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.trackBarSimulationSpeed)).EndInit();
+            this.groupBoxSimulation.ResumeLayout(false);
+            this.groupBoxSimulation.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -187,5 +243,9 @@ namespace RoadTrafficSimulator.Forms
         private System.Windows.Forms.Label labelOutIndex;
         private System.Windows.Forms.Label labelInIndex;
         private System.Windows.Forms.Label labelCoords;
+        private System.Windows.Forms.TrackBar trackBarSimulationSpeed;
+        private System.Windows.Forms.GroupBox groupBoxSimulation;
+        private System.Windows.Forms.Label labelSimulationTime;
+        private System.Windows.Forms.Label labelSimulationSpeed;
     }
 }

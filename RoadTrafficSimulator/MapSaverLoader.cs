@@ -165,30 +165,30 @@ namespace RoadTrafficSimulator
                 return false;
             if (!ParseCoords(path[1], out Coords secondCoords))
                 return false;
-            IRoadBuilder builder = MapManager.CreateRoadBuilder(map, guiMap, firstCoords, roadIdMappings.Length == 2);
-            if (builder == null)
-                return false;
-            if (!builder.AddSegment(secondCoords))
-            {
-                builder.DestroyRoad();
-                return false;
-            }
-            // Give the rest of the coords to the road builder
-            for (int i = 2; i < path.Length; i++)
-            {
-                if (!ParseCoords(path[i], out Coords coords)
-                    || !builder.AddSegment(coords))
-                {
-                    builder.DestroyRoad();
-                    return false;
-                }
-            }
-            // Build the road and get new road IDs
-            if (!builder.FinishRoad(maxSpeed.MetresPerSecond()))
-            {
-                builder.DestroyRoad();
-                return false;
-            }
+            //IRoadBuilder builder = MapManager.CreateRoadBuilder(map, guiMap, firstCoords, roadIdMappings.Length == 2);
+            //if (builder == null)
+            //    return false;
+            //if (!builder.AddSegment(secondCoords))
+            //{
+            //    builder.DestroyRoad();
+            //    return false;
+            //}
+            //// Give the rest of the coords to the road builder
+            //for (int i = 2; i < path.Length; i++)
+            //{
+            //    if (!ParseCoords(path[i], out Coords coords)
+            //        || !builder.AddSegment(coords))
+            //    {
+            //        builder.DestroyRoad();
+            //        return false;
+            //    }
+            //}
+            //// Build the road and get new road IDs
+            //if (!builder.FinishRoad(maxSpeed.MetresPerSecond()))
+            //{
+            //    builder.DestroyRoad();
+            //    return false;
+            //}
             IGRoad road = guiMap.GetRoad(new Vector(firstCoords, secondCoords));
             int j = 0;
             //foreach (int id in road.GetRoads())

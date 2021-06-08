@@ -34,6 +34,7 @@ namespace RoadTrafficSimulator.Forms
             simulation = new Simulation();
             settingsForm = new FormSimulationSettings();
             mapPanel.ResetOrigin();
+            timerSimulation.Interval = Simulation.MinTimeStep.ToMilliseconds();
             mode = Mode.Build;
             ChangeMode();
         }
@@ -167,8 +168,10 @@ namespace RoadTrafficSimulator.Forms
 
         private void timerSimulation_Tick(object sender, EventArgs e)
         {
-            if (!continueSimulation(10.Seconds()))
+            Time timestep = (timerSimulation.Interval * simulationPanel.SimulationSpeed).Milliseconds();
+            if (!continueSimulation(timestep))
                 EndSimulation();
+            simulationPanel.SimulationTime = simulation.Clock.Time;
             mapPanel.Redraw();
             if (selectedRoad != null)
                 simulationPanel.UpdateChart();

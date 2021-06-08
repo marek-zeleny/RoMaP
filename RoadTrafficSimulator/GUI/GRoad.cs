@@ -60,10 +60,11 @@ namespace RoadTrafficSimulator.GUI
 
         public IEnumerable<Coords> GetRoute(IGRoad.Direction direction)
         {
+            // Both directions return even if only one road exists, because the reverse might still be practical
             return direction switch
             {
-                IGRoad.Direction.Forward => fRoad != null ? route : null,
-                IGRoad.Direction.Backward => bRoad != null ? route.Reverse() : null,
+                IGRoad.Direction.Forward => route,
+                IGRoad.Direction.Backward => route?.Reverse(),
                 _ => throw new NotImplementedException(),
             };
         }

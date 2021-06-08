@@ -52,9 +52,10 @@
             // buttonCenter
             // 
             this.buttonCenter.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.buttonCenter.Location = new System.Drawing.Point(3, 3);
+            this.buttonCenter.Location = new System.Drawing.Point(2, 2);
+            this.buttonCenter.Margin = new System.Windows.Forms.Padding(2);
             this.buttonCenter.Name = "buttonCenter";
-            this.buttonCenter.Size = new System.Drawing.Size(186, 42);
+            this.buttonCenter.Size = new System.Drawing.Size(189, 25);
             this.buttonCenter.TabIndex = 1;
             this.buttonCenter.Text = "Center Map";
             this.buttonCenter.UseVisualStyleBackColor = true;
@@ -63,9 +64,10 @@
             // buttonZoom
             // 
             this.buttonZoom.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.buttonZoom.Location = new System.Drawing.Point(3, 51);
+            this.buttonZoom.Location = new System.Drawing.Point(2, 31);
+            this.buttonZoom.Margin = new System.Windows.Forms.Padding(2);
             this.buttonZoom.Name = "buttonZoom";
-            this.buttonZoom.Size = new System.Drawing.Size(186, 43);
+            this.buttonZoom.Size = new System.Drawing.Size(189, 25);
             this.buttonZoom.TabIndex = 2;
             this.buttonZoom.Text = "Zoom: 1.0x";
             this.buttonZoom.UseVisualStyleBackColor = true;
@@ -75,11 +77,9 @@
             // 
             this.groupBoxInfo.Controls.Add(this.labelInfo);
             this.groupBoxInfo.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.groupBoxInfo.Location = new System.Drawing.Point(6, 685);
-            this.groupBoxInfo.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.groupBoxInfo.Location = new System.Drawing.Point(4, 410);
             this.groupBoxInfo.Name = "groupBoxInfo";
-            this.groupBoxInfo.Padding = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.groupBoxInfo.Size = new System.Drawing.Size(384, 190);
+            this.groupBoxInfo.Size = new System.Drawing.Size(387, 114);
             this.groupBoxInfo.TabIndex = 8;
             this.groupBoxInfo.TabStop = false;
             this.groupBoxInfo.Text = "Info";
@@ -87,10 +87,9 @@
             // labelInfo
             // 
             this.labelInfo.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.labelInfo.Location = new System.Drawing.Point(4, 29);
-            this.labelInfo.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.labelInfo.Location = new System.Drawing.Point(3, 19);
             this.labelInfo.Name = "labelInfo";
-            this.labelInfo.Size = new System.Drawing.Size(376, 156);
+            this.labelInfo.Size = new System.Drawing.Size(381, 92);
             this.labelInfo.TabIndex = 0;
             // 
             // mapPanel
@@ -99,9 +98,8 @@
             this.mapPanel.Cursor = System.Windows.Forms.Cursors.Cross;
             this.mapPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.mapPanel.Location = new System.Drawing.Point(0, 0);
-            this.mapPanel.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.mapPanel.Name = "mapPanel";
-            this.mapPanel.Size = new System.Drawing.Size(897, 979);
+            this.mapPanel.Size = new System.Drawing.Size(508, 586);
             this.mapPanel.TabIndex = 0;
             this.mapPanel.Zoom = 1F;
             this.mapPanel.ZoomChanged += new System.EventHandler(this.mapPanel_ZoomChanged);
@@ -114,7 +112,8 @@
             this.splitContainer.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.splitContainer.Dock = System.Windows.Forms.DockStyle.Fill;
             this.splitContainer.FixedPanel = System.Windows.Forms.FixedPanel.Panel2;
-            this.splitContainer.Location = new System.Drawing.Point(6, 7);
+            this.splitContainer.Location = new System.Drawing.Point(4, 4);
+            this.splitContainer.Margin = new System.Windows.Forms.Padding(2);
             this.splitContainer.Name = "splitContainer";
             // 
             // splitContainer.Panel1
@@ -123,13 +122,14 @@
             // 
             // splitContainer.Panel2
             // 
-            this.splitContainer.Panel2.Controls.Add(this.simulationPanel);
-            this.splitContainer.Panel2.Controls.Add(this.buildPanel);
             this.splitContainer.Panel2.Controls.Add(this.groupBoxInfo);
             this.splitContainer.Panel2.Controls.Add(this.tableLayoutButtons);
-            this.splitContainer.Panel2.Padding = new System.Windows.Forms.Padding(6, 7, 6, 7);
-            this.splitContainer.Size = new System.Drawing.Size(1305, 983);
-            this.splitContainer.SplitterDistance = 901;
+            this.splitContainer.Panel2.Controls.Add(this.simulationPanel);
+            this.splitContainer.Panel2.Controls.Add(this.buildPanel);
+            this.splitContainer.Panel2.Padding = new System.Windows.Forms.Padding(4);
+            this.splitContainer.Size = new System.Drawing.Size(914, 590);
+            this.splitContainer.SplitterDistance = 512;
+            this.splitContainer.SplitterWidth = 3;
             this.splitContainer.TabIndex = 0;
             this.splitContainer.TabStop = false;
             // 
@@ -137,10 +137,10 @@
             // 
             this.simulationPanel.AutoSize = true;
             this.simulationPanel.Dock = System.Windows.Forms.DockStyle.Top;
-            this.simulationPanel.Location = new System.Drawing.Point(6, 151);
-            this.simulationPanel.Margin = new System.Windows.Forms.Padding(6, 8, 6, 8);
+            this.simulationPanel.Location = new System.Drawing.Point(4, 97);
+            this.simulationPanel.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.simulationPanel.Name = "simulationPanel";
-            this.simulationPanel.Size = new System.Drawing.Size(384, 0);
+            this.simulationPanel.Size = new System.Drawing.Size(387, 142);
             this.simulationPanel.TabIndex = 10;
             // 
             // buildPanel
@@ -148,12 +148,12 @@
             this.buildPanel.AutoSize = true;
             this.buildPanel.CurrentMode = RoadTrafficSimulator.Forms.BuildPanel.Mode.Build;
             this.buildPanel.Dock = System.Windows.Forms.DockStyle.Top;
-            this.buildPanel.Location = new System.Drawing.Point(6, 7);
-            this.buildPanel.Margin = new System.Windows.Forms.Padding(6, 8, 6, 8);
+            this.buildPanel.Location = new System.Drawing.Point(4, 4);
+            this.buildPanel.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.buildPanel.MaxSpeed = 50;
-            this.buildPanel.MinimumSize = new System.Drawing.Size(236, 0);
+            this.buildPanel.MinimumSize = new System.Drawing.Size(165, 0);
             this.buildPanel.Name = "buildPanel";
-            this.buildPanel.Size = new System.Drawing.Size(384, 144);
+            this.buildPanel.Size = new System.Drawing.Size(387, 93);
             this.buildPanel.TabIndex = 9;
             this.buildPanel.DestroyRoadClick += new System.EventHandler(this.buildPanel_DestroyRoadClick);
             this.buildPanel.TrafficLightClick += new System.EventHandler(this.buildPanel_TrafficLightClick);
@@ -174,21 +174,21 @@
             this.tableLayoutButtons.Controls.Add(this.buttonCenter, 0, 0);
             this.tableLayoutButtons.Controls.Add(this.buttonSimulate, 1, 1);
             this.tableLayoutButtons.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.tableLayoutButtons.Location = new System.Drawing.Point(6, 875);
+            this.tableLayoutButtons.Location = new System.Drawing.Point(4, 524);
+            this.tableLayoutButtons.Margin = new System.Windows.Forms.Padding(2);
             this.tableLayoutButtons.Name = "tableLayoutButtons";
             this.tableLayoutButtons.RowCount = 2;
             this.tableLayoutButtons.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutButtons.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutButtons.Size = new System.Drawing.Size(384, 97);
+            this.tableLayoutButtons.Size = new System.Drawing.Size(387, 58);
             this.tableLayoutButtons.TabIndex = 0;
             // 
             // buttonMode
             // 
             this.buttonMode.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.buttonMode.Location = new System.Drawing.Point(196, 5);
-            this.buttonMode.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.buttonMode.Location = new System.Drawing.Point(196, 3);
             this.buttonMode.Name = "buttonMode";
-            this.buttonMode.Size = new System.Drawing.Size(184, 38);
+            this.buttonMode.Size = new System.Drawing.Size(188, 23);
             this.buttonMode.TabIndex = 3;
             this.buttonMode.Text = "Build Map";
             this.buttonMode.UseVisualStyleBackColor = true;
@@ -197,10 +197,10 @@
             // buttonSimulate
             // 
             this.buttonSimulate.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.buttonSimulate.Location = new System.Drawing.Point(196, 51);
-            this.buttonSimulate.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            this.buttonSimulate.Location = new System.Drawing.Point(196, 31);
+            this.buttonSimulate.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.buttonSimulate.Name = "buttonSimulate";
-            this.buttonSimulate.Size = new System.Drawing.Size(184, 43);
+            this.buttonSimulate.Size = new System.Drawing.Size(188, 25);
             this.buttonSimulate.TabIndex = 4;
             this.buttonSimulate.Text = "Simulate";
             this.buttonSimulate.UseVisualStyleBackColor = true;
@@ -208,17 +208,18 @@
             // 
             // timerSimulation
             // 
+            this.timerSimulation.Interval = 300;
             this.timerSimulation.Tick += new System.EventHandler(this.timerSimulation_Tick);
             // 
             // FormMain
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 25F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1317, 997);
+            this.ClientSize = new System.Drawing.Size(922, 598);
             this.Controls.Add(this.splitContainer);
-            this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Name = "FormMain";
-            this.Padding = new System.Windows.Forms.Padding(6, 7, 6, 7);
+            this.Padding = new System.Windows.Forms.Padding(4);
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Road Traffic Simulator";
             this.groupBoxInfo.ResumeLayout(false);
