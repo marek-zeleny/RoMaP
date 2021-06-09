@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 
 using RoadTrafficSimulator.Components;
 using RoadTrafficSimulator.GUI;
@@ -39,34 +40,33 @@ namespace RoadTrafficSimulator
          * direction: from , to
          */
 
-        public static void SaveMap(TextWriter writer, Components.Map map, IGMap guiMap)
+        public static void SaveMap(Stream stream, Map map, IGMap guiMap)
         {
-            writer.WriteLine(keywordRoads);
-            writer.WriteLine();
-            writer.WriteLine("{0} roadId [| backRoadId] | maxSpeed | path", commentMark);
-            writer.WriteLine("{0} path: coords1 ; coords2 [; coords3 [; coords4] ...]", commentMark);
-            writer.WriteLine("{0} coords: x , y", commentMark);
-            writer.WriteLine();
-            //foreach (IGRoad guiRoad in guiMap.GetRoads())
-            //    writer.WriteLine(RoadToString(new RoadView((Components.Road)map.GetEdge(guiRoad.GetRoads().First()), guiRoad)));
-            writer.WriteLine();
+            JsonWriterOptions options = new()
+            {
+                Indented = true,
+            };
+            Utf8JsonWriter writer = new(stream, options);
+            writer.WriteStartObject();
 
-            writer.WriteLine(keywordCrossroads);
-            writer.WriteLine();
-            writer.WriteLine("{0} coords | carSpawnRate [| settings1 [| settings2] ...]", commentMark);
-            writer.WriteLine("{0} coords: x , y", commentMark);
-            writer.WriteLine("{0} settings: duration ; direction1 [; direction2 [; direction3] ...]", commentMark);
-            writer.WriteLine("{0} direction: from , to", commentMark);
-            writer.WriteLine();
-            foreach (IGCrossroad guiCrossroad in guiMap.GetCrossroads())
-                writer.WriteLine(CrossroadToString(new CrossroadView((Components.Crossroad)map.GetNode(guiCrossroad.CrossroadId), guiCrossroad)));
-            writer.WriteLine();
-            writer.WriteLine(keywordEnd);
+            writer.WriteStartArray("roads");
+            foreach (var gRoad in guiMap.GetRoads())
+                SerialiseRoad(writer, gRoad);
+            writer.WriteEndArray();
 
+            writer.WriteStartArray("crossroads");
+            foreach (var gCrossroad in guiMap.GetCrossroads())
+            {
+                Crossroad crossroad = (Crossroad)map.GetNode(gCrossroad.CrossroadId);
+                SerialiseCrossroad(writer, gCrossroad, crossroad);
+            }
+            writer.WriteEndArray();
+
+            writer.WriteEndObject();
             writer.Flush();
         }
 
-        public static bool LoadMap(TextReader reader, Components.Map map, IGMap guiMap)
+        public static bool LoadMap(TextReader reader, Map map, IGMap guiMap)
         {
             string line;
             // Find the beginning of roads
@@ -109,6 +109,87 @@ namespace RoadTrafficSimulator
             return false;
         }
 
+        private static void SerialiseRoad(Utf8JsonWriter writer, IGRoad gRoad)
+        {
+            void Serialise(Road road)
+            {
+                writer.WriteStartObject();
+                writer.WriteNumber("id", road.Id);
+                writer.WriteNumber("length", road.Length.ToMetres());
+                writer.WriteNumber("maxSpeed", road.MaxSpeed.ToKilometresPerHour());
+                writer.WriteNumber("laneCount", road.LaneCount);
+                writer.WriteEndObject();
+            }
+
+            writer.WriteStartObject();
+
+            Road road = gRoad.GetRoad(IGRoad.Direction.Forward);
+            if (road != null)
+            {
+                writer.WritePropertyName("forward");
+                Serialise(road);
+            }
+            road = gRoad.GetRoad(IGRoad.Direction.Backward);
+            if (road != null)
+            {
+                writer.WritePropertyName("backward");
+                Serialise(road);
+            }
+            writer.WriteStartArray("route");
+            foreach (var coords in gRoad.GetRoute())
+                SerialiseCoords(writer, coords);
+            writer.WriteEndArray();
+
+            writer.WriteEndObject();
+        }
+
+        private static void SerialiseCrossroad(Utf8JsonWriter writer, IGCrossroad gCrossroad, Crossroad crossroad)
+        {
+            writer.WriteStartObject();
+
+            writer.WritePropertyName("id");
+            SerialiseCoords(writer, crossroad.Id);
+            if (gCrossroad.MainRoadDirections.HasValue)
+            {
+                writer.WriteStartArray("mainRoadDirections");
+                SerialiseCoords(writer, gCrossroad.MainRoadDirections.Value.Item1);
+                SerialiseCoords(writer, gCrossroad.MainRoadDirections.Value.Item2);
+                writer.WriteEndArray();
+            }
+            writer.WriteNumber("carSpawnRate", crossroad.CarSpawnRate);
+
+            writer.WriteStartArray("trafficLightSettings");
+            foreach (var setting in crossroad.TrafficLight.Settings)
+            {
+                writer.WriteStartObject();
+                writer.WriteNumber("duration", setting.Duration.ToSeconds());
+                writer.WriteStartArray("allowedDirections");
+                foreach (var direction in setting)
+                    SerialiseDirection(writer, direction);
+                writer.WriteEndArray();
+                writer.WriteEndObject();
+            }
+            writer.WriteEndArray();
+
+            writer.WriteEndObject();
+        }
+
+        private static void SerialiseCoords(Utf8JsonWriter writer, Coords coords)
+        {
+            writer.WriteStartObject();
+            writer.WriteNumber("x", coords.x);
+            writer.WriteNumber("y", coords.y);
+            writer.WriteEndObject();
+        }
+
+        private static void SerialiseDirection(Utf8JsonWriter writer, Direction direction)
+        {
+            writer.WriteStartObject();
+            writer.WriteNumber("from", direction.fromRoadId);
+            writer.WriteNumber("to", direction.toRoadId);
+            writer.WriteEndObject();
+        }
+
         private static string RoadToString(RoadView road)
         {
             StringBuilder sb = new StringBuilder();
@@ -140,7 +221,7 @@ namespace RoadTrafficSimulator
             return sb.ToString();
         }
 
-        private static bool ParseRoad(string line, Components.Map map, IGMap guiMap, out (int, int)[] roadIdMappings)
+        private static bool ParseRoad(string line, Map map, IGMap guiMap, out (int, int)[] roadIdMappings)
         {
             // Split line into fields and parse them: roadId [| backRoadId] | maxSpeed | path
             string[] fields = line.Split(fieldSeparator);
@@ -165,34 +246,34 @@ namespace RoadTrafficSimulator
                 return false;
             if (!ParseCoords(path[1], out Coords secondCoords))
                 return false;
-            //IRoadBuilder builder = MapManager.CreateRoadBuilder(map, guiMap, firstCoords, roadIdMappings.Length == 2);
-            //if (builder == null)
-            //    return false;
-            //if (!builder.AddSegment(secondCoords))
-            //{
-            //    builder.DestroyRoad();
-            //    return false;
-            //}
-            //// Give the rest of the coords to the road builder
-            //for (int i = 2; i < path.Length; i++)
-            //{
-            //    if (!ParseCoords(path[i], out Coords coords)
-            //        || !builder.AddSegment(coords))
-            //    {
-            //        builder.DestroyRoad();
-            //        return false;
-            //    }
-            //}
-            //// Build the road and get new road IDs
-            //if (!builder.FinishRoad(maxSpeed.MetresPerSecond()))
-            //{
-            //    builder.DestroyRoad();
-            //    return false;
-            //}
-            IGRoad road = guiMap.GetRoad(new Vector(firstCoords, secondCoords));
+            IRoadBuilder builder = MapManager.CreateRoadBuilder(map, guiMap, firstCoords, roadIdMappings.Length == 2);
+            if (builder == null)
+                return false;
+            if (!builder.AddSegment(secondCoords))
+            {
+                builder.DestroyRoad();
+                return false;
+            }
+            // Give the rest of the coords to the road builder
+            for (int i = 2; i < path.Length; i++)
+            {
+                if (!ParseCoords(path[i], out Coords coords)
+                    || !builder.AddSegment(coords))
+                {
+                    builder.DestroyRoad();
+                    return false;
+                }
+            }
+            // Build the road and get new road IDs
+            if (!builder.FinishRoad(maxSpeed.MetresPerSecond()))
+            {
+                builder.DestroyRoad();
+                return false;
+            }
+            IGRoad gRoad = guiMap.GetRoad(new Vector(firstCoords, secondCoords));
             int j = 0;
-            //foreach (int id in road.GetRoads())
-            //    roadIdMappings[j++].Item2 = id;
+            foreach (var road in gRoad.GetRoads())
+                roadIdMappings[j++].Item2 = road.Id;
             return true;
         }
 
@@ -222,7 +303,7 @@ namespace RoadTrafficSimulator
                 string[] directions = fields[i].Split(entitySeparator);
                 if (!int.TryParse(directions[0], out int duration))
                     return false;
-                setting.Duration = duration.Seconds(); // TODO: Change to new Milliseconds(duration) after saving existing maps in the new format
+                setting.Duration = duration.Seconds();
                 for (int j = 1; j < directions.Length; j++)
                 {
                     string[] split = directions[j].Split(valueSeparator);

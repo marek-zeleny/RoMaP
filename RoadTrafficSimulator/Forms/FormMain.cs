@@ -420,7 +420,7 @@ namespace RoadTrafficSimulator.Forms
             SaveFileDialog fileDialog = new()
             {
                 Title = "Save map",
-                Filter = "Map files (*.map)|*.map",
+                Filter = "JSON files (*.json)|*.json",
                 InitialDirectory = savePath
             };
             if (fileDialog.ShowDialog() == DialogResult.OK)
@@ -430,11 +430,11 @@ namespace RoadTrafficSimulator.Forms
         private void SaveMap(string path)
         {
             bool successful = true;
-            StreamWriter sw = null;
+            Stream stream = null;
             try
             {
-                sw = new StreamWriter(path);
-                mapManager.SaveMap(sw);
+                stream = File.OpenWrite(path);
+                mapManager.SaveMap(stream);
             }
             catch (Exception e) when (
                 e is IOException ||
@@ -447,7 +447,7 @@ namespace RoadTrafficSimulator.Forms
             }
             finally
             {
-                sw?.Dispose();
+                stream?.Dispose();
             }
             if (successful)
                 ShowInfo("Map successfully saved.");

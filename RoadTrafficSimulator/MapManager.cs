@@ -303,9 +303,9 @@ namespace RoadTrafficSimulator
             guiMap.Draw(graphics, origin, zoom, width, height, simulationMode);
         }
 
-        public void SaveMap(StreamWriter writer)
+        public void SaveMap(Stream stream)
         {
-            MapSaverLoader.SaveMap(writer, Map, guiMap);
+            MapSaverLoader.SaveMap(stream, Map, guiMap);
         }
 
         public bool LoadMap(StreamReader reader)
