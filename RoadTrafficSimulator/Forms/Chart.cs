@@ -18,7 +18,6 @@ namespace RoadTrafficSimulator.Forms
         public enum TimeUnit { Millisecond, Second, Minute, Hour, Day }
         public delegate IReadOnlyList<Timestamp<TData>> DataListAggregator(TDataCarrier stats);
 
-        private const int axisOffset = 25;
         // data
         private Func<TData, double> dataToDouble;
         private TDataCarrier stats;
@@ -113,11 +112,11 @@ namespace RoadTrafficSimulator.Forms
                 timeRepr = value;
                 timeToString = timeRepr switch
                 {
-                    TimeUnit.Millisecond => time => $"{time.ToMilliseconds()}ms",
-                    TimeUnit.Second => time => $"{time.ToSeconds()}s",
-                    TimeUnit.Minute => time => $"{time.ToMinutes()}min",
-                    TimeUnit.Hour => time => $"{time.ToHours()}h",
-                    TimeUnit.Day => time => $"{time.ToDays()}d",
+                    TimeUnit.Millisecond => time => $"{time.ToMilliseconds()} ms",
+                    TimeUnit.Second => time => $"{time.ToSeconds()} s",
+                    TimeUnit.Minute => time => $"{time.ToMinutes()} min",
+                    TimeUnit.Hour => time => $"{time.ToHours()} h",
+                    TimeUnit.Day => time => $"{time.ToDays()} d",
                     _ => throw new NotImplementedException(),
                 };
                 UpdateChart();
@@ -223,19 +222,38 @@ namespace RoadTrafficSimulator.Forms
                     default:
                         throw new NotImplementedException();
                 }
-                DrawAxes(gr, min, max);
-                DrawData(gr, data, min, max);
+                var border = DrawAxes(gr, min, max);
+                DrawData(gr, data, min, max, border);
             }
         }
 
-        private void DrawAxes(Graphics gr, double min, double max)
+        private (int top, int bot, int left, int right) DrawAxes(Graphics gr, double min, double max)
         {
             const int labelMargin = 5;
-            int top = axisOffset;
-            int bot = Height - axisOffset;
-            int left = axisOffset;
-            int right = Width - axisOffset;
-            Font font = new(SystemFonts.DefaultFont.FontFamily, 10f);
+
+            int decimals = (int)-Math.Floor(Math.Log10(max - min));
+            if (decimals < 0)
+                decimals = 0;
+
+            Time now = new();
+            if (clock != null)
+                now = clock.Time;
+            string yMin = $"{min.ToString($"F{decimals}")} {ValueUnit}";
+            string yMax = $"{max.ToString($"F{decimals}")} {ValueUnit}";
+            string xMin = timeToString(now - TimeSpan);
+            string xMax = timeToString(now);
+
+            Font axisFont = new(SystemFonts.DefaultFont.FontFamily, 10f);
+            Font captionFont = new(axisFont, FontStyle.Bold);
+
+            Size captionSize = gr.MeasureString(caption, captionFont).ToSize();
+            Size yMaxSize = gr.MeasureString(yMax, axisFont).ToSize();
+            Size xMaxSize = gr.MeasureString(xMax, axisFont).ToSize();
+
+            int top = labelMargin * 2 + captionSize.Height;
+            int bot = Height - (labelMargin + xMaxSize.Height);
+            int left = labelMargin + yMaxSize.Width;
+            int right = Width - (labelMargin + xMaxSize.Width / 2);
             Brush brush = Brushes.Black;
             StringFormat format = new();
             // axes
@@ -243,30 +261,27 @@ namespace RoadTrafficSimulator.Forms
             gr.DrawLine(Pens.Black, left, bot, right, bot);
             // value (y) axis labels
             format.LineAlignment = StringAlignment.Center;
-            gr.DrawString($"{min} {ValueUnit}", font, brush, labelMargin, bot, format);
-            gr.DrawString($"{max} {ValueUnit}", font, brush, labelMargin, top, format);
+            gr.DrawString(yMin, axisFont, brush, labelMargin, bot, format);
+            gr.DrawString(yMax, axisFont, brush, labelMargin, top, format);
             // time (x) axis labels
             format.LineAlignment = StringAlignment.Near;
             format.Alignment = StringAlignment.Center;
-            Time now = new();
-            if (clock != null)
-                now = clock.Time;
-            gr.DrawString(timeToString(now - TimeSpan), font, brush, left, bot + labelMargin, format);
-            gr.DrawString(timeToString(now), font, brush, right, bot + labelMargin, format);
+            gr.DrawString(xMin, axisFont, brush, left, bot + labelMargin, format);
+            gr.DrawString(xMax, axisFont, brush, right, bot + labelMargin, format);
             // caption
-            font = new(font, FontStyle.Bold);
-            gr.DrawString(caption, font, brush, Width / 2, labelMargin, format);
+            gr.DrawString(caption, captionFont, brush, Width / 2, labelMargin, format);
+            return (top, bot, left, right);
         }
 
-        private void DrawData(Graphics gr, IEnumerable<Timestamp<TData>> data, double min, double max)
+        private void DrawData(Graphics gr, IEnumerable<Timestamp<TData>> data, double min, double max,
+            (int top, int bot, int left, int right) border)
         {
-            int top = axisOffset;
-            int bot = Height - axisOffset;
-            int left = axisOffset;
-            int right = Width - axisOffset;
+            var (top, bot, left, right) = border;
             int height = bot - top;
             int width = right - left;
-
+            // Prevent weird behaviour
+            if (max == min)
+                max += 0.1;
             double valueSpan = max - min;
             Time timeMin = clock.Time - TimeSpan;
 

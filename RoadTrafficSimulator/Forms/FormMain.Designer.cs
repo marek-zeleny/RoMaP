@@ -35,11 +35,11 @@
             this.labelInfo = new System.Windows.Forms.Label();
             this.mapPanel = new RoadTrafficSimulator.Forms.MapPanel();
             this.splitContainer = new System.Windows.Forms.SplitContainer();
-            this.simulationPanel = new RoadTrafficSimulator.Forms.SimulationPanel();
-            this.buildPanel = new RoadTrafficSimulator.Forms.BuildPanel();
             this.tableLayoutButtons = new System.Windows.Forms.TableLayoutPanel();
             this.buttonMode = new System.Windows.Forms.Button();
             this.buttonSimulate = new System.Windows.Forms.Button();
+            this.simulationPanel = new RoadTrafficSimulator.Forms.SimulationPanel();
+            this.buildPanel = new RoadTrafficSimulator.Forms.BuildPanel();
             this.timerSimulation = new System.Windows.Forms.Timer(this.components);
             this.groupBoxInfo.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
@@ -79,7 +79,7 @@
             this.groupBoxInfo.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.groupBoxInfo.Location = new System.Drawing.Point(4, 410);
             this.groupBoxInfo.Name = "groupBoxInfo";
-            this.groupBoxInfo.Size = new System.Drawing.Size(387, 114);
+            this.groupBoxInfo.Size = new System.Drawing.Size(386, 114);
             this.groupBoxInfo.TabIndex = 8;
             this.groupBoxInfo.TabStop = false;
             this.groupBoxInfo.Text = "Info";
@@ -89,7 +89,7 @@
             this.labelInfo.Dock = System.Windows.Forms.DockStyle.Fill;
             this.labelInfo.Location = new System.Drawing.Point(3, 19);
             this.labelInfo.Name = "labelInfo";
-            this.labelInfo.Size = new System.Drawing.Size(381, 92);
+            this.labelInfo.Size = new System.Drawing.Size(380, 92);
             this.labelInfo.TabIndex = 0;
             // 
             // mapPanel
@@ -99,7 +99,7 @@
             this.mapPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.mapPanel.Location = new System.Drawing.Point(0, 0);
             this.mapPanel.Name = "mapPanel";
-            this.mapPanel.Size = new System.Drawing.Size(508, 586);
+            this.mapPanel.Size = new System.Drawing.Size(509, 586);
             this.mapPanel.TabIndex = 0;
             this.mapPanel.Zoom = 1F;
             this.mapPanel.ZoomChanged += new System.EventHandler(this.mapPanel_ZoomChanged);
@@ -124,45 +124,14 @@
             // 
             this.splitContainer.Panel2.Controls.Add(this.groupBoxInfo);
             this.splitContainer.Panel2.Controls.Add(this.tableLayoutButtons);
-            this.splitContainer.Panel2.Controls.Add(this.simulationPanel);
             this.splitContainer.Panel2.Controls.Add(this.buildPanel);
+            this.splitContainer.Panel2.Controls.Add(this.simulationPanel);
             this.splitContainer.Panel2.Padding = new System.Windows.Forms.Padding(4);
             this.splitContainer.Size = new System.Drawing.Size(914, 590);
-            this.splitContainer.SplitterDistance = 512;
+            this.splitContainer.SplitterDistance = 513;
             this.splitContainer.SplitterWidth = 3;
             this.splitContainer.TabIndex = 0;
             this.splitContainer.TabStop = false;
-            // 
-            // simulationPanel
-            // 
-            this.simulationPanel.AutoSize = true;
-            this.simulationPanel.Dock = System.Windows.Forms.DockStyle.Top;
-            this.simulationPanel.Location = new System.Drawing.Point(4, 97);
-            this.simulationPanel.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.simulationPanel.Name = "simulationPanel";
-            this.simulationPanel.Size = new System.Drawing.Size(387, 142);
-            this.simulationPanel.TabIndex = 10;
-            // 
-            // buildPanel
-            // 
-            this.buildPanel.AutoSize = true;
-            this.buildPanel.CurrentMode = RoadTrafficSimulator.Forms.BuildPanel.Mode.Build;
-            this.buildPanel.Dock = System.Windows.Forms.DockStyle.Top;
-            this.buildPanel.Location = new System.Drawing.Point(4, 4);
-            this.buildPanel.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.buildPanel.MaxSpeed = 50;
-            this.buildPanel.MinimumSize = new System.Drawing.Size(165, 0);
-            this.buildPanel.Name = "buildPanel";
-            this.buildPanel.Size = new System.Drawing.Size(387, 93);
-            this.buildPanel.TabIndex = 9;
-            this.buildPanel.DestroyRoadClick += new System.EventHandler(this.buildPanel_DestroyRoadClick);
-            this.buildPanel.TrafficLightClick += new System.EventHandler(this.buildPanel_TrafficLightClick);
-            this.buildPanel.DestroyCrossroadClick += new System.EventHandler(this.buildPanel_DestroyCrossroadClick);
-            this.buildPanel.SaveMapClick += new System.EventHandler(this.buildPanel_SaveMapClick);
-            this.buildPanel.LoadMapClick += new System.EventHandler(this.buildPanel_LoadMapClick);
-            this.buildPanel.CurrentModeChanged += new System.EventHandler(this.buildPanel_CurrentModeChanged);
-            this.buildPanel.MaxSpeedChanged += new System.EventHandler(this.buildPanel_MaxSpeedChanged);
-            this.buildPanel.SpawnRateChanged += new System.EventHandler(this.buildPanel_SpawnRateChanged);
             // 
             // tableLayoutButtons
             // 
@@ -180,7 +149,7 @@
             this.tableLayoutButtons.RowCount = 2;
             this.tableLayoutButtons.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutButtons.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutButtons.Size = new System.Drawing.Size(387, 58);
+            this.tableLayoutButtons.Size = new System.Drawing.Size(386, 58);
             this.tableLayoutButtons.TabIndex = 0;
             // 
             // buttonMode
@@ -188,7 +157,7 @@
             this.buttonMode.Dock = System.Windows.Forms.DockStyle.Fill;
             this.buttonMode.Location = new System.Drawing.Point(196, 3);
             this.buttonMode.Name = "buttonMode";
-            this.buttonMode.Size = new System.Drawing.Size(188, 23);
+            this.buttonMode.Size = new System.Drawing.Size(187, 23);
             this.buttonMode.TabIndex = 3;
             this.buttonMode.Text = "Build Map";
             this.buttonMode.UseVisualStyleBackColor = true;
@@ -200,11 +169,42 @@
             this.buttonSimulate.Location = new System.Drawing.Point(196, 31);
             this.buttonSimulate.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.buttonSimulate.Name = "buttonSimulate";
-            this.buttonSimulate.Size = new System.Drawing.Size(188, 25);
+            this.buttonSimulate.Size = new System.Drawing.Size(187, 25);
             this.buttonSimulate.TabIndex = 4;
             this.buttonSimulate.Text = "Simulate";
             this.buttonSimulate.UseVisualStyleBackColor = true;
             this.buttonSimulate.Click += new System.EventHandler(this.buttonSimulate_Click);
+            // 
+            // simulationPanel
+            // 
+            this.simulationPanel.AutoSize = true;
+            this.simulationPanel.Dock = System.Windows.Forms.DockStyle.Top;
+            this.simulationPanel.Location = new System.Drawing.Point(4, 4);
+            this.simulationPanel.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.simulationPanel.Name = "simulationPanel";
+            this.simulationPanel.Size = new System.Drawing.Size(386, 142);
+            this.simulationPanel.TabIndex = 10;
+            // 
+            // buildPanel
+            // 
+            this.buildPanel.AutoSize = true;
+            this.buildPanel.CurrentMode = RoadTrafficSimulator.Forms.BuildPanel.Mode.Build;
+            this.buildPanel.Dock = System.Windows.Forms.DockStyle.Top;
+            this.buildPanel.Location = new System.Drawing.Point(4, 146);
+            this.buildPanel.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.buildPanel.MaxSpeed = 50;
+            this.buildPanel.MinimumSize = new System.Drawing.Size(165, 0);
+            this.buildPanel.Name = "buildPanel";
+            this.buildPanel.Size = new System.Drawing.Size(386, 93);
+            this.buildPanel.TabIndex = 9;
+            this.buildPanel.DestroyRoadClick += new System.EventHandler(this.buildPanel_DestroyRoadClick);
+            this.buildPanel.TrafficLightClick += new System.EventHandler(this.buildPanel_TrafficLightClick);
+            this.buildPanel.DestroyCrossroadClick += new System.EventHandler(this.buildPanel_DestroyCrossroadClick);
+            this.buildPanel.SaveMapClick += new System.EventHandler(this.buildPanel_SaveMapClick);
+            this.buildPanel.LoadMapClick += new System.EventHandler(this.buildPanel_LoadMapClick);
+            this.buildPanel.CurrentModeChanged += new System.EventHandler(this.buildPanel_CurrentModeChanged);
+            this.buildPanel.MaxSpeedChanged += new System.EventHandler(this.buildPanel_MaxSpeedChanged);
+            this.buildPanel.SpawnRateChanged += new System.EventHandler(this.buildPanel_SpawnRateChanged);
             // 
             // timerSimulation
             // 
