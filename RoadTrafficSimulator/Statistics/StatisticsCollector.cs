@@ -29,8 +29,13 @@ namespace RoadTrafficSimulator.Statistics
                 using (Stream stream = File.OpenWrite(filePath)) // TODO: Find the best (and safest) way to open a file
                 {
                     Utf8JsonWriter writer = new(stream); // TODO: Set options appropriately
+                    writer.WriteStartObject();
+                    writer.WriteStartArray($"{source.Name}Statistics");
                     foreach (var stat in stats)
                         stat.Serialise(writer);
+                    writer.WriteEndArray();
+                    writer.WriteEndObject();
+                    writer.Flush();
                 }
             }
         }
