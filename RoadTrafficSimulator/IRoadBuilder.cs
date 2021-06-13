@@ -1,6 +1,7 @@
 ﻿using System;
 
 using RoadTrafficSimulator.ValueTypes;
+using RoadTrafficSimulator.GUI;
 
 namespace RoadTrafficSimulator
 {
@@ -10,6 +11,8 @@ namespace RoadTrafficSimulator
         bool AddSegment(Coords nextCoords);
         bool FinishRoad();
         bool FinishRoad(Speed maxSpeed);
+        bool FinishRoad(out IGRoad builtRoad);
+        bool FinishRoad(Speed maxSpeed, out IGRoad builtRoad);
         void DestroyRoad();
     }
 }

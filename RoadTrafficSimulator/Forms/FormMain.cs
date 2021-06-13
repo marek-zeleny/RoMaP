@@ -433,7 +433,7 @@ namespace RoadTrafficSimulator.Forms
             Stream stream = null;
             try
             {
-                stream = File.OpenWrite(path);
+                stream = new FileStream(path, FileMode.Create, FileAccess.Write);
                 mapManager.SaveMap(stream);
             }
             catch (Exception e) when (
@@ -451,6 +451,8 @@ namespace RoadTrafficSimulator.Forms
             }
             if (successful)
                 ShowInfo("Map successfully saved.");
+            else
+                ShowInfo("Saving map failed due to unknown error.");
         }
 
         private void InitializeLoadMap()
@@ -465,7 +467,7 @@ namespace RoadTrafficSimulator.Forms
                 OpenFileDialog fileDialog = new()
                 {
                     Title = "Load map",
-                    Filter = "Map files (*.map)|*.map",
+                    Filter = "JSON files (*.json)|*.json",
                     InitialDirectory = Directory.Exists(savePath)
                         ? savePath : Environment.GetFolderPath(Environment.SpecialFolder.Desktop)
                 };
@@ -477,11 +479,11 @@ namespace RoadTrafficSimulator.Forms
         private void LoadMap(string path)
         {
             bool successful = false;
-            StreamReader sr = null;
+            Stream stream = null;
             try
             {
-                sr = new StreamReader(path);
-                successful = mapManager.LoadMap(sr);
+                stream = File.OpenRead(path);
+                successful = mapManager.LoadMap(stream);
             }
             catch (Exception e) when (
                 e is IOException ||
@@ -493,7 +495,7 @@ namespace RoadTrafficSimulator.Forms
             }
             finally
             {
-                sr?.Dispose();
+                stream?.Dispose();
             }
             if (successful)
             {

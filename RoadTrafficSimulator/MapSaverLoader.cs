@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Text.Json;
 
 using RoadTrafficSimulator.Components;
@@ -13,32 +12,33 @@ namespace RoadTrafficSimulator
 {
     static class MapSaverLoader
     {
-        private const string keywordRoads = "===ROADS===";
-        private const string keywordCrossroads = "===CROSSROADS===";
-        private const string keywordEnd = "===END===";
-        private const char fieldSeparator = '|';
-        private const char entitySeparator = ';';
-        private const char valueSeparator = ',';
-        private const char commentMark = '#';
+        private static class Keywords
+        {
+            public const string roads = "roads";
+            public const string crossroads = "crossroads";
 
-        /**
-         * Format:
-         * (without any spaces, they are added just for visual clarity)
-         * 
-         * ===ROADS===
-         * roadId [| backRoadId] | maxSpeed | path
-         * ...
-         * ===CROSSROADS===
-         * coords | carSpawnRate [| settings1 [| settings2] ...]
-         * ...
-         * ===END===
-         * 
-         * where
-         * path: coords1 ; coords2 [; coords3 [; coords4] ...]
-         * coords: x , y
-         * settings: duration ; direction1 [; direction2 [; direction3] ...]
-         * direction: from , to
-         */
+            public const string forward = "forward";
+            public const string backward = "backward";
+            public const string route = "route";
+
+            public const string id = "id";
+            public const string length = "length";
+            public const string maxSpeed = "maxSpeed";
+            public const string laneCount = "laneCount";
+
+            public const string mainRoadDirections = "mainRoadDirections";
+            public const string carSpawnRate = "carSpawnRate";
+            public const string trafficLightSettings = "trafficLightSettings";
+
+            public const string duration = "duration";
+            public const string allowedDirections = "allowedDirections";
+
+            public const string x = "x";
+            public const string y = "y";
+
+            public const string from = "from";
+            public const string to = "to";
+        }
 
         public static void SaveMap(Stream stream, Map map, IGMap guiMap)
         {
@@ -49,12 +49,12 @@ namespace RoadTrafficSimulator
             Utf8JsonWriter writer = new(stream, options);
             writer.WriteStartObject();
 
-            writer.WriteStartArray("roads");
+            writer.WriteStartArray(Keywords.roads);
             foreach (var gRoad in guiMap.GetRoads())
                 SerialiseRoad(writer, gRoad);
             writer.WriteEndArray();
 
-            writer.WriteStartArray("crossroads");
+            writer.WriteStartArray(Keywords.crossroads);
             foreach (var gCrossroad in guiMap.GetCrossroads())
             {
                 Crossroad crossroad = (Crossroad)map.GetNode(gCrossroad.CrossroadId);
@@ -66,47 +66,44 @@ namespace RoadTrafficSimulator
             writer.Flush();
         }
 
-        public static bool LoadMap(TextReader reader, Map map, IGMap guiMap)
+        public static bool LoadMap(Stream stream, Map map, IGMap guiMap)
         {
-            string line;
-            // Find the beginning of roads
-            while ((line = reader.ReadLine()) != null)
-            {
-                line = line.Trim();
-                if (IgnoreLine(line))
-                    continue;
-                else if (line == keywordRoads)
-                    break;
-                else
-                    return false;
-            }
+            using var document = JsonDocument.Parse(stream);
+            var root = document.RootElement;
+            if (root.ValueKind != JsonValueKind.Object)
+                return false;
+            var elements = root.EnumerateObject();
             // Load roads
-            Dictionary<int, int> roadIdMapper = new Dictionary<int, int>();
-            while ((line = reader.ReadLine()) != null)
+            if (!elements.MoveNext())
+                return false;
+            if (elements.Current.Name != Keywords.roads)
+                return false;
+            var roads = elements.Current.Value;
+            if (roads.ValueKind != JsonValueKind.Array)
+                return false;
+            Dictionary<int, int> roadIdMapper = new();
+            foreach (var road in roads.EnumerateArray())
             {
-                line = line.Trim();
-                if (IgnoreLine(line))
-                    continue;
-                else if (line == keywordCrossroads)
-                    break;
-                else if (ParseRoad(line, map, guiMap, out var roadIdMappings))
-                    foreach (var (key, value) in roadIdMappings)
-                        roadIdMapper.Add(key, value);
-                else
+                if (!ParseRoad(road, map, guiMap, out var roadIdMappings))
                     return false;
+                foreach (var mapping in roadIdMappings)
+                    roadIdMapper.Add(mapping.previous, mapping.current);
             }
             // Load crossroads
-            while ((line = reader.ReadLine()) != null)
+            if (!elements.MoveNext())
+                return false;
+            if (elements.Current.Name != Keywords.crossroads)
+                return false;
+            var crossroads = elements.Current.Value;
+            if (crossroads.ValueKind != JsonValueKind.Array)
+                return false;
+            foreach (var crossroad in crossroads.EnumerateArray())
             {
-                line = line.Trim();
-                if (IgnoreLine(line))
-                    continue;
-                else if (line == keywordEnd)
-                    return true;
-                else if (!ParseCrossroad(line, map, roadIdMapper))
+                if (!ParseCrossroad(crossroad, map, guiMap, roadIdMapper))
                     return false;
             }
-            return false;
+            // No other element should be present
+            return !elements.MoveNext();
         }
 
         private static void SerialiseRoad(Utf8JsonWriter writer, IGRoad gRoad)
@@ -114,10 +111,10 @@ namespace RoadTrafficSimulator
             void Serialise(Road road)
             {
                 writer.WriteStartObject();
-                writer.WriteNumber("id", road.Id);
-                writer.WriteNumber("length", road.Length.ToMetres());
-                writer.WriteNumber("maxSpeed", road.MaxSpeed.ToKilometresPerHour());
-                writer.WriteNumber("laneCount", road.LaneCount);
+                writer.WriteNumber(Keywords.id, road.Id);
+                writer.WriteNumber(Keywords.length, road.Length.ToMetres());
+                writer.WriteNumber(Keywords.maxSpeed, road.MaxSpeed.ToKilometresPerHour());
+                writer.WriteNumber(Keywords.laneCount, road.LaneCount);
                 writer.WriteEndObject();
             }
 
@@ -126,16 +123,16 @@ namespace RoadTrafficSimulator
             Road road = gRoad.GetRoad(IGRoad.Direction.Forward);
             if (road != null)
             {
-                writer.WritePropertyName("forward");
+                writer.WritePropertyName(Keywords.forward);
                 Serialise(road);
             }
             road = gRoad.GetRoad(IGRoad.Direction.Backward);
             if (road != null)
             {
-                writer.WritePropertyName("backward");
+                writer.WritePropertyName(Keywords.backward);
                 Serialise(road);
             }
-            writer.WriteStartArray("route");
+            writer.WriteStartArray(Keywords.route);
             foreach (var coords in gRoad.GetRoute())
                 SerialiseCoords(writer, coords);
             writer.WriteEndArray();
@@ -147,23 +144,23 @@ namespace RoadTrafficSimulator
         {
             writer.WriteStartObject();
 
-            writer.WritePropertyName("id");
+            writer.WritePropertyName(Keywords.id);
             SerialiseCoords(writer, crossroad.Id);
             if (gCrossroad.MainRoadDirections.HasValue)
             {
-                writer.WriteStartArray("mainRoadDirections");
+                writer.WriteStartArray(Keywords.mainRoadDirections);
                 SerialiseCoords(writer, gCrossroad.MainRoadDirections.Value.Item1);
                 SerialiseCoords(writer, gCrossroad.MainRoadDirections.Value.Item2);
                 writer.WriteEndArray();
             }
-            writer.WriteNumber("carSpawnRate", crossroad.CarSpawnRate);
+            writer.WriteNumber(Keywords.carSpawnRate, crossroad.CarSpawnRate);
 
-            writer.WriteStartArray("trafficLightSettings");
+            writer.WriteStartArray(Keywords.trafficLightSettings);
             foreach (var setting in crossroad.TrafficLight.Settings)
             {
                 writer.WriteStartObject();
-                writer.WriteNumber("duration", setting.Duration.ToSeconds());
-                writer.WriteStartArray("allowedDirections");
+                writer.WriteNumber(Keywords.duration, setting.Duration.ToSeconds());
+                writer.WriteStartArray(Keywords.allowedDirections);
                 foreach (var direction in setting)
                     SerialiseDirection(writer, direction);
                 writer.WriteEndArray();
@@ -177,165 +174,209 @@ namespace RoadTrafficSimulator
         private static void SerialiseCoords(Utf8JsonWriter writer, Coords coords)
         {
             writer.WriteStartObject();
-            writer.WriteNumber("x", coords.x);
-            writer.WriteNumber("y", coords.y);
+            writer.WriteNumber(Keywords.x, coords.x);
+            writer.WriteNumber(Keywords.y, coords.y);
             writer.WriteEndObject();
         }
 
         private static void SerialiseDirection(Utf8JsonWriter writer, Direction direction)
         {
             writer.WriteStartObject();
-            writer.WriteNumber("from", direction.fromRoadId);
-            writer.WriteNumber("to", direction.toRoadId);
+            writer.WriteNumber(Keywords.from, direction.fromRoadId);
+            writer.WriteNumber(Keywords.to, direction.toRoadId);
             writer.WriteEndObject();
         }
 
-        private static string RoadToString(RoadView road)
+        private static bool ParseRoad(JsonElement jRoad, Map map, IGMap gMap,
+            out IEnumerable<(int previous, int current)> roadIdMappings)
         {
-            StringBuilder sb = new StringBuilder();
-            //foreach (int roadId in road.GuiRoad.GetRoads())
-            //    sb.Append(roadId).Append(fieldSeparator);
-            sb.Append(road.MaxSpeed).Append(fieldSeparator);
-            foreach (Coords coords in road.GuiRoad.GetRoute())
-                sb.Append(coords.x).Append(valueSeparator).Append(coords.y).Append(entitySeparator);
-            sb.Remove(sb.Length - 1, 1);
-            return sb.ToString();
-        }
-
-        private static string CrossroadToString(CrossroadView crossroad)
-        {
-            StringBuilder sb = new StringBuilder();
-            sb.Append(crossroad.Coords.x).Append(valueSeparator).Append(crossroad.Coords.y);
-            sb.Append(fieldSeparator);
-            sb.Append(crossroad.CarSpawnRate);
-            sb.Append(fieldSeparator);
-            foreach (TrafficLight.Setting setting in crossroad.TrafficLight.Settings)
+            static bool Parse(JsonElement jRoad, Road road, ref (int previous, int current) idMapping)
             {
-                sb.Append(setting.Duration).Append(entitySeparator);
-                //foreach (TrafficLight.Direction direction in setting)
-                //    sb.Append(direction.fromId).Append(valueSeparator).Append(direction.toId).Append(entitySeparator);
-                sb.Remove(sb.Length - 1, 1);
-                sb.Append(fieldSeparator);
-            }
-            sb.Remove(sb.Length - 1, 1);
-            return sb.ToString();
-        }
-
-        private static bool ParseRoad(string line, Map map, IGMap guiMap, out (int, int)[] roadIdMappings)
-        {
-            // Split line into fields and parse them: roadId [| backRoadId] | maxSpeed | path
-            string[] fields = line.Split(fieldSeparator);
-            if (fields.Length < 3 || fields.Length > 4)
-            {
-                roadIdMappings = null;
-                return false;
-            }
-            roadIdMappings = new (int, int)[fields.Length - 2];
-            if (!int.TryParse(fields[0], out roadIdMappings[0].Item1))
-                return false;
-            if (fields.Length == 4)
-                if (!int.TryParse(fields[1], out roadIdMappings[1].Item1))
+                if (!ParseIntProperty(jRoad, Keywords.id, out int id))
                     return false;
-            if (!int.TryParse(fields[fields.Length - 2], out int maxSpeed))
+                if (!ParseIntProperty(jRoad, Keywords.length, out int length))
+                    return false;
+                if (!ParseIntProperty(jRoad, Keywords.maxSpeed, out int maxSpeed))
+                    return false;
+                if (!ParseIntProperty(jRoad, Keywords.laneCount, out int laneCount))
+                    return false;
+                road.Length = length.Metres();
+                road.MaxSpeed = maxSpeed.KilometresPerHour();
+                road.LaneCount = laneCount;
+                idMapping.previous = id;
+                idMapping.current = road.Id;
+                return true;
+            }
+
+            roadIdMappings = null;
+            if (jRoad.ValueKind != JsonValueKind.Object)
                 return false;
-            // Split path into coords and get first two coords: coords1 ; coords2 [; coords3 [; coords4] ...]
-            string[] path = fields[fields.Length - 1].Split(entitySeparator);
-            if (path.Length < 2)
+
+            bool forward = jRoad.TryGetProperty(Keywords.forward, out var jForward);
+            bool backward = jRoad.TryGetProperty(Keywords.backward, out var jBackward);
+            if (!forward && !backward)
                 return false;
-            if (!ParseCoords(path[0], out Coords firstCoords))
+            if (!jRoad.TryGetProperty(Keywords.route, out var jRoute))
                 return false;
-            if (!ParseCoords(path[1], out Coords secondCoords))
+
+            if (jRoute.ValueKind != JsonValueKind.Array)
                 return false;
-            IRoadBuilder builder = MapManager.CreateRoadBuilder(map, guiMap, firstCoords, roadIdMappings.Length == 2);
+            var routeEnum = jRoute.EnumerateArray().GetEnumerator();
+            if (!routeEnum.MoveNext())
+                return false;
+            if (!ParseCoords(routeEnum.Current, out Coords firstCoords))
+                return false;
+            IRoadBuilder builder = MapManager.CreateRoadBuilder(map, gMap, firstCoords, forward && backward);
             if (builder == null)
                 return false;
-            if (!builder.AddSegment(secondCoords))
+            while (routeEnum.MoveNext())
             {
-                builder.DestroyRoad();
-                return false;
-            }
-            // Give the rest of the coords to the road builder
-            for (int i = 2; i < path.Length; i++)
-            {
-                if (!ParseCoords(path[i], out Coords coords)
-                    || !builder.AddSegment(coords))
+                if (!ParseCoords(routeEnum.Current, out Coords coords)
+                        || !builder.AddSegment(coords))
                 {
                     builder.DestroyRoad();
                     return false;
                 }
             }
-            // Build the road and get new road IDs
-            if (!builder.FinishRoad(maxSpeed.MetresPerSecond()))
+            if (!builder.FinishRoad(out IGRoad gRoad))
             {
                 builder.DestroyRoad();
                 return false;
             }
-            IGRoad gRoad = guiMap.GetRoad(new Vector(firstCoords, secondCoords));
-            int j = 0;
-            foreach (var road in gRoad.GetRoads())
-                roadIdMappings[j++].Item2 = road.Id;
+
+            int roadCount = forward && backward ? 2 : 1;
+            var idMappings = new (int, int)[roadCount];
+            roadIdMappings = idMappings;
+            if (forward)
+                if (!Parse(jForward, gRoad.GetRoad(IGRoad.Direction.Forward), ref idMappings[0]))
+                    return false;
+            if (backward)
+                if (!Parse(jBackward, gRoad.GetRoad(IGRoad.Direction.Backward), ref idMappings[roadCount - 1]))
+                    return false;
             return true;
         }
 
-        private static bool ParseCrossroad(string line, Components.Map map, Dictionary<int, int> roadIdMapper)
+        private static bool ParseCrossroad(JsonElement jCrossroad, Map map, IGMap gMap,
+            Dictionary<int, int> roadIdMapper)
         {
-            // Split line into fields and get the traffic light: coords | carSpawnRate [| settings1 [| settings2] ...]
-            string[] fields = line.Split(fieldSeparator);
-            if (fields.Length < 2)
-                return false;
-            if (!ParseCoords(fields[0], out Coords coords))
-                return false;
-            if (!byte.TryParse(fields[1], out byte carSpawnRate))
-                return false;
-            Components.Crossroad crossroad = (Components.Crossroad)map.GetNode(coords);
-            TrafficLight trafficLight = crossroad.TrafficLight;
-            crossroad.CarSpawnRate = carSpawnRate;
-            // Split directions into roadID pairs and get the traffic light
-            const int settingsOffset = 2;
-            for (int i = settingsOffset; i < fields.Length; i++)
+            bool ParseTrafficLightSetting(JsonElement jSetting, TrafficLight.Setting setting)
             {
-                TrafficLight.Setting setting;
-                if (i == settingsOffset)
-                    setting = trafficLight.Settings[0];
-                else
-                    setting = trafficLight.InsertSetting(i - settingsOffset);
-                // Add directions to the current setting: duration ; direction1 [; direction2 [; direction3] ...]
-                string[] directions = fields[i].Split(entitySeparator);
-                if (!int.TryParse(directions[0], out int duration))
+                if (jSetting.ValueKind != JsonValueKind.Object)
+                    return false;
+                if (!ParseIntProperty(jSetting, Keywords.duration, out int duration))
                     return false;
                 setting.Duration = duration.Seconds();
-                for (int j = 1; j < directions.Length; j++)
+
+                if (!jSetting.TryGetProperty(Keywords.allowedDirections, out var jDirections))
+                    return false;
+                if (jDirections.ValueKind != JsonValueKind.Array)
+                    return false;
+                foreach (var jDir in jDirections.EnumerateArray())
                 {
-                    string[] split = directions[j].Split(valueSeparator);
-                    if (split.Length != 2)
+                    if (!ParseDirection(jDir, out var dir))
                         return false;
-                    if (!int.TryParse(split[0], out int fromIdOld) || !int.TryParse(split[1], out int toIdOld))
+                    if (!roadIdMapper.TryGetValue(dir.fromRoadId, out int from)
+                        || !roadIdMapper.TryGetValue(dir.toRoadId, out int to))
                         return false;
-                    if (!roadIdMapper.TryGetValue(fromIdOld, out int fromId) || !roadIdMapper.TryGetValue(toIdOld, out int toId))
-                        return false;
-                    if (crossroad.GetInEdge(fromId) == null || crossroad.GetOutEdge(toId) == null)
-                        return false;
-                    setting.AddDirection(fromId, toId);
+                    setting.AddDirection(from, to);
                 }
+                return true;
+            }
+
+            if (jCrossroad.ValueKind != JsonValueKind.Object)
+                return false;
+
+            if (!jCrossroad.TryGetProperty(Keywords.id, out var jId))
+                return false;
+            if (!ParseCoords(jId, out Coords id))
+                return false;
+            Crossroad crossroad = (Crossroad)map.GetNode(id);
+            if (crossroad == null)
+                return false;
+
+            if (jCrossroad.TryGetProperty(Keywords.mainRoadDirections, out var jMainRoad))
+            {
+                if (jMainRoad.ValueKind != JsonValueKind.Array)
+                    return false;
+                var e = jMainRoad.EnumerateArray();
+                if (!e.MoveNext())
+                    return false;
+                if (!ParseCoords(e.Current, out Coords dir1))
+                    return false;
+                if (!e.MoveNext())
+                    return false;
+                if (!ParseCoords(e.Current, out Coords dir2))
+                    return false;
+                // Shouldn't have more elements
+                if (e.MoveNext())
+                    return false;
+                IGCrossroad gCrossroad = gMap.GetCrossroad(id);
+                Debug.Assert(gCrossroad != null);
+                gCrossroad.MainRoadDirections = (dir1, dir2);
+            }
+
+            if (!ParseIntProperty(jCrossroad, Keywords.carSpawnRate, out int carSpawnRate))
+                return false;
+            if (carSpawnRate < byte.MinValue || carSpawnRate > byte.MaxValue)
+                return false;
+            crossroad.CarSpawnRate = (byte)carSpawnRate;
+
+            if (!jCrossroad.TryGetProperty(Keywords.trafficLightSettings, out var jTrafficLight))
+                return false;
+            if (jTrafficLight.ValueKind != JsonValueKind.Array)
+                return false;
+            var settingsEnum = jTrafficLight.EnumerateArray().GetEnumerator();
+            TrafficLight trafficLight = crossroad.TrafficLight;
+            // First setting is already created
+            if (!settingsEnum.MoveNext())
+                return false;
+            if (!ParseTrafficLightSetting(settingsEnum.Current, trafficLight.Settings[0]))
+                return false;
+            while (settingsEnum.MoveNext())
+            {
+                var setting = trafficLight.AddSetting();
+                if (setting == null)
+                    return false;
+                if (!ParseTrafficLightSetting(settingsEnum.Current, setting))
+                    return false;
             }
             return true;
         }
 
-        private static bool ParseCoords(string sCoords, out Coords coords)
+        static bool ParseIntProperty(JsonElement elem, string propertyName, out int value)
         {
-            coords = new Coords();
-            string[] split = sCoords.Split(valueSeparator);
-            if (split.Length != 2)
+            value = default;
+            if (!elem.TryGetProperty(propertyName, out var jValue))
                 return false;
-            if (!int.TryParse(split[0], out int x) || !int.TryParse(split[1], out int y))
+            if (jValue.ValueKind != JsonValueKind.Number)
+                return false;
+            return jValue.TryGetInt32(out value);
+        }
+
+        private static bool ParseCoords(JsonElement jCoords, out Coords coords)
+        {
+            coords = default;
+            if (jCoords.ValueKind != JsonValueKind.Object)
+                return false;
+            if (!ParseIntProperty(jCoords, Keywords.x, out int x))
+                return false;
+            if (!ParseIntProperty(jCoords, Keywords.y, out int y))
                 return false;
             coords = new Coords(x, y);
             return true;
         }
 
-        private static bool IgnoreLine(string line)
+        private static bool ParseDirection(JsonElement jDirection, out Direction direction)
         {
-            return line == string.Empty || line[0] == commentMark;
+            direction = default;
+            if (jDirection.ValueKind != JsonValueKind.Object)
+                return false;
+            if (!ParseIntProperty(jDirection, Keywords.from, out int from))
+                return false;
+            if (!ParseIntProperty(jDirection, Keywords.to, out int to))
+                return false;
+            direction = new Direction(from, to);
+            return true;
         }
     }
 }

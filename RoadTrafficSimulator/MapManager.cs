@@ -308,11 +308,11 @@ namespace RoadTrafficSimulator
             MapSaverLoader.SaveMap(stream, Map, guiMap);
         }
 
-        public bool LoadMap(StreamReader reader)
+        public bool LoadMap(Stream stream)
         {
             Map newMap = new();
             IGMap newGuiMap = new GMap();
-            bool result = MapSaverLoader.LoadMap(reader, newMap, newGuiMap);
+            bool result = MapSaverLoader.LoadMap(stream, newMap, newGuiMap);
             if (result)
             {
                 Map = newMap;
@@ -463,11 +463,22 @@ namespace RoadTrafficSimulator
 
             public bool FinishRoad()
             {
-                return FinishRoad(defaultMaxSpeed);
+                return FinishRoad(out var _);
             }
 
             public bool FinishRoad(Speed maxSpeed)
             {
+                return FinishRoad(maxSpeed, out var _);
+            }
+
+            public bool FinishRoad(out IGRoad builtRoad)
+            {
+                return FinishRoad(defaultMaxSpeed, out builtRoad);
+            }
+
+            public bool FinishRoad(Speed maxSpeed, out IGRoad builtRoad)
+            {
+                builtRoad = gRoad;
                 if (Route.Count < 2)
                     return false;
                 TryGetOrAddCrossroad(gRoad.From).Highlight = Highlight.Normal;

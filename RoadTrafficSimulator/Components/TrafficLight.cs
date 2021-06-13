@@ -35,6 +35,15 @@ namespace RoadTrafficSimulator.Components
                 s.AddDirection(direction);
         }
 
+        public Setting AddSetting()
+        {
+            if (settings.Count >= maxSettingsCount)
+                return null;
+            Setting output = new(defaultDirections);
+            settings.Add(output);
+            return output;
+        }
+
         public Setting InsertSetting(int index)
         {
             if (settings.Count >= maxSettingsCount || index > settings.Count)
