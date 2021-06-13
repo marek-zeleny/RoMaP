@@ -15,9 +15,9 @@ namespace RoadTrafficSimulator.Forms
     {
         private const float zoom = 2f;
 
-        private MapManager mapManager;
-        private MapManager.CrossroadWrapper crossroad;
-        private TrafficLight trafficLight;
+        private readonly MapManager mapManager;
+        private readonly MapManager.CrossroadWrapper crossroad;
+        private readonly TrafficLight trafficLight;
         private TrafficLight.Setting currentSetting;
         private readonly CheckBoxBinder checkBoxBinder;
         private readonly Point origin;
