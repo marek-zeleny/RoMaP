@@ -1,0 +1,5443 @@
+{
+  "roads": [
+    {
+      "forward": {
+        "id": 0,
+        "length": 100,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 1,
+        "length": 100,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 1
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 2,
+        "length": 200,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 3,
+        "length": 200,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": 0,
+          "y": 1
+        },
+        {
+          "x": -1,
+          "y": 1
+        },
+        {
+          "x": -2,
+          "y": 1
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 4,
+        "length": 100,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 5,
+        "length": 100,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -2,
+          "y": 1
+        },
+        {
+          "x": -2,
+          "y": 0
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 6,
+        "length": 200,
+        "maxSpeed": 28,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 7,
+        "length": 200,
+        "maxSpeed": 28,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -2,
+          "y": 0
+        },
+        {
+          "x": -1,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 0
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 8,
+        "length": 100,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 9,
+        "length": 100,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -2,
+          "y": 1
+        },
+        {
+          "x": -2,
+          "y": 2
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 10,
+        "length": 200,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 11,
+        "length": 200,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -2,
+          "y": 2
+        },
+        {
+          "x": -1,
+          "y": 2
+        },
+        {
+          "x": 0,
+          "y": 2
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 12,
+        "length": 100,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 13,
+        "length": 100,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": 0,
+          "y": 2
+        },
+        {
+          "x": 0,
+          "y": 1
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 14,
+        "length": 100,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 15,
+        "length": 100,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": 0,
+          "y": 2
+        },
+        {
+          "x": 0,
+          "y": 3
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 16,
+        "length": 200,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 17,
+        "length": 200,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 1,
+          "y": 0
+        },
+        {
+          "x": 2,
+          "y": 0
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 18,
+        "length": 500,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 19,
+        "length": 500,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": 4,
+          "y": 3
+        },
+        {
+          "x": 4,
+          "y": 2
+        },
+        {
+          "x": 5,
+          "y": 2
+        },
+        {
+          "x": 5,
+          "y": 1
+        },
+        {
+          "x": 6,
+          "y": 1
+        },
+        {
+          "x": 6,
+          "y": 0
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 20,
+        "length": 400,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 21,
+        "length": 400,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": 2,
+          "y": 0
+        },
+        {
+          "x": 3,
+          "y": 0
+        },
+        {
+          "x": 4,
+          "y": 0
+        },
+        {
+          "x": 5,
+          "y": 0
+        },
+        {
+          "x": 6,
+          "y": 0
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 22,
+        "length": 300,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 23,
+        "length": 300,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": -1
+        },
+        {
+          "x": 0,
+          "y": -2
+        },
+        {
+          "x": 0,
+          "y": -3
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 24,
+        "length": 100,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 25,
+        "length": 100,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": 0,
+          "y": -3
+        },
+        {
+          "x": 0,
+          "y": -4
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 26,
+        "length": 100,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 27,
+        "length": 100,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": 0,
+          "y": -4
+        },
+        {
+          "x": -1,
+          "y": -4
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 28,
+        "length": 500,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 29,
+        "length": 500,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": 0,
+          "y": -3
+        },
+        {
+          "x": 1,
+          "y": -3
+        },
+        {
+          "x": 1,
+          "y": -2
+        },
+        {
+          "x": 2,
+          "y": -2
+        },
+        {
+          "x": 2,
+          "y": -1
+        },
+        {
+          "x": 2,
+          "y": 0
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 30,
+        "length": 400,
+        "maxSpeed": 28,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -2,
+          "y": 0
+        },
+        {
+          "x": -2,
+          "y": -1
+        },
+        {
+          "x": -3,
+          "y": -1
+        },
+        {
+          "x": -4,
+          "y": -1
+        },
+        {
+          "x": -5,
+          "y": -1
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 31,
+        "length": 300,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 32,
+        "length": 300,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -2,
+          "y": 0
+        },
+        {
+          "x": -3,
+          "y": 0
+        },
+        {
+          "x": -4,
+          "y": 0
+        },
+        {
+          "x": -5,
+          "y": 0
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 33,
+        "length": 100,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 34,
+        "length": 100,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -5,
+          "y": 0
+        },
+        {
+          "x": -6,
+          "y": 0
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 35,
+        "length": 100,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 36,
+        "length": 100,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -5,
+          "y": -1
+        },
+        {
+          "x": -6,
+          "y": -1
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 37,
+        "length": 100,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 38,
+        "length": 100,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -6,
+          "y": -1
+        },
+        {
+          "x": -6,
+          "y": 0
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 39,
+        "length": 400,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 40,
+        "length": 400,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -6,
+          "y": 0
+        },
+        {
+          "x": -7,
+          "y": 0
+        },
+        {
+          "x": -7,
+          "y": 1
+        },
+        {
+          "x": -8,
+          "y": 1
+        },
+        {
+          "x": -9,
+          "y": 1
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 41,
+        "length": 300,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 42,
+        "length": 300,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -6,
+          "y": -1
+        },
+        {
+          "x": -7,
+          "y": -1
+        },
+        {
+          "x": -8,
+          "y": -1
+        },
+        {
+          "x": -8,
+          "y": -2
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 43,
+        "length": 700,
+        "maxSpeed": 28,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -12,
+          "y": 1
+        },
+        {
+          "x": -12,
+          "y": 0
+        },
+        {
+          "x": -11,
+          "y": 0
+        },
+        {
+          "x": -11,
+          "y": -1
+        },
+        {
+          "x": -10,
+          "y": -1
+        },
+        {
+          "x": -9,
+          "y": -1
+        },
+        {
+          "x": -9,
+          "y": -2
+        },
+        {
+          "x": -8,
+          "y": -2
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 44,
+        "length": 300,
+        "maxSpeed": 28,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 45,
+        "length": 300,
+        "maxSpeed": 28,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -5,
+          "y": -1
+        },
+        {
+          "x": -5,
+          "y": -2
+        },
+        {
+          "x": -5,
+          "y": -3
+        },
+        {
+          "x": -5,
+          "y": -4
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 46,
+        "length": 100,
+        "maxSpeed": 28,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 47,
+        "length": 100,
+        "maxSpeed": 28,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -5,
+          "y": -4
+        },
+        {
+          "x": -4,
+          "y": -4
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 48,
+        "length": 300,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -2,
+          "y": -3
+        },
+        {
+          "x": -3,
+          "y": -3
+        },
+        {
+          "x": -4,
+          "y": -3
+        },
+        {
+          "x": -4,
+          "y": -4
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 49,
+        "length": 200,
+        "maxSpeed": 28,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 50,
+        "length": 200,
+        "maxSpeed": 28,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -1,
+          "y": -4
+        },
+        {
+          "x": -1,
+          "y": -3
+        },
+        {
+          "x": -2,
+          "y": -3
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 51,
+        "length": 200,
+        "maxSpeed": 28,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 52,
+        "length": 200,
+        "maxSpeed": 28,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -4,
+          "y": -4
+        },
+        {
+          "x": -3,
+          "y": -4
+        },
+        {
+          "x": -2,
+          "y": -4
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 53,
+        "length": 100,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 54,
+        "length": 100,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -2,
+          "y": -4
+        },
+        {
+          "x": -1,
+          "y": -4
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 55,
+        "length": 200,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 56,
+        "length": 200,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -2,
+          "y": -4
+        },
+        {
+          "x": -2,
+          "y": -5
+        },
+        {
+          "x": -2,
+          "y": -6
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 57,
+        "length": 200,
+        "maxSpeed": 28,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 58,
+        "length": 200,
+        "maxSpeed": 28,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -5,
+          "y": -4
+        },
+        {
+          "x": -5,
+          "y": -5
+        },
+        {
+          "x": -5,
+          "y": -6
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 59,
+        "length": 100,
+        "maxSpeed": 28,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 60,
+        "length": 100,
+        "maxSpeed": 28,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -5,
+          "y": -6
+        },
+        {
+          "x": -5,
+          "y": -7
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 61,
+        "length": 300,
+        "maxSpeed": 28,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -2,
+          "y": -6
+        },
+        {
+          "x": -3,
+          "y": -6
+        },
+        {
+          "x": -4,
+          "y": -6
+        },
+        {
+          "x": -4,
+          "y": -7
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 62,
+        "length": 100,
+        "maxSpeed": 28,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -4,
+          "y": -7
+        },
+        {
+          "x": -5,
+          "y": -7
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 63,
+        "length": 100,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 64,
+        "length": 100,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -5,
+          "y": -7
+        },
+        {
+          "x": -5,
+          "y": -8
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 65,
+        "length": 100,
+        "maxSpeed": 28,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 66,
+        "length": 100,
+        "maxSpeed": 28,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -4,
+          "y": -7
+        },
+        {
+          "x": -4,
+          "y": -8
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 67,
+        "length": 100,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 68,
+        "length": 100,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -4,
+          "y": -8
+        },
+        {
+          "x": -5,
+          "y": -8
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 69,
+        "length": 100,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 70,
+        "length": 100,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -4,
+          "y": -8
+        },
+        {
+          "x": -3,
+          "y": -8
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 71,
+        "length": 100,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 72,
+        "length": 100,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -3,
+          "y": -8
+        },
+        {
+          "x": -2,
+          "y": -8
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 73,
+        "length": 100,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 74,
+        "length": 100,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -2,
+          "y": -8
+        },
+        {
+          "x": -2,
+          "y": -7
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 75,
+        "length": 100,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 76,
+        "length": 100,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -2,
+          "y": -7
+        },
+        {
+          "x": -2,
+          "y": -6
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 77,
+        "length": 200,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 78,
+        "length": 200,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -2,
+          "y": -7
+        },
+        {
+          "x": -1,
+          "y": -7
+        },
+        {
+          "x": 0,
+          "y": -7
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 79,
+        "length": 200,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 80,
+        "length": 200,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -2,
+          "y": -8
+        },
+        {
+          "x": -1,
+          "y": -8
+        },
+        {
+          "x": 0,
+          "y": -8
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 81,
+        "length": 300,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 82,
+        "length": 300,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": 0,
+          "y": -4
+        },
+        {
+          "x": 0,
+          "y": -5
+        },
+        {
+          "x": 0,
+          "y": -6
+        },
+        {
+          "x": 0,
+          "y": -7
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 83,
+        "length": 100,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 84,
+        "length": 100,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": 0,
+          "y": -7
+        },
+        {
+          "x": 0,
+          "y": -8
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 85,
+        "length": 200,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 86,
+        "length": 200,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": 0,
+          "y": -8
+        },
+        {
+          "x": 0,
+          "y": -9
+        },
+        {
+          "x": 0,
+          "y": -10
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 87,
+        "length": 200,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 88,
+        "length": 200,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -3,
+          "y": -8
+        },
+        {
+          "x": -3,
+          "y": -9
+        },
+        {
+          "x": -3,
+          "y": -10
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 89,
+        "length": 200,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 90,
+        "length": 200,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -5,
+          "y": -8
+        },
+        {
+          "x": -5,
+          "y": -9
+        },
+        {
+          "x": -5,
+          "y": -10
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 91,
+        "length": 200,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 92,
+        "length": 200,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -5,
+          "y": -10
+        },
+        {
+          "x": -4,
+          "y": -10
+        },
+        {
+          "x": -3,
+          "y": -10
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 93,
+        "length": 100,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 94,
+        "length": 100,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -3,
+          "y": -10
+        },
+        {
+          "x": -2,
+          "y": -10
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 95,
+        "length": 200,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 96,
+        "length": 200,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -2,
+          "y": -10
+        },
+        {
+          "x": -1,
+          "y": -10
+        },
+        {
+          "x": 0,
+          "y": -10
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 97,
+        "length": 100,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 98,
+        "length": 100,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -5,
+          "y": -10
+        },
+        {
+          "x": -6,
+          "y": -10
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 99,
+        "length": 200,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 100,
+        "length": 200,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -6,
+          "y": -10
+        },
+        {
+          "x": -6,
+          "y": -11
+        },
+        {
+          "x": -6,
+          "y": -12
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 101,
+        "length": 400,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 102,
+        "length": 400,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -6,
+          "y": -10
+        },
+        {
+          "x": -7,
+          "y": -10
+        },
+        {
+          "x": -8,
+          "y": -10
+        },
+        {
+          "x": -8,
+          "y": -11
+        },
+        {
+          "x": -8,
+          "y": -12
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 103,
+        "length": 500,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 104,
+        "length": 500,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -2,
+          "y": -10
+        },
+        {
+          "x": -2,
+          "y": -11
+        },
+        {
+          "x": -2,
+          "y": -12
+        },
+        {
+          "x": -1,
+          "y": -12
+        },
+        {
+          "x": -1,
+          "y": -13
+        },
+        {
+          "x": -1,
+          "y": -14
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 105,
+        "length": 500,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 106,
+        "length": 500,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": 0,
+          "y": -10
+        },
+        {
+          "x": 0,
+          "y": -11
+        },
+        {
+          "x": 0,
+          "y": -12
+        },
+        {
+          "x": 1,
+          "y": -12
+        },
+        {
+          "x": 1,
+          "y": -13
+        },
+        {
+          "x": 1,
+          "y": -14
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 107,
+        "length": 200,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 108,
+        "length": 200,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": 0,
+          "y": -10
+        },
+        {
+          "x": 1,
+          "y": -10
+        },
+        {
+          "x": 2,
+          "y": -10
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 109,
+        "length": 500,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 110,
+        "length": 500,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -5,
+          "y": -6
+        },
+        {
+          "x": -6,
+          "y": -6
+        },
+        {
+          "x": -7,
+          "y": -6
+        },
+        {
+          "x": -8,
+          "y": -6
+        },
+        {
+          "x": -8,
+          "y": -7
+        },
+        {
+          "x": -9,
+          "y": -7
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 111,
+        "length": 300,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 112,
+        "length": 300,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -2,
+          "y": 2
+        },
+        {
+          "x": -2,
+          "y": 3
+        },
+        {
+          "x": -3,
+          "y": 3
+        },
+        {
+          "x": -3,
+          "y": 4
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 113,
+        "length": 100,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 114,
+        "length": 100,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -3,
+          "y": 4
+        },
+        {
+          "x": -3,
+          "y": 5
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 115,
+        "length": 200,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 116,
+        "length": 200,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -3,
+          "y": 4
+        },
+        {
+          "x": -2,
+          "y": 4
+        },
+        {
+          "x": -1,
+          "y": 4
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 117,
+        "length": 200,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 118,
+        "length": 200,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": 0,
+          "y": 3
+        },
+        {
+          "x": 0,
+          "y": 4
+        },
+        {
+          "x": -1,
+          "y": 4
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 119,
+        "length": 100,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 120,
+        "length": 100,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": 0,
+          "y": 3
+        },
+        {
+          "x": 1,
+          "y": 3
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 121,
+        "length": 100,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 122,
+        "length": 100,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -1,
+          "y": 4
+        },
+        {
+          "x": -1,
+          "y": 5
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 123,
+        "length": 200,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 124,
+        "length": 200,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -3,
+          "y": 5
+        },
+        {
+          "x": -2,
+          "y": 5
+        },
+        {
+          "x": -1,
+          "y": 5
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 125,
+        "length": 300,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 126,
+        "length": 300,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": 1,
+          "y": 3
+        },
+        {
+          "x": 1,
+          "y": 4
+        },
+        {
+          "x": 1,
+          "y": 5
+        },
+        {
+          "x": 1,
+          "y": 6
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 127,
+        "length": 100,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 128,
+        "length": 100,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": 1,
+          "y": 3
+        },
+        {
+          "x": 2,
+          "y": 3
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 129,
+        "length": 200,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 130,
+        "length": 200,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": 2,
+          "y": 3
+        },
+        {
+          "x": 2,
+          "y": 4
+        },
+        {
+          "x": 3,
+          "y": 4
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 131,
+        "length": 100,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 132,
+        "length": 100,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": 2,
+          "y": 2
+        },
+        {
+          "x": 2,
+          "y": 3
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 133,
+        "length": 400,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": 2,
+          "y": 0
+        },
+        {
+          "x": 2,
+          "y": 1
+        },
+        {
+          "x": 1,
+          "y": 1
+        },
+        {
+          "x": 1,
+          "y": 2
+        },
+        {
+          "x": 2,
+          "y": 2
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 134,
+        "length": 100,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 135,
+        "length": 100,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": 3,
+          "y": 4
+        },
+        {
+          "x": 4,
+          "y": 4
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 136,
+        "length": 100,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 137,
+        "length": 100,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -1,
+          "y": 5
+        },
+        {
+          "x": 0,
+          "y": 5
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 138,
+        "length": 100,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 139,
+        "length": 100,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -1,
+          "y": 5
+        },
+        {
+          "x": -1,
+          "y": 6
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 140,
+        "length": 100,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 141,
+        "length": 100,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -3,
+          "y": 5
+        },
+        {
+          "x": -3,
+          "y": 6
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 142,
+        "length": 200,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 143,
+        "length": 200,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -3,
+          "y": 6
+        },
+        {
+          "x": -2,
+          "y": 6
+        },
+        {
+          "x": -1,
+          "y": 6
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 144,
+        "length": 200,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 145,
+        "length": 200,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -1,
+          "y": 6
+        },
+        {
+          "x": 0,
+          "y": 6
+        },
+        {
+          "x": 1,
+          "y": 6
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 146,
+        "length": 200,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 147,
+        "length": 200,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": 1,
+          "y": 6
+        },
+        {
+          "x": 1,
+          "y": 7
+        },
+        {
+          "x": 1,
+          "y": 8
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 148,
+        "length": 500,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 149,
+        "length": 500,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": 2,
+          "y": 6
+        },
+        {
+          "x": 2,
+          "y": 7
+        },
+        {
+          "x": 2,
+          "y": 8
+        },
+        {
+          "x": 2,
+          "y": 9
+        },
+        {
+          "x": 2,
+          "y": 10
+        },
+        {
+          "x": 1,
+          "y": 10
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 150,
+        "length": 100,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 151,
+        "length": 100,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": 1,
+          "y": 6
+        },
+        {
+          "x": 2,
+          "y": 6
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 152,
+        "length": 200,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 153,
+        "length": 200,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": 1,
+          "y": 8
+        },
+        {
+          "x": 1,
+          "y": 9
+        },
+        {
+          "x": 1,
+          "y": 10
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 154,
+        "length": 300,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 155,
+        "length": 300,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": 2,
+          "y": 6
+        },
+        {
+          "x": 2,
+          "y": 5
+        },
+        {
+          "x": 3,
+          "y": 5
+        },
+        {
+          "x": 3,
+          "y": 4
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 156,
+        "length": 200,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 157,
+        "length": 200,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": 2,
+          "y": 2
+        },
+        {
+          "x": 3,
+          "y": 2
+        },
+        {
+          "x": 3,
+          "y": 3
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 158,
+        "length": 100,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 159,
+        "length": 100,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": 3,
+          "y": 4
+        },
+        {
+          "x": 3,
+          "y": 3
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 160,
+        "length": 100,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 161,
+        "length": 100,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": 3,
+          "y": 3
+        },
+        {
+          "x": 4,
+          "y": 3
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 162,
+        "length": 100,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 163,
+        "length": 100,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": 4,
+          "y": 3
+        },
+        {
+          "x": 4,
+          "y": 4
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 164,
+        "length": 400,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 165,
+        "length": 400,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": 4,
+          "y": 4
+        },
+        {
+          "x": 5,
+          "y": 4
+        },
+        {
+          "x": 5,
+          "y": 5
+        },
+        {
+          "x": 6,
+          "y": 5
+        },
+        {
+          "x": 7,
+          "y": 5
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 166,
+        "length": 500,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 167,
+        "length": 500,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": 6,
+          "y": 0
+        },
+        {
+          "x": 7,
+          "y": 0
+        },
+        {
+          "x": 7,
+          "y": 1
+        },
+        {
+          "x": 8,
+          "y": 1
+        },
+        {
+          "x": 9,
+          "y": 1
+        },
+        {
+          "x": 10,
+          "y": 1
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 168,
+        "length": 200,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": 1,
+          "y": 10
+        },
+        {
+          "x": 0,
+          "y": 10
+        },
+        {
+          "x": -1,
+          "y": 10
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 169,
+        "length": 200,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -1,
+          "y": 10
+        },
+        {
+          "x": -2,
+          "y": 10
+        },
+        {
+          "x": -3,
+          "y": 10
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 170,
+        "length": 200,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -3,
+          "y": 8
+        },
+        {
+          "x": -2,
+          "y": 8
+        },
+        {
+          "x": -1,
+          "y": 8
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 171,
+        "length": 200,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -1,
+          "y": 8
+        },
+        {
+          "x": 0,
+          "y": 8
+        },
+        {
+          "x": 1,
+          "y": 8
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 172,
+        "length": 200,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 173,
+        "length": 200,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -1,
+          "y": 6
+        },
+        {
+          "x": -1,
+          "y": 7
+        },
+        {
+          "x": -1,
+          "y": 8
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 174,
+        "length": 200,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 175,
+        "length": 200,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -1,
+          "y": 8
+        },
+        {
+          "x": -1,
+          "y": 9
+        },
+        {
+          "x": -1,
+          "y": 10
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 176,
+        "length": 200,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 177,
+        "length": 200,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -3,
+          "y": 6
+        },
+        {
+          "x": -3,
+          "y": 7
+        },
+        {
+          "x": -3,
+          "y": 8
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 178,
+        "length": 200,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 179,
+        "length": 200,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -3,
+          "y": 8
+        },
+        {
+          "x": -3,
+          "y": 9
+        },
+        {
+          "x": -3,
+          "y": 10
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 180,
+        "length": 300,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 181,
+        "length": 300,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": 1,
+          "y": 10
+        },
+        {
+          "x": 1,
+          "y": 11
+        },
+        {
+          "x": 1,
+          "y": 12
+        },
+        {
+          "x": 1,
+          "y": 13
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 182,
+        "length": 300,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 183,
+        "length": 300,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": 1,
+          "y": 13
+        },
+        {
+          "x": 0,
+          "y": 13
+        },
+        {
+          "x": 0,
+          "y": 12
+        },
+        {
+          "x": -1,
+          "y": 12
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 184,
+        "length": 400,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 185,
+        "length": 400,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -1,
+          "y": 12
+        },
+        {
+          "x": -2,
+          "y": 12
+        },
+        {
+          "x": -2,
+          "y": 11
+        },
+        {
+          "x": -3,
+          "y": 11
+        },
+        {
+          "x": -3,
+          "y": 10
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 186,
+        "length": 200,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 187,
+        "length": 200,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -1,
+          "y": 10
+        },
+        {
+          "x": -1,
+          "y": 11
+        },
+        {
+          "x": -1,
+          "y": 12
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 188,
+        "length": 400,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 189,
+        "length": 400,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": 1,
+          "y": 13
+        },
+        {
+          "x": 1,
+          "y": 14
+        },
+        {
+          "x": 1,
+          "y": 15
+        },
+        {
+          "x": 1,
+          "y": 16
+        },
+        {
+          "x": 1,
+          "y": 17
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 190,
+        "length": 500,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 191,
+        "length": 500,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -3,
+          "y": 10
+        },
+        {
+          "x": -4,
+          "y": 10
+        },
+        {
+          "x": -5,
+          "y": 10
+        },
+        {
+          "x": -6,
+          "y": 10
+        },
+        {
+          "x": -7,
+          "y": 10
+        },
+        {
+          "x": -8,
+          "y": 10
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 192,
+        "length": 400,
+        "maxSpeed": 28,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -5,
+          "y": 0
+        },
+        {
+          "x": -5,
+          "y": 1
+        },
+        {
+          "x": -5,
+          "y": 2
+        },
+        {
+          "x": -5,
+          "y": 3
+        },
+        {
+          "x": -5,
+          "y": 4
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 193,
+        "length": 300,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 194,
+        "length": 300,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -5,
+          "y": 4
+        },
+        {
+          "x": -4,
+          "y": 4
+        },
+        {
+          "x": -4,
+          "y": 5
+        },
+        {
+          "x": -3,
+          "y": 5
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 195,
+        "length": 200,
+        "maxSpeed": 28,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -9,
+          "y": 1
+        },
+        {
+          "x": -9,
+          "y": 2
+        },
+        {
+          "x": -9,
+          "y": 3
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 196,
+        "length": 400,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 197,
+        "length": 400,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -9,
+          "y": 3
+        },
+        {
+          "x": -8,
+          "y": 3
+        },
+        {
+          "x": -8,
+          "y": 4
+        },
+        {
+          "x": -8,
+          "y": 5
+        },
+        {
+          "x": -7,
+          "y": 5
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 198,
+        "length": 100,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 199,
+        "length": 100,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -7,
+          "y": 5
+        },
+        {
+          "x": -6,
+          "y": 5
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 200,
+        "length": 200,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 201,
+        "length": 200,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -6,
+          "y": 5
+        },
+        {
+          "x": -6,
+          "y": 4
+        },
+        {
+          "x": -5,
+          "y": 4
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 202,
+        "length": 200,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 203,
+        "length": 200,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -6,
+          "y": 5
+        },
+        {
+          "x": -6,
+          "y": 6
+        },
+        {
+          "x": -7,
+          "y": 6
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 204,
+        "length": 100,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -7,
+          "y": 5
+        },
+        {
+          "x": -7,
+          "y": 6
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 205,
+        "length": 200,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 206,
+        "length": 200,
+        "maxSpeed": 46,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -7,
+          "y": 6
+        },
+        {
+          "x": -8,
+          "y": 6
+        },
+        {
+          "x": -8,
+          "y": 7
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 207,
+        "length": 600,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 208,
+        "length": 600,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -3,
+          "y": 6
+        },
+        {
+          "x": -4,
+          "y": 6
+        },
+        {
+          "x": -5,
+          "y": 6
+        },
+        {
+          "x": -5,
+          "y": 7
+        },
+        {
+          "x": -6,
+          "y": 7
+        },
+        {
+          "x": -7,
+          "y": 7
+        },
+        {
+          "x": -8,
+          "y": 7
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 209,
+        "length": 300,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 210,
+        "length": 300,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -8,
+          "y": 7
+        },
+        {
+          "x": -8,
+          "y": 8
+        },
+        {
+          "x": -8,
+          "y": 9
+        },
+        {
+          "x": -8,
+          "y": 10
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 211,
+        "length": 500,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 212,
+        "length": 500,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -8,
+          "y": 7
+        },
+        {
+          "x": -9,
+          "y": 7
+        },
+        {
+          "x": -10,
+          "y": 7
+        },
+        {
+          "x": -11,
+          "y": 7
+        },
+        {
+          "x": -12,
+          "y": 7
+        },
+        {
+          "x": -13,
+          "y": 7
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 213,
+        "length": 600,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 214,
+        "length": 600,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -9,
+          "y": 3
+        },
+        {
+          "x": -10,
+          "y": 3
+        },
+        {
+          "x": -11,
+          "y": 3
+        },
+        {
+          "x": -12,
+          "y": 3
+        },
+        {
+          "x": -12,
+          "y": 4
+        },
+        {
+          "x": -13,
+          "y": 4
+        },
+        {
+          "x": -14,
+          "y": 4
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 215,
+        "length": 300,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 216,
+        "length": 300,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -9,
+          "y": 1
+        },
+        {
+          "x": -10,
+          "y": 1
+        },
+        {
+          "x": -11,
+          "y": 1
+        },
+        {
+          "x": -12,
+          "y": 1
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 217,
+        "length": 400,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 218,
+        "length": 400,
+        "maxSpeed": 50,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -12,
+          "y": 1
+        },
+        {
+          "x": -13,
+          "y": 1
+        },
+        {
+          "x": -14,
+          "y": 1
+        },
+        {
+          "x": -15,
+          "y": 1
+        },
+        {
+          "x": -16,
+          "y": 1
+        }
+      ]
+    },
+    {
+      "forward": {
+        "id": 219,
+        "length": 100,
+        "maxSpeed": 28,
+        "laneCount": 1
+      },
+      "backward": {
+        "id": 220,
+        "length": 100,
+        "maxSpeed": 28,
+        "laneCount": 1
+      },
+      "route": [
+        {
+          "x": -2,
+          "y": -4
+        },
+        {
+          "x": -2,
+          "y": -3
+        }
+      ]
+    }
+  ],
+  "crossroads": [
+    {
+      "id": {
+        "x": 0,
+        "y": 0
+      },
+      "carSpawnRate": 10,
+      "trafficLightSettings": [
+        {
+          "duration": 30,
+          "allowedDirections": [
+            {
+              "from": 1,
+              "to": 0
+            },
+            {
+              "from": 6,
+              "to": 7
+            },
+            {
+              "from": 17,
+              "to": 16
+            },
+            {
+              "from": 23,
+              "to": 22
+            },
+            {
+              "from": 23,
+              "to": 0
+            },
+            {
+              "from": 23,
+              "to": 7
+            },
+            {
+              "from": 1,
+              "to": 22
+            },
+            {
+              "from": 1,
+              "to": 16
+            }
+          ]
+        },
+        {
+          "duration": 5,
+          "allowedDirections": [
+            {
+              "from": 1,
+              "to": 0
+            },
+            {
+              "from": 6,
+              "to": 7
+            },
+            {
+              "from": 17,
+              "to": 16
+            },
+            {
+              "from": 23,
+              "to": 22
+            },
+            {
+              "from": 1,
+              "to": 7
+            },
+            {
+              "from": 23,
+              "to": 16
+            }
+          ]
+        },
+        {
+          "duration": 10,
+          "allowedDirections": [
+            {
+              "from": 1,
+              "to": 0
+            },
+            {
+              "from": 6,
+              "to": 7
+            },
+            {
+              "from": 17,
+              "to": 16
+            },
+            {
+              "from": 23,
+              "to": 22
+            },
+            {
+              "from": 6,
+              "to": 16
+            },
+            {
+              "from": 6,
+              "to": 0
+            },
+            {
+              "from": 17,
+              "to": 7
+            },
+            {
+              "from": 17,
+              "to": 22
+            }
+          ]
+        },
+        {
+          "duration": 5,
+          "allowedDirections": [
+            {
+              "from": 1,
+              "to": 0
+            },
+            {
+              "from": 6,
+              "to": 7
+            },
+            {
+              "from": 17,
+              "to": 16
+            },
+            {
+              "from": 23,
+              "to": 22
+            },
+            {
+              "from": 17,
+              "to": 0
+            },
+            {
+              "from": 6,
+              "to": 22
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": 0,
+        "y": 1
+      },
+      "carSpawnRate": 10,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 0,
+              "to": 1
+            },
+            {
+              "from": 3,
+              "to": 2
+            },
+            {
+              "from": 12,
+              "to": 13
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": -2,
+        "y": 1
+      },
+      "carSpawnRate": 10,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 2,
+              "to": 3
+            },
+            {
+              "from": 5,
+              "to": 4
+            },
+            {
+              "from": 9,
+              "to": 8
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": -2,
+        "y": 0
+      },
+      "carSpawnRate": 10,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 4,
+              "to": 5
+            },
+            {
+              "from": 7,
+              "to": 6
+            },
+            {
+              "from": 32,
+              "to": 31
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": -2,
+        "y": 2
+      },
+      "carSpawnRate": 10,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 8,
+              "to": 9
+            },
+            {
+              "from": 11,
+              "to": 10
+            },
+            {
+              "from": 112,
+              "to": 111
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": 0,
+        "y": 2
+      },
+      "carSpawnRate": 10,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 10,
+              "to": 11
+            },
+            {
+              "from": 13,
+              "to": 12
+            },
+            {
+              "from": 15,
+              "to": 14
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": 0,
+        "y": 3
+      },
+      "carSpawnRate": 10,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 14,
+              "to": 15
+            },
+            {
+              "from": 118,
+              "to": 117
+            },
+            {
+              "from": 120,
+              "to": 119
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": 2,
+        "y": 0
+      },
+      "carSpawnRate": 10,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 16,
+              "to": 17
+            },
+            {
+              "from": 21,
+              "to": 20
+            },
+            {
+              "from": 28,
+              "to": 29
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": 4,
+        "y": 3
+      },
+      "carSpawnRate": 10,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 19,
+              "to": 18
+            },
+            {
+              "from": 160,
+              "to": 161
+            },
+            {
+              "from": 163,
+              "to": 162
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": 6,
+        "y": 0
+      },
+      "carSpawnRate": 10,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 18,
+              "to": 19
+            },
+            {
+              "from": 20,
+              "to": 21
+            },
+            {
+              "from": 167,
+              "to": 166
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": 0,
+        "y": -3
+      },
+      "carSpawnRate": 10,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 22,
+              "to": 23
+            },
+            {
+              "from": 25,
+              "to": 24
+            },
+            {
+              "from": 29,
+              "to": 28
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": 0,
+        "y": -4
+      },
+      "carSpawnRate": 10,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 24,
+              "to": 25
+            },
+            {
+              "from": 27,
+              "to": 26
+            },
+            {
+              "from": 82,
+              "to": 81
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": -1,
+        "y": -4
+      },
+      "carSpawnRate": 10,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 26,
+              "to": 27
+            },
+            {
+              "from": 50,
+              "to": 49
+            },
+            {
+              "from": 53,
+              "to": 54
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": -5,
+        "y": -1
+      },
+      "carSpawnRate": 10,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 36,
+              "to": 35
+            },
+            {
+              "from": 45,
+              "to": 44
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": -5,
+        "y": 0
+      },
+      "carSpawnRate": 10,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 31,
+              "to": 32
+            },
+            {
+              "from": 34,
+              "to": 33
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": -6,
+        "y": 0
+      },
+      "carSpawnRate": 10,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 33,
+              "to": 34
+            },
+            {
+              "from": 37,
+              "to": 38
+            },
+            {
+              "from": 40,
+              "to": 39
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": -6,
+        "y": -1
+      },
+      "carSpawnRate": 10,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 35,
+              "to": 36
+            },
+            {
+              "from": 38,
+              "to": 37
+            },
+            {
+              "from": 42,
+              "to": 41
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": -9,
+        "y": 1
+      },
+      "carSpawnRate": 10,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 39,
+              "to": 40
+            },
+            {
+              "from": 216,
+              "to": 215
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": -8,
+        "y": -2
+      },
+      "carSpawnRate": 30,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 41,
+              "to": 42
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": -12,
+        "y": 1
+      },
+      "carSpawnRate": 10,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 215,
+              "to": 216
+            },
+            {
+              "from": 218,
+              "to": 217
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": -5,
+        "y": -4
+      },
+      "carSpawnRate": 10,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 44,
+              "to": 45
+            },
+            {
+              "from": 47,
+              "to": 46
+            },
+            {
+              "from": 58,
+              "to": 57
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": -4,
+        "y": -4
+      },
+      "carSpawnRate": 10,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 46,
+              "to": 47
+            },
+            {
+              "from": 52,
+              "to": 51
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": -2,
+        "y": -3
+      },
+      "carSpawnRate": 10,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 49,
+              "to": 50
+            },
+            {
+              "from": 219,
+              "to": 220
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": -2,
+        "y": -4
+      },
+      "carSpawnRate": 10,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 51,
+              "to": 52
+            },
+            {
+              "from": 54,
+              "to": 53
+            },
+            {
+              "from": 56,
+              "to": 55
+            },
+            {
+              "from": 220,
+              "to": 219
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": -2,
+        "y": -6
+      },
+      "carSpawnRate": 10,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 55,
+              "to": 56
+            },
+            {
+              "from": 75,
+              "to": 76
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": -5,
+        "y": -6
+      },
+      "carSpawnRate": 25,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 57,
+              "to": 58
+            },
+            {
+              "from": 60,
+              "to": 59
+            },
+            {
+              "from": 110,
+              "to": 109
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": -5,
+        "y": -7
+      },
+      "carSpawnRate": 10,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 59,
+              "to": 60
+            },
+            {
+              "from": 64,
+              "to": 63
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": -4,
+        "y": -7
+      },
+      "carSpawnRate": 10,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 66,
+              "to": 65
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": -5,
+        "y": -8
+      },
+      "carSpawnRate": 10,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 63,
+              "to": 64
+            },
+            {
+              "from": 67,
+              "to": 68
+            },
+            {
+              "from": 90,
+              "to": 89
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": -4,
+        "y": -8
+      },
+      "carSpawnRate": 10,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 65,
+              "to": 66
+            },
+            {
+              "from": 68,
+              "to": 67
+            },
+            {
+              "from": 70,
+              "to": 69
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": -3,
+        "y": -8
+      },
+      "carSpawnRate": 10,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 69,
+              "to": 70
+            },
+            {
+              "from": 72,
+              "to": 71
+            },
+            {
+              "from": 88,
+              "to": 87
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": -2,
+        "y": -8
+      },
+      "carSpawnRate": 10,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 71,
+              "to": 72
+            },
+            {
+              "from": 74,
+              "to": 73
+            },
+            {
+              "from": 80,
+              "to": 79
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": -2,
+        "y": -7
+      },
+      "carSpawnRate": 10,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 73,
+              "to": 74
+            },
+            {
+              "from": 76,
+              "to": 75
+            },
+            {
+              "from": 78,
+              "to": 77
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": 0,
+        "y": -7
+      },
+      "carSpawnRate": 10,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 77,
+              "to": 78
+            },
+            {
+              "from": 81,
+              "to": 82
+            },
+            {
+              "from": 84,
+              "to": 83
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": 0,
+        "y": -8
+      },
+      "carSpawnRate": 10,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 79,
+              "to": 80
+            },
+            {
+              "from": 83,
+              "to": 84
+            },
+            {
+              "from": 86,
+              "to": 85
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": 0,
+        "y": -10
+      },
+      "carSpawnRate": 10,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 85,
+              "to": 86
+            },
+            {
+              "from": 95,
+              "to": 96
+            },
+            {
+              "from": 106,
+              "to": 105
+            },
+            {
+              "from": 108,
+              "to": 107
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": -3,
+        "y": -10
+      },
+      "carSpawnRate": 10,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 87,
+              "to": 88
+            },
+            {
+              "from": 91,
+              "to": 92
+            },
+            {
+              "from": 94,
+              "to": 93
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": -5,
+        "y": -10
+      },
+      "carSpawnRate": 10,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 89,
+              "to": 90
+            },
+            {
+              "from": 92,
+              "to": 91
+            },
+            {
+              "from": 98,
+              "to": 97
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": -2,
+        "y": -10
+      },
+      "carSpawnRate": 10,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 93,
+              "to": 94
+            },
+            {
+              "from": 96,
+              "to": 95
+            },
+            {
+              "from": 104,
+              "to": 103
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": -6,
+        "y": -10
+      },
+      "carSpawnRate": 10,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 97,
+              "to": 98
+            },
+            {
+              "from": 100,
+              "to": 99
+            },
+            {
+              "from": 102,
+              "to": 101
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": -6,
+        "y": -12
+      },
+      "carSpawnRate": 10,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 99,
+              "to": 100
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": -8,
+        "y": -12
+      },
+      "carSpawnRate": 10,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 101,
+              "to": 102
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": -1,
+        "y": -14
+      },
+      "carSpawnRate": 10,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 103,
+              "to": 104
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": 1,
+        "y": -14
+      },
+      "carSpawnRate": 100,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 105,
+              "to": 106
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": 2,
+        "y": -10
+      },
+      "carSpawnRate": 10,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 107,
+              "to": 108
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": -9,
+        "y": -7
+      },
+      "carSpawnRate": 30,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 109,
+              "to": 110
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": -3,
+        "y": 4
+      },
+      "carSpawnRate": 10,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 111,
+              "to": 112
+            },
+            {
+              "from": 114,
+              "to": 113
+            },
+            {
+              "from": 116,
+              "to": 115
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": -3,
+        "y": 5
+      },
+      "carSpawnRate": 10,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 113,
+              "to": 114
+            },
+            {
+              "from": 124,
+              "to": 123
+            },
+            {
+              "from": 141,
+              "to": 140
+            },
+            {
+              "from": 193,
+              "to": 194
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": -1,
+        "y": 4
+      },
+      "carSpawnRate": 10,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 115,
+              "to": 116
+            },
+            {
+              "from": 117,
+              "to": 118
+            },
+            {
+              "from": 122,
+              "to": 121
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": 1,
+        "y": 3
+      },
+      "carSpawnRate": 10,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 119,
+              "to": 120
+            },
+            {
+              "from": 126,
+              "to": 125
+            },
+            {
+              "from": 128,
+              "to": 127
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": -1,
+        "y": 5
+      },
+      "carSpawnRate": 10,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 121,
+              "to": 122
+            },
+            {
+              "from": 123,
+              "to": 124
+            },
+            {
+              "from": 137,
+              "to": 136
+            },
+            {
+              "from": 139,
+              "to": 138
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": 1,
+        "y": 6
+      },
+      "carSpawnRate": 10,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 125,
+              "to": 126
+            },
+            {
+              "from": 144,
+              "to": 145
+            },
+            {
+              "from": 147,
+              "to": 146
+            },
+            {
+              "from": 151,
+              "to": 150
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": 2,
+        "y": 3
+      },
+      "carSpawnRate": 10,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 127,
+              "to": 128
+            },
+            {
+              "from": 130,
+              "to": 129
+            },
+            {
+              "from": 131,
+              "to": 132
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": 3,
+        "y": 4
+      },
+      "carSpawnRate": 10,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 129,
+              "to": 130
+            },
+            {
+              "from": 135,
+              "to": 134
+            },
+            {
+              "from": 154,
+              "to": 155
+            },
+            {
+              "from": 159,
+              "to": 158
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": 2,
+        "y": 2
+      },
+      "carSpawnRate": 10,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 132,
+              "to": 131
+            },
+            {
+              "from": 157,
+              "to": 156
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": 4,
+        "y": 4
+      },
+      "carSpawnRate": 10,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 134,
+              "to": 135
+            },
+            {
+              "from": 162,
+              "to": 163
+            },
+            {
+              "from": 165,
+              "to": 164
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": 0,
+        "y": 5
+      },
+      "carSpawnRate": 10,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 136,
+              "to": 137
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": -1,
+        "y": 6
+      },
+      "carSpawnRate": 10,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 138,
+              "to": 139
+            },
+            {
+              "from": 142,
+              "to": 143
+            },
+            {
+              "from": 145,
+              "to": 144
+            },
+            {
+              "from": 173,
+              "to": 172
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": -3,
+        "y": 6
+      },
+      "carSpawnRate": 10,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 140,
+              "to": 141
+            },
+            {
+              "from": 143,
+              "to": 142
+            },
+            {
+              "from": 177,
+              "to": 176
+            },
+            {
+              "from": 208,
+              "to": 207
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": 1,
+        "y": 8
+      },
+      "carSpawnRate": 10,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 146,
+              "to": 147
+            },
+            {
+              "from": 153,
+              "to": 152
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": 2,
+        "y": 6
+      },
+      "carSpawnRate": 10,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 149,
+              "to": 148
+            },
+            {
+              "from": 150,
+              "to": 151
+            },
+            {
+              "from": 155,
+              "to": 154
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": 1,
+        "y": 10
+      },
+      "carSpawnRate": 10,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 148,
+              "to": 149
+            },
+            {
+              "from": 152,
+              "to": 153
+            },
+            {
+              "from": 181,
+              "to": 180
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": 3,
+        "y": 3
+      },
+      "carSpawnRate": 10,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 156,
+              "to": 157
+            },
+            {
+              "from": 158,
+              "to": 159
+            },
+            {
+              "from": 161,
+              "to": 160
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": 7,
+        "y": 5
+      },
+      "carSpawnRate": 30,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 164,
+              "to": 165
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": 10,
+        "y": 1
+      },
+      "carSpawnRate": 70,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 166,
+              "to": 167
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": -1,
+        "y": 10
+      },
+      "carSpawnRate": 10,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 174,
+              "to": 175
+            },
+            {
+              "from": 187,
+              "to": 186
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": -3,
+        "y": 10
+      },
+      "carSpawnRate": 10,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 178,
+              "to": 179
+            },
+            {
+              "from": 184,
+              "to": 185
+            },
+            {
+              "from": 191,
+              "to": 190
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": -3,
+        "y": 8
+      },
+      "carSpawnRate": 10,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 176,
+              "to": 177
+            },
+            {
+              "from": 179,
+              "to": 178
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": -1,
+        "y": 8
+      },
+      "carSpawnRate": 10,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 172,
+              "to": 173
+            },
+            {
+              "from": 175,
+              "to": 174
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": 1,
+        "y": 13
+      },
+      "carSpawnRate": 10,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 180,
+              "to": 181
+            },
+            {
+              "from": 183,
+              "to": 182
+            },
+            {
+              "from": 189,
+              "to": 188
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": -1,
+        "y": 12
+      },
+      "carSpawnRate": 10,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 182,
+              "to": 183
+            },
+            {
+              "from": 185,
+              "to": 184
+            },
+            {
+              "from": 186,
+              "to": 187
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": 1,
+        "y": 17
+      },
+      "carSpawnRate": 100,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 188,
+              "to": 189
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": -8,
+        "y": 10
+      },
+      "carSpawnRate": 100,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 190,
+              "to": 191
+            },
+            {
+              "from": 209,
+              "to": 210
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": -5,
+        "y": 4
+      },
+      "carSpawnRate": 10,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 194,
+              "to": 193
+            },
+            {
+              "from": 200,
+              "to": 201
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": -9,
+        "y": 3
+      },
+      "carSpawnRate": 10,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 197,
+              "to": 196
+            },
+            {
+              "from": 214,
+              "to": 213
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": -7,
+        "y": 5
+      },
+      "carSpawnRate": 10,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 196,
+              "to": 197
+            },
+            {
+              "from": 199,
+              "to": 198
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": -6,
+        "y": 5
+      },
+      "carSpawnRate": 10,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 198,
+              "to": 199
+            },
+            {
+              "from": 201,
+              "to": 200
+            },
+            {
+              "from": 203,
+              "to": 202
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": -7,
+        "y": 6
+      },
+      "carSpawnRate": 10,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 202,
+              "to": 203
+            },
+            {
+              "from": 206,
+              "to": 205
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": -8,
+        "y": 7
+      },
+      "carSpawnRate": 10,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 205,
+              "to": 206
+            },
+            {
+              "from": 207,
+              "to": 208
+            },
+            {
+              "from": 210,
+              "to": 209
+            },
+            {
+              "from": 212,
+              "to": 211
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": -13,
+        "y": 7
+      },
+      "carSpawnRate": 30,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 211,
+              "to": 212
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": -14,
+        "y": 4
+      },
+      "carSpawnRate": 30,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 213,
+              "to": 214
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": {
+        "x": -16,
+        "y": 1
+      },
+      "carSpawnRate": 100,
+      "trafficLightSettings": [
+        {
+          "duration": 20,
+          "allowedDirections": [
+            {
+              "from": 217,
+              "to": 218
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
