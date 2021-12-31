@@ -104,5 +104,7 @@ namespace RoadTrafficSimulator.ValueTypes
 
 
         public static Weight Weight(this Time value) => new Weight(value);
+
+        public static Weight Weight(this Speed value) => new Weight(value);
     }
 }

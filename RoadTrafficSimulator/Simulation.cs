@@ -82,7 +82,7 @@ namespace RoadTrafficSimulator
                 end = settings.Duration;
             while (clock.Time < end)
             {
-                double carsPerSecond = settings.GetCarSpawnRate(clock.Time) * map.CrossroadCount;
+                double carsPerSecond = settings.GetCarSpawnFrequency(clock.Time) * map.CrossroadCount;
                 // Not using TimeStep.ToSeconds() to achieve better precision
                 double newCarProbability = carsPerSecond * settings.TimeStep / Time.precision;
                 for (; newCarProbability > 0; newCarProbability--)
@@ -144,25 +144,25 @@ namespace RoadTrafficSimulator
     class SimulationSettings
     {
         // New cars per second
-        private readonly float[] carSpawnRateDistribution;
+        private readonly float[] carSpawnFrequencyDistribution;
 
         public Time Duration { get; }
         public Time TimeStep { get; set; }
         public float ActiveNavigationRate { get; }
 
-        public SimulationSettings(Time duration, float activeNavigationRate, float[] carSpawnRateDistribution)
+        public SimulationSettings(Time duration, float activeNavigationRate, float[] carSpawnFrequencyDistribution)
         {
             Duration = duration;
             TimeStep = Simulation.MinTimeStep;
             ActiveNavigationRate = activeNavigationRate;
-            this.carSpawnRateDistribution = carSpawnRateDistribution;
+            this.carSpawnFrequencyDistribution = carSpawnFrequencyDistribution;
         }
 
         /// <returns>New cars per second per crossroad.</returns>
-        public float GetCarSpawnRate(Time simulationTime)
+        public float GetCarSpawnFrequency(Time simulationTime)
         {
-            int index = carSpawnRateDistribution.Length * (int)simulationTime / (int)Duration;
-            return carSpawnRateDistribution[index];
+            int index = carSpawnFrequencyDistribution.Length * (int)simulationTime / (int)Duration;
+            return carSpawnFrequencyDistribution[index];
         }
     }
 }

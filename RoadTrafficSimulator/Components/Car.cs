@@ -85,7 +85,7 @@ namespace RoadTrafficSimulator.Components
         {
             // If the car already crossed from a different road during this tick, do nothing
             if (newRoad)
-                newRoad = false;
+                newRoad = false; // TODO: DOESN'T WORK! Needs to be done by another step (two calls to every road)
             else
             {
                 Distance drivenDistance = Move(time);

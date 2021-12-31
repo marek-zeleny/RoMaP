@@ -30,11 +30,11 @@ namespace RoadTrafficSimulator.Forms
         private void InitializeComponent()
         {
             this.groupBoxSpawnRate = new System.Windows.Forms.GroupBox();
-            this.panelSpawnRate = new System.Windows.Forms.Panel();
+            this.panelSpawnFrequency = new System.Windows.Forms.Panel();
             this.flowLayoutPanelDistribution = new System.Windows.Forms.FlowLayoutPanel();
             this.labelDistributionDescription = new System.Windows.Forms.Label();
             this.labelDistributionDetail = new System.Windows.Forms.Label();
-            this.comboBoxSpawnRateDetail = new System.Windows.Forms.ComboBox();
+            this.comboBoxSpawnFrequencyDetail = new System.Windows.Forms.ComboBox();
             this.groupBoxParameters = new System.Windows.Forms.GroupBox();
             this.tableLayoutPanelParameters = new System.Windows.Forms.TableLayoutPanel();
             this.trackBarNavigation = new System.Windows.Forms.TrackBar();
@@ -56,7 +56,7 @@ namespace RoadTrafficSimulator.Forms
             // groupBoxSpawnRate
             // 
             this.groupBoxSpawnRate.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.groupBoxSpawnRate.Controls.Add(this.panelSpawnRate);
+            this.groupBoxSpawnRate.Controls.Add(this.panelSpawnFrequency);
             this.groupBoxSpawnRate.Controls.Add(this.flowLayoutPanelDistribution);
             this.groupBoxSpawnRate.Dock = System.Windows.Forms.DockStyle.Top;
             this.groupBoxSpawnRate.Location = new System.Drawing.Point(5, 5);
@@ -68,12 +68,12 @@ namespace RoadTrafficSimulator.Forms
             // 
             // panelSpawnRate
             // 
-            this.panelSpawnRate.AutoScroll = true;
-            this.panelSpawnRate.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panelSpawnRate.Location = new System.Drawing.Point(3, 78);
-            this.panelSpawnRate.Name = "panelSpawnRate";
-            this.panelSpawnRate.Size = new System.Drawing.Size(554, 133);
-            this.panelSpawnRate.TabIndex = 0;
+            this.panelSpawnFrequency.AutoScroll = true;
+            this.panelSpawnFrequency.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panelSpawnFrequency.Location = new System.Drawing.Point(3, 78);
+            this.panelSpawnFrequency.Name = "panelSpawnRate";
+            this.panelSpawnFrequency.Size = new System.Drawing.Size(554, 133);
+            this.panelSpawnFrequency.TabIndex = 0;
             // 
             // flowLayoutPanelDistribution
             // 
@@ -81,7 +81,7 @@ namespace RoadTrafficSimulator.Forms
             this.flowLayoutPanelDistribution.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.flowLayoutPanelDistribution.Controls.Add(this.labelDistributionDescription);
             this.flowLayoutPanelDistribution.Controls.Add(this.labelDistributionDetail);
-            this.flowLayoutPanelDistribution.Controls.Add(this.comboBoxSpawnRateDetail);
+            this.flowLayoutPanelDistribution.Controls.Add(this.comboBoxSpawnFrequencyDetail);
             this.flowLayoutPanelDistribution.Dock = System.Windows.Forms.DockStyle.Top;
             this.flowLayoutPanelDistribution.Location = new System.Drawing.Point(3, 19);
             this.flowLayoutPanelDistribution.Name = "flowLayoutPanelDistribution";
@@ -110,13 +110,13 @@ namespace RoadTrafficSimulator.Forms
             // 
             // comboBoxSpawnRateDetail
             // 
-            this.comboBoxSpawnRateDetail.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comboBoxSpawnRateDetail.FormattingEnabled = true;
-            this.comboBoxSpawnRateDetail.Location = new System.Drawing.Point(113, 33);
-            this.comboBoxSpawnRateDetail.Name = "comboBoxSpawnRateDetail";
-            this.comboBoxSpawnRateDetail.Size = new System.Drawing.Size(120, 23);
-            this.comboBoxSpawnRateDetail.TabIndex = 1;
-            this.comboBoxSpawnRateDetail.SelectedIndexChanged += new System.EventHandler(this.comboBoxSpawnRateDetail_SelectedIndexChanged);
+            this.comboBoxSpawnFrequencyDetail.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBoxSpawnFrequencyDetail.FormattingEnabled = true;
+            this.comboBoxSpawnFrequencyDetail.Location = new System.Drawing.Point(113, 33);
+            this.comboBoxSpawnFrequencyDetail.Name = "comboBoxSpawnRateDetail";
+            this.comboBoxSpawnFrequencyDetail.Size = new System.Drawing.Size(120, 23);
+            this.comboBoxSpawnFrequencyDetail.TabIndex = 1;
+            this.comboBoxSpawnFrequencyDetail.SelectedIndexChanged += new System.EventHandler(this.comboBoxSpawnFrequencyDetail_SelectedIndexChanged);
             // 
             // groupBoxParameters
             // 
@@ -259,8 +259,8 @@ namespace RoadTrafficSimulator.Forms
 
         #endregion
         private System.Windows.Forms.GroupBox groupBoxSpawnRate;
-        private System.Windows.Forms.ComboBox comboBoxSpawnRateDetail;
-        private System.Windows.Forms.Panel panelSpawnRate;
+        private System.Windows.Forms.ComboBox comboBoxSpawnFrequencyDetail;
+        private System.Windows.Forms.Panel panelSpawnFrequency;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanelDistribution;
         private System.Windows.Forms.Label labelDistributionDetail;
         private System.Windows.Forms.Label labelDistributionDescription;

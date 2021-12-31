@@ -7,7 +7,7 @@ namespace RoadTrafficSimulator.Forms
 {
     public partial class FormSimulationSettings : Form
     {
-        private enum SpawnRateDetail
+        private enum SpawnFrequencyDetail
         {
             Low = 6,
             Medium = 12,
@@ -25,7 +25,7 @@ namespace RoadTrafficSimulator.Forms
             336
         };
 
-        private TrackBar[] spawnRateBars;
+        private TrackBar[] spawnFrequencyBars;
 
         internal SimulationSettings Settings { get; private set; }
 
@@ -33,9 +33,9 @@ namespace RoadTrafficSimulator.Forms
         {
             InitializeComponent();
             // Initialize comboBoxMode
-            foreach (string name in Enum.GetNames<SpawnRateDetail>())
-                comboBoxSpawnRateDetail.Items.Add(name.Replace('_', ' '));
-            comboBoxSpawnRateDetail.SelectedIndex = 0; // Triggers comboBoxSpawnRateDetail_SelectedIndexChanged()
+            foreach (string name in Enum.GetNames<SpawnFrequencyDetail>())
+                comboBoxSpawnFrequencyDetail.Items.Add(name.Replace('_', ' '));
+            comboBoxSpawnFrequencyDetail.SelectedIndex = 0; // Triggers comboBoxSpawnFrequencyDetail_SelectedIndexChanged()
         }
 
         private void buttonSimulate_Click(object sender, EventArgs e)
@@ -67,17 +67,17 @@ namespace RoadTrafficSimulator.Forms
             labelNavigation.Text = $"Navigation rate: {trackBarNavigation.Value} %";
         }
 
-        private void comboBoxSpawnRateDetail_SelectedIndexChanged(object sender, EventArgs e)
+        private void comboBoxSpawnFrequencyDetail_SelectedIndexChanged(object sender, EventArgs e)
         {
-            SpawnRateDetail detail = Enum.Parse<SpawnRateDetail>(comboBoxSpawnRateDetail.Text.Replace(' ', '_'));
-            ShowSpawnRateCombos(detail);
+            SpawnFrequencyDetail detail = Enum.Parse<SpawnFrequencyDetail>(comboBoxSpawnFrequencyDetail.Text.Replace(' ', '_'));
+            ShowSpawnFrequencyCombos(detail);
         }
 
-        private void ShowSpawnRateCombos(SpawnRateDetail detail)
+        private void ShowSpawnFrequencyCombos(SpawnFrequencyDetail detail)
         {
             const int maxValue = 10;
-            spawnRateBars = new TrackBar[(int)detail];
-            for (int i = 0; i < spawnRateBars.Length; i++)
+            spawnFrequencyBars = new TrackBar[(int)detail];
+            for (int i = 0; i < spawnFrequencyBars.Length; i++)
             {
                 TrackBar bar = new()
                 {
@@ -89,12 +89,12 @@ namespace RoadTrafficSimulator.Forms
                     LargeChange = 2,
                     Value = maxValue / 2
                 };
-                spawnRateBars[i] = bar;
+                spawnFrequencyBars[i] = bar;
             }
 
             SuspendLayout();
-            panelSpawnRate.Controls.Clear();
-            panelSpawnRate.Controls.AddRange(spawnRateBars);
+            panelSpawnFrequency.Controls.Clear();
+            panelSpawnFrequency.Controls.AddRange(spawnFrequencyBars);
             ResumeLayout();
         }
 
@@ -102,14 +102,14 @@ namespace RoadTrafficSimulator.Forms
         {
             Time duration = durationTable[trackBarDuration.Value].Hours();
             float navigationRate = trackBarNavigation.Value / 100f;
-            float[] spawnRateDistribution = new float[spawnRateBars.Length];
-            for (int i = 0; i < spawnRateDistribution.Length; i++)
+            float[] spawnFrequencyDistribution = new float[spawnFrequencyBars.Length];
+            for (int i = 0; i < spawnFrequencyDistribution.Length; i++)
             {
-                // Reverse order because of reversed docking order of spawnRateBars in the form
-                TrackBar bar = spawnRateBars[^(i + 1)];
-                spawnRateDistribution[i] = ((float)bar.Value / bar.Maximum) * carFrequencyQuotient;
+                // Reverse order because of reversed docking order of spawnFrequencyBars in the form
+                TrackBar bar = spawnFrequencyBars[^(i + 1)];
+                spawnFrequencyDistribution[i] = ((float)bar.Value / bar.Maximum) * carFrequencyQuotient;
             }
-            Settings = new SimulationSettings(duration, navigationRate, spawnRateDistribution);
+            Settings = new SimulationSettings(duration, navigationRate, spawnFrequencyDistribution);
         }
     }
 }

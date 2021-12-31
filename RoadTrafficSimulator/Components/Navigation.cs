@@ -71,7 +71,7 @@ namespace RoadTrafficSimulator.Components
                 return;
 
             var paths = map.FindShortestPaths(Algorithms.GraphType.NonnegativeWeights, from,
-                edge => ((Road)edge).AverageDuration.Weight());
+                edge => ((Road)edge).AverageSpeed.Weight());
             foreach (var (dest, path) in paths)
             {
                 Debug.Assert(path.TotalWeight < Weight.positiveInfinity);

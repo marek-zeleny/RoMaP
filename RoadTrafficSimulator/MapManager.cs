@@ -17,7 +17,7 @@ namespace RoadTrafficSimulator
 
         public enum RoadSide : byte { Right, Left }
 
-        private const int K = 100;
+        private const int gridSize = 100;
         private static readonly Speed defaultMaxSpeed = 50.KilometresPerHour();
 
         public static readonly Distance roadSegmentDefaultLength = 100.Metres();
@@ -89,16 +89,16 @@ namespace RoadTrafficSimulator
         {
             Point output = new()
             {
-                X = origin.X + (int)(coords.x * K * zoom),
-                Y = origin.Y + (int)(coords.y * K * zoom)
+                X = origin.X + (int)(coords.x * gridSize * zoom),
+                Y = origin.Y + (int)(coords.y * gridSize * zoom)
             };
             return output;
         }
 
         public static Coords CalculateCoords(Point point, Point origin, float zoom)
         {
-            int x = (int)Math.Round((point.X - origin.X) / (K * zoom));
-            int y = (int)Math.Round((point.Y - origin.Y) / (K * zoom));
+            int x = (int)Math.Round((point.X - origin.X) / (gridSize * zoom));
+            int y = (int)Math.Round((point.Y - origin.Y) / (gridSize * zoom));
             return new Coords(x, y);
         }
 
@@ -198,9 +198,8 @@ namespace RoadTrafficSimulator
             Vector vector = CalculateVector(point, origin, zoom);
             Point from = CalculatePoint(vector.from, origin, zoom);
             Point to = CalculatePoint(vector.to, origin, zoom);
-            double length = CalculateDistance(from, to);
             double distance = CalculateDistance(from, point);
-            proximity = distance / length;
+            proximity = distance / (gridSize * zoom);
             return GetCrossroad(vector.from);
         }
 
@@ -372,7 +371,7 @@ namespace RoadTrafficSimulator
 
         private void DrawGrid(Graphics graphics, Point origin, float zoom, int width, int height)
         {
-            float step = K * zoom;
+            float step = gridSize * zoom;
             Coords firstCoords = CalculateCoords(new Point(0, 0), origin, zoom);
             Point firstPoint = CalculatePoint(firstCoords, origin, zoom);
 
