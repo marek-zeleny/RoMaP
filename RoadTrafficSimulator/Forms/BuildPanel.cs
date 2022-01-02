@@ -9,12 +9,36 @@ namespace RoadTrafficSimulator.Forms
 {
     public partial class BuildPanel : UserControl
     {
+        public enum RoadSide { Right, Left };
         public enum Mode { Build, Select };
 
         private Mode mode;
         private bool lockMode;
         private bool lockMaxSpeed;
 
+        public RoadSide CurrentRoadSide
+        {
+            get
+            {
+                if (radioButtonDriveRight.Checked)
+                    return RoadSide.Right;
+                else
+                    return RoadSide.Left;
+            }
+            set
+            {
+                switch (value)
+                {
+                    case RoadSide.Right:
+                        radioButtonDriveRight.Checked = true;
+                        break;
+                    case RoadSide.Left:
+                        radioButtonDriveLeft.Checked = true;
+                        break;
+                }
+                CurrentRoadSideChanged?.Invoke(this, new EventArgs());
+            }
+        }
         public Mode CurrentMode
         {
             get => mode;
@@ -51,6 +75,8 @@ namespace RoadTrafficSimulator.Forms
             foreach (string name in Enum.GetNames<Mode>())
                 comboBoxMode.Items.Add(name.Replace('_', ' '));
             comboBoxMode.SelectedIndex = 0; // Triggers comboBoxMode_SelectedIndexChanged()
+            radioButtonDriveRight.CheckedChanged += radioButtonsRoadSide_CheckedChanged;
+            radioButtonDriveLeft.CheckedChanged += radioButtonsRoadSide_CheckedChanged;
         }
 
         #region events
@@ -99,6 +125,11 @@ namespace RoadTrafficSimulator.Forms
             add => buttonLoadMap.Click += value;
             remove => buttonLoadMap.Click -= value;
         }
+
+        [Browsable(true)]
+        [Category("Property Changed")]
+        [Description("Occurs when the RoadSide property is changed.")]
+        public event EventHandler CurrentRoadSideChanged;
 
         [Browsable(true)]
         [Category("Property Changed")]
@@ -159,6 +190,11 @@ namespace RoadTrafficSimulator.Forms
             groupBoxCrossroad.Visible = false;
             groupBoxRoad.Visible = false;
             ResumeLayout();
+        }
+
+        private void radioButtonsRoadSide_CheckedChanged(object sender, EventArgs e)
+        {
+            CurrentRoadSideChanged?.Invoke(sender, e);
         }
 
         private void numericUpDownMaxSpeed_ValueChanged(object sender, EventArgs e)

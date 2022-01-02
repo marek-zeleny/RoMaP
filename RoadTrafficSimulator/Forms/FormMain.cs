@@ -135,6 +135,17 @@ namespace RoadTrafficSimulator.Forms
             mapPanel.Redraw();
         }
 
+        private void buildPanel_CurrentRoadSideChanged(object sender, EventArgs e)
+        {
+            MapManager.roadSide = buildPanel.CurrentRoadSide switch
+            {
+                BuildPanel.RoadSide.Right => MapManager.RoadSide.Right,
+                BuildPanel.RoadSide.Left => MapManager.RoadSide.Left,
+                _ => throw new NotImplementedException(),
+            };
+            mapPanel.Redraw();
+        }
+
         private void buildPanel_MaxSpeedChanged(object sender, EventArgs e)
         {
             Debug.Assert(selectedRoad != null);

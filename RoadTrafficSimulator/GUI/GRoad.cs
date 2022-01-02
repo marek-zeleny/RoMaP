@@ -137,7 +137,7 @@ namespace RoadTrafficSimulator.GUI
             {
                 if (diffY == 0)
                     throw new ArgumentException($"The given points cannot be identical.");
-                else if (diffY > 0)
+                else if ((diffY > 0) == (MapManager.roadSide == MapManager.RoadSide.Right))
                     distance = -distance;
                 from1.Offset(distance, 0);
                 to1.Offset(distance, 0);
@@ -148,7 +148,7 @@ namespace RoadTrafficSimulator.GUI
             {
                 if (diffY != 0)
                     throw new ArgumentException($"The given points must be horizontally or vertically aligned.");
-                else if (diffX < 0)
+                else if ((diffX < 0) == (MapManager.roadSide == MapManager.RoadSide.Right))
                     distance = -distance;
                 from1.Offset(0, distance);
                 to1.Offset(0, distance);

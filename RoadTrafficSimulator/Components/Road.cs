@@ -167,6 +167,12 @@ namespace RoadTrafficSimulator.Components
             statistics.Update(CarCount, AverageSpeed, AverageDuration);
         }
 
+        public void AfterTick()
+        {
+            for (int i = 0; i < LaneCount; i++)
+                lanes[i].ForAllCars(car => car.AfterTick());
+        }
+
         #endregion methods
 
         #region subclasses

@@ -7,7 +7,7 @@ namespace RoadTrafficSimulator.GUI
 {
     class GCrossroad : IGCrossroad
     {
-        private static readonly Color color = Color.Red;
+        private static readonly Color color = Color.Brown;
 
         public Highlight Highlight { private get; set; }
 

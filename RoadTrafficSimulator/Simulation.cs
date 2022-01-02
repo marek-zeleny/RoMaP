@@ -121,6 +121,8 @@ namespace RoadTrafficSimulator
                 c.Tick(time);
             foreach (Road r in map.GetEdges())
                 r.Tick(time);
+            foreach (Road r in map.GetEdges())
+                r.AfterTick();
         }
 
         private Crossroad GetRandomCrossroad()
