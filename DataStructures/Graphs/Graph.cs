@@ -47,7 +47,10 @@ namespace DataStructures.Graphs
         }
 
         /// <inheritdoc cref="IGraph{TNodeId, TEdgeId}.AddEdge(IEdge{TNodeId, TEdgeId})"/>
-        /// <remarks>The added <see cref="IEdge{TNodeId, TEdgeId}"/> must have a unique ID within the graph.</remarks>
+        /// <remarks>
+        /// The added <see cref="IEdge{TNodeId, TEdgeId}"/> must have a unique ID within the graph.
+        /// The end nodes of the added edge must already exist in the graph.
+        /// </remarks>
         public virtual bool AddEdge(IEdge<TNodeId, TEdgeId> edge)
         {
             bool idIsFree = !edges.ContainsKey(edge.Id);
