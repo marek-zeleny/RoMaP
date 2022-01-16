@@ -74,13 +74,13 @@ namespace RoadTrafficSimulator.GUI
             return new ReversedGRoad(this);
         }
 
-        public void Highlight(Highlight highlight)
+        public void ResetHighlight(Highlight highlight)
         {
             fHighlight = highlight;
             bHighlight = highlight;
         }
 
-        public void Highlight(Highlight highlight, IGRoad.Direction direction)
+        public void ResetHighlight(Highlight highlight, IGRoad.Direction direction)
         {
             switch (direction)
             {
@@ -97,15 +97,49 @@ namespace RoadTrafficSimulator.GUI
             }
         }
 
+        public void SetHighlight(Highlight highlight, IGRoad.Direction direction)
+        {
+            switch (direction)
+            {
+                case IGRoad.Direction.Forward:
+                    Debug.Assert(fRoad != null);
+                    fHighlight |= highlight;
+                    break;
+                case IGRoad.Direction.Backward:
+                    Debug.Assert(bRoad != null);
+                    bHighlight |= highlight;
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
+        }
+
+        public void UnsetHighlight(Highlight highlight, IGRoad.Direction direction)
+        {
+            switch (direction)
+            {
+                case IGRoad.Direction.Forward:
+                    Debug.Assert(fRoad != null);
+                    fHighlight &= ~highlight;
+                    break;
+                case IGRoad.Direction.Backward:
+                    Debug.Assert(bRoad != null);
+                    bHighlight &= ~highlight;
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
+        }
+
         #region graphics
 
         public void Draw(Graphics graphics, Point from, Point to, int width, bool simulationMode)
         {
             Color GetRoadColor(Road road)
             {
-                if (!simulationMode)
+                if (!simulationMode || !road.IsConnected)
                     return defaultColor;
-                float speedRatio = (float)road.AverageSpeed / road.MaxSpeed;
+                float speedRatio = (float)(road as Road).AverageSpeed / road.MaxSpeed;
                 int red = (int)(255 * (1 - speedRatio));
                 int green = (int)(255 * speedRatio);
                 return Color.FromArgb(red, green, 0);
@@ -129,7 +163,7 @@ namespace RoadTrafficSimulator.GUI
             Point from2 = to;
             Point to2 = from;
             int distance = width * 3 / 4;
-            if (fHighlight == GUI.Highlight.High || bHighlight == GUI.Highlight.High)
+            if (fHighlight.HasFlag(Highlight.Large) || bHighlight.HasFlag(Highlight.Large))
                 distance = IncreaseWidth(width) * 3 / 4;
             int diffX = to.X - from.X;
             int diffY = to.Y - from.Y;
@@ -162,15 +196,10 @@ namespace RoadTrafficSimulator.GUI
         private static void DrawLane(Graphics graphics, Point from, Point to, int width,
             Highlight highlight, Color color)
         {
-            switch (highlight)
-            {
-                case GUI.Highlight.Low:
-                    color = Color.FromArgb(150, color);
-                    break;
-                case GUI.Highlight.High:
-                    width = IncreaseWidth(width);
-                    break;
-            }
+            if (highlight.HasFlag(Highlight.Transparent))
+                color = Color.FromArgb(150, color);
+            if (highlight.HasFlag(Highlight.Large))
+                width = IncreaseWidth(width);
             Pen pen = new Pen(color, width);
             graphics.DrawLine(pen, from, to);
 
@@ -213,9 +242,13 @@ namespace RoadTrafficSimulator.GUI
             public IEnumerable<Road> GetRoads() => gRoad.GetRoads();
             public IEnumerable<Coords> GetRoute(IGRoad.Direction direction) => gRoad.GetRoute(Reverse(direction));
             public IGRoad GetReversedGRoad() => gRoad;
-            public void Highlight(Highlight highlight) => gRoad.Highlight(highlight);
-            public void Highlight(Highlight highlight, IGRoad.Direction direction) =>
-                gRoad.Highlight(highlight, Reverse(direction));
+            public void ResetHighlight(Highlight highlight) => gRoad.ResetHighlight(highlight);
+            public void ResetHighlight(Highlight highlight, IGRoad.Direction direction) =>
+                gRoad.ResetHighlight(highlight, Reverse(direction));
+            public void SetHighlight(Highlight highlight, IGRoad.Direction direction) =>
+                gRoad.SetHighlight(highlight, Reverse(direction));
+            public void UnsetHighlight(Highlight highlight, IGRoad.Direction direction) =>
+                gRoad.UnsetHighlight(highlight, Reverse(direction));
             public void Draw(Graphics graphics, Point from, Point to, int width, bool simulationMode) =>
                 gRoad.Draw(graphics, from, to, width, simulationMode);
         }

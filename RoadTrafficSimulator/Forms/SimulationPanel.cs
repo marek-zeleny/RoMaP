@@ -98,9 +98,17 @@ namespace RoadTrafficSimulator.Forms
             labelTwoWayRoad.Text = gRoad.IsTwoWay ? "Two-way" : "One-way";
             labelFrom.Text = $"From: {gRoad.From}";
             labelTo.Text = $"To: {gRoad.To}";
+            labelLength.Text = $"Length: {road.Length.ToMetres()} m";
             labelMaxSpeed.Text = $"Max speed: {road.MaxSpeed.ToKilometresPerHour()} km/h";
-            chartAverageSpeed.SetDataSource(road.Statistics, GetThroughput, clock);
-            chartAverageSpeed.MaxValue = road.MaxSpeed.ToKilometresPerHour();
+            if (road.IsConnected)
+            {
+                chartAverageSpeed.SetDataSource(road.Statistics, GetThroughput, clock);
+                chartAverageSpeed.MaxValue = road.MaxSpeed.ToKilometresPerHour();
+            }
+            else
+            {
+                chartAverageSpeed.ClearDataSource();
+            }
             groupBoxRoad.Visible = true;
             ResumeLayout();
         }

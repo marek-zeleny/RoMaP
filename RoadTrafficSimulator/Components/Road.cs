@@ -77,6 +77,7 @@ namespace RoadTrafficSimulator.Components
         }
         public Crossroad Destination { get => (Crossroad)ToNode; }
         public IRoadStatistics Statistics { get => statistics; }
+        public bool IsConnected { get; set; }
 
         public Road(int id, Crossroad from, Crossroad to, Distance length, Speed maxSpeed)
             : base(id, from, to)
@@ -90,7 +91,16 @@ namespace RoadTrafficSimulator.Components
             Weight = (length / maxSpeed).Weight();
             lanes = new Lane[maxLaneCount];
             LaneCount = 1;
-            lanes[0].Initialise();
+        }
+
+        public Road(int id, Crossroad from, Crossroad to, Road originalRoad)
+            : base(id, from, to)
+        {
+            length = originalRoad.length;
+            maxSpeed = originalRoad.maxSpeed;
+            Weight = originalRoad.Weight;
+            lanes = originalRoad.lanes;
+            laneCount = originalRoad.laneCount;
         }
 
         #region methods

@@ -83,7 +83,25 @@ namespace RoadTrafficSimulator.Forms
 
         [Browsable(true)]
         [Category("Action")]
-        [Description("Occurs when the Destroy Crossroad button is clicked.")]
+        [Description("Occurs when the Close Road button is clicked.")]
+        public event EventHandler CloseRoadClick
+        {
+            add => buttonCloseRoad.Click += value;
+            remove => buttonCloseRoad.Click -= value;
+        }
+
+        [Browsable(true)]
+        [Category("Action")]
+        [Description("Occurs when the Open Road button is clicked.")]
+        public event EventHandler OpenRoadClick
+        {
+            add => buttonOpenRoad.Click += value;
+            remove => buttonOpenRoad.Click -= value;
+        }
+
+        [Browsable(true)]
+        [Category("Action")]
+        [Description("Occurs when the Destroy Road button is clicked.")]
         public event EventHandler DestroyRoadClick
         {
             add => buttonDestroyRoad.Click += value;
@@ -181,6 +199,18 @@ namespace RoadTrafficSimulator.Forms
             numericUpDownMaxSpeed.Value = gRoad.GetRoad().MaxSpeed.ToKilometresPerHour();
             lockMaxSpeed = false;
             groupBoxRoad.Visible = true;
+            if (gRoad.GetRoad().IsConnected)
+            {
+                numericUpDownMaxSpeed.Enabled = true;
+                buttonCloseRoad.Visible = true;
+                buttonOpenRoad.Visible = false;
+            }
+            else
+            {
+                numericUpDownMaxSpeed.Enabled = false;
+                buttonCloseRoad.Visible = false;
+                buttonOpenRoad.Visible = true;
+            }
             ResumeLayout();
         }
 

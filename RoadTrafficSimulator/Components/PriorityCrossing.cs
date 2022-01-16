@@ -46,6 +46,11 @@ namespace RoadTrafficSimulator.Components
                 priors.AddLast(priorityTo);
         }
 
+        public void ClearAllPriorities()
+        {
+            directions = new Dictionary<Direction, DirectionInfo>();
+        }
+
         public bool CanCross(int fromRoadId, int toRoadId)
         {
             Direction dir = new(fromRoadId, toRoadId);

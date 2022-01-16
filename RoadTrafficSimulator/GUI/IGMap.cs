@@ -19,10 +19,11 @@ namespace RoadTrafficSimulator.GUI
         void Draw(Graphics graphics, Point origin, float zoom, int width, int height, bool simulationMode);
     }
 
-    enum Highlight : sbyte
+    [Flags]
+    enum Highlight : byte
     {
-        Low = -1,
-        Normal = 0,
-        High = 1
+        None = 0,
+        Transparent = 1,
+        Large = 2,
     }
 }

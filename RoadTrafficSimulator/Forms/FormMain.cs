@@ -103,24 +103,46 @@ namespace RoadTrafficSimulator.Forms
 
         private void buildPanel_TrafficLightClick(object sender, EventArgs e)
         {
-            Debug.Assert(selectedCrossroad != null);
+            Debug.Assert(selectedCrossroad.HasValue);
             FormTrafficLight form = new(mapManager, selectedCrossroad.Value);
             form.ShowDialog();
         }
 
         private void buildPanel_DestroyCrossroadClick(object sender, EventArgs e)
         {
-            Debug.Assert(selectedCrossroad != null);
-            mapManager.DestroyCrossroad(selectedCrossroad.Value.gCrossroad);
+            Debug.Assert(selectedCrossroad.HasValue);
+            // need to save selected crossroad temporarily before deselection
+            IGCrossroad gCrossroad = selectedCrossroad.Value.gCrossroad;
             Deselect();
+            mapManager.DestroyCrossroad(gCrossroad);
+            mapPanel.Redraw();
+        }
+
+        private void buildPanel_CloseRoadClick(object sender, EventArgs e)
+        {
+            Debug.Assert(selectedRoad != null);
+            buildPanel.Deselect();
+            mapManager.CloseRoad(selectedRoad);
+            buildPanel.SelectRoad(selectedRoad);
+            mapPanel.Redraw();
+        }
+
+        private void buildPanel_OpenRoadClick(object sender, EventArgs e)
+        {
+            Debug.Assert(selectedRoad != null);
+            buildPanel.Deselect();
+            mapManager.OpenRoad(selectedRoad);
+            buildPanel.SelectRoad(selectedRoad);
             mapPanel.Redraw();
         }
 
         private void buildPanel_DestroyRoadClick(object sender, EventArgs e)
         {
             Debug.Assert(selectedRoad != null);
-            mapManager.DestroyRoad(selectedRoad);
+            // need to save selected road temporarily before deselection
+            IGRoad gRoad = selectedRoad;
             Deselect();
+            mapManager.DestroyRoad(gRoad);
             mapPanel.Redraw();
         }
 
@@ -150,7 +172,6 @@ namespace RoadTrafficSimulator.Forms
         {
             Debug.Assert(selectedRoad != null);
             Components.Road road = selectedRoad.GetRoad();
-            Debug.Assert(road != null);
             road.MaxSpeed = buildPanel.MaxSpeed.KilometresPerHour();
             // Must check whether the road accepted this max speed
             buildPanel.MaxSpeed = road.MaxSpeed.ToKilometresPerHour();
@@ -158,7 +179,7 @@ namespace RoadTrafficSimulator.Forms
 
         private void buildPanel_SpawnRateChanged(object sender, EventArgs e)
         {
-            Debug.Assert(selectedCrossroad != null);
+            Debug.Assert(selectedCrossroad.HasValue);
             selectedCrossroad.Value.crossroad.CarSpawnRate = (byte)buildPanel.SpawnRate;
         }
 
@@ -208,14 +229,14 @@ namespace RoadTrafficSimulator.Forms
 
         private void Deselect()
         {
-            if (selectedCrossroad != null)
+            if (selectedCrossroad.HasValue)
             {
-                selectedCrossroad.Value.gCrossroad.Highlight = Highlight.Normal;
+                selectedCrossroad.Value.gCrossroad.UnsetHighlight(Highlight.Large);
                 selectedCrossroad = null;
             }
             if (selectedRoad != null)
             {
-                selectedRoad.Highlight(Highlight.Normal);
+                selectedRoad.UnsetHighlight(Highlight.Large, IGRoad.Direction.Forward);
                 selectedRoad = null;
             }
             switch (mode)
@@ -234,7 +255,9 @@ namespace RoadTrafficSimulator.Forms
         private void SelectCrossroad(MapManager.CrossroadWrapper crossroad)
         {
             selectedCrossroad = crossroad;
-            selectedCrossroad.Value.gCrossroad.Highlight = Highlight.High;
+            selectedCrossroad.Value.gCrossroad.SetHighlight(Highlight.Large);
+            if (crossroad.crossroad == null)
+                return;
             switch (mode)
             {
                 case Mode.Simulate:
@@ -257,7 +280,7 @@ namespace RoadTrafficSimulator.Forms
                 Debug.Assert(road.GetRoad(IGRoad.Direction.Backward) != null);
                 selectedRoad = road.GetReversedGRoad();
             }
-            selectedRoad.Highlight(Highlight.High, IGRoad.Direction.Forward);
+            selectedRoad.SetHighlight(Highlight.Large, IGRoad.Direction.Forward);
             switch (mode)
             {
                 case Mode.Simulate:
@@ -320,7 +343,7 @@ namespace RoadTrafficSimulator.Forms
                         case BuildPanel.Mode.Select:
                             if (selectedRoad != null)
                                 buildPanel.SelectRoad(selectedRoad);
-                            if (selectedCrossroad != null)
+                            if (selectedCrossroad.HasValue)
                                 buildPanel.SelectCrossroad(selectedCrossroad.Value.crossroad);
                             break;
                         default:
@@ -337,7 +360,7 @@ namespace RoadTrafficSimulator.Forms
                     buttonSimulate.Enabled = true;
                     if (selectedRoad != null)
                         simulationPanel.SelectRoad(selectedRoad, simulation.Clock);
-                    if (selectedCrossroad != null)
+                    if (selectedCrossroad.HasValue)
                         simulationPanel.SelectCrossroad(selectedCrossroad.Value.crossroad);
                     buttonMode.Text = "Build Map";
                     mode = Mode.Simulate;

@@ -9,7 +9,7 @@ namespace RoadTrafficSimulator.GUI
     {
         private static readonly Color color = Color.Brown;
 
-        public Highlight Highlight { private get; set; }
+        private Highlight highlight;
 
         public Coords CrossroadId { get; }
         public (Coords, Coords)? MainRoadDirections { get; set; }
@@ -19,18 +19,29 @@ namespace RoadTrafficSimulator.GUI
             CrossroadId = crossroadId;
         }
 
+        public void ResetHighlight(Highlight highlight)
+        {
+            this.highlight = highlight;
+        }
+
+        public void SetHighlight(Highlight highlight)
+        {
+            this.highlight |= highlight;
+        }
+
+        public void UnsetHighlight(Highlight highlight)
+        {
+            this.highlight &= ~highlight;
+        }
+
         public void Draw(Graphics graphics, Point point, int size)
         {
             Color color = GCrossroad.color;
-            switch (Highlight)
-            {
-                case Highlight.Low:
-                    color = Color.FromArgb(150, color);
-                    break;
-                case Highlight.High:
-                    size += size / 2;
-                    break;
-            }
+            if (highlight.HasFlag(Highlight.Transparent))
+                color = Color.FromArgb(150, color);
+            if (highlight.HasFlag(Highlight.Large))
+                size += size / 2;
+
             int halfSize = size / 2;
             point.Offset(-halfSize, -halfSize);
             Rectangle rectangle = new Rectangle(point, new Size(size, size));

@@ -175,6 +175,19 @@ namespace RoadTrafficSimulator.Forms
             UpdateChart();
         }
 
+        public void ClearDataSource()
+        {
+            lock (dataCache)
+            {
+                stats = null;
+                statsAggregator = null;
+                statsList = null;
+                statsListAggregator = null;
+            }
+            ClearCache();
+            UpdateChart();
+        }
+
         public void UpdateChart()
         {
             Invalidate();

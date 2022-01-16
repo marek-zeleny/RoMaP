@@ -18,8 +18,10 @@ namespace RoadTrafficSimulator.GUI
         IEnumerable<Road> GetRoads();
         IEnumerable<Coords> GetRoute(Direction direction = Direction.Forward);
         IGRoad GetReversedGRoad();
-        void Highlight(Highlight highlight);
-        void Highlight(Highlight highlight, Direction direction);
+        void ResetHighlight(Highlight highlight);
+        void ResetHighlight(Highlight highlight, Direction direction);
+        void SetHighlight(Highlight highlight, Direction direction);
+        void UnsetHighlight(Highlight highlight, Direction direction);
         void Draw(Graphics graphics, Point from, Point to, int width, bool simulationMode);
     }
 

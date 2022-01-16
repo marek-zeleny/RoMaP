@@ -13,7 +13,7 @@ namespace RoadTrafficSimulator.Forms
 {
     public partial class FormTrafficLight : Form
     {
-        private const float zoom = 2f;
+        private const float zoom = 100f;
 
         private readonly MapManager mapManager;
         private readonly MapManager.CrossroadWrapper crossroad;
@@ -74,12 +74,12 @@ namespace RoadTrafficSimulator.Forms
             if (freezeCheckBoxes)
                 return;
             CheckBox cb = sender as CheckBox;
-            int from = selectedRoad.GetRoad().Id;
+            //int from = selectedRoad.GetRoad().Id;
             int to = checkBoxBinder.GetId(cb).Value;
-            if (cb.Checked)
-                currentSetting.AddDirection(from, to);
-            else
-                currentSetting.RemoveDirection(from, to);
+            //if (cb.Checked)
+            //    currentSetting.AddDirection(from, to);
+            //else
+            //    currentSetting.RemoveDirection(from, to);
         }
 
         private void buttonNewSetting_Click(object sender, EventArgs e)
@@ -124,7 +124,10 @@ namespace RoadTrafficSimulator.Forms
                 vector = vector.Reverse();
             selectedRoad = mapManager.GetRoad(vector);
             if (selectedRoad != null)
-                selectedRoad.Highlight(GUI.Highlight.High);
+            {
+                selectedRoad.SetHighlight(GUI.Highlight.Large, GUI.IGRoad.Direction.Forward);
+                selectedRoad.SetHighlight(GUI.Highlight.Large, GUI.IGRoad.Direction.Backward);
+            }
             InitializeDirectionCheckBoxes();
         }
 
@@ -132,7 +135,8 @@ namespace RoadTrafficSimulator.Forms
         {
             if (selectedRoad == null)
                 return;
-            selectedRoad.Highlight(GUI.Highlight.Normal);
+            selectedRoad.UnsetHighlight(GUI.Highlight.Large, GUI.IGRoad.Direction.Forward);
+            selectedRoad.UnsetHighlight(GUI.Highlight.Large, GUI.IGRoad.Direction.Backward);
             selectedRoad = null;
         }
 
@@ -176,7 +180,7 @@ namespace RoadTrafficSimulator.Forms
                         {
                             // If the selected road is two-way, disable the backward direction
                             //cb.Enabled = !selectedRoad.GuiRoad.GetRoads().Contains((int)id);
-                            cb.Checked = currentSetting.ContainsDirection(selectedRoad.GetRoad().Id, id.Value);
+                            //cb.Checked = currentSetting.ContainsDirection(selectedRoad.GetRoad().Id, id.Value);
                         }
                     }
                     else
@@ -199,11 +203,12 @@ namespace RoadTrafficSimulator.Forms
             GUI.IGRoad rightRoad = mapManager.GetRoad(new Vector(from, new Coords(from.x + 1, from.y)));
             GUI.IGRoad upRoad = mapManager.GetRoad(new Vector(from, new Coords(from.x, from.y - 1)));
             GUI.IGRoad downRoad = mapManager.GetRoad(new Vector(from, new Coords(from.x, from.y + 1)));
-            int? left = leftRoad?.GetRoad()?.Id;
-            int? right = rightRoad?.GetRoad()?.Id;
-            int? up = upRoad?.GetRoad()?.Id;
-            int? down = downRoad?.GetRoad()?.Id;
-            return new CheckBoxBinder(left, right, up, down, this);
+            //int? left = leftRoad?.GetRoad()?.Id;
+            //int? right = rightRoad?.GetRoad()?.Id;
+            //int? up = upRoad?.GetRoad()?.Id;
+            //int? down = downRoad?.GetRoad()?.Id;
+            //return new CheckBoxBinder(left, right, up, down, this);
+            throw new NotImplementedException();
         }
 
         private void ShowInfo(string info)

@@ -155,7 +155,7 @@ namespace RoadTrafficSimulator
             return RoadBuilder.CreateRoadBuilder(map, guiMap, startingCoords, twoWayRoad);
         }
 
-        public static bool IsMapWithoutRoadsAt(IGMap guiMap, Coords coords)
+        public static bool NoGuiRoadsAt(IGMap guiMap, Coords coords)
         {
             foreach (Coords diff in allowedDirections)
                 if (guiMap.GetRoad(new Vector(coords, coords + diff)) != null)
@@ -176,7 +176,7 @@ namespace RoadTrafficSimulator
             IGCrossroad gCrossroad = guiMap.GetCrossroad(coords);
             if (gCrossroad == null)
                 return null;
-            Crossroad crossroad = (Crossroad)Map.GetNode(coords);
+            Crossroad crossroad = (Crossroad)Map.GetNode(coords); // may be null if only a GUI crossroad exists
             return new CrossroadWrapper(gCrossroad, crossroad);
         }
 
@@ -256,10 +256,10 @@ namespace RoadTrafficSimulator
         }
 
         /// <summary>
-        /// Gets all roads going from <paramref name="coords"/> sorted according to <see cref="roadSide"/>.
-        /// May return the same road multiple times (twice) if it just passes through.
+        /// Gets all GUI roads going from <paramref name="coords"/> sorted according to <see cref="roadSide"/>.
+        /// May return the same road twice (in both directions) if it just passes through.
         /// </summary>
-        public IEnumerable<IGRoad> GetAllRoads(Coords coords)
+        public IEnumerable<IGRoad> GetAllGuiRoads(Coords coords)
         {
             IGRoad Selector(Coords diff) => GetRoad(new Vector(coords, coords + diff));
 
@@ -267,11 +267,11 @@ namespace RoadTrafficSimulator
         }
 
         /// <summary>
-        /// Gets all roads going from the starting point of <paramref name="vector"/> sorted according to
+        /// Gets all GUI roads going from the starting point of <paramref name="vector"/> sorted according to
         /// <see cref="roadSide"/>, starting from the direction of <paramref name="vector"/>.
-        /// May return the same road multiple times (twice) if it just passes through.
+        /// May return the same road twice (in both directions) if it just passes through.
         /// </summary>
-        public IEnumerable<IGRoad> GetAllRoads(Vector vector)
+        public IEnumerable<IGRoad> GetAllGuiRoads(Vector vector)
         {
             IGRoad Selector(Coords diff) => GetRoad(new Vector(vector.from, vector.from + diff));
 
@@ -283,17 +283,59 @@ namespace RoadTrafficSimulator
             return CreateRoadBuilder(Map, guiMap, startingCoords, twoWayRoad);
         }
 
-        public bool DestroyCrossroad(IGCrossroad crossroad)
+        public void CloseRoad(IGRoad gRoad)
         {
-            Map.RemoveCrossroad(crossroad.CrossroadId);
-            return DestroyGuiCrossroad(crossroad);
+            Debug.Assert(gRoad.GetRoad().IsConnected);
+            Map.RemoveRoad(gRoad.GetRoad().Id);
+            gRoad.SetHighlight(Highlight.Transparent, IGRoad.Direction.Forward);
+            UpdateGuiCrossroad(guiMap.GetCrossroad(gRoad.From));
+            UpdateGuiCrossroad(guiMap.GetCrossroad(gRoad.To));
+        }
+
+        public void OpenRoad(IGRoad gRoad)
+        {
+            Debug.Assert(!gRoad.GetRoad().IsConnected);
+            Road newRoad = Map.AddRoad(gRoad.GetRoad());
+            Debug.Assert(newRoad != null);
+
+            if (gRoad is IMutableGRoad mut)
+                mut.SetRoad(newRoad, IGRoad.Direction.Forward);
+            else
+                (gRoad.GetReversedGRoad() as IMutableGRoad).SetRoad(newRoad, IGRoad.Direction.Backward);
+
+            gRoad.UnsetHighlight(Highlight.Transparent, IGRoad.Direction.Forward);
+            guiMap.GetCrossroad(gRoad.From).UnsetHighlight(Highlight.Transparent);
+            guiMap.GetCrossroad(gRoad.To).UnsetHighlight(Highlight.Transparent);
+
+            FillPriorityCrossing(guiMap, Map.GetNode(gRoad.From) as Crossroad);
+            FillPriorityCrossing(guiMap, Map.GetNode(gRoad.To) as Crossroad);
+        }
+
+        public bool DestroyCrossroad(IGCrossroad gCrossroad)
+        {
+            Map.RemoveCrossroad(gCrossroad.CrossroadId);
+            return DestroyGuiCrossroad(gCrossroad);
         }
 
         public bool DestroyRoad(IGRoad gRoad)
         {
-            foreach (Road road in gRoad.GetRoads())
-                Map.RemoveRoad(road.Id);
-            return DestroyGuiRoad(gRoad);
+            bool success = true;
+
+            if (gRoad.GetRoad().IsConnected)
+                Map.RemoveRoad(gRoad.GetRoad().Id);
+
+            if (gRoad is IMutableGRoad mut)
+                mut.SetRoad(null, IGRoad.Direction.Forward);
+            else
+                (gRoad.GetReversedGRoad() as IMutableGRoad).SetRoad(null, IGRoad.Direction.Backward);
+
+            if (gRoad.GetRoad(IGRoad.Direction.Backward) == null)
+                success = DestroyGuiRoad(gRoad);
+
+            UpdateGuiCrossroad(guiMap.GetCrossroad(gRoad.From));
+            UpdateGuiCrossroad(guiMap.GetCrossroad(gRoad.To));
+
+            return success;
         }
 
         public void Draw(Graphics graphics, Point origin, float zoom, int width, int height, bool simulationMode)
@@ -320,53 +362,133 @@ namespace RoadTrafficSimulator
             return result;
         }
 
-        private bool DestroyGuiCrossroad(IGCrossroad crossroad)
+        /// <summary>
+        /// Updates highlighting and main roads of a GUI crossroad based on adjacent roads.
+        /// If there are no roads left, removes the crossroad.
+        /// </summary>
+        private void UpdateGuiCrossroad(IGCrossroad gCrossroad)
         {
-            foreach (var road in GetAllRoads(crossroad.CrossroadId))
-                if (!DestroyGuiRoad(road))
+            if (NoGuiRoadsAt(guiMap, gCrossroad.CrossroadId))
+            {
+                // no adjacent roads exist, remove the crossroad
+                guiMap.RemoveCrossroad(gCrossroad.CrossroadId);
+                return;
+            }
+            else if (Map.GetNode(gCrossroad.CrossroadId) == null)
+            {
+                // only closed roads exist
+                gCrossroad.SetHighlight(Highlight.Transparent);
+                return;
+            }
+            else
+            {
+                // there is an open adjacent road
+                gCrossroad.UnsetHighlight(Highlight.Transparent);
+            }
+
+            static bool HasOpenRoad(IGRoad gRoad)
+            {
+                if (gRoad == null)
                     return false;
-            // The crossroad should be destroyed in the previous cycle
-            return guiMap.GetCrossroad(crossroad.CrossroadId) == null;
+                foreach (Road r in gRoad.GetRoads())
+                    if (r.IsConnected)
+                        return true;
+                return false;
+            }
+
+            if (gCrossroad.MainRoadDirections.HasValue)
+            {
+                // if one of the main road directions doesn't have an open road, remove main road
+                (Coords m1, Coords m2) = gCrossroad.MainRoadDirections.Value;
+                IGRoad r1 = GetRoad(new Vector(gCrossroad.CrossroadId, gCrossroad.CrossroadId + m1));
+                IGRoad r2 = GetRoad(new Vector(gCrossroad.CrossroadId, gCrossroad.CrossroadId + m2));
+                if (!HasOpenRoad(r1) || !HasOpenRoad(r2))
+                    gCrossroad.MainRoadDirections = null;
+            }
         }
 
-        private bool DestroyGuiRoad(IGRoad road)
+        /// <summary>
+        /// Destroy a given GUI crossroad and all its adjacent GUI roads.
+        /// You should update all neighbouring crossroads after calling this method.
+        /// </summary>
+        private bool DestroyGuiCrossroad(IGCrossroad gCrossroad)
         {
-            void CheckMainRoad(Coords crossroadCoords, Coords direction)
+            foreach (var road in GetAllGuiRoads(gCrossroad.CrossroadId))
             {
-                IGCrossroad crossroad = guiMap.GetCrossroad(crossroadCoords);
-                var mainRoads = crossroad.MainRoadDirections;
-                if (mainRoads.HasValue
-                    && (mainRoads.Value.Item1 == direction || mainRoads.Value.Item2 == direction))
-                    crossroad.MainRoadDirections = null;
+                if (!DestroyGuiRoad(road))
+                    return false;
+                UpdateGuiCrossroad(guiMap.GetCrossroad(road.To));
+            }
+            return guiMap.RemoveCrossroad(gCrossroad.CrossroadId);
+        }
+
+        /// <summary>
+        /// Destroy a given GUI road.
+        /// You should update crossroads at both ends after calling this method.
+        /// </summary>
+        private bool DestroyGuiRoad(IGRoad gRoad)
+        {
+            Coords? last = null;
+            foreach (Coords c in gRoad.GetRoute())
+            {
+                if (last.HasValue)
+                {
+                    if (!guiMap.RemoveRoad(new Vector(last.Value, c)))
+                        return false;
+                }
+                last = c;
+            }
+            return true;
+        }
+
+        // TODO: move to static
+        private static void FillPriorityCrossing(IGMap gMap, Crossroad crossroad)
+        {
+            Road GetRoad(Coords diff, IGRoad.Direction direction)
+            {
+                Road road = gMap.GetRoad(new Vector(crossroad.Id, crossroad.Id + diff))?.GetRoad(direction);
+                if (road == null || !road.IsConnected)
+                    return null;
+                else
+                    return road;
             }
 
-            var enumerator = road.GetRoute().GetEnumerator();
-            // Need pre-last coords to check for main road
-            bool result = enumerator.MoveNext();
-            Debug.Assert(result);
-            Coords prelast = enumerator.Current;
-            result = enumerator.MoveNext();
-            Debug.Assert(result);
-            Coords last = enumerator.Current;
-            if (!guiMap.RemoveRoad(new Vector(prelast, last)))
-                return false;
-            CheckMainRoad(road.From, last - prelast);
-            while (enumerator.MoveNext())
+            // TODO: Account for main roads
+            foreach (var fromDir in GetAllowedDirections())
             {
-                if (!guiMap.RemoveRoad(new Vector(last, enumerator.Current)))
-                    return false;
-                prelast = last;
-                last = enumerator.Current;
+                Road fromRoad = GetRoad(fromDir, IGRoad.Direction.Backward);
+                if (fromRoad == null)
+                    continue;
+
+                foreach (var toDir in GetAllowedDirections())
+                {
+                    Road toRoad = GetRoad(toDir, IGRoad.Direction.Forward);
+                    if (toRoad == null)
+                        continue;
+
+                    Direction fromPriority = new(fromRoad.Id, toRoad.Id);
+                    // Need to start *after* fromDir and end with it instead
+                    var directions = GetAllowedDirections(fromDir).Skip(1).Append(fromDir);
+                    bool Pred(Coords dir) => dir != toDir;
+
+                    foreach (var priorFromDir in directions.TakeWhile(Pred))
+                    {
+                        Road priorFromRoad = GetRoad(priorFromDir, IGRoad.Direction.Backward);
+                        if (priorFromRoad == null)
+                            continue;
+
+                        foreach (var priorToDir in directions.SkipWhile(Pred))
+                        {
+                            Road priorToRoad = GetRoad(priorToDir, IGRoad.Direction.Forward);
+                            if (priorToRoad == null)
+                                continue;
+
+                            Direction toPriority = new(priorFromRoad.Id, priorToRoad.Id);
+                            crossroad.PriorityCrossing.AddPriority(fromPriority, toPriority);
+                        }
+                    }
+                }
             }
-            CheckMainRoad(road.To, prelast - last);
-            // Destroy crossroads that became stand-alone after destroying this road
-            if (IsMapWithoutRoadsAt(guiMap, road.From))
-                if (!guiMap.RemoveCrossroad(road.From))
-                    return false;
-            if (IsMapWithoutRoadsAt(guiMap, road.To))
-                if (!guiMap.RemoveCrossroad(road.To))
-                    return false;
-            return true;
         }
 
         private void DrawGrid(Graphics graphics, Point origin, float zoom, int width, int height)
@@ -415,7 +537,7 @@ namespace RoadTrafficSimulator
         {
             public static IRoadBuilder CreateRoadBuilder(Map map, IGMap guiMap, Coords startingCoords, bool twoWayRoad)
             {
-                if (map.GetNode(startingCoords) == null && !IsMapWithoutRoadsAt(guiMap, startingCoords))
+                if (map.GetNode(startingCoords) == null && !NoGuiRoadsAt(guiMap, startingCoords))
                     return null;
                 else
                     return new RoadBuilder(map, guiMap, startingCoords, twoWayRoad);
@@ -436,10 +558,10 @@ namespace RoadTrafficSimulator
                 this.gMap = gMap;
                 this.twoWay = twoWay;
                 gRoad = new GRoad();
-                gRoad.Highlight(Highlight.High);
+                gRoad.ResetHighlight(Highlight.Large);
                 Route.Add(startCoords);
                 CanContinue = true;
-                TryGetOrAddCrossroad(startCoords).Highlight = Highlight.High;
+                TryGetOrAddGuiCrossroad(startCoords).ResetHighlight(Highlight.Large);
             }
 
             public bool AddSegment(Coords nextCoords)
@@ -480,9 +602,9 @@ namespace RoadTrafficSimulator
                 builtRoad = gRoad;
                 if (Route.Count < 2)
                     return false;
-                TryGetOrAddCrossroad(gRoad.From).Highlight = Highlight.Normal;
-                TryGetOrAddCrossroad(gRoad.To).Highlight = Highlight.Normal;
-                gRoad.Highlight(Highlight.Normal);
+                TryGetOrAddGuiCrossroad(gRoad.From).ResetHighlight(Highlight.None);
+                TryGetOrAddGuiCrossroad(gRoad.To).ResetHighlight(Highlight.None);
+                gRoad.ResetHighlight(Highlight.None);
                 Distance roadLength = (Route.Count - 1) * roadSegmentDefaultLength;
                 Road road = map.AddRoad(gRoad.From, gRoad.To, roadLength, maxSpeed);
                 gRoad.SetRoad(road, IGRoad.Direction.Forward);
@@ -496,8 +618,8 @@ namespace RoadTrafficSimulator
                     from.TrafficLight.AddDefaultDirection(backRoad.Id, road.Id);
                     to.TrafficLight.AddDefaultDirection(road.Id, backRoad.Id);
                 }
-                UpdatePriorityCrossing(from);
-                UpdatePriorityCrossing(to);
+                FillPriorityCrossing(gMap, from);
+                FillPriorityCrossing(gMap, to);
                 Invalidate();
                 return true;
             }
@@ -508,7 +630,7 @@ namespace RoadTrafficSimulator
                 if (map.GetNode(last) == null)
                     gMap.RemoveCrossroad(last);
                 else
-                    gMap.GetCrossroad(last).Highlight = Highlight.Normal;
+                    gMap.GetCrossroad(last).ResetHighlight(Highlight.None);
                 foreach (Coords curr in Route.Skip(1))
                 {
                     gMap.RemoveRoad(new Vector(last, curr));
@@ -517,7 +639,7 @@ namespace RoadTrafficSimulator
                 Invalidate();
             }
 
-            private IGCrossroad TryGetOrAddCrossroad(Coords coords)
+            private IGCrossroad TryGetOrAddGuiCrossroad(Coords coords)
             {
                 IGCrossroad output = gMap.GetCrossroad(coords);
                 if (output != null)
@@ -535,50 +657,7 @@ namespace RoadTrafficSimulator
                 // Always allow if there is a (different from the starting one) crossroad at newCoords
                 if (map.GetNode(newCoords) != null)
                     return true;
-                return IsMapWithoutRoadsAt(gMap, newCoords);
-            }
-
-            private void UpdatePriorityCrossing(Crossroad crossroad)
-            {
-                Road GetRoad(Coords diff, IGRoad.Direction direction) =>
-                    gMap.GetRoad(new Vector(crossroad.Id, crossroad.Id + diff))?.GetRoad(direction);
-
-                // TODO: Account for main roads
-                foreach (var fromDir in GetAllowedDirections())
-                {
-                    Road fromRoad = GetRoad(fromDir, IGRoad.Direction.Backward);
-                    if (fromRoad == null)
-                        continue;
-
-                    foreach (var toDir in GetAllowedDirections())
-                    {
-                        Road toRoad = GetRoad(toDir, IGRoad.Direction.Forward);
-                        if (toRoad == null)
-                            continue;
-
-                        Direction fromPriority = new(fromRoad.Id, toRoad.Id);
-                        // Need to start *after* fromDir and end with it instead
-                        var directions = GetAllowedDirections(fromDir).Skip(1).Append(fromDir);
-                        bool Pred(Coords dir) => dir != toDir;
-
-                        foreach (var priorFromDir in directions.TakeWhile(Pred))
-                        {
-                            Road priorFromRoad = GetRoad(priorFromDir, IGRoad.Direction.Backward);
-                            if (priorFromRoad == null)
-                                continue;
-
-                            foreach (var priorToDir in directions.SkipWhile(Pred))
-                            {
-                                Road priorToRoad = GetRoad(priorToDir, IGRoad.Direction.Forward);
-                                if (priorToRoad == null)
-                                    continue;
-
-                                Direction toPriority = new(priorFromRoad.Id, priorToRoad.Id);
-                                crossroad.PriorityCrossing.AddPriority(fromPriority, toPriority);
-                            }
-                        }
-                    }
-                }
+                return NoGuiRoadsAt(gMap, newCoords);
             }
 
             private void Invalidate()

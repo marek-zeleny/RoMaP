@@ -14,6 +14,10 @@ namespace RoadTrafficSimulator
     {
         private static class Keywords
         {
+            public const string sideOfDriving = "sideOfDriving";
+            public const string right = "right";
+            public const string left = "left";
+
             public const string roads = "roads";
             public const string crossroads = "crossroads";
 
@@ -21,6 +25,7 @@ namespace RoadTrafficSimulator
             public const string backward = "backward";
             public const string route = "route";
 
+            public const string open = "open";
             public const string id = "id";
             public const string length = "length";
             public const string maxSpeed = "maxSpeed";
@@ -49,6 +54,14 @@ namespace RoadTrafficSimulator
             Utf8JsonWriter writer = new(stream, options);
             writer.WriteStartObject();
 
+            string sideOfDriving = MapManager.roadSide switch
+            {
+                MapManager.RoadSide.Right => Keywords.right,
+                MapManager.RoadSide.Left => Keywords.left,
+                _ => throw new NotImplementedException(),
+            };
+            writer.WriteString(Keywords.sideOfDriving, sideOfDriving);
+
             writer.WriteStartArray(Keywords.roads);
             foreach (var gRoad in guiMap.GetRoads())
                 SerialiseRoad(writer, gRoad);
@@ -68,6 +81,7 @@ namespace RoadTrafficSimulator
 
         public static bool LoadMap(Stream stream, Map map, IGMap guiMap)
         {
+            // TODO: support side of driving
             using var document = JsonDocument.Parse(stream);
             var root = document.RootElement;
             if (root.ValueKind != JsonValueKind.Object)
@@ -111,7 +125,15 @@ namespace RoadTrafficSimulator
             void Serialise(Road road)
             {
                 writer.WriteStartObject();
-                writer.WriteNumber(Keywords.id, road.Id);
+                if (road.IsConnected)
+                {
+                    writer.WriteBoolean(Keywords.open, true);
+                    writer.WriteNumber(Keywords.id, road.Id);
+                }
+                else
+                {
+                    writer.WriteBoolean(Keywords.open, false);
+                }
                 writer.WriteNumber(Keywords.length, road.Length.ToMetres());
                 writer.WriteNumber(Keywords.maxSpeed, road.MaxSpeed.ToKilometresPerHour());
                 writer.WriteNumber(Keywords.laneCount, road.LaneCount);
@@ -190,6 +212,7 @@ namespace RoadTrafficSimulator
         private static bool ParseRoad(JsonElement jRoad, Map map, IGMap gMap,
             out IEnumerable<(int previous, int current)> roadIdMappings)
         {
+            // TODO: support closed roads
             static bool Parse(JsonElement jRoad, Road road, ref (int previous, int current) idMapping)
             {
                 if (!ParseIntProperty(jRoad, Keywords.id, out int id))
@@ -248,10 +271,10 @@ namespace RoadTrafficSimulator
             var idMappings = new (int, int)[roadCount];
             roadIdMappings = idMappings;
             if (forward)
-                if (!Parse(jForward, gRoad.GetRoad(IGRoad.Direction.Forward), ref idMappings[0]))
+                if (!Parse(jForward, gRoad.GetRoad(IGRoad.Direction.Forward) as Road, ref idMappings[0]))
                     return false;
             if (backward)
-                if (!Parse(jBackward, gRoad.GetRoad(IGRoad.Direction.Backward), ref idMappings[roadCount - 1]))
+                if (!Parse(jBackward, gRoad.GetRoad(IGRoad.Direction.Backward) as Road, ref idMappings[roadCount - 1]))
                     return false;
             return true;
         }

@@ -188,6 +188,8 @@
             this.buildPanel.Name = "buildPanel";
             this.buildPanel.Size = new System.Drawing.Size(381, 234);
             this.buildPanel.TabIndex = 9;
+            this.buildPanel.CloseRoadClick += new System.EventHandler(this.buildPanel_CloseRoadClick);
+            this.buildPanel.OpenRoadClick += new System.EventHandler(this.buildPanel_OpenRoadClick);
             this.buildPanel.DestroyRoadClick += new System.EventHandler(this.buildPanel_DestroyRoadClick);
             this.buildPanel.TrafficLightClick += new System.EventHandler(this.buildPanel_TrafficLightClick);
             this.buildPanel.DestroyCrossroadClick += new System.EventHandler(this.buildPanel_DestroyCrossroadClick);

@@ -18,39 +18,38 @@ namespace RoadTrafficSimulator.Components
         int IReadOnlyGraph<Coords, int>.NodeCount => graph.NodeCount;
         int IReadOnlyGraph<Coords, int>.EdgeCount => graph.EdgeCount;
 
-        public Road AddRoad(Road road)
+        public Road AddRoad(Road originalRoad)
         {
-            Debug.Assert(road.Id < nextRoadId);
-            Debug.Assert(graph.GetEdge(road.Id) == default);
-            graph.AddNode((Crossroad)road.FromNode);
-            graph.AddNode((Crossroad)road.ToNode);
-            bool result = graph.AddEdge(road);
-            Debug.Assert(result);
+            Debug.Assert(!originalRoad.IsConnected);
+            // Cannot rely on the original crossroads still being valid
+            Crossroad from = GetOrCreateCrossroad(originalRoad.FromNode.Id);
+            Crossroad to = GetOrCreateCrossroad(originalRoad.ToNode.Id);
+            int id = originalRoad.Id;
+            if (graph.GetEdge(originalRoad.Id) != default)
+            {
+                // cannot reuse original ID
+                id = nextRoadId++;
+            }
+            Road road = new Road(id, from, to, originalRoad);
+            graph.AddEdge(road);
+            road.IsConnected = true;
             return road;
         }
 
         public Road AddRoad(Coords fromId, Coords toId, Distance length, Speed maxSpeed)
         {
-            Crossroad from = (Crossroad)graph.GetNode(fromId);
-            Crossroad to = (Crossroad)graph.GetNode(toId);
-            if (from == null)
-            {
-                from = new Crossroad(fromId);
-                graph.AddNode(from);
-            }
-            if (to == null)
-            {
-                to = new Crossroad(toId);
-                graph.AddNode(to);
-            }
+            Crossroad from = GetOrCreateCrossroad(fromId);
+            Crossroad to = GetOrCreateCrossroad(toId);
             Road road = new Road(nextRoadId++, from, to, length, maxSpeed);
             graph.AddEdge(road);
+            road.IsConnected = true;
             return road;
         }
 
         public Road RemoveRoad(int id)
         {
             Road output = (Road)graph.RemoveEdge(id);
+            output.IsConnected = false;
             // Remove crossroads if they were connected only to this road
             graph.RemoveNode(output.FromNode.Id);
             graph.RemoveNode(output.ToNode.Id);
@@ -75,5 +74,16 @@ namespace RoadTrafficSimulator.Components
         public IEnumerable<IReadOnlyNode<Coords, int>> GetNodes() => graph.GetNodes();
 
         public IEnumerable<IReadOnlyEdge<Coords, int>> GetEdges() => graph.GetEdges();
+
+        private Crossroad GetOrCreateCrossroad(Coords id)
+        {
+            Crossroad crossroad = (Crossroad)graph.GetNode(id);
+            if (crossroad == null)
+            {
+                crossroad = new Crossroad(id);
+                graph.AddNode(crossroad);
+            }
+            return crossroad;
+        }
     }
 }

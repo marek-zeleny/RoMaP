@@ -7,9 +7,11 @@ namespace RoadTrafficSimulator.GUI
 {
     interface IGCrossroad
     {
-        Highlight Highlight { set; }
         Coords CrossroadId { get; }
         (Coords, Coords)? MainRoadDirections { get; set; }
+        void ResetHighlight(Highlight highlight);
+        void SetHighlight(Highlight highlight);
+        void UnsetHighlight(Highlight highlight);
         void Draw(Graphics graphics, Point point, int size);
     }
 }
