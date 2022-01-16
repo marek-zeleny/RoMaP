@@ -168,6 +168,20 @@ namespace RoadTrafficSimulator.Forms
             mapPanel.Redraw();
         }
 
+        private void buildPanel_LengthChanged(object sender, EventArgs e)
+        {
+            Debug.Assert(selectedRoad != null);
+            Components.Road road = selectedRoad.GetRoad();
+            Distance length = buildPanel.Length.Metres();
+            road.Length = length;
+            // Must check whether the road accepted this length
+            buildPanel.Length = road.Length.ToMetres();
+            // If it's a two-way road, we need to adjust the opposite direction as well
+            road = selectedRoad.GetRoad(IGRoad.Direction.Backward);
+            if (road != null)
+                road.Length = length;
+        }
+
         private void buildPanel_MaxSpeedChanged(object sender, EventArgs e)
         {
             Debug.Assert(selectedRoad != null);

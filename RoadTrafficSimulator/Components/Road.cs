@@ -11,7 +11,7 @@ namespace RoadTrafficSimulator.Components
 {
     class Road : Edge<Coords, int>
     {
-        public static readonly Distance minLength = 10.Metres();
+        public static readonly Distance minLength = 20.Metres();
         public static readonly Speed minMaxSpeed = 3.MetresPerSecond();
         public const int maxLaneCount = 3;
         private const int averageDurationHistorySize = 10;

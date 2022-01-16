@@ -14,6 +14,7 @@ namespace RoadTrafficSimulator.Forms
 
         private Mode mode;
         private bool lockMode;
+        private bool lockLength;
         private bool lockMaxSpeed;
 
         public RoadSide CurrentRoadSide
@@ -55,6 +56,16 @@ namespace RoadTrafficSimulator.Forms
             }
         }
         public bool TwoWayRoad { get => checkBoxTwoWayRoad.Checked; }
+        public int Length
+        {
+            get => (int)numericUpDownLength.Value;
+            set
+            {
+                lockLength = true;
+                numericUpDownLength.Value = value;
+                lockLength = false;
+            }
+        }
         public int MaxSpeed
         {
             get => (int)numericUpDownMaxSpeed.Value;
@@ -165,6 +176,11 @@ namespace RoadTrafficSimulator.Forms
 
         [Browsable(true)]
         [Category("Property Changed")]
+        [Description("Occurs when the Length property is changed.")]
+        public event EventHandler LengthChanged;
+
+        [Browsable(true)]
+        [Category("Property Changed")]
         [Description("Occurs when the MaxSpeed property is changed.")]
         public event EventHandler MaxSpeedChanged;
 
@@ -195,18 +211,23 @@ namespace RoadTrafficSimulator.Forms
             labelTwoWayRoad.Text = gRoad.IsTwoWay ? "Two-way" : "One-way";
             labelFrom.Text = $"From: {gRoad.From}";
             labelTo.Text = $"To: {gRoad.To}";
+            lockLength = true;
+            numericUpDownLength.Value = gRoad.GetRoad().Length.ToMetres();
+            lockLength = false;
             lockMaxSpeed = true;
             numericUpDownMaxSpeed.Value = gRoad.GetRoad().MaxSpeed.ToKilometresPerHour();
             lockMaxSpeed = false;
             groupBoxRoad.Visible = true;
             if (gRoad.GetRoad().IsConnected)
             {
+                numericUpDownLength.Enabled = true;
                 numericUpDownMaxSpeed.Enabled = true;
                 buttonCloseRoad.Visible = true;
                 buttonOpenRoad.Visible = false;
             }
             else
             {
+                numericUpDownLength.Enabled = false;
                 numericUpDownMaxSpeed.Enabled = false;
                 buttonCloseRoad.Visible = false;
                 buttonOpenRoad.Visible = true;
@@ -225,6 +246,12 @@ namespace RoadTrafficSimulator.Forms
         private void radioButtonsRoadSide_CheckedChanged(object sender, EventArgs e)
         {
             CurrentRoadSideChanged?.Invoke(sender, e);
+        }
+
+        private void numericUpDownLength_ValueChanged(object sender, EventArgs e)
+        {
+            if (!lockLength)
+                LengthChanged?.Invoke(sender, e);
         }
 
         private void numericUpDownMaxSpeed_ValueChanged(object sender, EventArgs e)
