@@ -101,6 +101,21 @@ namespace RoadTrafficSimulator.Forms
             InitializeSimulation();
         }
 
+        private void buttonPause_Click(object sender, EventArgs e)
+        {
+            PauseSimulation();
+        }
+
+        private void buttonContinue_Click(object sender, EventArgs e)
+        {
+            UnpauseSimulation();
+        }
+
+        private void buttonStop_Click(object sender, EventArgs e)
+        {
+            EndSimulation();
+        }
+
         private void buildPanel_TrafficLightClick(object sender, EventArgs e)
         {
             Debug.Assert(selectedCrossroad.HasValue);
@@ -429,14 +444,50 @@ namespace RoadTrafficSimulator.Forms
 
         private void StartSimulation(SimulationSettings settings)
         {
+            SuspendLayout();
+            buttonSimulate.Visible = false;
+            buttonMode.Visible = false;
+            buttonPause.Visible = true;
+            buttonStop.Visible = true;
+            buttonContinue.Visible = false;
+            ResumeLayout();
             ShowInfo($"Starting simulation of {settings.Duration.ToHours()} hours...");
             simulation.StartSimulation(settings, out continueSimulation);
+            timerSimulation.Start();
+        }
+
+        private void PauseSimulation()
+        {
+            Debug.Assert(simulation.IsRunning);
+            timerSimulation.Stop();
+            SuspendLayout();
+            buttonPause.Visible = false;
+            buttonContinue.Visible = true;
+            ResumeLayout();
+            ShowInfo("Simulation paused.");
+        }
+
+        private void UnpauseSimulation()
+        {
+            Debug.Assert(simulation.IsRunning);
+            SuspendLayout();
+            buttonPause.Visible = true;
+            buttonContinue.Visible = false;
+            ResumeLayout();
+            ShowInfo("Continuing simulation...");
             timerSimulation.Start();
         }
 
         private void EndSimulation()
         {
             timerSimulation.Stop();
+            SuspendLayout();
+            buttonSimulate.Visible = true;
+            buttonMode.Visible = true;
+            buttonPause.Visible = false;
+            buttonStop.Visible = false;
+            buttonContinue.Visible = false;
+            ResumeLayout();
             ShowInfo("The simulation has ended.");
         }
 
@@ -581,8 +632,8 @@ namespace RoadTrafficSimulator.Forms
 
         private void ShowInfo(string info)
         {
-            labelInfo.Text = info;
             Debug.WriteLine($"{ DateTime.Now}: {info}");
+            labelInfo.Text = info;
             labelInfo.Refresh();
         }
 

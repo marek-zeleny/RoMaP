@@ -32,6 +32,7 @@ namespace RoadTrafficSimulator
         private IEnumerator<Crossroad> randomCrossroads;
         private HashSet<Car> stagedCars;
 
+        public bool IsRunning { get => settings != null && Clock.Time < settings.Duration; }
         public IClock Clock { get => clock; }
         public StatisticsCollector Statistics { get; private set; }
 
@@ -45,6 +46,7 @@ namespace RoadTrafficSimulator
 
         public InitialisationResult Initialise(Map map, out Crossroad invalidCrossroad)
         {
+            settings = null;
             invalidCrossroad = null;
             if (map == null)
                 return InitialisationResult.Error_MapIsNull;
