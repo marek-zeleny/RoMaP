@@ -17,7 +17,8 @@ namespace RoadTrafficSimulator
 
         public enum RoadSide { Right, Left };
 
-        private const int gridSize = 100;
+        public const int gridSize = 100;
+
         private static readonly Speed defaultMaxSpeed = 50.KilometresPerHour();
 
         public static readonly Distance roadSegmentDefaultLength = 100.Metres();

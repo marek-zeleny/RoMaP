@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
-using System.Linq;
 using System.Windows.Forms;
 
 using RoadTrafficSimulator.Components;
@@ -13,13 +11,14 @@ namespace RoadTrafficSimulator.Forms
 {
     public partial class FormTrafficLight : Form
     {
-        private const float zoom = 100f;
+        private const float roadPercentageInView = 0.8f;
 
+        private readonly float zoom;
         private readonly MapManager mapManager;
         private readonly MapManager.CrossroadWrapper crossroad;
         private readonly TrafficLight trafficLight;
         private TrafficLight.Setting currentSetting;
-        private readonly CheckBoxBinder checkBoxBinder;
+        private readonly Dictionary<CheckBox, int?> checkBoxBinder;
         private readonly Point origin;
         private GUI.IGRoad selectedRoad;
         private bool freezeCheckBoxes;
@@ -36,6 +35,8 @@ namespace RoadTrafficSimulator.Forms
                 System.Reflection.BindingFlags.Instance |
                 System.Reflection.BindingFlags.NonPublic,
                 null, panelMap, new object[] { true });
+            zoom = CalculateZoom();
+
             this.mapManager = mapManager;
             this.crossroad = crossroad;
             trafficLight = crossroad.crossroad.TrafficLight;
@@ -74,12 +75,13 @@ namespace RoadTrafficSimulator.Forms
             if (freezeCheckBoxes)
                 return;
             CheckBox cb = sender as CheckBox;
-            //int from = selectedRoad.GetRoad().Id;
-            int to = checkBoxBinder.GetId(cb).Value;
-            //if (cb.Checked)
-            //    currentSetting.AddDirection(from, to);
-            //else
-            //    currentSetting.RemoveDirection(from, to);
+            int from = selectedRoad.GetRoad().Id;
+            int to = checkBoxBinder[cb].Value;
+
+            if (cb.Checked)
+                currentSetting.AddDirection(from, to);
+            else
+                currentSetting.RemoveDirection(from, to);
         }
 
         private void buttonNewSetting_Click(object sender, EventArgs e)
@@ -107,14 +109,14 @@ namespace RoadTrafficSimulator.Forms
             Close();
         }
 
-        #endregion form_events
-
-        #region helper_methods
-
         private void FormTrafficLight_FormClosed(object sender, FormClosedEventArgs e)
         {
             UnselectRoad();
         }
+
+        #endregion form_events
+
+        #region helper_methods
 
         private void SelectRoad(Point mouseLocation)
         {
@@ -123,11 +125,15 @@ namespace RoadTrafficSimulator.Forms
             if (vector.to != crossroad.crossroad.Id)
                 vector = vector.Reverse();
             selectedRoad = mapManager.GetRoad(vector);
-            if (selectedRoad != null)
+            // We only want to select open roads
+            Road road = selectedRoad?.GetRoad();
+            if (road == null || !road.IsConnected)
             {
-                selectedRoad.SetHighlight(GUI.Highlight.Large, GUI.IGRoad.Direction.Forward);
-                selectedRoad.SetHighlight(GUI.Highlight.Large, GUI.IGRoad.Direction.Backward);
+                selectedRoad = null;
+                return;
             }
+
+            selectedRoad.SetHighlight(GUI.Highlight.Large, GUI.IGRoad.Direction.Forward);
             InitializeDirectionCheckBoxes();
         }
 
@@ -136,7 +142,6 @@ namespace RoadTrafficSimulator.Forms
             if (selectedRoad == null)
                 return;
             selectedRoad.UnsetHighlight(GUI.Highlight.Large, GUI.IGRoad.Direction.Forward);
-            selectedRoad.UnsetHighlight(GUI.Highlight.Large, GUI.IGRoad.Direction.Backward);
             selectedRoad = null;
         }
 
@@ -179,8 +184,8 @@ namespace RoadTrafficSimulator.Forms
                         else
                         {
                             // If the selected road is two-way, disable the backward direction
-                            //cb.Enabled = !selectedRoad.GuiRoad.GetRoads().Contains((int)id);
-                            //cb.Checked = currentSetting.ContainsDirection(selectedRoad.GetRoad().Id, id.Value);
+                            cb.Enabled = selectedRoad.GetRoad(GUI.IGRoad.Direction.Backward)?.Id != id;
+                            cb.Checked = currentSetting.ContainsDirection(selectedRoad.GetRoad().Id, id.Value);
                         }
                     }
                     else
@@ -196,19 +201,43 @@ namespace RoadTrafficSimulator.Forms
             }
         }
 
-        private CheckBoxBinder GetCheckBoxBinder()
+        private Dictionary<CheckBox, int?> GetCheckBoxBinder()
         {
             Coords from = crossroad.crossroad.Id;
-            GUI.IGRoad leftRoad = mapManager.GetRoad(new Vector(from, new Coords(from.x - 1, from.y)));
-            GUI.IGRoad rightRoad = mapManager.GetRoad(new Vector(from, new Coords(from.x + 1, from.y)));
-            GUI.IGRoad upRoad = mapManager.GetRoad(new Vector(from, new Coords(from.x, from.y - 1)));
-            GUI.IGRoad downRoad = mapManager.GetRoad(new Vector(from, new Coords(from.x, from.y + 1)));
-            //int? left = leftRoad?.GetRoad()?.Id;
-            //int? right = rightRoad?.GetRoad()?.Id;
-            //int? up = upRoad?.GetRoad()?.Id;
-            //int? down = downRoad?.GetRoad()?.Id;
-            //return new CheckBoxBinder(left, right, up, down, this);
-            throw new NotImplementedException();
+
+            Vector leftDir = new(from, new Coords(from.x - 1, from.y));
+            Vector rightDir = new(from, new Coords(from.x + 1, from.y));
+            Vector upDir = new(from, new Coords(from.x, from.y - 1));
+            Vector downDir = new(from, new Coords(from.x, from.y + 1));
+
+            GUI.IGRoad leftGRoad = mapManager.GetRoad(leftDir);
+            GUI.IGRoad rightGRoad = mapManager.GetRoad(rightDir);
+            GUI.IGRoad upGRoad = mapManager.GetRoad(upDir);
+            GUI.IGRoad downGRoad = mapManager.GetRoad(downDir);
+
+            Road leftRoad = leftGRoad?.GetRoad();
+            Road rightRoad = rightGRoad?.GetRoad();
+            Road upRoad = upGRoad?.GetRoad();
+            Road downRoad = downGRoad?.GetRoad();
+            // We consider only open roads for traffic lights
+            int? leftId = leftRoad != null && leftRoad.IsConnected ? leftRoad.Id : null;
+            int? rightId = rightRoad != null && rightRoad.IsConnected ? rightRoad.Id : null;
+            int? upId = upRoad != null && upRoad.IsConnected ? upRoad.Id : null;
+            int? downId = downRoad != null && downRoad.IsConnected ? downRoad.Id : null;
+
+            Dictionary<CheckBox, int?> binder = new(4);
+            binder[checkBoxLeft] = leftId;
+            binder[checkBoxRight] = rightId;
+            binder[checkBoxUp] = upId;
+            binder[checkBoxDown] = downId;
+            return binder;
+        }
+
+        private float CalculateZoom()
+        {
+            float fullRoadSize = Math.Min(panelMap.Width, panelMap.Height) / 2;
+            float fullZoom = fullRoadSize / MapManager.gridSize;
+            return fullZoom / roadPercentageInView;
         }
 
         private void ShowInfo(string info)
@@ -219,25 +248,5 @@ namespace RoadTrafficSimulator.Forms
         }
 
         #endregion helper_methods
-
-        private struct CheckBoxBinder : IEnumerable<(CheckBox, int?)>
-        {
-            private readonly (CheckBox, int?)[] pairs;
-
-            public CheckBoxBinder(int? leftId, int? rightId, int? upId, int? downId, FormTrafficLight form)
-            {
-                pairs = new (CheckBox, int?)[4] {
-                    (form.checkBoxLeft, leftId),
-                    (form.checkBoxRight, rightId),
-                    (form.checkBoxUp, upId),
-                    (form.checkBoxDown, downId) };
-            }
-
-            public int? GetId(CheckBox checkBox) => Array.Find(pairs, pair => pair.Item1 == checkBox).Item2;
-
-            public IEnumerator<(CheckBox, int?)> GetEnumerator() => pairs.AsEnumerable().GetEnumerator();
-
-            IEnumerator IEnumerable.GetEnumerator() => pairs.GetEnumerator();
-        }
     }
 }
