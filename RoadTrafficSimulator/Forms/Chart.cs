@@ -11,11 +11,13 @@ using DataStructures.Miscellaneous;
 
 namespace RoadTrafficSimulator.Forms
 {
+    // Enums are outside the Chart class so that they are not generic (Chart<TData, TDataCarrier>.[enum] would be long)
+    public enum ChartRangeMode { Fixed, FixedMin, FixedMax, Auto }
+    public enum ChartTimeUnit { Millisecond, Second, Minute, Hour, Day }
+
     class Chart<TData, TDataCarrier> : Panel
         where TDataCarrier : class
     {
-        public enum RangeMode { Fixed, FixedMin, FixedMax, Auto }
-        public enum TimeUnit { Millisecond, Second, Minute, Hour, Day }
         public delegate IReadOnlyList<Timestamp<TData>> DataListAggregator(TDataCarrier stats);
 
         // data
@@ -30,14 +32,14 @@ namespace RoadTrafficSimulator.Forms
         // properties
         private string caption;
 
-        private RangeMode mode;
+        private ChartRangeMode mode;
         private double minValue;
         private double maxValue;
         private string valueUnit;
 
         private Time timeSpan;
         private IClock clock;
-        private TimeUnit timeRepr;
+        private ChartTimeUnit timeRepr;
         private Func<Time, string> timeToString;
 
         #region properties
@@ -51,7 +53,7 @@ namespace RoadTrafficSimulator.Forms
                 UpdateChart();
             }
         }
-        public RangeMode Mode
+        public ChartRangeMode Mode
         {
             get => mode;
             set
@@ -104,7 +106,7 @@ namespace RoadTrafficSimulator.Forms
                 UpdateChart();
             }
         }
-        public TimeUnit TimeRepresentation
+        public ChartTimeUnit TimeRepresentation
         {
             get => timeRepr;
             set
@@ -112,11 +114,11 @@ namespace RoadTrafficSimulator.Forms
                 timeRepr = value;
                 timeToString = timeRepr switch
                 {
-                    TimeUnit.Millisecond => time => $"{time.ToMilliseconds()} ms",
-                    TimeUnit.Second => time => $"{time.ToSeconds()} s",
-                    TimeUnit.Minute => time => $"{time.ToMinutes()} min",
-                    TimeUnit.Hour => time => $"{time.ToHours()} h",
-                    TimeUnit.Day => time => $"{time.ToDays()} d",
+                    ChartTimeUnit.Millisecond => time => $"{time.ToMilliseconds()} ms",
+                    ChartTimeUnit.Second => time => $"{time.ToSeconds()} s",
+                    ChartTimeUnit.Minute => time => $"{time.ToMinutes()} min",
+                    ChartTimeUnit.Hour => time => $"{time.ToHours()} h",
+                    ChartTimeUnit.Day => time => $"{time.ToDays()} d",
                     _ => throw new NotImplementedException(),
                 };
                 UpdateChart();
@@ -131,7 +133,7 @@ namespace RoadTrafficSimulator.Forms
             DoubleBuffered = true;
             BackColor = Color.White;
             // Custom properties
-            TimeRepresentation = TimeUnit.Second;
+            TimeRepresentation = ChartTimeUnit.Second;
             this.dataToDouble = dataToDouble;
             dataCache = new Queue<Timestamp<TData>>();
         }
@@ -217,19 +219,19 @@ namespace RoadTrafficSimulator.Forms
                 double max;
                 switch (Mode)
                 {
-                    case RangeMode.Fixed:
+                    case ChartRangeMode.Fixed:
                         min = MinValue;
                         max = MaxValue;
                         break;
-                    case RangeMode.FixedMin:
+                    case ChartRangeMode.FixedMin:
                         min = MinValue;
                         (_, max) = FindExtremes(data);
                         break;
-                    case RangeMode.FixedMax:
+                    case ChartRangeMode.FixedMax:
                         (min, _) = FindExtremes(data);
                         max = MaxValue;
                         break;
-                    case RangeMode.Auto:
+                    case ChartRangeMode.Auto:
                         (min, max) = FindExtremes(data);
                         break;
                     default:

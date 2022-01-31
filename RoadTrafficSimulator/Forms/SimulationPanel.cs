@@ -135,13 +135,13 @@ namespace RoadTrafficSimulator.Forms
             {
                 Name = nameof(chartAverageSpeed),
                 Caption = "Average speed",
-                TimeRepresentation = Chart<Road.Throughput, Road.IRoadStatistics>.TimeUnit.Minute,
+                TimeRepresentation = ChartTimeUnit.Minute,
                 TimeSpan = 20.Minutes(),
-                Mode = Chart<Road.Throughput, Road.IRoadStatistics>.RangeMode.Fixed,
+                Mode = ChartRangeMode.Fixed,
                 MinValue = 0,
                 ValueUnit = "km/h",
                 TabIndex = 0,
-                TabStop = false
+                TabStop = false,
             };
             groupBoxRoad.Controls.Add(chartAverageSpeed);
             chartAverageSpeed.Dock = DockStyle.Fill;
