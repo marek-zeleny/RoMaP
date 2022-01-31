@@ -55,6 +55,7 @@ namespace RoadTrafficSimulator.Components
         private bool newRoad;
 
         public int Id { get; }
+        public bool Finished { get; private set; }
         public Distance Length { get; }
         public Speed CurrentSpeed { get; private set; }
         public Distance DistanceRear { get => distance - Length; }
@@ -65,6 +66,7 @@ namespace RoadTrafficSimulator.Components
         public Car(Distance length, INavigation navigation, StatisticsCollector collector)
         {
             Id = nextId++;
+            Finished = false;
             Length = length;
             this.navigation = navigation;
             statistics = new CarStatistics(collector, navigation.Clock,
@@ -183,6 +185,7 @@ namespace RoadTrafficSimulator.Components
         {
             if (navigation.NextRoad == null && distance == navigation.CurrentRoad.Length)
             {
+                Finished = true;
                 CurrentSpeed = 0.MetresPerSecond();
                 navigation.CurrentRoad.GetOff(this);
                 statistics.Finish();
@@ -225,7 +228,7 @@ namespace RoadTrafficSimulator.Components
             public Time FinishTime { get => finishTime; }
             public Distance Distance { get => distance; }
             public Time ExpectedDuration { get => expectedDuration; }
-            public Time Duration { get => FinishTime - StartTime; }
+            public Time Duration { get => FinishTime > StartTime ? FinishTime - StartTime : clock.Time - StartTime; }
             /// <summary>
             /// Records each road and time the car got on that road.
             /// </summary>

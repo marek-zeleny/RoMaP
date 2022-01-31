@@ -177,12 +177,6 @@ namespace RoadTrafficSimulator.Components
             statistics.Update(CarCount, AverageSpeed, AverageDuration);
         }
 
-        public void AfterTick()
-        {
-            for (int i = 0; i < LaneCount; i++)
-                lanes[i].ForAllCars(car => car.AfterTick());
-        }
-
         #endregion methods
 
         #region subclasses
@@ -287,8 +281,8 @@ namespace RoadTrafficSimulator.Components
 
         private class RoadStatistics : StatisticsBase, IRoadStatistics
         {
-            Item<List<Timestamp<CarPassage>>> carLog = new(DetailLevel.Medium, new());
-            Item<List<Timestamp<Throughput>>> throughputLog = new(DetailLevel.High, new());
+            private Item<List<Timestamp<CarPassage>>> carLog = new(DetailLevel.Medium, new());
+            private Item<List<Timestamp<Throughput>>> throughputLog = new(DetailLevel.High, new());
 
             public int RoadId { get; }
             public IReadOnlyList<Timestamp<CarPassage>> CarLog { get => carLog.Get(); }

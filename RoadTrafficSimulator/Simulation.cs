@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Text.Json;
 using System.Threading;
 
 using RoadTrafficSimulator.Components;
@@ -30,11 +31,14 @@ namespace RoadTrafficSimulator
         private SimulationSettings settings;
         private CentralNavigation centralNavigation;
         private IEnumerator<Crossroad> randomCrossroads;
+        private ICollection<Car> allCars;
         private HashSet<Car> stagedCars;
+        private GlobalStatistics statistics;
 
         public bool IsRunning { get => settings != null && Clock.Time < settings.Duration; }
         public IClock Clock { get => clock; }
-        public StatisticsCollector Statistics { get; private set; }
+        public StatisticsCollector StatsCollector { get; private set; }
+        public IGlobalStatistics Statistics { get => statistics; }
 
         public Simulation()
         {
@@ -46,6 +50,7 @@ namespace RoadTrafficSimulator
 
         public InitialisationResult Initialise(Map map, out Crossroad invalidCrossroad)
         {
+            clock.Reset();
             settings = null;
             invalidCrossroad = null;
             if (map == null)
@@ -60,11 +65,13 @@ namespace RoadTrafficSimulator
                 }
             this.map = map;
 
-            Statistics = new StatisticsCollector();
+            StatsCollector = new StatisticsCollector();
+            statistics = new GlobalStatistics(StatsCollector, Clock);
+            allCars = new List<Car>();
+
             foreach (Road r in this.map.GetEdges())
-                r.Initialise(Statistics, clock);
-            clock.Reset();
-            centralNavigation = new CentralNavigation(this.map, clock);
+                r.Initialise(StatsCollector, Clock);
+            centralNavigation = new CentralNavigation(this.map, Clock);
             randomCrossroads = GetRandomCrossroads().GetEnumerator();
             stagedCars = new HashSet<Car>();
             return InitialisationResult.Ok;
@@ -79,19 +86,64 @@ namespace RoadTrafficSimulator
 
         private bool ContinueSimulation(Time duration)
         {
-            Time end = clock.Time + duration;
+            Time end = Clock.Time + duration;
             if (end > settings.Duration)
                 end = settings.Duration;
-            while (clock.Time < end)
+            while (Clock.Time < end)
             {
-                double carsPerSecond = settings.GetCarSpawnFrequency(clock.Time) * map.CrossroadCount;
-                // Not using TimeStep.ToSeconds() to achieve better precision
-                double newCarProbability = carsPerSecond * settings.TimeStep / Time.precision;
-                for (; newCarProbability > 0; newCarProbability--)
-                    GenerateCar(settings.ActiveNavigationRate, newCarProbability);
                 Tick(settings.TimeStep);
             }
-            return clock.Time < settings.Duration;
+            return Clock.Time < settings.Duration;
+        }
+
+        private void Tick(Time timeStep)
+        {
+            // Generate new cars
+            double carsPerSecond = settings.GetCarSpawnFrequency(Clock.Time) * map.CrossroadCount;
+            // Not using TimeStep.ToSeconds() to achieve better precision
+            double newCarProbability = carsPerSecond * timeStep / Time.precision;
+            for (; newCarProbability > 0; newCarProbability--)
+                GenerateCar(settings.ActiveNavigationRate, newCarProbability);
+            // Release waiting cars
+            HashSet<Car> releasedCars = new HashSet<Car>();
+            foreach (Car c in stagedCars)
+                if (c.Initialise())
+                    releasedCars.Add(c);
+            stagedCars.ExceptWith(releasedCars);
+            // Simulation step
+            clock.Tick(timeStep);
+            foreach (Crossroad c in map.GetNodes())
+                c.Tick(timeStep);
+            foreach (Road r in map.GetEdges())
+                r.Tick(timeStep);
+            // Update statistics
+            int activeCars = 0;
+            int carsWithZeroSpeed = 0;
+            Speed speedSum = new Speed(0);
+            Time delaySum = new Time(0);
+            foreach (Car car in allCars)
+            {
+                if (car.Finished)
+                {
+                    Time delay = car.Statistics.Duration - car.Statistics.ExpectedDuration;
+                    Debug.Assert(delay >= 0);
+                    delaySum += delay;
+                }
+                else
+                {
+                    car.AfterTick();
+                    activeCars++;
+                    if (car.CurrentSpeed == 0)
+                        carsWithZeroSpeed++;
+                    speedSum += car.CurrentSpeed;
+                }
+            }
+            int finishedCars = allCars.Count - activeCars;
+            activeCars -= stagedCars.Count;
+            carsWithZeroSpeed -= stagedCars.Count;
+            Speed averageSpeed = activeCars > 0 ? speedSum / activeCars : new Speed(0);
+            Time averageDelay = finishedCars > 0 ? delaySum / finishedCars : new Time(0);
+            statistics.Update(allCars.Count, activeCars, carsWithZeroSpeed, averageSpeed, averageDelay);
         }
 
         private void GenerateCar(float activeNavigationRate, double probability = 1f)
@@ -107,24 +159,9 @@ namespace RoadTrafficSimulator
             Distance length = carLengthDistribution[random.Next(carLengthDistribution.Length)].Metres();
             bool active = random.NextDouble() < activeNavigationRate;
             INavigation navigation = centralNavigation.GetNavigation(start.Id, finish.Id, active);
-            stagedCars.Add(new Car(length, navigation, Statistics));
-        }
-
-        private void Tick(Time time)
-        {
-            clock.Tick(time);
-            HashSet<Car> releasedCars = new HashSet<Car>();
-            foreach (Car c in stagedCars)
-                if (c.Initialise())
-                    releasedCars.Add(c);
-            foreach (Car c in releasedCars)
-                stagedCars.Remove(c);
-            foreach (Crossroad c in map.GetNodes())
-                c.Tick(time);
-            foreach (Road r in map.GetEdges())
-                r.Tick(time);
-            foreach (Road r in map.GetEdges())
-                r.AfterTick();
+            Car car = new Car(length, navigation, StatsCollector);
+            stagedCars.Add(car);
+            allCars.Add(car);
         }
 
         private Crossroad GetRandomCrossroad()
@@ -143,6 +180,83 @@ namespace RoadTrafficSimulator
             while (true)
                 yield return crossroads[random.Next(count)];
         }
+
+        #region statistics
+
+        public interface IGlobalStatistics
+        {
+            public int CarsTotal { get; }
+            public int CarsActive { get; }
+            public int CarsWithZeroSpeed { get; }
+            public Speed AverageSpeed { get; }
+            public Time AverageDelay { get; }
+            public IReadOnlyList<Timestamp<StatsData>> DataLog { get; }
+        }
+
+        public readonly struct StatsData
+        {
+            public readonly int carsTotal;
+            public readonly int carsActive;
+            public readonly int carsWithZeroSpeed;
+            public readonly Speed averageSpeed;
+            public readonly Time averageDelay;
+
+            public StatsData(int carsTotal, int carsActive, int carsWithZeroSpeed, Speed averageSpeed, Time averageDelay)
+            {
+                this.carsTotal = carsTotal;
+                this.carsActive = carsActive;
+                this.carsWithZeroSpeed = carsWithZeroSpeed;
+                this.averageSpeed = averageSpeed;
+                this.averageDelay = averageDelay;
+            }
+        }
+
+        private class GlobalStatistics : StatisticsBase, IGlobalStatistics
+        {
+            private StatsData currentData;
+            private Item<List<Timestamp<StatsData>>> dataLog = new(DetailLevel.Medium, new());
+
+            public int CarsTotal { get => currentData.carsTotal; }
+            public int CarsActive { get => currentData.carsActive; }
+            public int CarsWithZeroSpeed { get => currentData.carsWithZeroSpeed; }
+            public Speed AverageSpeed { get => currentData.averageSpeed; }
+            public Time AverageDelay { get => currentData.averageDelay; }
+            public IReadOnlyList<Timestamp<StatsData>> DataLog { get => dataLog.Get(); }
+
+            public GlobalStatistics(StatisticsCollector collector, IClock clock)
+                : base(collector, typeof(Simulation), clock) { }
+
+            public void Update(int carsTotal, int carsActive, int carsWithZeroSpeed, Speed averageSpeed, Time averageDelay)
+            {
+                currentData = new StatsData(carsTotal, carsActive, carsWithZeroSpeed, averageSpeed, averageDelay);
+                dataLog.Get()?.Add(new Timestamp<StatsData>(clock.Time, currentData));
+            }
+
+            public override void Serialise(Utf8JsonWriter writer)
+            {
+                static void SerialiseData(Utf8JsonWriter writer, StatsData data)
+                {
+                    writer.WriteNumber("carsTotal", data.carsTotal);
+                    writer.WriteNumber("carsActive", data.carsActive);
+                    writer.WriteNumber("carsWithZeroSpeed", data.carsWithZeroSpeed);
+                    writer.WriteNumber("averageSpeed", data.averageSpeed);
+                    writer.WriteNumber("averageDelay", data.averageDelay);
+                }
+
+                writer.WriteStartObject();
+
+                writer.WriteNumber("endCarsTotal", CarsTotal);
+                writer.WriteNumber("endCarsActive", CarsActive);
+                writer.WriteNumber("endCarsWithZeroSpeed", CarsWithZeroSpeed);
+                writer.WriteNumber("endAverageSpeed", AverageSpeed);
+                writer.WriteNumber("endAverageDelay", AverageDelay);
+                SerialiseTimestampListItem(writer, dataLog, "dataLog", SerialiseData);
+
+                writer.WriteEndObject();
+            }
+        }
+
+        #endregion statistics
     }
 
     class SimulationSettings
