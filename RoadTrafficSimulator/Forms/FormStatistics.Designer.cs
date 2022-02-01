@@ -55,6 +55,7 @@ namespace RoadTrafficSimulator.Forms
             this.Name = "FormStatistics";
             this.Padding = new System.Windows.Forms.Padding(6, 8, 6, 8);
             this.Text = "FormStatistics";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormStatistics_FormClosing);
             this.ResumeLayout(false);
 
         }

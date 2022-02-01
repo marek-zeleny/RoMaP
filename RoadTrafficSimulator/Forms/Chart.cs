@@ -203,6 +203,12 @@ namespace RoadTrafficSimulator.Forms
             DrawChart(e.Graphics);
         }
 
+        protected override void OnSizeChanged(EventArgs e)
+        {
+            base.OnSizeChanged(e);
+            UpdateChart();
+        }
+
         #region helper_functions
 
         private void DrawChart(Graphics gr)

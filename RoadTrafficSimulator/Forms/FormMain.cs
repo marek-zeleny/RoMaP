@@ -22,6 +22,7 @@ namespace RoadTrafficSimulator.Forms
         private Simulation simulation;
         private Func<Time, bool> continueSimulation;
         private FormSimulationSettings settingsForm;
+        private FormStatistics statisticsForm;
         private Mode mode;
         private MapManager.CrossroadWrapper? selectedCrossroad;
         private IGRoad selectedRoad;
@@ -33,6 +34,7 @@ namespace RoadTrafficSimulator.Forms
             mapManager = new MapManager();
             simulation = new Simulation();
             settingsForm = new FormSimulationSettings();
+            statisticsForm = new FormStatistics();
             mapPanel.ResetOrigin();
             timerSimulation.Interval = Simulation.MinTimeStep.ToMilliseconds();
             mode = Mode.Build;
@@ -227,6 +229,11 @@ namespace RoadTrafficSimulator.Forms
             }
         }
 
+        private void simulationPanel_StatisticsClick(object sender, EventArgs e)
+        {
+            statisticsForm.Show();
+        }
+
         private void timerSimulation_Tick(object sender, EventArgs e)
         {
             Time timestep = (timerSimulation.Interval * simulationPanel.SimulationSpeed).Milliseconds();
@@ -234,8 +241,8 @@ namespace RoadTrafficSimulator.Forms
                 EndSimulation();
             simulationPanel.SimulationTime = simulation.Clock.Time;
             mapPanel.Redraw();
-            if (selectedRoad != null)
-                simulationPanel.UpdateChart();
+            simulationPanel.UpdateChart();
+            statisticsForm.UpdateCharts();
         }
 
         #endregion form_events
@@ -452,6 +459,7 @@ namespace RoadTrafficSimulator.Forms
             buttonContinue.Visible = false;
             ResumeLayout();
             ShowInfo($"Starting simulation of {settings.Duration.ToHours()} hours...");
+            statisticsForm.SetDataSource(simulation.Statistics, simulation.Clock);
             simulation.StartSimulation(settings, out continueSimulation);
             timerSimulation.Start();
         }
@@ -494,7 +502,7 @@ namespace RoadTrafficSimulator.Forms
         private void InitializeExportStats()
         {
             string message = "There are no statistics to export. You need to run the simulation first.";
-            if (simulation.Statistics == null)
+            if (simulation.StatsCollector == null)
             {
                 MessageBox.Show(message, "No Statistics", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 return;

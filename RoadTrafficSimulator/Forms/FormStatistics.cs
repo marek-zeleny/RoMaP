@@ -33,6 +33,17 @@ namespace RoadTrafficSimulator.Forms
                 "Average delay (among finished cars)", "minutes", GetAverageDelay);
         }
 
+        public void UpdateCharts()
+        {
+            if (Visible)
+            {
+                chartActiveCars.UpdateChart();
+                chartCarsWithZeroSpeed.UpdateChart();
+                chartAverageSpeed.UpdateChart();
+                chartAverageDelay.UpdateChart();
+            }
+        }
+
         internal void SetDataSource(Simulation.IGlobalStatistics statistics, IClock clock)
         {
             static IReadOnlyList<Timestamp<Simulation.StatsData>> GetData(Simulation.IGlobalStatistics stats) =>
@@ -61,6 +72,12 @@ namespace RoadTrafficSimulator.Forms
             };
             tableLayoutPanel.Controls.Add(chart, col, row);
             chart.Dock = DockStyle.Fill;
+        }
+
+        private void FormStatistics_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            e.Cancel = true;
+            Hide();
         }
     }
 }

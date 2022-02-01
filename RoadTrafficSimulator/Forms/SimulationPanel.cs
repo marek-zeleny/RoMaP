@@ -56,11 +56,6 @@ namespace RoadTrafficSimulator.Forms
             }
         }
 
-        [Browsable(true)]
-        [Category("Property Changed")]
-        [Description("Occurs when the SimulationSpeed property is changed.")]
-        public event EventHandler SimulationSpeedChanged;
-
         public SimulationPanel()
         {
             InitializeComponent();
@@ -70,6 +65,24 @@ namespace RoadTrafficSimulator.Forms
             if (!DesignMode)
                 Deselect();
         }
+
+        #region events
+
+        [Browsable(true)]
+        [Category("Action")]
+        [Description("Occurs when the Statistics button is clicked.")]
+        public event EventHandler StatisticsClick
+        {
+            add => buttonStatistics.Click += value;
+            remove => buttonStatistics.Click -= value;
+        }
+
+        [Browsable(true)]
+        [Category("Property Changed")]
+        [Description("Occurs when the SimulationSpeed property is changed.")]
+        public event EventHandler SimulationSpeedChanged;
+
+        #endregion events
 
         private void trackBarSimulationSpeed_Scroll(object sender, EventArgs e)
         {
