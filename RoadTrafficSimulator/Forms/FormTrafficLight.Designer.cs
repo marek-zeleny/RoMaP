@@ -49,6 +49,18 @@
             this.groupBoxInfo.SuspendLayout();
             this.SuspendLayout();
             // 
+            // panelMap
+            // 
+            panelMap.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(236)))), ((int)(((byte)(237)))), ((int)(((byte)(242)))));
+            panelMap.Cursor = System.Windows.Forms.Cursors.Cross;
+            panelMap.Location = new System.Drawing.Point(14, 15);
+            panelMap.Margin = new System.Windows.Forms.Padding(4);
+            panelMap.Name = "panelMap";
+            panelMap.Size = new System.Drawing.Size(450, 474);
+            panelMap.TabIndex = 0;
+            panelMap.Paint += new System.Windows.Forms.PaintEventHandler(this.panelMap_Paint);
+            panelMap.MouseClick += new System.Windows.Forms.MouseEventHandler(this.panelMap_MouseClick);
+            // 
             // comboBoxSetting
             // 
             this.comboBoxSetting.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
@@ -57,7 +69,7 @@
             this.comboBoxSetting.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.comboBoxSetting.Name = "comboBoxSetting";
             this.comboBoxSetting.Size = new System.Drawing.Size(235, 33);
-            this.comboBoxSetting.TabIndex = 2;
+            this.comboBoxSetting.TabIndex = 1;
             this.comboBoxSetting.SelectedIndexChanged += new System.EventHandler(this.comboBoxSetting_SelectedIndexChanged);
             // 
             // labelDuration
@@ -67,7 +79,7 @@
             this.labelDuration.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelDuration.Name = "labelDuration";
             this.labelDuration.Size = new System.Drawing.Size(81, 25);
-            this.labelDuration.TabIndex = 3;
+            this.labelDuration.TabIndex = 2;
             this.labelDuration.Text = "Duration";
             // 
             // numericUpDownDuration
@@ -86,7 +98,7 @@
             0});
             this.numericUpDownDuration.Name = "numericUpDownDuration";
             this.numericUpDownDuration.Size = new System.Drawing.Size(61, 31);
-            this.numericUpDownDuration.TabIndex = 4;
+            this.numericUpDownDuration.TabIndex = 3;
             this.numericUpDownDuration.Value = new decimal(new int[] {
             1,
             0,
@@ -101,7 +113,7 @@
             this.labelS.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelS.Name = "labelS";
             this.labelS.Size = new System.Drawing.Size(20, 25);
-            this.labelS.TabIndex = 5;
+            this.labelS.TabIndex = 4;
             this.labelS.Text = "s";
             // 
             // buttonNewSetting
@@ -121,7 +133,7 @@
             this.buttonFinish.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.buttonFinish.Name = "buttonFinish";
             this.buttonFinish.Size = new System.Drawing.Size(238, 44);
-            this.buttonFinish.TabIndex = 6;
+            this.buttonFinish.TabIndex = 9;
             this.buttonFinish.Text = "Finish";
             this.buttonFinish.UseVisualStyleBackColor = true;
             this.buttonFinish.Click += new System.EventHandler(this.buttonFinish_Click);
@@ -132,7 +144,7 @@
             this.buttonDeleteSetting.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.buttonDeleteSetting.Name = "buttonDeleteSetting";
             this.buttonDeleteSetting.Size = new System.Drawing.Size(114, 44);
-            this.buttonDeleteSetting.TabIndex = 6;
+            this.buttonDeleteSetting.TabIndex = 7;
             this.buttonDeleteSetting.Text = "Delete Setting";
             this.buttonDeleteSetting.UseVisualStyleBackColor = true;
             this.buttonDeleteSetting.Click += new System.EventHandler(this.buttonDeleteSetting_Click);
@@ -145,11 +157,11 @@
             this.groupBoxAllowedDirections.Controls.Add(this.checkBoxRight);
             this.groupBoxAllowedDirections.Controls.Add(this.checkBoxLeft);
             this.groupBoxAllowedDirections.Location = new System.Drawing.Point(477, 113);
-            this.groupBoxAllowedDirections.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.groupBoxAllowedDirections.Margin = new System.Windows.Forms.Padding(4);
             this.groupBoxAllowedDirections.Name = "groupBoxAllowedDirections";
-            this.groupBoxAllowedDirections.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.groupBoxAllowedDirections.Padding = new System.Windows.Forms.Padding(4);
             this.groupBoxAllowedDirections.Size = new System.Drawing.Size(190, 141);
-            this.groupBoxAllowedDirections.TabIndex = 7;
+            this.groupBoxAllowedDirections.TabIndex = 5;
             this.groupBoxAllowedDirections.TabStop = false;
             this.groupBoxAllowedDirections.Text = "Allowed Directions";
             // 
@@ -161,7 +173,7 @@
             this.checkBoxDown.Enabled = false;
             this.checkBoxDown.Font = new System.Drawing.Font("Arial", 9.163636F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.checkBoxDown.Location = new System.Drawing.Point(59, 90);
-            this.checkBoxDown.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.checkBoxDown.Margin = new System.Windows.Forms.Padding(4);
             this.checkBoxDown.Name = "checkBoxDown";
             this.checkBoxDown.Size = new System.Drawing.Size(72, 47);
             this.checkBoxDown.TabIndex = 3;
@@ -178,10 +190,10 @@
             this.checkBoxUp.Enabled = false;
             this.checkBoxUp.Font = new System.Drawing.Font("Arial", 9.163636F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.checkBoxUp.Location = new System.Drawing.Point(59, 28);
-            this.checkBoxUp.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.checkBoxUp.Margin = new System.Windows.Forms.Padding(4);
             this.checkBoxUp.Name = "checkBoxUp";
             this.checkBoxUp.Size = new System.Drawing.Size(72, 47);
-            this.checkBoxUp.TabIndex = 2;
+            this.checkBoxUp.TabIndex = 1;
             this.checkBoxUp.Text = "▲";
             this.checkBoxUp.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             this.checkBoxUp.UseVisualStyleBackColor = true;
@@ -195,10 +207,10 @@
             this.checkBoxRight.Enabled = false;
             this.checkBoxRight.Font = new System.Drawing.Font("Arial", 9.163636F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.checkBoxRight.Location = new System.Drawing.Point(131, 28);
-            this.checkBoxRight.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.checkBoxRight.Margin = new System.Windows.Forms.Padding(4);
             this.checkBoxRight.Name = "checkBoxRight";
             this.checkBoxRight.Size = new System.Drawing.Size(55, 109);
-            this.checkBoxRight.TabIndex = 1;
+            this.checkBoxRight.TabIndex = 2;
             this.checkBoxRight.Text = "►";
             this.checkBoxRight.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.checkBoxRight.UseVisualStyleBackColor = true;
@@ -211,7 +223,7 @@
             this.checkBoxLeft.Enabled = false;
             this.checkBoxLeft.Font = new System.Drawing.Font("Arial", 9.163636F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.checkBoxLeft.Location = new System.Drawing.Point(4, 28);
-            this.checkBoxLeft.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.checkBoxLeft.Margin = new System.Windows.Forms.Padding(4);
             this.checkBoxLeft.Name = "checkBoxLeft";
             this.checkBoxLeft.Size = new System.Drawing.Size(55, 109);
             this.checkBoxLeft.TabIndex = 0;
@@ -239,18 +251,6 @@
             this.labelInfo.Size = new System.Drawing.Size(220, 90);
             this.labelInfo.TabIndex = 0;
             // 
-            // panelMap
-            // 
-            panelMap.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(236)))), ((int)(((byte)(237)))), ((int)(((byte)(242)))));
-            panelMap.Cursor = System.Windows.Forms.Cursors.Cross;
-            panelMap.Location = new System.Drawing.Point(14, 15);
-            panelMap.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
-            panelMap.Name = "panelMap";
-            panelMap.Size = new System.Drawing.Size(450, 474);
-            panelMap.TabIndex = 0;
-            panelMap.Paint += new System.Windows.Forms.PaintEventHandler(this.panelMap_Paint);
-            panelMap.MouseClick += new System.Windows.Forms.MouseEventHandler(this.panelMap_MouseClick);
-            // 
             // FormTrafficLight
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 25F);
@@ -267,7 +267,7 @@
             this.Controls.Add(this.comboBoxSetting);
             this.Controls.Add(panelMap);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
-            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "FormTrafficLight";
             this.Padding = new System.Windows.Forms.Padding(6, 8, 6, 8);
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;

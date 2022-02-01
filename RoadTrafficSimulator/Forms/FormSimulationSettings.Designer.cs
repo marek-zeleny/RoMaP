@@ -76,7 +76,7 @@ namespace RoadTrafficSimulator.Forms
             this.panelSpawnFrequency.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.panelSpawnFrequency.Name = "panelSpawnFrequency";
             this.panelSpawnFrequency.Size = new System.Drawing.Size(794, 230);
-            this.panelSpawnFrequency.TabIndex = 0;
+            this.panelSpawnFrequency.TabIndex = 3;
             // 
             // flowLayoutPanelDistribution
             // 
@@ -111,7 +111,7 @@ namespace RoadTrafficSimulator.Forms
             this.labelDistributionDetail.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelDistributionDetail.Name = "labelDistributionDetail";
             this.labelDistributionDetail.Size = new System.Drawing.Size(157, 25);
-            this.labelDistributionDetail.TabIndex = 0;
+            this.labelDistributionDetail.TabIndex = 1;
             this.labelDistributionDetail.Text = "Distribution detail:";
             // 
             // comboBoxSpawnFrequencyDetail
@@ -122,7 +122,7 @@ namespace RoadTrafficSimulator.Forms
             this.comboBoxSpawnFrequencyDetail.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.comboBoxSpawnFrequencyDetail.Name = "comboBoxSpawnFrequencyDetail";
             this.comboBoxSpawnFrequencyDetail.Size = new System.Drawing.Size(170, 33);
-            this.comboBoxSpawnFrequencyDetail.TabIndex = 1;
+            this.comboBoxSpawnFrequencyDetail.TabIndex = 2;
             this.comboBoxSpawnFrequencyDetail.SelectedIndexChanged += new System.EventHandler(this.comboBoxSpawnFrequencyDetail_SelectedIndexChanged);
             // 
             // groupBoxParameters
@@ -134,7 +134,7 @@ namespace RoadTrafficSimulator.Forms
             this.groupBoxParameters.Name = "groupBoxParameters";
             this.groupBoxParameters.Padding = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.groupBoxParameters.Size = new System.Drawing.Size(802, 138);
-            this.groupBoxParameters.TabIndex = 0;
+            this.groupBoxParameters.TabIndex = 1;
             this.groupBoxParameters.TabStop = false;
             this.groupBoxParameters.Text = "Simulation parameters";
             // 
@@ -189,7 +189,7 @@ namespace RoadTrafficSimulator.Forms
             this.labelNavigation.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelNavigation.Name = "labelNavigation";
             this.labelNavigation.Size = new System.Drawing.Size(206, 52);
-            this.labelNavigation.TabIndex = 0;
+            this.labelNavigation.TabIndex = 2;
             this.labelNavigation.Text = "Navigation rate: 50 %";
             this.labelNavigation.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
@@ -202,7 +202,7 @@ namespace RoadTrafficSimulator.Forms
             this.trackBarDuration.Maximum = 19;
             this.trackBarDuration.Name = "trackBarDuration";
             this.trackBarDuration.Size = new System.Drawing.Size(572, 42);
-            this.trackBarDuration.TabIndex = 2;
+            this.trackBarDuration.TabIndex = 1;
             this.trackBarDuration.Scroll += new System.EventHandler(this.trackBarDuration_Scroll);
             // 
             // tableLayoutPanelButtons
@@ -219,7 +219,7 @@ namespace RoadTrafficSimulator.Forms
             this.tableLayoutPanelButtons.RowCount = 1;
             this.tableLayoutPanelButtons.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanelButtons.Size = new System.Drawing.Size(330, 52);
-            this.tableLayoutPanelButtons.TabIndex = 0;
+            this.tableLayoutPanelButtons.TabIndex = 2;
             // 
             // buttonCancel
             // 
@@ -228,7 +228,7 @@ namespace RoadTrafficSimulator.Forms
             this.buttonCancel.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.buttonCancel.Name = "buttonCancel";
             this.buttonCancel.Size = new System.Drawing.Size(157, 42);
-            this.buttonCancel.TabIndex = 4;
+            this.buttonCancel.TabIndex = 0;
             this.buttonCancel.Text = "Cancel";
             this.buttonCancel.UseVisualStyleBackColor = true;
             this.buttonCancel.Click += new System.EventHandler(this.buttonCancel_Click);
@@ -240,7 +240,7 @@ namespace RoadTrafficSimulator.Forms
             this.buttonSimulate.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.buttonSimulate.Name = "buttonSimulate";
             this.buttonSimulate.Size = new System.Drawing.Size(157, 42);
-            this.buttonSimulate.TabIndex = 5;
+            this.buttonSimulate.TabIndex = 1;
             this.buttonSimulate.Text = "Start Simulation";
             this.buttonSimulate.UseVisualStyleBackColor = true;
             this.buttonSimulate.Click += new System.EventHandler(this.buttonSimulate_Click);
