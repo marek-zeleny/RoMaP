@@ -117,7 +117,7 @@ namespace RoadTrafficSimulator
             foreach (Road r in map.GetEdges())
                 r.Tick(timeStep);
             // Update statistics
-            int activeCars = 0;
+            int finishedCars = 0;
             int carsWithZeroSpeed = 0;
             Speed speedSum = new Speed(0);
             Time delaySum = new Time(0);
@@ -125,25 +125,24 @@ namespace RoadTrafficSimulator
             {
                 if (car.Finished)
                 {
+                    finishedCars++;
                     Time delay = car.Statistics.Duration - car.Statistics.ExpectedDuration;
-                    Debug.Assert(delay >= 0);
+                    // TODO: decide what to do with negative delay (active navigation only)
                     delaySum += delay;
                 }
                 else
                 {
                     car.AfterTick();
-                    activeCars++;
                     if (car.CurrentSpeed == 0)
                         carsWithZeroSpeed++;
                     speedSum += car.CurrentSpeed;
                 }
             }
-            int finishedCars = allCars.Count - activeCars;
-            activeCars -= stagedCars.Count;
+            int activeCars = allCars.Count - stagedCars.Count - finishedCars;
             carsWithZeroSpeed -= stagedCars.Count;
             Speed averageSpeed = activeCars > 0 ? speedSum / activeCars : new Speed(0);
             Time averageDelay = finishedCars > 0 ? delaySum / finishedCars : new Time(0);
-            statistics.Update(allCars.Count, activeCars, carsWithZeroSpeed, averageSpeed, averageDelay);
+            statistics.Update(allCars.Count, activeCars, finishedCars, carsWithZeroSpeed, averageSpeed, averageDelay);
         }
 
         private void GenerateCar(float activeNavigationRate, double probability = 1f)
@@ -187,6 +186,7 @@ namespace RoadTrafficSimulator
         {
             public int CarsTotal { get; }
             public int CarsActive { get; }
+            public int CarsFinished { get; }
             public int CarsWithZeroSpeed { get; }
             public Speed AverageSpeed { get; }
             public Time AverageDelay { get; }
@@ -197,14 +197,17 @@ namespace RoadTrafficSimulator
         {
             public readonly int carsTotal;
             public readonly int carsActive;
+            public readonly int carsFinished;
             public readonly int carsWithZeroSpeed;
             public readonly Speed averageSpeed;
             public readonly Time averageDelay;
 
-            public StatsData(int carsTotal, int carsActive, int carsWithZeroSpeed, Speed averageSpeed, Time averageDelay)
+            public StatsData(int carsTotal, int carsActive, int carsFinished, int carsWithZeroSpeed,
+                Speed averageSpeed, Time averageDelay)
             {
                 this.carsTotal = carsTotal;
                 this.carsActive = carsActive;
+                this.carsFinished = carsFinished;
                 this.carsWithZeroSpeed = carsWithZeroSpeed;
                 this.averageSpeed = averageSpeed;
                 this.averageDelay = averageDelay;
@@ -218,6 +221,7 @@ namespace RoadTrafficSimulator
 
             public int CarsTotal { get => currentData.carsTotal; }
             public int CarsActive { get => currentData.carsActive; }
+            public int CarsFinished { get => currentData.carsFinished; }
             public int CarsWithZeroSpeed { get => currentData.carsWithZeroSpeed; }
             public Speed AverageSpeed { get => currentData.averageSpeed; }
             public Time AverageDelay { get => currentData.averageDelay; }
@@ -226,9 +230,11 @@ namespace RoadTrafficSimulator
             public GlobalStatistics(StatisticsCollector collector, IClock clock)
                 : base(collector, typeof(Simulation), clock) { }
 
-            public void Update(int carsTotal, int carsActive, int carsWithZeroSpeed, Speed averageSpeed, Time averageDelay)
+            public void Update(int carsTotal, int carsActive, int carsFinished, int carsWithZeroSpeed,
+                Speed averageSpeed, Time averageDelay)
             {
-                currentData = new StatsData(carsTotal, carsActive, carsWithZeroSpeed, averageSpeed, averageDelay);
+                currentData = new StatsData(carsTotal, carsActive, carsFinished, carsWithZeroSpeed,
+                    averageSpeed, averageDelay);
                 dataLog.Get()?.Add(new Timestamp<StatsData>(clock.Time, currentData));
             }
 
@@ -238,6 +244,7 @@ namespace RoadTrafficSimulator
                 {
                     writer.WriteNumber("carsTotal", data.carsTotal);
                     writer.WriteNumber("carsActive", data.carsActive);
+                    writer.WriteNumber("carsFinished", data.carsFinished);
                     writer.WriteNumber("carsWithZeroSpeed", data.carsWithZeroSpeed);
                     writer.WriteNumber("averageSpeed", data.averageSpeed);
                     writer.WriteNumber("averageDelay", data.averageDelay);
@@ -247,6 +254,7 @@ namespace RoadTrafficSimulator
 
                 writer.WriteNumber("endCarsTotal", CarsTotal);
                 writer.WriteNumber("endCarsActive", CarsActive);
+                writer.WriteNumber("endCarsFinished", CarsFinished);
                 writer.WriteNumber("endCarsWithZeroSpeed", CarsWithZeroSpeed);
                 writer.WriteNumber("endAverageSpeed", AverageSpeed);
                 writer.WriteNumber("endAverageDelay", AverageDelay);

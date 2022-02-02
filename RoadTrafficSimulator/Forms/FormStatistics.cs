@@ -9,19 +9,92 @@ namespace RoadTrafficSimulator.Forms
 {
     public partial class FormStatistics : Form
     {
+        private static readonly (Time time, string text)[] timeSpans =
+        {
+            (5.Minutes(), "5 minutes"),
+            (20.Minutes(), "20 minutes"),
+            (1.Hours(), "1 hour"),
+            (6.Hours(), "6 hours"),
+            (1.Days(), "1 day"),
+            (7.Days(), "1 week"),
+        };
+
+        Simulation.IGlobalStatistics statistics;
         private Chart<Simulation.StatsData, Simulation.IGlobalStatistics> chartActiveCars;
         private Chart<Simulation.StatsData, Simulation.IGlobalStatistics> chartCarsWithZeroSpeed;
         private Chart<Simulation.StatsData, Simulation.IGlobalStatistics> chartAverageSpeed;
         private Chart<Simulation.StatsData, Simulation.IGlobalStatistics> chartAverageDelay;
+        private readonly Chart<Simulation.StatsData, Simulation.IGlobalStatistics>[] charts;
 
         internal FormStatistics()
+        {
+            InitializeComponent();
+            InitialiseCharts();
+            charts = new Chart<Simulation.StatsData, Simulation.IGlobalStatistics>[] {
+                chartActiveCars,
+                chartCarsWithZeroSpeed,
+                chartAverageSpeed,
+                chartAverageDelay,
+            };
+            // Initialise comboBoxTimeSpan
+            foreach (var (_, text) in timeSpans)
+                comboBoxTimeSpan.Items.Add(text);
+            comboBoxTimeSpan.SelectedIndex = 1; // Default 20 minutes; triggers comboBoxTimeSpan_SelectedIndexChanged()
+        }
+
+        public void UpdateStatistics()
+        {
+            if (Visible)
+            {
+                UpdateStats();
+                foreach (var chart in charts)
+                    chart.UpdateChart();
+            }
+        }
+
+        internal void SetDataSource(Simulation.IGlobalStatistics statistics, IClock clock)
+        {
+            static IReadOnlyList<Timestamp<Simulation.StatsData>> GetData(Simulation.IGlobalStatistics stats) =>
+                stats.DataLog;
+
+            this.statistics = statistics;
+            foreach (var chart in charts)
+                chart.SetDataSource(statistics, GetData, clock);
+        }
+
+        private void UpdateStats()
+        {
+            string totalCars = "-";
+            string activeCars = "-";
+            string finishedCars = "-";
+            string stationaryCars = "-";
+            string averageSpeed = "-";
+            string averageDelay = "-";
+
+            if (statistics != null)
+            {
+                totalCars = statistics.CarsTotal.ToString();
+                activeCars = statistics.CarsActive.ToString();
+                finishedCars = statistics.CarsFinished.ToString();
+                stationaryCars = statistics.CarsWithZeroSpeed.ToString();
+                averageSpeed = statistics.AverageSpeed.ToKilometresPerHour().ToString();
+                averageDelay = statistics.AverageDelay.ToMinutes().ToString();
+            }
+
+            labelTotalCars.Text = $"Total cars: {totalCars}";
+            labelActiveCars.Text = $"Active cars: {activeCars}";
+            labelFinishedCars.Text = $"Finished cars: {finishedCars}";
+            labelStationaryCars.Text = $"Stationary cars: {stationaryCars}";
+            labelAverageSpeed.Text = $"Average speed: {averageSpeed} km/h";
+            labelAverageDelay.Text = $"Average delay: {averageDelay} min";
+        }
+
+        private void InitialiseCharts()
         {
             static double GetActiveCars(Simulation.StatsData data) => data.carsActive;
             static double GetCarsWithZeroSpeed(Simulation.StatsData data) => data.carsWithZeroSpeed;
             static double GetAverageSpeed(Simulation.StatsData data) => data.averageSpeed.ToKilometresPerHour();
             static double GetAverageDelay(Simulation.StatsData data) => data.averageDelay.ToMinutes();
-
-            InitializeComponent();
 
             InitialiseChart(ref chartActiveCars, 0, 0, nameof(chartActiveCars),
                 "Active cars", "cars", GetActiveCars);
@@ -31,28 +104,6 @@ namespace RoadTrafficSimulator.Forms
                 "Average speed", "km/h", GetAverageSpeed);
             InitialiseChart(ref chartAverageDelay, 1, 1, nameof(chartAverageDelay),
                 "Average delay (among finished cars)", "minutes", GetAverageDelay);
-        }
-
-        public void UpdateCharts()
-        {
-            if (Visible)
-            {
-                chartActiveCars.UpdateChart();
-                chartCarsWithZeroSpeed.UpdateChart();
-                chartAverageSpeed.UpdateChart();
-                chartAverageDelay.UpdateChart();
-            }
-        }
-
-        internal void SetDataSource(Simulation.IGlobalStatistics statistics, IClock clock)
-        {
-            static IReadOnlyList<Timestamp<Simulation.StatsData>> GetData(Simulation.IGlobalStatistics stats) =>
-                stats.DataLog;
-
-            chartActiveCars.SetDataSource(statistics, GetData, clock);
-            chartCarsWithZeroSpeed.SetDataSource(statistics, GetData, clock);
-            chartAverageSpeed.SetDataSource(statistics, GetData, clock);
-            chartAverageDelay.SetDataSource(statistics, GetData, clock);
         }
 
         private void InitialiseChart(ref Chart<Simulation.StatsData, Simulation.IGlobalStatistics> chart,
@@ -72,6 +123,18 @@ namespace RoadTrafficSimulator.Forms
             };
             tableLayoutPanel.Controls.Add(chart, col, row);
             chart.Dock = DockStyle.Fill;
+        }
+
+        private void comboBoxTimeSpan_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            Time timeSpan = timeSpans[comboBoxTimeSpan.SelectedIndex].time;
+            foreach (var chart in charts)
+                chart.TimeSpan = timeSpan;
+        }
+
+        private void buttonClose_Click(object sender, EventArgs e)
+        {
+            Close();
         }
 
         private void FormStatistics_FormClosing(object sender, FormClosingEventArgs e)

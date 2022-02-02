@@ -242,7 +242,7 @@ namespace RoadTrafficSimulator.Forms
             simulationPanel.SimulationTime = simulation.Clock.Time;
             mapPanel.Redraw();
             simulationPanel.UpdateChart();
-            statisticsForm.UpdateCharts();
+            statisticsForm.UpdateStatistics();
         }
 
         #endregion form_events
