@@ -82,12 +82,12 @@ namespace RoadTrafficSimulator.Statistics
         {
             private T data;
             public DetailLevel Detail { get; }
-            public bool IsActive { get => Detail >= detailSettings; }
+            public bool IsActive { get => detailSettings >= Detail; }
 
             public Item(DetailLevel detail, T data = default)
             {
                 Detail = detail;
-                if (detail < detailSettings)
+                if (detailSettings < detail)
                     data = default;
                 this.data = data;
             }
@@ -99,7 +99,7 @@ namespace RoadTrafficSimulator.Statistics
 
             public void Set(T value)
             {
-                if (Detail >= detailSettings)
+                if (IsActive)
                     data = value;
             }
 
