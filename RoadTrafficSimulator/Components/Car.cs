@@ -143,14 +143,16 @@ namespace RoadTrafficSimulator.Components
             Speed maxSpeed = CurrentSpeed + acceleration * time;
             if (maxSpeed > navigation.CurrentRoad.MaxSpeed)
                 maxSpeed = navigation.CurrentRoad.MaxSpeed;
-            bool freeToGo = navigation.NextRoad == null ||
+            bool freeToGo = navigation.NextRoad != null &&
                 navigation.CurrentRoad.Destination.CanCross(navigation.CurrentRoad.Id, navigation.NextRoad.Id);
             if (freeToGo)
             {
                 travelledDistance = maxSpeed * time;
-                if (travelledDistance >= freeSpace)
+                distance += travelledDistance;
+                if (distance >= navigation.CurrentRoad.Length)
                 {
-                    Time remainingTime = (travelledDistance - freeSpace) / maxSpeed;
+                    Time remainingTime = (distance - navigation.CurrentRoad.Length) / maxSpeed;
+                    distance = navigation.CurrentRoad.Length;
                     travelledDistance = freeSpace + TryCrossToNextRoad(remainingTime);
                 }
             }
@@ -160,7 +162,9 @@ namespace RoadTrafficSimulator.Components
                 if (speed > maxSpeed)
                     speed = maxSpeed;
                 travelledDistance = speed * time;
-                Debug.Assert(travelledDistance <= freeSpace);
+                if (travelledDistance > freeSpace)
+                    travelledDistance = freeSpace;
+                distance += travelledDistance;
             }
             return travelledDistance;
         }
@@ -228,7 +232,18 @@ namespace RoadTrafficSimulator.Components
             public Time FinishTime { get => finishTime; }
             public Distance Distance { get => distance; }
             public Time ExpectedDuration { get => expectedDuration; }
-            public Time Duration { get => FinishTime > StartTime ? FinishTime - StartTime : clock.Time - StartTime; }
+            public Time Duration
+            {
+                get
+                {
+                    if (!finishTime.IsActive || !startTime.IsActive)
+                        return default;
+                    else if (FinishTime > StartTime)
+                        return FinishTime - StartTime;
+                    else
+                        return clock.Time - StartTime;
+                }
+            }
             /// <summary>
             /// Records each road and time the car got on that road.
             /// </summary>
