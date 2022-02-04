@@ -13,7 +13,7 @@ namespace RoadTrafficSimulator.Statistics
             High
         };
 
-        public static DetailLevel detailSettings = DetailLevel.Medium;
+        public static DetailLevel detailSetting = DetailLevel.Medium;
 
         protected IClock clock;
 
@@ -82,12 +82,12 @@ namespace RoadTrafficSimulator.Statistics
         {
             private T data;
             public DetailLevel Detail { get; }
-            public bool IsActive { get => detailSettings >= Detail; }
+            public bool IsActive { get => detailSetting >= Detail; }
 
             public Item(DetailLevel detail, T data = default)
             {
                 Detail = detail;
-                if (detailSettings < detail)
+                if (detailSetting < detail)
                     data = default;
                 this.data = data;
             }

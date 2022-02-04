@@ -127,6 +127,7 @@
             // splitContainer.Panel1
             // 
             this.splitContainer.Panel1.Controls.Add(this.mapPanel);
+            this.splitContainer.Panel1.Cursor = System.Windows.Forms.Cursors.Default;
             // 
             // splitContainer.Panel2
             // 
@@ -134,6 +135,7 @@
             this.splitContainer.Panel2.Controls.Add(this.tableLayoutButtons);
             this.splitContainer.Panel2.Controls.Add(this.buildPanel);
             this.splitContainer.Panel2.Controls.Add(this.simulationPanel);
+            this.splitContainer.Panel2.Cursor = System.Windows.Forms.Cursors.Default;
             this.splitContainer.Panel2.Padding = new System.Windows.Forms.Padding(6, 8, 6, 8);
             this.splitContainer.Size = new System.Drawing.Size(1306, 982);
             this.splitContainer.SplitterDistance = 911;

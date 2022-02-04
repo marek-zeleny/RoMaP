@@ -350,7 +350,7 @@ namespace RoadTrafficSimulator.Forms
                 {
                     Debug.Assert(statsAggregator != null);
                     var data = statsAggregator(stats);
-                    if (data.Count == 0)
+                    if (data == null || data.Count == 0)
                         return null;
                     newData = data.Slice(cacheEndIndex);
                     cacheEndIndex = data.Count;

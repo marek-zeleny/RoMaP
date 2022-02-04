@@ -103,7 +103,7 @@ namespace RoadTrafficSimulator.Forms
             InitialiseChart(ref chartAverageSpeed, 1, 0, nameof(chartAverageSpeed),
                 "Average speed", "km/h", GetAverageSpeed);
             InitialiseChart(ref chartAverageDelay, 1, 1, nameof(chartAverageDelay),
-                "Average delay (among finished cars)", "minutes", GetAverageDelay);
+                "Average delay (among finished cars)", "min", GetAverageDelay);
         }
 
         private void InitialiseChart(ref Chart<Simulation.StatsData, Simulation.IGlobalStatistics> chart,

@@ -57,4 +57,7 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="labelDistributionDescription.Text" xml:space="preserve">
+    <value>The following sliders determine how cars will be distributed throughout the course of the simulation. The first slider represents relative car spawn rate at the beginning, the last slider at the end. The rest will be spread uniformly throughout the duration of the simulation.</value>
+  </data>
 </root>

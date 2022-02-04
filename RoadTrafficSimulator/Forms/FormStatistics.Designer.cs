@@ -74,6 +74,7 @@ namespace RoadTrafficSimulator.Forms
             // splitContainer.Panel1
             // 
             this.splitContainer.Panel1.Controls.Add(this.tableLayoutPanel);
+            this.splitContainer.Panel1.Cursor = System.Windows.Forms.Cursors.Default;
             // 
             // splitContainer.Panel2
             // 
@@ -81,6 +82,7 @@ namespace RoadTrafficSimulator.Forms
             this.splitContainer.Panel2.Controls.Add(this.groupBoxStatistics);
             this.splitContainer.Panel2.Controls.Add(this.comboBoxTimeSpan);
             this.splitContainer.Panel2.Controls.Add(this.labelTimeSpan);
+            this.splitContainer.Panel2.Cursor = System.Windows.Forms.Cursors.Default;
             this.splitContainer.Panel2.Padding = new System.Windows.Forms.Padding(6, 8, 6, 8);
             this.splitContainer.Size = new System.Drawing.Size(1057, 705);
             this.splitContainer.SplitterDistance = 725;

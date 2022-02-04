@@ -81,6 +81,7 @@ namespace RoadTrafficSimulator
         {
             Debug.Assert(map != null);
             this.settings = settings;
+            StatisticsBase.detailSetting = settings.StatisticsDetail;
             continueFunc = ContinueSimulation;
         }
 
@@ -270,17 +271,23 @@ namespace RoadTrafficSimulator
     class SimulationSettings
     {
         // New cars per second
+        private readonly float carSpawnFrequency;
+        // Relative distribution through time (values from interval (0, 1])
         private readonly float[] carSpawnFrequencyDistribution;
 
         public Time Duration { get; }
         public Time TimeStep { get; set; }
         public float ActiveNavigationRate { get; }
+        public StatisticsBase.DetailLevel StatisticsDetail { get; }
 
-        public SimulationSettings(Time duration, float activeNavigationRate, float[] carSpawnFrequencyDistribution)
+        public SimulationSettings(Time duration, float activeNavigationRate, StatisticsBase.DetailLevel statsDetail,
+            float carSpawnFrequency, float[] carSpawnFrequencyDistribution)
         {
             Duration = duration;
             TimeStep = Simulation.MinTimeStep;
             ActiveNavigationRate = activeNavigationRate;
+            StatisticsDetail = statsDetail;
+            this.carSpawnFrequency = carSpawnFrequency;
             this.carSpawnFrequencyDistribution = carSpawnFrequencyDistribution;
         }
 
@@ -288,7 +295,7 @@ namespace RoadTrafficSimulator
         public float GetCarSpawnFrequency(Time simulationTime)
         {
             int index = carSpawnFrequencyDistribution.Length * (int)simulationTime / (int)Duration;
-            return carSpawnFrequencyDistribution[index];
+            return carSpawnFrequency * carSpawnFrequencyDistribution[index];
         }
     }
 }
