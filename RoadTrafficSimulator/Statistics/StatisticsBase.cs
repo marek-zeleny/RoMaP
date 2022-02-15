@@ -87,8 +87,9 @@ namespace RoadTrafficSimulator.Statistics
             public Item(DetailLevel detail, T data = default)
             {
                 Detail = detail;
-                if (detailSetting < detail)
-                    data = default;
+                //if (detailSetting < detail)
+                //    data = default;
+                // TODO: this makes logically sense, but it would require to initialise some items before each simulation; consider this
                 this.data = data;
             }
 

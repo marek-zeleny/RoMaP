@@ -131,7 +131,11 @@ namespace RoadTrafficSimulator.Components
                 speed = maxSpeed;
 
             Distance travelledDistance = speed * time;
-            Debug.Assert(travelledDistance <= freeSpace);
+            // If the car in front is not moving, the optimal speed calculation may overshoot
+            if (CarInFront.CurrentSpeed > 0)
+                Debug.Assert(travelledDistance <= freeSpace);
+            else if (travelledDistance > freeSpace)
+                travelledDistance = freeSpace;
             distance += travelledDistance;
             return travelledDistance;
         }
