@@ -304,12 +304,15 @@ namespace RoadTrafficSimulator
             else
                 (gRoad.GetReversedGRoad() as IMutableGRoad).SetRoad(newRoad, IGRoad.Direction.Backward);
 
-            gRoad.UnsetHighlight(Highlight.Transparent, IGRoad.Direction.Forward);
-            guiMap.GetCrossroad(gRoad.From).UnsetHighlight(Highlight.Transparent);
-            guiMap.GetCrossroad(gRoad.To).UnsetHighlight(Highlight.Transparent);
+            IGCrossroad fromCrossroad = guiMap.GetCrossroad(gRoad.From);
+            IGCrossroad toCrossroad = guiMap.GetCrossroad(gRoad.To);
 
-            FillPriorityCrossing(guiMap, Map.GetNode(gRoad.From) as Crossroad);
-            FillPriorityCrossing(guiMap, Map.GetNode(gRoad.To) as Crossroad);
+            gRoad.UnsetHighlight(Highlight.Transparent, IGRoad.Direction.Forward);
+            fromCrossroad.UnsetHighlight(Highlight.Transparent);
+            toCrossroad.UnsetHighlight(Highlight.Transparent);
+
+            FillPriorityCrossing(guiMap, fromCrossroad, Map.GetNode(fromCrossroad.CrossroadId) as Crossroad);
+            FillPriorityCrossing(guiMap, toCrossroad, Map.GetNode(toCrossroad.CrossroadId) as Crossroad);
         }
 
         public bool DestroyCrossroad(IGCrossroad gCrossroad)
@@ -443,7 +446,7 @@ namespace RoadTrafficSimulator
         }
 
         // TODO: move to static
-        private static void FillPriorityCrossing(IGMap gMap, Crossroad crossroad)
+        private static void FillPriorityCrossing(IGMap gMap, IGCrossroad gCrossroad, Crossroad crossroad)
         {
             Road GetRoad(Coords diff, IGRoad.Direction direction)
             {
@@ -454,12 +457,15 @@ namespace RoadTrafficSimulator
                     return road;
             }
 
-            // TODO: Account for main roads
             foreach (var fromDir in GetAllowedDirections())
             {
                 Road fromRoad = GetRoad(fromDir, IGRoad.Direction.Backward);
                 if (fromRoad == null)
                     continue;
+
+                var mainRoadDirs = gCrossroad.MainRoadDirections;
+                bool isMainRoad = mainRoadDirs.HasValue &&
+                    (mainRoadDirs.Value.Item1 == fromDir || mainRoadDirs.Value.Item2 == fromDir);
 
                 foreach (var toDir in GetAllowedDirections())
                 {
@@ -469,16 +475,36 @@ namespace RoadTrafficSimulator
 
                     Direction fromPriority = new(fromRoad.Id, toRoad.Id);
                     // Need to start *after* fromDir and end with it instead
-                    var directions = GetAllowedDirections(fromDir).Skip(1).Append(fromDir);
+                    var priorDirections = GetAllowedDirections(fromDir).Skip(1).Append(fromDir);
                     bool Pred(Coords dir) => dir != toDir;
 
-                    foreach (var priorFromDir in directions.TakeWhile(Pred))
+                    var priorFromDirections = priorDirections.TakeWhile(Pred);
+                    // Give priority also to both main roads
+                    if (!isMainRoad)
                     {
+                        priorFromDirections =
+                            priorFromDirections.Append(mainRoadDirs.Value.Item1).Append(mainRoadDirs.Value.Item2);
+                    }
+                    foreach (var priorFromDir in priorFromDirections)
+                    {
+                        bool priorIsMainRoad = mainRoadDirs.HasValue &&
+                            (mainRoadDirs.Value.Item1 == priorFromDir || mainRoadDirs.Value.Item2 == priorFromDir);
+                        // Main road doesn't give priority to side roads
+                        if (isMainRoad && !priorIsMainRoad)
+                            continue;
+
                         Road priorFromRoad = GetRoad(priorFromDir, IGRoad.Direction.Backward);
                         if (priorFromRoad == null)
                             continue;
 
-                        foreach (var priorToDir in directions.SkipWhile(Pred))
+                        IEnumerable<Coords> priorToDirections;
+                        if (!isMainRoad && priorIsMainRoad)
+                            // Side road gives priority to all directions from a main road
+                            priorToDirections = GetAllowedDirections();
+                        else
+                            priorToDirections = priorDirections.SkipWhile(Pred);
+
+                        foreach (var priorToDir in priorToDirections)
                         {
                             Road priorToRoad = GetRoad(priorToDir, IGRoad.Direction.Forward);
                             if (priorToRoad == null)
@@ -603,12 +629,18 @@ namespace RoadTrafficSimulator
                 builtRoad = gRoad;
                 if (Route.Count < 2)
                     return false;
-                TryGetOrAddGuiCrossroad(gRoad.From).ResetHighlight(Highlight.None);
-                TryGetOrAddGuiCrossroad(gRoad.To).ResetHighlight(Highlight.None);
+
+                IGCrossroad fromG = TryGetOrAddGuiCrossroad(gRoad.From);
+                IGCrossroad toG = TryGetOrAddGuiCrossroad(gRoad.To);
+
+                fromG.ResetHighlight(Highlight.None);
+                toG.ResetHighlight(Highlight.None);
                 gRoad.ResetHighlight(Highlight.None);
+
                 Distance roadLength = (Route.Count - 1) * roadSegmentDefaultLength;
                 Road road = map.AddRoad(gRoad.From, gRoad.To, roadLength, maxSpeed);
                 gRoad.SetRoad(road, IGRoad.Direction.Forward);
+
                 Crossroad from = (Crossroad)road.FromNode;
                 Crossroad to = (Crossroad)road.ToNode;
                 if (twoWay)
@@ -619,8 +651,9 @@ namespace RoadTrafficSimulator
                     from.TrafficLight.AddDefaultDirection(backRoad.Id, road.Id);
                     to.TrafficLight.AddDefaultDirection(road.Id, backRoad.Id);
                 }
-                FillPriorityCrossing(gMap, from);
-                FillPriorityCrossing(gMap, to);
+
+                FillPriorityCrossing(gMap, fromG, from);
+                FillPriorityCrossing(gMap, toG, to);
                 Invalidate();
                 return true;
             }
