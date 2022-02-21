@@ -9,13 +9,15 @@ namespace RoadTrafficSimulator.Components
     class TrafficLight : ICrossingAlgorithm
     {
         private const int maxSettingsCount = 5;
+        private static readonly Time yellowLightDuration = 3.Seconds(); // TODO: mention in thesis
 
-        private HashSet<Direction> defaultDirections = new HashSet<Direction>(4);
+        private HashSet<Direction> defaultDirections = new(4);
         private List<Setting> settings;
         private IEnumerator<Setting> settingsEnumerator;
         private Time currentTime;
 
-        private bool CurrentSettingExpired { get => currentTime >= settingsEnumerator.Current.Duration; }
+        private Setting CurrentSetting { get => settingsEnumerator.Current; }
+        private bool CurrentSettingExpired { get => currentTime >= CurrentSetting.Duration; }
 
         public IReadOnlyList<Setting> Settings { get => settings; }
 
@@ -29,7 +31,7 @@ namespace RoadTrafficSimulator.Components
 
         public void AddDefaultDirection(int fromId, int toId)
         {
-            Direction direction = new Direction(fromId, toId);
+            Direction direction = new(fromId, toId);
             defaultDirections.Add(direction);
             foreach (Setting s in settings)
                 s.AddDirection(direction);
@@ -87,20 +89,30 @@ namespace RoadTrafficSimulator.Components
         {
             if (settings.Count <= 1)
                 return;
-            if (currentTime > settingsEnumerator.Current.Duration)
+            if (currentTime > CurrentSetting.Duration)
             {
-                currentTime -= settingsEnumerator.Current.Duration;
+                currentTime -= CurrentSetting.Duration;
                 settingsEnumerator.MoveNext();
             }
             currentTime += time;
         }
 
-        public bool CanCross(int fromRoadId, int toRoadId)
+        public bool CanCross(Car car, int fromRoadId, int toRoadId, Time expectedArrival)
         {
             if (settings.Count <= 1)
                 return false;
-            return !CurrentSettingExpired && settingsEnumerator.Current.ContainsDirection(fromRoadId, toRoadId);
+            if (CurrentSettingExpired)
+                return false;
+            if (CurrentSetting.ContainsDirection(fromRoadId, toRoadId))
+            {
+                // Check for yellow light
+                Time remaining = CurrentSetting.Duration - currentTime;
+                return remaining > yellowLightDuration || remaining < expectedArrival;
+            }
+            return false;
         }
+
+        public void CarCrossed(Car car, int fromRoadId, int toRoadId) { }
 
         private IEnumerator<Setting> GetSettingsEnumerator()
         {

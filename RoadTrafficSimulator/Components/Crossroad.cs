@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 
 using RoadTrafficSimulator.ValueTypes;
+using RoadTrafficSimulator.Statistics;
 using DataStructures.Graphs;
 
 namespace RoadTrafficSimulator.Components
@@ -31,8 +32,10 @@ namespace RoadTrafficSimulator.Components
             PriorityCrossing = new PriorityCrossing();
         }
 
-        public bool Initialise()
+        public bool Initialise(IClock clock)
         {
+            PriorityCrossing.Initialise(clock);
+
             var trafficLightVerifier = new Dictionary<Direction, bool>(InDegree * OutDegree);
             foreach (Road inRoad in GetInEdges())
                 foreach (Road outRoad in GetOutEdges())

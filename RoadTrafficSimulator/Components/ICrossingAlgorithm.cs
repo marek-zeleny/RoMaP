@@ -1,10 +1,13 @@
 ﻿using System;
 
+using RoadTrafficSimulator.ValueTypes;
+
 namespace RoadTrafficSimulator.Components
 {
     interface ICrossingAlgorithm
     {
-        bool CanCross(int fromRoadId, int toRoadId);
+        bool CanCross(Car car, int fromRoadId, int toRoadId, Time expectedArrival);
+        void CarCrossed(Car car, int fromRoadId, int toRoadId);
     }
 
     public readonly struct Direction : IEquatable<Direction>

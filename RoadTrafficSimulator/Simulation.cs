@@ -58,7 +58,7 @@ namespace RoadTrafficSimulator
             if (map.CrossroadCount == 0 || map.RoadCount == 0)
                 return InitialisationResult.Error_NoMap;
             foreach (Crossroad c in map.GetNodes())
-                if (!c.Initialise())
+                if (!c.Initialise(Clock))
                 {
                     invalidCrossroad = c;
                     return InitialisationResult.Error_InvalidCrossroad;
