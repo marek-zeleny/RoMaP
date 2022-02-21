@@ -120,7 +120,7 @@ namespace RoadTrafficSimulator.Components
 
             public void Initialise()
             {
-                WaitingCars = new List<(Car, int, Time)>();
+                WaitingCars = new List<(Car, int, Time)>(4); // Capacity ~ number of lanes of a road
             }
 
             public void RemovePriorDirectionsWhere(Func<Direction, bool> predicate)
