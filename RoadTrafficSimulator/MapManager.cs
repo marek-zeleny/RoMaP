@@ -480,7 +480,7 @@ namespace RoadTrafficSimulator
 
                     var priorFromDirections = priorDirections.TakeWhile(Pred);
                     // Give priority also to both main roads
-                    if (!isMainRoad)
+                    if (mainRoadDirs.HasValue && !isMainRoad)
                     {
                         priorFromDirections =
                             priorFromDirections.Append(mainRoadDirs.Value.Item1).Append(mainRoadDirs.Value.Item2);

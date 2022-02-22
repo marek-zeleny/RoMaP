@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Collections.Generic;
 using System.Text.Json;
+using System.Diagnostics;
 
 using DataStructures.Graphs;
 using RoadTrafficSimulator.ValueTypes;
@@ -91,6 +92,8 @@ namespace RoadTrafficSimulator.Components
             Weight = (length / maxSpeed).Weight();
             lanes = new Lane[maxLaneCount];
             LaneCount = 1;
+            AverageDuration = Length / MaxSpeed;
+            AverageSpeed = MaxSpeed;
         }
 
         public Road(int id, Crossroad from, Crossroad to, Road originalRoad)
@@ -101,6 +104,8 @@ namespace RoadTrafficSimulator.Components
             Weight = originalRoad.Weight;
             lanes = originalRoad.lanes;
             laneCount = originalRoad.laneCount;
+            AverageDuration = Length / MaxSpeed;
+            AverageSpeed = MaxSpeed;
         }
 
         #region methods
@@ -174,6 +179,7 @@ namespace RoadTrafficSimulator.Components
                 AverageSpeed = MaxSpeed;
             else
                 AverageSpeed = totalSpeed / carCount;
+            Debug.Assert(AverageSpeed >= 0);
             statistics.Update(CarCount, AverageSpeed, AverageDuration);
         }
 

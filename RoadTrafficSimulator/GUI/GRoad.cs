@@ -139,7 +139,11 @@ namespace RoadTrafficSimulator.GUI
             {
                 if (!simulationMode || !road.IsConnected)
                     return defaultColor;
-                float speedRatio = (float)(road as Road).AverageSpeed / road.MaxSpeed;
+                float speedRatio = (float)road.AverageSpeed / road.MaxSpeed;
+                Debug.Assert(speedRatio >= 0);
+                // Average speed can be higher than max speed if a car just arrived from a 'faster' road
+                if (speedRatio > 1)
+                    speedRatio = 1;
                 int red = (int)(255 * (1 - speedRatio));
                 int green = (int)(255 * speedRatio);
                 return Color.FromArgb(red, green, 0);

@@ -13,6 +13,7 @@ namespace RoadTrafficSimulator.Components
 
         public TrafficLight TrafficLight { get; }
         public PriorityCrossing PriorityCrossing { get; }
+        public ICrossingAlgorithm ActiveCrossingAlgorithm { get; private set; }
         public byte CarSpawnRate
         {
             get => carSpawnRate;
@@ -35,6 +36,10 @@ namespace RoadTrafficSimulator.Components
         public bool Initialise(IClock clock)
         {
             PriorityCrossing.Initialise(clock);
+            if (TrafficLight.Settings.Count > 1)
+                ActiveCrossingAlgorithm = TrafficLight;
+            else
+                ActiveCrossingAlgorithm = PriorityCrossing;
 
             var trafficLightVerifier = new Dictionary<Direction, bool>(InDegree * OutDegree);
             foreach (Road inRoad in GetInEdges())
@@ -46,14 +51,6 @@ namespace RoadTrafficSimulator.Components
         public void Tick(Time time)
         {
             TrafficLight.Tick(time);
-        }
-
-        public bool CanCross(int fromRoadId, int toRoadId)
-        {
-            if (TrafficLight.Settings.Count > 1)
-                return TrafficLight.CanCross(fromRoadId, toRoadId);
-            else
-                return PriorityCrossing.CanCross(fromRoadId, toRoadId);
         }
 
         public override void AddInEdge(IEdge<Coords, int> edge)

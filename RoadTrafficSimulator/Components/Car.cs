@@ -90,6 +90,7 @@ namespace RoadTrafficSimulator.Components
                 return;
             Distance drivenDistance = Move(time);
             CurrentSpeed = drivenDistance / time;
+            Debug.Assert(CurrentSpeed >= 0);
             statistics.Update(drivenDistance, CurrentSpeed);
             TryFinishDrive();
         }
@@ -147,8 +148,10 @@ namespace RoadTrafficSimulator.Components
             Speed maxSpeed = CurrentSpeed + acceleration * time;
             if (maxSpeed > navigation.CurrentRoad.MaxSpeed)
                 maxSpeed = navigation.CurrentRoad.MaxSpeed;
+            Time expectedArrival = freeSpace / maxSpeed;
             bool freeToGo = navigation.NextRoad != null &&
-                navigation.CurrentRoad.Destination.CanCross(navigation.CurrentRoad.Id, navigation.NextRoad.Id);
+                navigation.CurrentRoad.Destination.ActiveCrossingAlgorithm.CanCross(
+                    this, navigation.CurrentRoad.Id, navigation.NextRoad.Id, expectedArrival);
             if (freeToGo)
             {
                 travelledDistance = maxSpeed * time;
@@ -159,6 +162,10 @@ namespace RoadTrafficSimulator.Components
                     distance = navigation.CurrentRoad.Length;
                     travelledDistance = freeSpace + TryCrossToNextRoad(remainingTime);
                 }
+            }
+            else if (freeSpace == 0)
+            {
+                travelledDistance = new Distance(0);
             }
             else
             {
@@ -179,6 +186,8 @@ namespace RoadTrafficSimulator.Components
                 return 0.Metres();
 
             newRoad = true;
+            navigation.CurrentRoad.Destination.ActiveCrossingAlgorithm.CarCrossed(
+                this, navigation.CurrentRoad.Id, navigation.NextRoad.Id);
             navigation.CurrentRoad.GetOff(this);
             navigation.MoveToNextRoad();
             statistics.MovedToNextRoad(navigation.CurrentRoad.Id);
