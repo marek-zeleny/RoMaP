@@ -232,6 +232,9 @@ namespace RoadTrafficSimulator.Forms
         private void simulationPanel_StatisticsClick(object sender, EventArgs e)
         {
             statisticsForm.Show();
+            if (statisticsForm.WindowState == FormWindowState.Minimized)
+                statisticsForm.WindowState = FormWindowState.Normal;
+            statisticsForm.BringToFront();
         }
 
         private void timerSimulation_Tick(object sender, EventArgs e)
