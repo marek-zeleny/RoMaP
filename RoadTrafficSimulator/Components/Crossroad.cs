@@ -51,6 +51,7 @@ namespace RoadTrafficSimulator.Components
         public void Tick(Time time)
         {
             TrafficLight.Tick(time);
+            PriorityCrossing.Tick(time);
         }
 
         public override void AddInEdge(IEdge<Coords, int> edge)

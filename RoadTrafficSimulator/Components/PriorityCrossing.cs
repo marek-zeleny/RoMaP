@@ -10,15 +10,21 @@ namespace RoadTrafficSimulator.Components
 {
     class PriorityCrossing : ICrossingAlgorithm
     {
+        // Time reserved for a time to surely go through a crossroad
+        private static readonly Time maxTimeToCross = 4.Seconds();
+
         private Dictionary<Direction, DirectionInfo> directions = new();
         private IClock clock;
+        private int totalWaitingCars;
+        private int currentlyAllowedToGo;
+        private Car deadlockAllowedCar;
 
-        public void Initialise(IClock clock)
+        public override string ToString()
         {
-            this.clock = clock;
-            foreach (DirectionInfo info in directions.Values)
-                info.Initialise();
+            return $"PriorCross: {totalWaitingCars} waiting";
         }
+
+        #region building
 
         public void AddInRoad(Crossroad crossroad, int id)
         {
@@ -62,33 +68,73 @@ namespace RoadTrafficSimulator.Components
             directions = new Dictionary<Direction, DirectionInfo>();
         }
 
+        #endregion building
+
+        #region usage
+
+        public void Initialise(IClock clock)
+        {
+            this.clock = clock;
+            totalWaitingCars = 0;
+            currentlyAllowedToGo = 0;
+            deadlockAllowedCar = null;
+            foreach (DirectionInfo info in directions.Values)
+                info.Initialise();
+        }
+
         public bool CanCross(Car car, int fromRoadId, int toRoadId, Time expectedArrival)
         {
             Direction dir = new(fromRoadId, toRoadId);
             DirectionInfo info = directions[dir];
 
-            void AddWaitingCar()
+            void AddWaitingCar(bool permissionToGo)
             {
-                // If this car is already waiting, do nothing
-                if (info.WaitingCars.Where(w => w.car == car).Any())
-                    return;
-                info.WaitingCars.Add(new(car, toRoadId, clock.Time));
+                var waiting = info.WaitingCars.FirstOrDefault(w => w.Car == car);
+                // If this car is not yet waiting, add it
+                if (waiting == default)
+                {
+                    info.WaitingCars.Add(new(car, clock.Time, permissionToGo));
+                    totalWaitingCars++;
+                    // Also, new car arrival -> deadlock broken
+                    deadlockAllowedCar = null;
+                }
+                // Otherwise, set permission to go
+                else
+                {
+                    waiting.PermissionToGo = permissionToGo;
+                }
+
+                if (permissionToGo)
+                    currentlyAllowedToGo++;
             }
 
             // No priorities to give -> go
             if (info.PriorDirections.Count == 0)
             {
-                AddWaitingCar();
+                // Only register the car once it's near the crossroad
+                if (expectedArrival < maxTimeToCross)
+                    AddWaitingCar(true);
                 return true;
             }
             // Possibly need to give priority and not yet at the crossroad -> stop
             if (expectedArrival > 0)
                 return false;
-            // Already waiting at the crossroad -> decide
-            AddWaitingCar();
+
+            // Already waiting at the crossroad
+            // Deadlock detected -> allow through
+            if (car == deadlockAllowedCar)
+            {
+                AddWaitingCar(true);
+                return true;
+            }
+            // General situation -> check priorities
             foreach (Direction prior in info.PriorDirections)
                 if (directions[prior].WaitingCars.Count > 0)
+                {
+                    AddWaitingCar(false);
                     return false;
+                }
+            AddWaitingCar(true);
             return true;
         }
 
@@ -96,9 +142,29 @@ namespace RoadTrafficSimulator.Components
         {
             Direction dir = new(fromRoadId, toRoadId);
             var waitingCars = directions[dir].WaitingCars;
-            var waiting = waitingCars.First(w => w.car == car); // Should always be found, so throwing exception is OK
-            Debug.Assert(waiting.toRoadId == toRoadId);
+            var waiting = waitingCars.First(w => w.Car == car); // Should always be found, so throwing exception is OK
+            Debug.Assert(waiting.PermissionToGo);
+            totalWaitingCars--;
             waitingCars.Remove(waiting);
+        }
+
+        public void Tick(Time time)
+        {
+            if (totalWaitingCars > 0 && currentlyAllowedToGo == 0)
+            {
+                // Priority deadlock detected -> find the longest waiting car and allow it to go
+                DirectionInfo.WaitingCar oldest = null;
+                foreach (var (_, info) in directions)
+                    foreach (var waiting in info.WaitingCars)
+                        if (oldest == null || waiting.Arrival < oldest.Arrival)
+                            oldest = waiting;
+                deadlockAllowedCar = oldest.Car;
+            }
+            else
+            {
+                deadlockAllowedCar = null;
+            }
+            currentlyAllowedToGo = 0;
         }
 
         private void RemoveDirectionsWhere(Func<Direction, bool> predicate)
@@ -111,16 +177,32 @@ namespace RoadTrafficSimulator.Components
             }
         }
 
+        #endregion usage
+
         private class DirectionInfo
         {
+            public class WaitingCar
+            {
+                public Car Car { get; set; }
+                public Time Arrival { get; set; }
+                public bool PermissionToGo { get; set; }
+
+                public WaitingCar(Car car, Time arrival, bool permissionToGo)
+                {
+                    Car = car;
+                    Arrival = arrival;
+                    PermissionToGo = permissionToGo;
+                }
+            }
+
             private List<Direction> priorDirections = new();
 
             public ICollection<Direction> PriorDirections { get => priorDirections; }
-            public ICollection<(Car car, int toRoadId, Time arrival)> WaitingCars { get; private set; }
+            public ICollection<WaitingCar> WaitingCars { get; private set; }
 
             public void Initialise()
             {
-                WaitingCars = new List<(Car, int, Time)>(4); // Capacity ~ number of lanes of a road
+                WaitingCars = new List<WaitingCar>(Road.maxLaneCount); // Capacity ~ number of lanes of a road
             }
 
             public void RemovePriorDirectionsWhere(Func<Direction, bool> predicate)
