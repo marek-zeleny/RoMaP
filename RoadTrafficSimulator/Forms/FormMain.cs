@@ -100,7 +100,7 @@ namespace RoadTrafficSimulator.Forms
 
         private void buttonSimulate_Click(object sender, EventArgs e)
         {
-            InitializeSimulation();
+            InitialiseSimulation();
         }
 
         private void buttonPause_Click(object sender, EventArgs e)
@@ -165,12 +165,12 @@ namespace RoadTrafficSimulator.Forms
 
         private void buildPanel_SaveMapClick(object sender, EventArgs e)
         {
-            InitializeSaveMap();
+            InitialiseSaveMap();
         }
 
         private void buildPanel_LoadMapClick(object sender, EventArgs e)
         {
-            InitializeLoadMap();
+            InitialiseLoadMap();
             mapPanel.Redraw();
         }
 
@@ -239,13 +239,7 @@ namespace RoadTrafficSimulator.Forms
 
         private void timerSimulation_Tick(object sender, EventArgs e)
         {
-            Time timestep = (timerSimulation.Interval * simulationPanel.SimulationSpeed).Milliseconds();
-            if (!continueSimulation(timestep))
-                EndSimulation();
-            simulationPanel.SimulationTime = simulation.Clock.Time;
-            mapPanel.Redraw();
-            simulationPanel.UpdateChart();
-            statisticsForm.UpdateStatistics();
+            SimulationStep();
         }
 
         #endregion form_events
@@ -415,7 +409,7 @@ namespace RoadTrafficSimulator.Forms
 
         #region action_methods
 
-        private void InitializeSimulation()
+        private void InitialiseSimulation()
         {
             var initResult = simulation.Initialise(mapManager.Map, out Components.Crossroad invalidCrossroad);
             if (initResult == Simulation.InitialisationResult.Ok)
@@ -467,6 +461,18 @@ namespace RoadTrafficSimulator.Forms
             timerSimulation.Start();
         }
 
+        private void SimulationStep()
+        {
+            Time timestep = (timerSimulation.Interval * simulationPanel.SimulationSpeed).Milliseconds();
+            bool end = !continueSimulation(timestep);
+            simulationPanel.SimulationTime = simulation.Clock.Time;
+            mapPanel.Redraw();
+            simulationPanel.UpdateChart();
+            statisticsForm.UpdateStatistics();
+            if (end)
+                EndSimulation();
+        }
+
         private void PauseSimulation()
         {
             Debug.Assert(simulation.IsRunning);
@@ -500,30 +506,66 @@ namespace RoadTrafficSimulator.Forms
             buttonContinue.Visible = false;
             ResumeLayout();
             ShowInfo("The simulation has ended.");
+            string message =
+                $"The simulation has ended after {simulation.Clock.Time}.\n" +
+                "Do you wish to export statistical data? Note that you will NOT be able to do so later.";
+            var result = MessageBox.Show(message, "Simulation Ended", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            if (result == DialogResult.Yes)
+                InitialiseExportStats();
         }
 
-        private void InitializeExportStats()
+        private void InitialiseExportStats()
         {
-            string message = "There are no statistics to export. You need to run the simulation first.";
             if (simulation.StatsCollector == null)
             {
+                string message = "There are no statistics to export. You need to run the simulation first.";
                 MessageBox.Show(message, "No Statistics", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 return;
             }
 
             if (!Directory.Exists(savePath))
-                Directory.CreateDirectory(savePath);
-            SaveFileDialog fileDialog = new()
             {
-                Title = "Export CSV",
-                Filter = "CSV files (*.csv)|*.csv",
-                InitialDirectory = savePath
+                try
+                {
+                    Directory.CreateDirectory(savePath);
+                }
+                catch (Exception e) when (
+                e is IOException ||
+                e is UnauthorizedAccessException ||
+                e is SecurityException)
+                {
+                    string message = $"An error occurred when while creating an export directory: {e.Message}";
+                    MessageBox.Show(message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+            FolderBrowserDialog dialog = new()
+            {
+                Description = "Select a folder for exporting statistics.",
+                RootFolder = Environment.SpecialFolder.MyComputer,
+                SelectedPath = savePath,
             };
-            if (fileDialog.ShowDialog() == DialogResult.OK)
-                ExportStats(fileDialog.FileName);
+            if (dialog.ShowDialog() == DialogResult.OK)
+                ExportStats(dialog.SelectedPath);
         }
 
-        private void InitializeSaveMap()
+        private void ExportStats(string path)
+        {
+            try
+            {
+                simulation.StatsCollector.ExportJson(path);
+                ShowInfo("Statistics successfully exported.");
+            }
+            catch (Exception e) when (
+                e is IOException ||
+                e is UnauthorizedAccessException ||
+                e is SecurityException)
+            {
+                string message = $"An error occurred while exporting statistics: {e.Message}";
+                MessageBox.Show(message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void InitialiseSaveMap()
         {
             if (!Directory.Exists(savePath))
                 Directory.CreateDirectory(savePath);
@@ -565,7 +607,7 @@ namespace RoadTrafficSimulator.Forms
                 ShowInfo("Saving map failed due to unknown error.");
         }
 
-        private void InitializeLoadMap()
+        private void InitialiseLoadMap()
         {
             string message =
                 "Are you sure you want to load a new map?\n" +
@@ -579,7 +621,7 @@ namespace RoadTrafficSimulator.Forms
                     Title = "Load map",
                     Filter = "JSON files (*.json)|*.json",
                     InitialDirectory = Directory.Exists(savePath)
-                        ? savePath : Environment.GetFolderPath(Environment.SpecialFolder.Desktop)
+                        ? savePath : Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
                 };
                 if (fileDialog.ShowDialog() == DialogResult.OK)
                     LoadMap(fileDialog.FileName);
@@ -613,32 +655,6 @@ namespace RoadTrafficSimulator.Forms
             }
             else
                 ShowInfo("Chosen map couldn't be loaded due to wrong format.");
-        }
-
-        private void ExportStats(string path)
-        {
-            bool successful = true;
-            StreamWriter sw = null;
-            try
-            {
-                sw = new StreamWriter(path);
-                //simulation.Statistics.ExportCSV(sw);
-            }
-            catch (Exception e) when (
-                e is IOException ||
-                e is UnauthorizedAccessException ||
-                e is SecurityException)
-            {
-                string message = $"An error occurred while exporting statistics: {e.Message}";
-                MessageBox.Show(message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                successful = false;
-            }
-            finally
-            {
-                sw?.Dispose();
-            }
-            if (successful)
-                ShowInfo("Statistics successfully exported.");
         }
 
         private void ShowInfo(string info)

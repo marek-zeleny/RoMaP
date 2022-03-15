@@ -22,13 +22,21 @@ namespace RoadTrafficSimulator.Statistics
 
         public void ExportJson(string path)
         {
+            string dirName = $"sim_stats_{DateTime.Now:yyyyMMdd_hhmmss}";
+            string dirPath = Path.Combine(path, dirName);
+            Directory.CreateDirectory(dirPath);
+            JsonWriterOptions options = new()
+            {
+                Indented = true,
+            };
             foreach (var (source, stats) in data)
             {
-                string fileName = source.Name + "-statistics";
-                string filePath = Path.ChangeExtension(Path.Combine(path, fileName), "json");
-                using (Stream stream = File.OpenWrite(filePath)) // TODO: Find the best (and safest) way to open a file
+                string fileName = source.Name;
+                string filePath = Path.ChangeExtension(Path.Combine(dirPath, fileName), "json");
+                using (Stream stream = File.OpenWrite(filePath))
                 {
-                    Utf8JsonWriter writer = new(stream); // TODO: Set options appropriately
+                    Utf8JsonWriter writer = new(stream, options);
+
                     writer.WriteStartObject();
                     writer.WriteStartArray($"{source.Name}Statistics");
                     foreach (var stat in stats)
