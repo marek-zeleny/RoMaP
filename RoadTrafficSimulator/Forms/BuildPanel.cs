@@ -14,6 +14,7 @@ namespace RoadTrafficSimulator.Forms
 
         private Mode mode;
         private bool lockMode;
+        private bool lockLanes;
         private bool lockLength;
         private bool lockMaxSpeed;
 
@@ -56,6 +57,16 @@ namespace RoadTrafficSimulator.Forms
             }
         }
         public bool TwoWayRoad { get => checkBoxTwoWayRoad.Checked; }
+        public int Lanes
+        {
+            get => (int)numericUpDownLanes.Value;
+            set
+            {
+                lockLanes = true;
+                numericUpDownLanes.Value = value;
+                lockLanes = false;
+            }
+        }
         public int Length
         {
             get => (int)numericUpDownLength.Value;
@@ -176,6 +187,11 @@ namespace RoadTrafficSimulator.Forms
 
         [Browsable(true)]
         [Category("Property Changed")]
+        [Description("Occurs when the Lanes property is changed.")]
+        public event EventHandler LanesChanged;
+
+        [Browsable(true)]
+        [Category("Property Changed")]
         [Description("Occurs when the Length property is changed.")]
         public event EventHandler LengthChanged;
 
@@ -211,6 +227,9 @@ namespace RoadTrafficSimulator.Forms
             labelTwoWayRoad.Text = gRoad.IsTwoWay ? "Two-way" : "One-way";
             labelFrom.Text = $"From: {gRoad.From}";
             labelTo.Text = $"To: {gRoad.To}";
+            lockLanes = true;
+            numericUpDownLanes.Value = gRoad.GetRoad().LaneCount;
+            lockLanes = false;
             lockLength = true;
             numericUpDownLength.Value = gRoad.GetRoad().Length.ToMetres();
             lockLength = false;
@@ -246,6 +265,12 @@ namespace RoadTrafficSimulator.Forms
         private void radioButtonsRoadSide_CheckedChanged(object sender, EventArgs e)
         {
             CurrentRoadSideChanged?.Invoke(sender, e);
+        }
+
+        private void numericUpDownLanes_ValueChanged(object sender, EventArgs e)
+        {
+            if (!lockLanes)
+                LanesChanged?.Invoke(sender, e);
         }
 
         private void numericUpDownLength_ValueChanged(object sender, EventArgs e)

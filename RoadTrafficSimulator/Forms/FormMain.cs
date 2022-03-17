@@ -185,6 +185,16 @@ namespace RoadTrafficSimulator.Forms
             mapPanel.Redraw();
         }
 
+        private void buildPanel_LanesChanged(object sender, EventArgs e)
+        {
+            Debug.Assert(selectedRoad != null);
+            Components.Road road = selectedRoad.GetRoad();
+            road.LaneCount = buildPanel.Lanes;
+            // Must check whether the road accepted this lane count
+            buildPanel.Lanes = road.LaneCount;
+            mapPanel.Redraw();
+        }
+
         private void buildPanel_LengthChanged(object sender, EventArgs e)
         {
             Debug.Assert(selectedRoad != null);
