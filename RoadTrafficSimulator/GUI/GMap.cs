@@ -9,22 +9,23 @@ namespace RoadTrafficSimulator.GUI
     class GMap : IGMap
     {
         private const int crossroadSize = 20;
-        private const int roadWidth = 7;
 
-        private Dictionary<Coords, IGCrossroad> crossroads = new Dictionary<Coords, IGCrossroad>();
-        private Dictionary<Vector, IGRoad> roadSegments = new Dictionary<Vector, IGRoad>();
+        private Dictionary<Coords, IGCrossroad> crossroads = new();
+        private Dictionary<Vector, IGRoad> roadSegments = new();
+        private HashSet<IGRoad> roads = new();
 
         public bool AddCrossroad(IGCrossroad crossroad, Coords coords)
         {
             return crossroads.TryAdd(coords, crossroad);
         }
 
-        public bool AddRoad(IGRoad road, Vector vector)
+        public bool AddRoadSegment(IGRoad road, Vector vector)
         {
-            if (roadSegments.ContainsKey(vector.Reverse()))
+            if (roadSegments.ContainsKey(vector) || roadSegments.ContainsKey(vector.Reverse()))
                 return false;
-            else
-                return roadSegments.TryAdd(vector, road);
+            roadSegments.Add(vector, road);
+            roads.Add(road);
+            return true;
         }
 
         public bool RemoveCrossroad(Coords coords)
@@ -32,12 +33,26 @@ namespace RoadTrafficSimulator.GUI
             return crossroads.Remove(coords);
         }
 
-        public bool RemoveRoad(Vector vector)
+        public bool RemoveRoad(IGRoad road)
         {
-            if (roadSegments.Remove(vector))
-                return true;
-            else
-                return roadSegments.Remove(vector.Reverse());
+            var route = road.GetRoute();
+            Coords prev = route.First();
+            foreach (Coords coords in route.Skip(1))
+            {
+                Vector v = new(coords, prev);
+                if (!roadSegments.Remove(v) && !roadSegments.Remove(v.Reverse()))
+                    return false;
+                prev = coords;
+            }
+            return roads.Remove(road);
+        }
+
+        public bool RemoveRoadAt(Vector vector)
+        {
+            if (!roadSegments.TryGetValue(vector, out IGRoad road)
+                && !roadSegments.TryGetValue(vector.Reverse(), out road))
+                return false;
+            return RemoveRoad(road);
         }
 
         public IGCrossroad GetCrossroad(Coords coords)
@@ -63,14 +78,9 @@ namespace RoadTrafficSimulator.GUI
 
         public void Draw(Graphics graphics, Point origin, float zoom, int width, int height, bool simulationMode)
         {
-            int realRoadWidth = (int)(roadWidth * zoom);
-            foreach (var (vector, road) in roadSegments)
-            {
-                Point from = MapManager.CalculatePoint(vector.from, origin, zoom);
-                Point to = MapManager.CalculatePoint(vector.to, origin, zoom);
-                if (IsInRange(from, width, height) || IsInRange(to, width, height))
-                    road.Draw(graphics, from, to, realRoadWidth, simulationMode);
-            }
+            foreach (IGRoad road in roads)
+                road.Draw(graphics, origin, zoom, simulationMode, point => IsInRange(point, width, height));
+
             int realCrossroadSize = (int)(crossroadSize * zoom);
             foreach (var (coords, crossroad) in crossroads)
             {

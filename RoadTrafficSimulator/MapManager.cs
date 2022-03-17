@@ -17,7 +17,7 @@ namespace RoadTrafficSimulator
 
         public enum RoadSide { Right, Left };
 
-        public const int gridSize = 100;
+        public const int gridSize = 120;
 
         private static readonly Speed defaultMaxSpeed = 50.KilometresPerHour();
 
@@ -432,17 +432,7 @@ namespace RoadTrafficSimulator
         /// </summary>
         private bool DestroyGuiRoad(IGRoad gRoad)
         {
-            Coords? last = null;
-            foreach (Coords c in gRoad.GetRoute())
-            {
-                if (last.HasValue)
-                {
-                    if (!guiMap.RemoveRoad(new Vector(last.Value, c)))
-                        return false;
-                }
-                last = c;
-            }
-            return true;
+            return guiMap.RemoveRoad(gRoad);
         }
 
         // TODO: move to static
@@ -602,7 +592,7 @@ namespace RoadTrafficSimulator
                 Coords diff = vector.Diff();
                 if (!Array.Exists(allowedDirections, diff.Equals))
                     return false;
-                if (!gMap.AddRoad(gRoad, vector))
+                if (!gMap.AddRoadSegment(gRoad, vector))
                     return false;
                 Route.Add(nextCoords);
                 CanContinue = map.GetNode(nextCoords) == null;
@@ -660,16 +650,12 @@ namespace RoadTrafficSimulator
 
             public void DestroyRoad()
             {
-                Coords last = Route.First();
-                if (map.GetNode(last) == null)
-                    gMap.RemoveCrossroad(last);
+                Coords first = Route.First();
+                if (map.GetNode(first) == null)
+                    gMap.RemoveCrossroad(first);
                 else
-                    gMap.GetCrossroad(last).ResetHighlight(Highlight.None);
-                foreach (Coords curr in Route.Skip(1))
-                {
-                    gMap.RemoveRoad(new Vector(last, curr));
-                    last = curr;
-                }
+                    gMap.GetCrossroad(first).ResetHighlight(Highlight.None);
+                gMap.RemoveRoad(gRoad);
                 Invalidate();
             }
 

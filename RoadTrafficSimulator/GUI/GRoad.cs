@@ -11,6 +11,7 @@ namespace RoadTrafficSimulator.GUI
 {
     class GRoad : IMutableGRoad
     {
+        private const int laneWidth = 7;
         private static readonly Color defaultColor = Color.Blue;
         private static readonly Color arrowColor = Color.Yellow;
 
@@ -133,89 +134,190 @@ namespace RoadTrafficSimulator.GUI
 
         #region graphics
 
-        public void Draw(Graphics graphics, Point from, Point to, int width, bool simulationMode)
+        public void Draw(Graphics graphics, Point origin, float zoom, bool simulationMode, Func<Point, bool> isVisible)
         {
-            Color GetRoadColor(Road road)
-            {
-                if (!simulationMode || !road.IsConnected)
-                    return defaultColor;
-                float speedRatio = (float)road.AverageSpeed / road.MaxSpeed;
-                Debug.Assert(speedRatio >= 0);
-                // Average speed can be higher than max speed if a car just arrived from a 'faster' road
-                if (speedRatio > 1)
-                    speedRatio = 1;
-                int red = (int)(255 * (1 - speedRatio));
-                int green = (int)(255 * speedRatio);
-                return Color.FromArgb(red, green, 0);
-            }
+            Debug.Assert(Route.Count >= 2);
 
-            // one-way
+            int width = (int)(laneWidth * zoom);
+            int fWidth = fHighlight.HasFlag(Highlight.Large) ? GetIncreasedWidth(width) : width;
+            int bWidth = bHighlight.HasFlag(Highlight.Large) ? GetIncreasedWidth(width) : width;
+            Color fColor = GetRoadColor(fRoad, fHighlight, simulationMode);
+            Color bColor = GetRoadColor(bRoad, bHighlight, simulationMode);
+            IEnumerator<Coords> routeEnum = Route.GetEnumerator();
+            routeEnum.MoveNext();
+            Point from;
+            Point to = MapManager.CalculatePoint(routeEnum.Current, origin, zoom);
+
+            while (routeEnum.MoveNext())
+            {
+                from = to;
+                to = MapManager.CalculatePoint(routeEnum.Current, origin, zoom);
+                if (isVisible(from) || isVisible(to))
+                {
+                    DrawSegment(graphics, from, to, width, fWidth, bWidth, fColor, bColor);
+                }
+            }
+        }
+
+        private void DrawSegment(Graphics graphics, Point from, Point to, int width, int fWidth, int bWidth,
+            Color fColor, Color bColor)
+        {
             if (bRoad == null)
             {
-                // Might also be during the building phase - both roads are null
-                DrawLane(graphics, from, to, width, fHighlight, GetRoadColor(fRoad));
-                return;
+                if (fRoad == null)
+                    // Building phase - both roads are null
+                    DrawLane(graphics, from, to, width, defaultColor);
+                else
+                    // One-way forward road
+                    DrawOneWayRoad(graphics, from, to, fWidth, fColor, fRoad.LaneCount);
             }
             else if (fRoad == null)
             {
-                DrawLane(graphics, to, from, width, bHighlight, GetRoadColor(bRoad));
-                return;
-            }
-            // two-way
-            Point from1 = from;
-            Point to1 = to;
-            Point from2 = to;
-            Point to2 = from;
-            int distance = width * 3 / 4;
-            if (fHighlight.HasFlag(Highlight.Large) || bHighlight.HasFlag(Highlight.Large))
-                distance = IncreaseWidth(width) * 3 / 4;
-            int diffX = to.X - from.X;
-            int diffY = to.Y - from.Y;
-            if (diffX == 0)
-            {
-                if (diffY == 0)
-                    throw new ArgumentException($"The given points cannot be identical.");
-                else if ((diffY > 0) == (MapManager.roadSide == MapManager.RoadSide.Right))
-                    distance = -distance;
-                from1.Offset(distance, 0);
-                to1.Offset(distance, 0);
-                from2.Offset(-distance, 0);
-                to2.Offset(-distance, 0);
+                // One-way backward road
+                DrawOneWayRoad(graphics, to, from, bWidth, bColor, bRoad.LaneCount);
             }
             else
             {
-                if (diffY != 0)
-                    throw new ArgumentException($"The given points must be horizontally or vertically aligned.");
-                else if ((diffX < 0) == (MapManager.roadSide == MapManager.RoadSide.Right))
-                    distance = -distance;
-                from1.Offset(0, distance);
-                to1.Offset(0, distance);
-                from2.Offset(0, -distance);
-                to2.Offset(0, -distance);
+                // Two-way
+                DrawTwoWayRoad(graphics, from, to, fWidth, bWidth, fColor, bColor);
             }
-            DrawLane(graphics, from1, to1, width, fHighlight, GetRoadColor(fRoad));
-            DrawLane(graphics, from2, to2, width, bHighlight, GetRoadColor(bRoad));
         }
 
-        private static void DrawLane(Graphics graphics, Point from, Point to, int width,
-            Highlight highlight, Color color)
+        private void DrawOneWayRoad(Graphics graphics, Point from, Point to, int width, Color color, int lanes)
         {
-            if (highlight.HasFlag(Highlight.Transparent))
-                color = Color.FromArgb(150, color);
-            if (highlight.HasFlag(Highlight.Large))
-                width = IncreaseWidth(width);
-            Pen pen = new Pen(color, width);
+            Point from2 = from;
+            Point to2 = to;
+            var offsetDirs = GetLaneOffsetDirections(from, to);
+            var (dx, dy) = ScaleLaneOffsets(offsetDirs, GetLaneOffset(width));
+            if (lanes % 2 == 0)
+            {
+                // Even number of lanes
+                from.Offset(dx / 2, dy / 2);
+                to.Offset(dx / 2, dy / 2);
+                from2.Offset(-dx / 2, -dy / 2);
+                to2.Offset(-dx / 2, -dy / 2);
+                for (int i = 0; i < lanes; i += 2)
+                {
+                    DrawLane(graphics, from, to, width, color);
+                    DrawLane(graphics, from2, to2, width, color);
+                    from.Offset(dx, dy);
+                    to.Offset(dy, dy);
+                    from2.Offset(-dx, -dy);
+                    to2.Offset(-dx, -dy);
+                }
+            }
+            else
+            {
+                // Odd number of lanes
+                DrawLane(graphics, from, to, width, color);
+                for (int i = 1; i < lanes; i += 2)
+                {
+                    from.Offset(dx, dy);
+                    to.Offset(dx, dy);
+                    from2.Offset(-dx, -dy);
+                    to2.Offset(-dx, -dy);
+                    DrawLane(graphics, from, to, width, color);
+                    DrawLane(graphics, from2, to2, width, color);
+                }
+            }
+        }
+
+        private void DrawTwoWayRoad(Graphics graphics, Point from, Point to, int fWidth, int bWidth,
+            Color fColor, Color bColor)
+        {
+            void DrawOneWay(Point from, Point to, int dx, int dy, int width, int lanes, Color color)
+            {
+                from.Offset(dx / 2, dy / 2);
+                to.Offset(dx / 2, dy / 2);
+                for (int i = 0; i < lanes; i++)
+                {
+                    DrawLane(graphics, from, to, width, color);
+                    from.Offset(dx, dy);
+                    to.Offset(dx, dy);
+                }
+            }
+
+            var offsetDirs = GetLaneOffsetDirections(from, to);
+            var o1 = ScaleLaneOffsets(offsetDirs, GetLaneOffset(fWidth));
+            var o2 = ScaleLaneOffsets(offsetDirs, GetLaneOffset(bWidth));
+            o2 = (-o2.dx, -o2.dy);
+
+            DrawOneWay(from, to, o1.dx, o1.dy, fWidth, fRoad.LaneCount, fColor);
+            DrawOneWay(to, from, o2.dx, o2.dy, bWidth, bRoad.LaneCount, bColor);
+        }
+
+        private static void DrawLane(Graphics graphics, Point from, Point to, int width, Color color)
+        {
+            Pen pen = new(color, width);
             graphics.DrawLine(pen, from, to);
 
-            float ratio = 0.6f;
-            float invRatio = 1 - ratio;
-            PointF arrowFrom = new PointF(from.X * ratio + to.X * invRatio, from.Y * ratio + to.Y * invRatio);
-            PointF arrowTo = new PointF(to.X * ratio + from.X * invRatio, to.Y * ratio + from.Y * invRatio);
+            const float ratio = 0.6f;
+            const float invRatio = 1 - ratio;
+            PointF arrowFrom = new(from.X * ratio + to.X * invRatio, from.Y * ratio + to.Y * invRatio);
+            PointF arrowTo = new(to.X * ratio + from.X * invRatio, to.Y * ratio + from.Y * invRatio);
             Brush brush = new SolidBrush(arrowColor);
             graphics.FillArrow(brush, arrowFrom, arrowTo, width / 2);
         }
 
-        private static int IncreaseWidth(int width) => width + width / 2;
+        private static Color GetRoadColor(Road road, Highlight highlight, bool simulationMode)
+        {
+            if (!simulationMode || road == null || !road.IsConnected)
+                return defaultColor;
+
+            float speedRatio = (float)road.AverageSpeed / road.MaxSpeed;
+            Debug.Assert(speedRatio >= 0);
+            // Average speed can be higher than max speed if a car just arrived from a 'faster' road
+            if (speedRatio > 1)
+                speedRatio = 1;
+            int red = (int)(255 * (1 - speedRatio));
+            int green = (int)(255 * speedRatio);
+            Color color = Color.FromArgb(red, green, 0);
+
+            if (highlight.HasFlag(Highlight.Transparent))
+                return Color.FromArgb(150, color);
+            else
+                return color;
+        }
+
+        private static (int dx, int dy) GetLaneOffsetDirections(Point from, Point to)
+        {
+            int diffX = to.X - from.X;
+            int diffY = to.Y - from.Y;
+            int dx = 0;
+            int dy = 0;
+            if (diffX == 0)
+            {
+                // vertical road
+                Debug.Assert(diffY != 0);
+                if ((diffY < 0) == (MapManager.roadSide == MapManager.RoadSide.Right))
+                    // upwards road
+                    dx = 1;
+                else
+                    // downwards road
+                    dx = -1;
+            }
+            else
+            {
+                // horizontal road
+                Debug.Assert(diffY == 0);
+                if ((diffX > 0) == (MapManager.roadSide == MapManager.RoadSide.Right))
+                    // rightwards road
+                    dy = 1;
+                else
+                    // leftwards road
+                    dy = -1;
+            }
+            return (dx, dy);
+        }
+
+        private static (int dx, int dy) ScaleLaneOffsets((int dx, int dy) dirs, int scale)
+        {
+            return (dirs.dx * scale, dirs.dy * scale);
+        }
+
+        private static int GetLaneOffset(int laneWidth) => laneWidth * 3 / 2;
+
+        private static int GetIncreasedWidth(int width) => width * 3 / 2;
 
         #endregion graphics
 
@@ -253,8 +355,9 @@ namespace RoadTrafficSimulator.GUI
                 gRoad.SetHighlight(highlight, Reverse(direction));
             public void UnsetHighlight(Highlight highlight, IGRoad.Direction direction) =>
                 gRoad.UnsetHighlight(highlight, Reverse(direction));
-            public void Draw(Graphics graphics, Point from, Point to, int width, bool simulationMode) =>
-                gRoad.Draw(graphics, from, to, width, simulationMode);
+            public void Draw(Graphics graphics, Point origin, float zoom, bool simulationMode,
+                Func<Point, bool> isVisible) =>
+                gRoad.Draw(graphics, origin, zoom, simulationMode, isVisible);
         }
     }
 
@@ -266,12 +369,12 @@ namespace RoadTrafficSimulator.GUI
             points[0] = to;
             points[7] = to;
 
-            PointF vector = new PointF(to.X - from.X, to.Y - from.Y);
-            PointF orthVector = new PointF(-vector.Y, vector.X);
+            PointF vector = new(to.X - from.X, to.Y - from.Y);
+            PointF orthVector = new(-vector.Y, vector.X);
             float vectorSize = (float)Math.Sqrt(Math.Pow(orthVector.X, 2) + Math.Pow(orthVector.Y, 2));
             orthVector.X = orthVector.X * width / vectorSize;
             orthVector.Y = orthVector.Y * width / vectorSize;
-            PointF center = new PointF((from.X + to.X) / 2, (from.Y + to.Y) / 2);
+            PointF center = new((from.X + to.X) / 2, (from.Y + to.Y) / 2);
             
             points[1] = new PointF(center.X + orthVector.X, center.Y + orthVector.Y);
             points[6] = new PointF(center.X - orthVector.X, center.Y - orthVector.Y);

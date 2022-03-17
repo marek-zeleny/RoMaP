@@ -9,9 +9,10 @@ namespace RoadTrafficSimulator.GUI
     interface IGMap
     {
         bool AddCrossroad(IGCrossroad crossroad, Coords coords);
-        bool AddRoad(IGRoad road, Vector vector);
+        bool AddRoadSegment(IGRoad road, Vector vector);
         bool RemoveCrossroad(Coords coords);
-        bool RemoveRoad(Vector vector);
+        bool RemoveRoad(IGRoad road);
+        bool RemoveRoadAt(Vector vector);
         IGCrossroad GetCrossroad(Coords coords);
         IGRoad GetRoad(Vector vector);
         IEnumerable<IGCrossroad> GetCrossroads();
