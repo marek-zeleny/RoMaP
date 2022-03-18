@@ -28,7 +28,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.Panel panelMap;
             this.comboBoxSetting = new System.Windows.Forms.ComboBox();
             this.labelDuration = new System.Windows.Forms.Label();
             this.numericUpDownDuration = new System.Windows.Forms.NumericUpDown();
@@ -43,7 +42,7 @@
             this.checkBoxLeft = new System.Windows.Forms.CheckBox();
             this.groupBoxInfo = new System.Windows.Forms.GroupBox();
             this.labelInfo = new System.Windows.Forms.Label();
-            panelMap = new System.Windows.Forms.Panel();
+            this.panelMap = new System.Windows.Forms.Panel();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownDuration)).BeginInit();
             this.groupBoxAllowedDirections.SuspendLayout();
             this.groupBoxInfo.SuspendLayout();
