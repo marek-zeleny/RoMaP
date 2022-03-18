@@ -12,6 +12,6 @@ namespace RoadTrafficSimulator.GUI
         void ResetHighlight(Highlight highlight);
         void SetHighlight(Highlight highlight);
         void UnsetHighlight(Highlight highlight);
-        void Draw(Graphics graphics, Point point, int size);
+        void Draw(Graphics graphics, Point origin, float zoom, Func<Point, bool> isVisible);
     }
 }

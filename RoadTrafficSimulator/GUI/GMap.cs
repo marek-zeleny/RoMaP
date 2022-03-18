@@ -8,8 +8,6 @@ namespace RoadTrafficSimulator.GUI
 {
     class GMap : IGMap
     {
-        private const int crossroadSize = 20;
-
         private Dictionary<Coords, IGCrossroad> crossroads = new();
         private Dictionary<Vector, IGRoad> roadSegments = new();
         private HashSet<IGRoad> roads = new();
@@ -78,16 +76,13 @@ namespace RoadTrafficSimulator.GUI
 
         public void Draw(Graphics graphics, Point origin, float zoom, int width, int height, bool simulationMode)
         {
-            foreach (IGRoad road in roads)
-                road.Draw(graphics, origin, zoom, simulationMode, point => IsInRange(point, width, height));
+            bool IsVisible(Point point) => IsInRange(point, width, height);
 
-            int realCrossroadSize = (int)(crossroadSize * zoom);
-            foreach (var (coords, crossroad) in crossroads)
-            {
-                Point point = MapManager.CalculatePoint(coords, origin, zoom);
-                if (IsInRange(point, width, height))
-                    crossroad.Draw(graphics, point, realCrossroadSize);
-            }
+            foreach (IGRoad road in roads)
+                road.Draw(graphics, origin, zoom, simulationMode, IsVisible);
+
+            foreach (var crossroad in crossroads.Values)
+                crossroad.Draw(graphics, origin, zoom, IsVisible);
         }
 
         private static bool IsInRange (Point point, int width, int height)
