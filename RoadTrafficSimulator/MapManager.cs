@@ -22,133 +22,8 @@ namespace RoadTrafficSimulator
         private static readonly Speed defaultMaxSpeed = 50.KilometresPerHour();
 
         public static readonly Distance roadSegmentDefaultLength = 100.Metres();
-        // Must be ordered in the counter-clockwise direction
-        public static readonly Coords[] allowedDirections = new Coords[]
-        {
-                new Coords(1, 0),
-                new Coords(0, -1),
-                new Coords(-1, 0),
-                new Coords(0, 1),
-        };
 
         public static RoadSide roadSide = RoadSide.Right;
-
-        /// <summary>
-        /// Gets allowed directions in the correct order according to <see cref="roadSide"/> starting from the
-        /// <paramref name="i"/>th index.
-        /// </summary>
-        public static IEnumerable<Coords> GetAllowedDirections(int i = 0)
-        {
-            yield return allowedDirections[i];
-            int m = allowedDirections.Length;
-            switch (roadSide)
-            {
-                case RoadSide.Right:
-                    for (int j = (i + 1) % m; j != i; j = (j + 1) % m)
-                        yield return allowedDirections[j];
-                    break;
-                case RoadSide.Left:
-                    for (int j = (i - 1 + m) % m; j != i; j = (j - 1 + m) % m)
-                        yield return allowedDirections[j];
-                    break;
-                default:
-                    throw new NotImplementedException();
-            }
-        }
-
-        /// <summary>
-        /// Gets allowed directions in the correct order according to <see cref="roadSide"/> starting from
-        /// <paramref name="startDirection"/>.
-        /// </summary>
-        public static IEnumerable<Coords> GetAllowedDirections(Coords startDirection)
-        {
-            int i = 0;
-            for (; i < allowedDirections.Length; i++)
-                if (allowedDirections[i] == startDirection)
-                    break;
-            if (i == allowedDirections.Length)
-                throw new ArgumentException("The given start direction isn't allowed.", nameof(startDirection));
-            return GetAllowedDirections(i);
-        }
-
-        public static int DotProduct(Point p1, Point p2)
-        {
-            return p1.X * p2.X + p1.Y * p2.Y;
-        }
-
-        public static Point Normal(Point point)
-        {
-            return roadSide switch
-            {
-                RoadSide.Right => new Point(-point.Y, point.X),
-                RoadSide.Left => new Point(point.Y, -point.X),
-                _ => throw new NotImplementedException(),
-            };
-        }
-
-        public static Point CalculatePoint(Coords coords, Point origin, float zoom)
-        {
-            Point output = new()
-            {
-                X = origin.X + (int)(coords.x * gridSize * zoom),
-                Y = origin.Y + (int)(coords.y * gridSize * zoom)
-            };
-            return output;
-        }
-
-        public static Coords CalculateCoords(Point point, Point origin, float zoom)
-        {
-            int x = (int)Math.Round((point.X - origin.X) / (gridSize * zoom));
-            int y = (int)Math.Round((point.Y - origin.Y) / (gridSize * zoom));
-            return new Coords(x, y);
-        }
-
-        public static Vector CalculateVector(Point point, Point origin, float zoom)
-        {
-            Coords from = CalculateCoords(point, origin, zoom);
-            Coords to;
-            Point fromPoint = CalculatePoint(from, origin, zoom);
-            int dx = point.X - fromPoint.X;
-            int dy = point.Y - fromPoint.Y;
-            int sx = Math.Sign(dx);
-            int sy = Math.Sign(dy);
-            bool horizontal = Math.Abs(dx) > Math.Abs(dy);
-            if (horizontal)
-                to = new Coords(from.x + sx, from.y);
-            else
-                to = new Coords(from.x, from.y + sy);
-            return new Vector(from, to);
-        }
-
-        public static bool IsCorrectDirection(Vector vector, Point point, Point origin, float zoom)
-        {
-            // Returns true if the vector is correctly directed
-            Point centre = CalculatePoint(vector.from, origin, zoom);
-            Point to = CalculatePoint(vector.to, origin, zoom);
-            to.Offset(-centre.X, -centre.Y);
-            point.Offset(-centre.X, -centre.Y);
-            return DotProduct(Normal(to), point) > 0;
-        }
-
-        public static bool IsCorrectDirection(Vector vector1, Vector vector2, Point point, Point origin, float zoom)
-        {
-            // Returns true if the correct direction is vector1 and false if it's vector2
-            Debug.Assert(vector1.from == vector2.from);
-            Point centre = CalculatePoint(vector1.from, origin, zoom);
-            Point p1 = CalculatePoint(vector1.to, origin, zoom);
-            Point p2 = CalculatePoint(vector2.to, origin, zoom);
-            p1.Offset(-centre.X, -centre.Y);
-            p2.Offset(-centre.X, -centre.Y);
-            point.Offset(-centre.X, -centre.Y);
-            Point n1 = Normal(p1);
-            Point n2 = Normal(p2);
-            bool switched = DotProduct(p1, n2) < 0;
-            if (switched)
-                (n1, n2) = (n2, n1);
-            bool before1 = DotProduct(point, n1) > 0;
-            bool after2 = DotProduct(point, n2) < 0;
-            return (before1 || after2) ^ switched;
-        }
 
         public static IRoadBuilder CreateRoadBuilder(Map map, IGMap guiMap, Coords startingCoords,
             bool twoWayRoad)
@@ -158,7 +33,7 @@ namespace RoadTrafficSimulator
 
         public static bool NoGuiRoadsAt(IGMap guiMap, Coords coords)
         {
-            foreach (Coords diff in allowedDirections)
+            foreach (Coords diff in CoordsConvertor.GetAllowedDirections())
                 if (guiMap.GetRoad(new Vector(coords, coords + diff)) != null)
                     return false;
             return true;
@@ -183,7 +58,7 @@ namespace RoadTrafficSimulator
 
         public CrossroadWrapper? GetNearestCrossroad(Point point, Point origin, float zoom)
         {
-            Coords coords = CalculateCoords(point, origin, zoom);
+            Coords coords = CoordsConvertor.CalculateCoords(point, origin, zoom);
             return GetCrossroad(coords);
         }
 
@@ -196,9 +71,9 @@ namespace RoadTrafficSimulator
                 return Math.Sqrt(dx * dx + dy * dy);
             }
 
-            Vector vector = CalculateVector(point, origin, zoom);
-            Point from = CalculatePoint(vector.from, origin, zoom);
-            Point to = CalculatePoint(vector.to, origin, zoom);
+            Vector vector = CoordsConvertor.CalculateVector(point, origin, zoom);
+            Point from = CoordsConvertor.CalculatePoint(vector.from, origin, zoom);
+            Point to = CoordsConvertor.CalculatePoint(vector.to, origin, zoom);
             double distance = CalculateDistance(from, point);
             proximity = distance / (gridSize * zoom);
             return GetCrossroad(vector.from);
@@ -211,28 +86,27 @@ namespace RoadTrafficSimulator
 
         public IGRoad GetNearestRoad(Point point, Point origin, float zoom)
         {
-            Coords coords = CalculateCoords(point, origin, zoom);
+            Coords coords = CoordsConvertor.CalculateCoords(point, origin, zoom);
 
-            int FindNextRoad(int i, out Vector vector, out IGRoad road)
+            (Vector, IGRoad) FindNextRoad(IEnumerator<Coords> e)
             {
-                for (; i < allowedDirections.Length; i++)
+                while (e.MoveNext())
                 {
-                    vector = new Vector(coords, coords + allowedDirections[i]);
-                    road = GetRoad(vector);
+                    Vector vector = new(coords, coords + e.Current);
+                    IGRoad road = GetRoad(vector);
                     if (road != null)
-                        return i;
+                        return (vector, road);
                 }
-                vector = new();
-                road = null;
-                return i;
+                return (new(), null);
             }
 
             var nearestCrossroad = GetCrossroad(coords);
             // No crossroad in the area
             if (nearestCrossroad == null)
             {
-                int i = FindNextRoad(0, out Vector vector1, out IGRoad road1);
-                FindNextRoad(++i, out Vector vector2, out IGRoad road2);
+                IEnumerator<Coords> e = CoordsConvertor.GetAllowedDirections().GetEnumerator();
+                var (vector1, road1) = FindNextRoad(e);
+                var (vector2, road2) = FindNextRoad(e);
                 if (road1 == null)
                     return null;
                 else
@@ -240,7 +114,7 @@ namespace RoadTrafficSimulator
                     Debug.Assert(road2 != null);
                     Debug.Assert(vector1.from == coords);
                     Debug.Assert(vector2.from == coords);
-                    if (IsCorrectDirection(vector1, vector2, point, origin, zoom))
+                    if (CoordsConvertor.IsCorrectDirection(vector1, vector2, point, origin, zoom))
                         return road1;
                     else
                         return road2;
@@ -249,8 +123,8 @@ namespace RoadTrafficSimulator
             // Crossroad nearby
             else
             {
-                Vector vector = CalculateVector(point, origin, zoom);
-                if (!IsCorrectDirection(vector, point, origin, zoom))
+                Vector vector = CoordsConvertor.CalculateVector(point, origin, zoom);
+                if (!CoordsConvertor.IsCorrectDirection(vector, point, origin, zoom))
                     vector = vector.Reverse();
                 return GetRoad(vector);
             }
@@ -264,7 +138,7 @@ namespace RoadTrafficSimulator
         {
             IGRoad Selector(Coords diff) => GetRoad(new Vector(coords, coords + diff));
 
-            return GetAllowedDirections().Select(Selector).Where(gRoad => gRoad != null);
+            return CoordsConvertor.GetAllowedDirections().Select(Selector).Where(gRoad => gRoad != null);
         }
 
         /// <summary>
@@ -276,7 +150,7 @@ namespace RoadTrafficSimulator
         {
             IGRoad Selector(Coords diff) => GetRoad(new Vector(vector.from, vector.from + diff));
 
-            return GetAllowedDirections(vector.Diff()).Select(Selector).Where(gRoad => gRoad != null);
+            return CoordsConvertor.GetAllowedDirections(vector.Diff()).Select(Selector).Where(gRoad => gRoad != null);
         }
 
         public IRoadBuilder GetRoadBuilder(Coords startingCoords, bool twoWayRoad = true)
@@ -447,7 +321,7 @@ namespace RoadTrafficSimulator
                     return road;
             }
 
-            foreach (var fromDir in GetAllowedDirections())
+            foreach (var fromDir in CoordsConvertor.GetAllowedDirections())
             {
                 Road fromRoad = GetRoad(fromDir, IGRoad.Direction.Backward);
                 if (fromRoad == null)
@@ -457,7 +331,7 @@ namespace RoadTrafficSimulator
                 bool isMainRoad = mainRoadDirs.HasValue &&
                     (mainRoadDirs.Value.Item1 == fromDir || mainRoadDirs.Value.Item2 == fromDir);
 
-                foreach (var toDir in GetAllowedDirections())
+                foreach (var toDir in CoordsConvertor.GetAllowedDirections())
                 {
                     Road toRoad = GetRoad(toDir, IGRoad.Direction.Forward);
                     if (toRoad == null)
@@ -465,7 +339,7 @@ namespace RoadTrafficSimulator
 
                     Direction fromPriority = new(fromRoad.Id, toRoad.Id);
                     // Need to start *after* fromDir and end with it instead
-                    var priorDirections = GetAllowedDirections(fromDir).Skip(1).Append(fromDir);
+                    var priorDirections = CoordsConvertor.GetAllowedDirections(fromDir).Skip(1).Append(fromDir);
                     bool Pred(Coords dir) => dir != toDir;
 
                     var priorFromDirections = priorDirections.TakeWhile(Pred);
@@ -490,7 +364,7 @@ namespace RoadTrafficSimulator
                         IEnumerable<Coords> priorToDirections;
                         if (!isMainRoad && priorIsMainRoad)
                             // Side road gives priority to all directions from a main road
-                            priorToDirections = GetAllowedDirections();
+                            priorToDirections = CoordsConvertor.GetAllowedDirections();
                         else
                             priorToDirections = priorDirections.SkipWhile(Pred);
 
@@ -511,8 +385,8 @@ namespace RoadTrafficSimulator
         private void DrawGrid(Graphics graphics, Point origin, float zoom, int width, int height)
         {
             float step = gridSize * zoom;
-            Coords firstCoords = CalculateCoords(new Point(0, 0), origin, zoom);
-            Point firstPoint = CalculatePoint(firstCoords, origin, zoom);
+            Coords firstCoords = CoordsConvertor.CalculateCoords(new Point(0, 0), origin, zoom);
+            Point firstPoint = CoordsConvertor.CalculatePoint(firstCoords, origin, zoom);
 
             Pen pen = new Pen(Color.Gray, 1)
             {
@@ -589,8 +463,7 @@ namespace RoadTrafficSimulator
                     return false;
                 Coords lastCoords = gRoad.To;
                 Vector vector = new(lastCoords, nextCoords);
-                Coords diff = vector.Diff();
-                if (!Array.Exists(allowedDirections, diff.Equals))
+                if (!CoordsConvertor.IsAllowedDirection(vector.Diff()))
                     return false;
                 if (!gMap.AddRoadSegment(gRoad, vector))
                     return false;

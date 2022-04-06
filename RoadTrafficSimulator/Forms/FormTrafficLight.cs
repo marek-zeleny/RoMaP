@@ -41,7 +41,7 @@ namespace RoadTrafficSimulator.Forms
             this.crossroad = crossroad;
             trafficLight = crossroad.crossroad.TrafficLight;
             checkBoxBinder = GetCheckBoxBinder();
-            Point offset = MapManager.CalculatePoint(crossroad.crossroad.Id, new Point(0, 0), zoom);
+            Point offset = CoordsConvertor.CalculatePoint(crossroad.crossroad.Id, new Point(0, 0), zoom);
             origin = new Point(panelMap.Width / 2 - offset.X, panelMap.Height / 2 - offset.Y);
             InitializeComboBoxSetting();
         }
@@ -121,7 +121,7 @@ namespace RoadTrafficSimulator.Forms
         private void SelectRoad(Point mouseLocation)
         {
             UnselectRoad();
-            Vector vector = MapManager.CalculateVector(mouseLocation, origin, zoom);
+            Vector vector = CoordsConvertor.CalculateVector(mouseLocation, origin, zoom);
             if (vector.to != crossroad.crossroad.Id)
                 vector = vector.Reverse();
             selectedRoad = mapManager.GetRoad(vector);

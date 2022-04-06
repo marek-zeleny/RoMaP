@@ -146,12 +146,12 @@ namespace RoadTrafficSimulator.GUI
             IEnumerator<Coords> routeEnum = Route.GetEnumerator();
             routeEnum.MoveNext();
             Point from;
-            Point to = MapManager.CalculatePoint(routeEnum.Current, origin, zoom);
+            Point to = CoordsConvertor.CalculatePoint(routeEnum.Current, origin, zoom);
 
             while (routeEnum.MoveNext())
             {
                 from = to;
-                to = MapManager.CalculatePoint(routeEnum.Current, origin, zoom);
+                to = CoordsConvertor.CalculatePoint(routeEnum.Current, origin, zoom);
                 if (isVisible(from) || isVisible(to))
                 {
                     DrawSegment(graphics, from, to, width, fWidth, bWidth, fColor, bColor);

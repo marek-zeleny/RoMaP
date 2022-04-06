@@ -339,7 +339,7 @@ namespace RoadTrafficSimulator.Forms
 
         private void Build(Point mouseLocation)
         {
-            Coords coords = MapManager.CalculateCoords(mouseLocation, mapPanel.Origin, mapPanel.Zoom);
+            Coords coords = CoordsConvertor.CalculateCoords(mouseLocation, mapPanel.Origin, mapPanel.Zoom);
             if (currentRoadBuilder == null)
                 currentRoadBuilder = mapManager.GetRoadBuilder(coords, buildPanel.TwoWayRoad);
             else

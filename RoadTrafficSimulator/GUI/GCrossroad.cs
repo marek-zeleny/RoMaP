@@ -37,7 +37,7 @@ namespace RoadTrafficSimulator.GUI
 
         public void Draw(Graphics graphics, Point origin, float zoom, Func<Point, bool> isVisible)
         {
-            Point point = MapManager.CalculatePoint(CrossroadId, origin, zoom);
+            Point point = CoordsConvertor.CalculatePoint(CrossroadId, origin, zoom);
             if (!isVisible(point))
                 return;
 
