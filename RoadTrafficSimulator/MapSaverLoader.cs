@@ -171,8 +171,8 @@ namespace RoadTrafficSimulator
             if (gCrossroad.MainRoadDirections.HasValue)
             {
                 writer.WriteStartArray(Keywords.mainRoadDirections);
-                SerialiseCoords(writer, gCrossroad.MainRoadDirections.Value.Item1);
-                SerialiseCoords(writer, gCrossroad.MainRoadDirections.Value.Item2);
+                writer.WriteStringValue(gCrossroad.MainRoadDirections.Value.Item1.ToString());
+                writer.WriteStringValue(gCrossroad.MainRoadDirections.Value.Item2.ToString());
                 writer.WriteEndArray();
             }
             writer.WriteNumber(Keywords.carSpawnRate, crossroad.CarSpawnRate);
@@ -324,11 +324,15 @@ namespace RoadTrafficSimulator
                 var e = jMainRoad.EnumerateArray();
                 if (!e.MoveNext())
                     return false;
-                if (!ParseCoords(e.Current, out Coords dir1))
+                if (e.Current.ValueKind != JsonValueKind.String)
+                    return false;
+                if (!Enum.TryParse(e.Current.GetString(), out CoordsConvertor.Direction dir1))
                     return false;
                 if (!e.MoveNext())
                     return false;
-                if (!ParseCoords(e.Current, out Coords dir2))
+                if (e.Current.ValueKind != JsonValueKind.String)
+                    return false;
+                if (!Enum.TryParse(e.Current.GetString(), out CoordsConvertor.Direction dir2))
                     return false;
                 // Shouldn't have more elements
                 if (e.MoveNext())
@@ -366,7 +370,7 @@ namespace RoadTrafficSimulator
             return true;
         }
 
-        static bool ParseIntProperty(JsonElement elem, string propertyName, out int value)
+        private static bool ParseIntProperty(JsonElement elem, string propertyName, out int value)
         {
             value = default;
             if (!elem.TryGetProperty(propertyName, out var jValue))

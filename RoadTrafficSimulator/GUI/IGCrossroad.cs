@@ -8,7 +8,20 @@ namespace RoadTrafficSimulator.GUI
     interface IGCrossroad
     {
         Coords CrossroadId { get; }
-        (Coords, Coords)? MainRoadDirections { get; set; }
+        (CoordsConvertor.Direction, CoordsConvertor.Direction)? MainRoadDirections { get; set; }
+        bool IsMainRoadDirection(CoordsConvertor.Direction direction)
+        {
+            if (!MainRoadDirections.HasValue)
+                return false;
+            return MainRoadDirections.Value.Item1 == direction || MainRoadDirections.Value.Item2 == direction;
+        }
+        bool IsMainRoadDirection(Coords coords)
+        {
+            if (!MainRoadDirections.HasValue)
+                return false;
+            return CoordsConvertor.AreEqual(coords, MainRoadDirections.Value.Item1)
+                || CoordsConvertor.AreEqual(coords, MainRoadDirections.Value.Item2);
+        }
         void ResetHighlight(Highlight highlight);
         void SetHighlight(Highlight highlight);
         void UnsetHighlight(Highlight highlight);

@@ -12,7 +12,7 @@ namespace RoadTrafficSimulator
         // Must be ordered in the counter-clockwise direction
         public enum Direction
         {
-            Right,
+            Right = 0,
             Up,
             Left,
             Down,
@@ -30,6 +30,11 @@ namespace RoadTrafficSimulator
         public static bool IsAllowedDirection(Coords coords)
         {
             return Array.Exists(allowedDirections, coords.Equals);
+        }
+
+        public static bool AreEqual(Coords coords, Direction dir)
+        {
+            return coords == GetCoords(dir);
         }
 
         public static Coords GetCoords(Direction dir)

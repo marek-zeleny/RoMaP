@@ -277,9 +277,11 @@ namespace RoadTrafficSimulator
             if (gCrossroad.MainRoadDirections.HasValue)
             {
                 // if one of the main road directions doesn't have an open road, remove main road
-                (Coords m1, Coords m2) = gCrossroad.MainRoadDirections.Value;
-                IGRoad r1 = GetRoad(new Vector(gCrossroad.CrossroadId, gCrossroad.CrossroadId + m1));
-                IGRoad r2 = GetRoad(new Vector(gCrossroad.CrossroadId, gCrossroad.CrossroadId + m2));
+                var (m1, m2) = gCrossroad.MainRoadDirections.Value;
+                Coords dir1 = CoordsConvertor.GetCoords(m1);
+                Coords dir2 = CoordsConvertor.GetCoords(m2);
+                IGRoad r1 = GetRoad(new Vector(gCrossroad.CrossroadId, gCrossroad.CrossroadId + dir1));
+                IGRoad r2 = GetRoad(new Vector(gCrossroad.CrossroadId, gCrossroad.CrossroadId + dir2));
                 if (!HasOpenRoad(r1) || !HasOpenRoad(r2))
                     gCrossroad.MainRoadDirections = null;
             }
@@ -328,8 +330,7 @@ namespace RoadTrafficSimulator
                     continue;
 
                 var mainRoadDirs = gCrossroad.MainRoadDirections;
-                bool isMainRoad = mainRoadDirs.HasValue &&
-                    (mainRoadDirs.Value.Item1 == fromDir || mainRoadDirs.Value.Item2 == fromDir);
+                bool isMainRoad = gCrossroad.IsMainRoadDirection(fromDir);
 
                 foreach (var toDir in CoordsConvertor.GetAllowedDirections())
                 {
@@ -346,13 +347,13 @@ namespace RoadTrafficSimulator
                     // Give priority also to both main roads
                     if (mainRoadDirs.HasValue && !isMainRoad)
                     {
-                        priorFromDirections =
-                            priorFromDirections.Append(mainRoadDirs.Value.Item1).Append(mainRoadDirs.Value.Item2);
+                        priorFromDirections = priorFromDirections
+                            .Append(CoordsConvertor.GetCoords(mainRoadDirs.Value.Item1))
+                            .Append(CoordsConvertor.GetCoords(mainRoadDirs.Value.Item2));
                     }
                     foreach (var priorFromDir in priorFromDirections)
                     {
-                        bool priorIsMainRoad = mainRoadDirs.HasValue &&
-                            (mainRoadDirs.Value.Item1 == priorFromDir || mainRoadDirs.Value.Item2 == priorFromDir);
+                        bool priorIsMainRoad = gCrossroad.IsMainRoadDirection(priorFromDir);
                         // Main road doesn't give priority to side roads
                         if (isMainRoad && !priorIsMainRoad)
                             continue;

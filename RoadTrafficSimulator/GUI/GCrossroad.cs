@@ -13,7 +13,7 @@ namespace RoadTrafficSimulator.GUI
         private Highlight highlight;
 
         public Coords CrossroadId { get; }
-        public (Coords, Coords)? MainRoadDirections { get; set; }
+        public (CoordsConvertor.Direction, CoordsConvertor.Direction)? MainRoadDirections { get; set; }
 
         public GCrossroad(Coords crossroadId)
         {
