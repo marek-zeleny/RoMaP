@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.panelMap = new System.Windows.Forms.Panel();
             this.comboBoxSetting = new System.Windows.Forms.ComboBox();
             this.labelDuration = new System.Windows.Forms.Label();
             this.numericUpDownDuration = new System.Windows.Forms.NumericUpDown();
@@ -40,41 +41,51 @@
             this.checkBoxUp = new System.Windows.Forms.CheckBox();
             this.checkBoxRight = new System.Windows.Forms.CheckBox();
             this.checkBoxLeft = new System.Windows.Forms.CheckBox();
-            this.groupBoxInfo = new System.Windows.Forms.GroupBox();
-            this.labelInfo = new System.Windows.Forms.Label();
-            this.panelMap = new System.Windows.Forms.Panel();
+            this.splitContainer = new System.Windows.Forms.SplitContainer();
+            this.tableLayoutPanelButtons = new System.Windows.Forms.TableLayoutPanel();
+            this.groupBoxMainRoad = new System.Windows.Forms.GroupBox();
+            this.imageComboBoxMainRoad = new RoadTrafficSimulator.Forms.ImageComboBox();
+            this.flowLayoutPanelDuration = new System.Windows.Forms.FlowLayoutPanel();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownDuration)).BeginInit();
             this.groupBoxAllowedDirections.SuspendLayout();
-            this.groupBoxInfo.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
+            this.splitContainer.Panel1.SuspendLayout();
+            this.splitContainer.Panel2.SuspendLayout();
+            this.splitContainer.SuspendLayout();
+            this.tableLayoutPanelButtons.SuspendLayout();
+            this.groupBoxMainRoad.SuspendLayout();
+            this.flowLayoutPanelDuration.SuspendLayout();
             this.SuspendLayout();
             // 
             // panelMap
             // 
-            panelMap.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(236)))), ((int)(((byte)(237)))), ((int)(((byte)(242)))));
-            panelMap.Cursor = System.Windows.Forms.Cursors.Cross;
-            panelMap.Location = new System.Drawing.Point(14, 15);
-            panelMap.Margin = new System.Windows.Forms.Padding(4);
-            panelMap.Name = "panelMap";
-            panelMap.Size = new System.Drawing.Size(450, 474);
-            panelMap.TabIndex = 0;
-            panelMap.Paint += new System.Windows.Forms.PaintEventHandler(this.panelMap_Paint);
-            panelMap.MouseClick += new System.Windows.Forms.MouseEventHandler(this.panelMap_MouseClick);
+            this.panelMap.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(236)))), ((int)(((byte)(237)))), ((int)(((byte)(242)))));
+            this.panelMap.Cursor = System.Windows.Forms.Cursors.Cross;
+            this.panelMap.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panelMap.Location = new System.Drawing.Point(0, 0);
+            this.panelMap.Margin = new System.Windows.Forms.Padding(4);
+            this.panelMap.Name = "panelMap";
+            this.panelMap.Size = new System.Drawing.Size(446, 446);
+            this.panelMap.TabIndex = 0;
+            this.panelMap.Paint += new System.Windows.Forms.PaintEventHandler(this.panelMap_Paint);
+            this.panelMap.MouseClick += new System.Windows.Forms.MouseEventHandler(this.panelMap_MouseClick);
             // 
             // comboBoxSetting
             // 
+            this.comboBoxSetting.Dock = System.Windows.Forms.DockStyle.Top;
             this.comboBoxSetting.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBoxSetting.FormattingEnabled = true;
-            this.comboBoxSetting.Location = new System.Drawing.Point(472, 15);
+            this.comboBoxSetting.Location = new System.Drawing.Point(6, 8);
             this.comboBoxSetting.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.comboBoxSetting.Name = "comboBoxSetting";
-            this.comboBoxSetting.Size = new System.Drawing.Size(235, 33);
+            this.comboBoxSetting.Size = new System.Drawing.Size(242, 33);
             this.comboBoxSetting.TabIndex = 1;
             this.comboBoxSetting.SelectedIndexChanged += new System.EventHandler(this.comboBoxSetting_SelectedIndexChanged);
             // 
             // labelDuration
             // 
             this.labelDuration.AutoSize = true;
-            this.labelDuration.Location = new System.Drawing.Point(478, 73);
+            this.labelDuration.Location = new System.Drawing.Point(5, 1);
             this.labelDuration.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelDuration.Name = "labelDuration";
             this.labelDuration.Size = new System.Drawing.Size(81, 25);
@@ -83,15 +94,10 @@
             // 
             // numericUpDownDuration
             // 
-            this.numericUpDownDuration.Location = new System.Drawing.Point(559, 61);
+            this.numericUpDownDuration.Location = new System.Drawing.Point(94, 6);
             this.numericUpDownDuration.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.numericUpDownDuration.Maximum = new decimal(new int[] {
-            60,
-            0,
-            0,
-            0});
-            this.numericUpDownDuration.Minimum = new decimal(new int[] {
-            1,
+            120,
             0,
             0,
             0});
@@ -108,7 +114,7 @@
             // labelS
             // 
             this.labelS.AutoSize = true;
-            this.labelS.Location = new System.Drawing.Point(634, 73);
+            this.labelS.Location = new System.Drawing.Point(163, 1);
             this.labelS.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelS.Name = "labelS";
             this.labelS.Size = new System.Drawing.Size(20, 25);
@@ -117,10 +123,11 @@
             // 
             // buttonNewSetting
             // 
-            this.buttonNewSetting.Location = new System.Drawing.Point(472, 256);
+            this.buttonNewSetting.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.buttonNewSetting.Location = new System.Drawing.Point(4, 5);
             this.buttonNewSetting.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.buttonNewSetting.Name = "buttonNewSetting";
-            this.buttonNewSetting.Size = new System.Drawing.Size(114, 44);
+            this.buttonNewSetting.Size = new System.Drawing.Size(113, 36);
             this.buttonNewSetting.TabIndex = 6;
             this.buttonNewSetting.Text = "New Setting";
             this.buttonNewSetting.UseVisualStyleBackColor = true;
@@ -128,10 +135,11 @@
             // 
             // buttonFinish
             // 
-            this.buttonFinish.Location = new System.Drawing.Point(472, 446);
+            this.buttonFinish.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.buttonFinish.Location = new System.Drawing.Point(6, 394);
             this.buttonFinish.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.buttonFinish.Name = "buttonFinish";
-            this.buttonFinish.Size = new System.Drawing.Size(238, 44);
+            this.buttonFinish.Size = new System.Drawing.Size(242, 44);
             this.buttonFinish.TabIndex = 9;
             this.buttonFinish.Text = "Finish";
             this.buttonFinish.UseVisualStyleBackColor = true;
@@ -139,10 +147,11 @@
             // 
             // buttonDeleteSetting
             // 
-            this.buttonDeleteSetting.Location = new System.Drawing.Point(596, 256);
+            this.buttonDeleteSetting.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.buttonDeleteSetting.Location = new System.Drawing.Point(125, 5);
             this.buttonDeleteSetting.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.buttonDeleteSetting.Name = "buttonDeleteSetting";
-            this.buttonDeleteSetting.Size = new System.Drawing.Size(114, 44);
+            this.buttonDeleteSetting.Size = new System.Drawing.Size(113, 36);
             this.buttonDeleteSetting.TabIndex = 7;
             this.buttonDeleteSetting.Text = "Delete Setting";
             this.buttonDeleteSetting.UseVisualStyleBackColor = true;
@@ -155,11 +164,12 @@
             this.groupBoxAllowedDirections.Controls.Add(this.checkBoxUp);
             this.groupBoxAllowedDirections.Controls.Add(this.checkBoxRight);
             this.groupBoxAllowedDirections.Controls.Add(this.checkBoxLeft);
-            this.groupBoxAllowedDirections.Location = new System.Drawing.Point(477, 113);
+            this.groupBoxAllowedDirections.Dock = System.Windows.Forms.DockStyle.Top;
+            this.groupBoxAllowedDirections.Location = new System.Drawing.Point(6, 84);
             this.groupBoxAllowedDirections.Margin = new System.Windows.Forms.Padding(4);
             this.groupBoxAllowedDirections.Name = "groupBoxAllowedDirections";
             this.groupBoxAllowedDirections.Padding = new System.Windows.Forms.Padding(4);
-            this.groupBoxAllowedDirections.Size = new System.Drawing.Size(190, 141);
+            this.groupBoxAllowedDirections.Size = new System.Drawing.Size(242, 126);
             this.groupBoxAllowedDirections.TabIndex = 5;
             this.groupBoxAllowedDirections.TabStop = false;
             this.groupBoxAllowedDirections.Text = "Allowed Directions";
@@ -171,10 +181,10 @@
             this.checkBoxDown.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.checkBoxDown.Enabled = false;
             this.checkBoxDown.Font = new System.Drawing.Font("Arial", 9.163636F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.checkBoxDown.Location = new System.Drawing.Point(59, 90);
+            this.checkBoxDown.Location = new System.Drawing.Point(59, 75);
             this.checkBoxDown.Margin = new System.Windows.Forms.Padding(4);
             this.checkBoxDown.Name = "checkBoxDown";
-            this.checkBoxDown.Size = new System.Drawing.Size(72, 47);
+            this.checkBoxDown.Size = new System.Drawing.Size(124, 47);
             this.checkBoxDown.TabIndex = 3;
             this.checkBoxDown.Text = "▼";
             this.checkBoxDown.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
@@ -191,7 +201,7 @@
             this.checkBoxUp.Location = new System.Drawing.Point(59, 28);
             this.checkBoxUp.Margin = new System.Windows.Forms.Padding(4);
             this.checkBoxUp.Name = "checkBoxUp";
-            this.checkBoxUp.Size = new System.Drawing.Size(72, 47);
+            this.checkBoxUp.Size = new System.Drawing.Size(124, 47);
             this.checkBoxUp.TabIndex = 1;
             this.checkBoxUp.Text = "▲";
             this.checkBoxUp.TextAlign = System.Drawing.ContentAlignment.TopCenter;
@@ -205,10 +215,10 @@
             this.checkBoxRight.Dock = System.Windows.Forms.DockStyle.Right;
             this.checkBoxRight.Enabled = false;
             this.checkBoxRight.Font = new System.Drawing.Font("Arial", 9.163636F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.checkBoxRight.Location = new System.Drawing.Point(131, 28);
+            this.checkBoxRight.Location = new System.Drawing.Point(183, 28);
             this.checkBoxRight.Margin = new System.Windows.Forms.Padding(4);
             this.checkBoxRight.Name = "checkBoxRight";
-            this.checkBoxRight.Size = new System.Drawing.Size(55, 109);
+            this.checkBoxRight.Size = new System.Drawing.Size(55, 94);
             this.checkBoxRight.TabIndex = 2;
             this.checkBoxRight.Text = "►";
             this.checkBoxRight.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -224,47 +234,98 @@
             this.checkBoxLeft.Location = new System.Drawing.Point(4, 28);
             this.checkBoxLeft.Margin = new System.Windows.Forms.Padding(4);
             this.checkBoxLeft.Name = "checkBoxLeft";
-            this.checkBoxLeft.Size = new System.Drawing.Size(55, 109);
+            this.checkBoxLeft.Size = new System.Drawing.Size(55, 94);
             this.checkBoxLeft.TabIndex = 0;
             this.checkBoxLeft.Text = "◄";
             this.checkBoxLeft.UseVisualStyleBackColor = true;
             this.checkBoxLeft.CheckedChanged += new System.EventHandler(this.checkBoxDirection_CheckedChanged);
             // 
-            // groupBoxInfo
+            // splitContainer
             // 
-            this.groupBoxInfo.Controls.Add(this.labelInfo);
-            this.groupBoxInfo.Location = new System.Drawing.Point(472, 310);
-            this.groupBoxInfo.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.groupBoxInfo.Name = "groupBoxInfo";
-            this.groupBoxInfo.Padding = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.groupBoxInfo.Size = new System.Drawing.Size(238, 126);
-            this.groupBoxInfo.TabIndex = 8;
-            this.groupBoxInfo.TabStop = false;
-            this.groupBoxInfo.Text = "Info";
+            this.splitContainer.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.splitContainer.Cursor = System.Windows.Forms.Cursors.VSplit;
+            this.splitContainer.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitContainer.FixedPanel = System.Windows.Forms.FixedPanel.Panel2;
+            this.splitContainer.IsSplitterFixed = true;
+            this.splitContainer.Location = new System.Drawing.Point(6, 8);
+            this.splitContainer.Name = "splitContainer";
             // 
-            // labelInfo
+            // splitContainer.Panel1
             // 
-            this.labelInfo.Location = new System.Drawing.Point(9, 31);
-            this.labelInfo.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.labelInfo.Name = "labelInfo";
-            this.labelInfo.Size = new System.Drawing.Size(220, 90);
-            this.labelInfo.TabIndex = 0;
+            this.splitContainer.Panel1.Controls.Add(this.panelMap);
+            this.splitContainer.Panel1.Cursor = System.Windows.Forms.Cursors.Default;
+            // 
+            // splitContainer.Panel2
+            // 
+            this.splitContainer.Panel2.Controls.Add(this.tableLayoutPanelButtons);
+            this.splitContainer.Panel2.Controls.Add(this.groupBoxMainRoad);
+            this.splitContainer.Panel2.Controls.Add(this.groupBoxAllowedDirections);
+            this.splitContainer.Panel2.Controls.Add(this.buttonFinish);
+            this.splitContainer.Panel2.Controls.Add(this.flowLayoutPanelDuration);
+            this.splitContainer.Panel2.Controls.Add(this.comboBoxSetting);
+            this.splitContainer.Panel2.Cursor = System.Windows.Forms.Cursors.Default;
+            this.splitContainer.Panel2.Padding = new System.Windows.Forms.Padding(6, 8, 6, 8);
+            this.splitContainer.Size = new System.Drawing.Size(712, 450);
+            this.splitContainer.SplitterDistance = 450;
+            this.splitContainer.TabIndex = 10;
+            // 
+            // tableLayoutPanelButtons
+            // 
+            this.tableLayoutPanelButtons.ColumnCount = 2;
+            this.tableLayoutPanelButtons.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanelButtons.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanelButtons.Controls.Add(this.buttonNewSetting, 0, 0);
+            this.tableLayoutPanelButtons.Controls.Add(this.buttonDeleteSetting, 1, 0);
+            this.tableLayoutPanelButtons.Dock = System.Windows.Forms.DockStyle.Top;
+            this.tableLayoutPanelButtons.Location = new System.Drawing.Point(6, 273);
+            this.tableLayoutPanelButtons.Name = "tableLayoutPanelButtons";
+            this.tableLayoutPanelButtons.RowCount = 1;
+            this.tableLayoutPanelButtons.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanelButtons.Size = new System.Drawing.Size(242, 46);
+            this.tableLayoutPanelButtons.TabIndex = 11;
+            // 
+            // groupBoxMainRoad
+            // 
+            this.groupBoxMainRoad.AutoSize = true;
+            this.groupBoxMainRoad.Controls.Add(this.imageComboBoxMainRoad);
+            this.groupBoxMainRoad.Dock = System.Windows.Forms.DockStyle.Top;
+            this.groupBoxMainRoad.Location = new System.Drawing.Point(6, 210);
+            this.groupBoxMainRoad.Name = "groupBoxMainRoad";
+            this.groupBoxMainRoad.Size = new System.Drawing.Size(242, 63);
+            this.groupBoxMainRoad.TabIndex = 12;
+            this.groupBoxMainRoad.TabStop = false;
+            this.groupBoxMainRoad.Text = "Main Road";
+            // 
+            // imageComboBoxMainRoad
+            // 
+            this.imageComboBoxMainRoad.Dock = System.Windows.Forms.DockStyle.Top;
+            this.imageComboBoxMainRoad.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.imageComboBoxMainRoad.FormattingEnabled = true;
+            this.imageComboBoxMainRoad.Location = new System.Drawing.Point(3, 27);
+            this.imageComboBoxMainRoad.Name = "imageComboBoxMainRoad";
+            this.imageComboBoxMainRoad.Size = new System.Drawing.Size(236, 33);
+            this.imageComboBoxMainRoad.TabIndex = 0;
+            this.imageComboBoxMainRoad.SelectedIndexChanged += new System.EventHandler(this.imageComboBoxMainRoad_SelectedIndexChanged);
+            // 
+            // flowLayoutPanelDuration
+            // 
+            this.flowLayoutPanelDuration.AutoSize = true;
+            this.flowLayoutPanelDuration.Controls.Add(this.labelDuration);
+            this.flowLayoutPanelDuration.Controls.Add(this.numericUpDownDuration);
+            this.flowLayoutPanelDuration.Controls.Add(this.labelS);
+            this.flowLayoutPanelDuration.Dock = System.Windows.Forms.DockStyle.Top;
+            this.flowLayoutPanelDuration.Location = new System.Drawing.Point(6, 41);
+            this.flowLayoutPanelDuration.Name = "flowLayoutPanelDuration";
+            this.flowLayoutPanelDuration.Padding = new System.Windows.Forms.Padding(1);
+            this.flowLayoutPanelDuration.Size = new System.Drawing.Size(242, 43);
+            this.flowLayoutPanelDuration.TabIndex = 10;
             // 
             // FormTrafficLight
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 25F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(724, 505);
-            this.Controls.Add(this.groupBoxInfo);
-            this.Controls.Add(this.groupBoxAllowedDirections);
-            this.Controls.Add(this.buttonDeleteSetting);
-            this.Controls.Add(this.buttonFinish);
-            this.Controls.Add(this.labelS);
-            this.Controls.Add(this.numericUpDownDuration);
-            this.Controls.Add(this.buttonNewSetting);
-            this.Controls.Add(this.labelDuration);
-            this.Controls.Add(this.comboBoxSetting);
-            this.Controls.Add(panelMap);
+            this.ClientSize = new System.Drawing.Size(724, 466);
+            this.Controls.Add(this.splitContainer);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "FormTrafficLight";
@@ -275,9 +336,16 @@
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownDuration)).EndInit();
             this.groupBoxAllowedDirections.ResumeLayout(false);
             this.groupBoxAllowedDirections.PerformLayout();
-            this.groupBoxInfo.ResumeLayout(false);
+            this.splitContainer.Panel1.ResumeLayout(false);
+            this.splitContainer.Panel2.ResumeLayout(false);
+            this.splitContainer.Panel2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).EndInit();
+            this.splitContainer.ResumeLayout(false);
+            this.tableLayoutPanelButtons.ResumeLayout(false);
+            this.groupBoxMainRoad.ResumeLayout(false);
+            this.flowLayoutPanelDuration.ResumeLayout(false);
+            this.flowLayoutPanelDuration.PerformLayout();
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 
@@ -296,7 +364,10 @@
         private System.Windows.Forms.CheckBox checkBoxUp;
         private System.Windows.Forms.CheckBox checkBoxRight;
         private System.Windows.Forms.CheckBox checkBoxLeft;
-        private System.Windows.Forms.GroupBox groupBoxInfo;
-        private System.Windows.Forms.Label labelInfo;
+        private System.Windows.Forms.SplitContainer splitContainer;
+        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanelDuration;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanelButtons;
+        private System.Windows.Forms.GroupBox groupBoxMainRoad;
+        private ImageComboBox imageComboBoxMainRoad;
     }
 }

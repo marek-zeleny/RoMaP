@@ -71,17 +71,22 @@ namespace RoadTrafficSimulator
                 return Math.Sqrt(dx * dx + dy * dy);
             }
 
-            Vector vector = CoordsConvertor.CalculateVector(point, origin, zoom);
-            Point from = CoordsConvertor.CalculatePoint(vector.from, origin, zoom);
-            Point to = CoordsConvertor.CalculatePoint(vector.to, origin, zoom);
-            double distance = CalculateDistance(from, point);
+            Coords coords = CoordsConvertor.CalculateCoords(point, origin, zoom);
+            Point crossroadPoint = CoordsConvertor.CalculatePoint(coords, origin, zoom);
+            double distance = CalculateDistance(crossroadPoint, point);
             proximity = distance / (gridSize * zoom);
-            return GetCrossroad(vector.from);
+            return GetCrossroad(coords);
         }
 
         public IGRoad GetRoad(Vector vector)
         {
             return guiMap.GetRoad(vector);
+        }
+
+        public IGRoad GetRoad(Coords from, CoordsConvertor.Direction direction)
+        {
+            Coords to = from + CoordsConvertor.GetCoords(direction);
+            return GetRoad(new Vector(from, to));
         }
 
         public IGRoad GetNearestRoad(Point point, Point origin, float zoom)
