@@ -261,8 +261,16 @@ namespace RoadTrafficSimulator.GUI
 
         private static Color GetRoadColor(Road road, Highlight highlight, bool simulationMode)
         {
+            Color ApplyHighlight(Color color)
+            {
+                if (highlight.HasFlag(Highlight.Transparent))
+                    return Color.FromArgb(150, color);
+                else
+                    return color;
+            }
+
             if (!simulationMode || road == null || !road.IsConnected)
-                return defaultColor;
+                return ApplyHighlight(defaultColor);
 
             float speedRatio = (float)road.AverageSpeed / road.MaxSpeed;
             Debug.Assert(speedRatio >= 0);
@@ -272,11 +280,7 @@ namespace RoadTrafficSimulator.GUI
             int red = (int)(255 * (1 - speedRatio));
             int green = (int)(255 * speedRatio);
             Color color = Color.FromArgb(red, green, 0);
-
-            if (highlight.HasFlag(Highlight.Transparent))
-                return Color.FromArgb(150, color);
-            else
-                return color;
+            return ApplyHighlight(color);
         }
 
         private static (int dx, int dy) GetLaneOffsetDirections(Point from, Point to)

@@ -42,7 +42,7 @@ namespace RoadTrafficSimulator.GUI
                     return false;
                 prev = coords;
             }
-            return roads.Remove(road);
+            return roads.Remove(road) || roads.Remove(road.GetReversedGRoad());
         }
 
         public bool RemoveRoadAt(Vector vector)
