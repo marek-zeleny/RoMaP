@@ -145,8 +145,7 @@ namespace RoadTrafficSimulator.Forms
                 vector = vector.Reverse();
             selectedRoad = mapManager.GetRoad(vector);
             // We only want to select open roads
-            Road road = selectedRoad?.GetRoad();
-            if (road == null || !road.IsConnected)
+            if (selectedRoad?.GetRoad()?.IsConnected != true)
             {
                 selectedRoad = null;
                 return;
@@ -223,11 +222,11 @@ namespace RoadTrafficSimulator.Forms
 
                 if (road1 == null || road2 == null)
                     return false;
-                if (road1.GetRoad(GUI.IGRoad.Direction.Backward) != null &&
-                    road2.GetRoad(GUI.IGRoad.Direction.Forward) != null)
+                if (road1.GetRoad(GUI.IGRoad.Direction.Backward)?.IsConnected == true &&
+                    road2.GetRoad(GUI.IGRoad.Direction.Forward)?.IsConnected == true)
                     return true;
-                if (road2.GetRoad(GUI.IGRoad.Direction.Backward) != null &&
-                    road1.GetRoad(GUI.IGRoad.Direction.Forward) != null)
+                if (road2.GetRoad(GUI.IGRoad.Direction.Backward)?.IsConnected == true &&
+                    road1.GetRoad(GUI.IGRoad.Direction.Forward)?.IsConnected == true)
                     return true;
                 return false;
             }
@@ -269,7 +268,7 @@ namespace RoadTrafficSimulator.Forms
                 foreach (var (cb, dir) in checkBoxDirections)
                 {
                     Road road = mapManager.GetRoad(crossroad.crossroad.Id, dir)?.GetRoad();
-                    if (enable && road != null)
+                    if (enable && road?.IsConnected == true)
                     {
                         // If main roads are selected or there's just one setting, all possible directions are allowed
                         if (currentSetting == null || trafficLight.Settings.Count <= 1)

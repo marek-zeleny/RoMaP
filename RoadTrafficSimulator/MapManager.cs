@@ -322,10 +322,10 @@ namespace RoadTrafficSimulator
             Road GetRoad(Coords diff, IGRoad.Direction direction)
             {
                 Road road = gMap.GetRoad(new Vector(crossroad.Id, crossroad.Id + diff))?.GetRoad(direction);
-                if (road == null || !road.IsConnected)
-                    return null;
-                else
+                if (road?.IsConnected == true)
                     return road;
+                else
+                    return null;
             }
 
             foreach (var fromDir in CoordsConvertor.GetAllowedDirections())
