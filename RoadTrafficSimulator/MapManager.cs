@@ -41,11 +41,11 @@ namespace RoadTrafficSimulator
 
         #endregion static
 
-        #region members
-
         private IGMap guiMap = new GMap();
 
         public Map Map { get; private set; } = new Map();
+
+        #region publicMethods
 
         public CrossroadWrapper? GetCrossroad(Coords coords)
         {
@@ -190,8 +190,8 @@ namespace RoadTrafficSimulator
             fromCrossroad.UnsetHighlight(Highlight.Transparent);
             toCrossroad.UnsetHighlight(Highlight.Transparent);
 
-            FillPriorityCrossing(guiMap, fromCrossroad, Map.GetNode(fromCrossroad.CrossroadId) as Crossroad);
-            FillPriorityCrossing(guiMap, toCrossroad, Map.GetNode(toCrossroad.CrossroadId) as Crossroad);
+            FillPriorityCrossing(guiMap, fromCrossroad, Map);
+            FillPriorityCrossing(guiMap, toCrossroad, Map);
         }
 
         public bool DestroyCrossroad(IGCrossroad gCrossroad)
@@ -221,6 +221,23 @@ namespace RoadTrafficSimulator
             return success;
         }
 
+        public bool CanBeMainRoad(IGCrossroad gCrossroad,
+            CoordsConvertor.Direction dir1, CoordsConvertor.Direction dir2)
+        {
+            IGRoad road1 = GetRoad(gCrossroad.CrossroadId, dir1);
+            IGRoad road2 = GetRoad(gCrossroad.CrossroadId, dir2);
+
+            if (road1 == null || road2 == null)
+                return false;
+            if (road1.GetRoad(IGRoad.Direction.Backward)?.IsConnected == true &&
+                road2.GetRoad(IGRoad.Direction.Forward)?.IsConnected == true)
+                return true;
+            if (road2.GetRoad(IGRoad.Direction.Backward)?.IsConnected == true &&
+                road1.GetRoad(IGRoad.Direction.Forward)?.IsConnected == true)
+                return true;
+            return false;
+        }
+
         public void Draw(Graphics graphics, Point origin, float zoom, int width, int height, bool simulationMode)
         {
             DrawGrid(graphics, origin, zoom, width, height);
@@ -241,9 +258,22 @@ namespace RoadTrafficSimulator
             {
                 Map = newMap;
                 guiMap = newGuiMap;
+                foreach (IGCrossroad gCrossroad in guiMap.GetCrossroads())
+                {
+                    // Update crossroads to account for closed roads
+                    UpdateGuiCrossroad(gCrossroad);
+                    // Fill priority crossing rules (done here for efficiency) - only for open crossroads!
+                    Crossroad crossroad = (Crossroad)Map.GetNode(gCrossroad.CrossroadId);
+                    if (crossroad != null)
+                        FillPriorityCrossing(guiMap, gCrossroad, crossroad);
+                }
             }
             return result;
         }
+
+        #endregion publicMethods
+
+        #region privateMethods
 
         /// <summary>
         /// Updates highlighting and main roads of a GUI crossroad based on adjacent roads.
@@ -253,41 +283,27 @@ namespace RoadTrafficSimulator
         {
             if (NoGuiRoadsAt(guiMap, gCrossroad.CrossroadId))
             {
-                // no adjacent roads exist, remove the crossroad
+                // No adjacent roads exist, remove the crossroad
                 guiMap.RemoveCrossroad(gCrossroad.CrossroadId);
                 return;
             }
             else if (Map.GetNode(gCrossroad.CrossroadId) == null)
             {
-                // only closed roads exist
+                // Only closed roads exist
                 gCrossroad.SetHighlight(Highlight.Transparent);
                 return;
             }
             else
             {
-                // there is an open adjacent road
+                // There is an open adjacent road
                 gCrossroad.UnsetHighlight(Highlight.Transparent);
-            }
-
-            static bool HasOpenRoad(IGRoad gRoad)
-            {
-                if (gRoad == null)
-                    return false;
-                foreach (Road r in gRoad.GetRoads())
-                    if (r.IsConnected)
-                        return true;
-                return false;
             }
 
             if (gCrossroad.MainRoadDirections.HasValue)
             {
-                // if one of the main road directions doesn't have an open road, remove main road
-                var (m1, m2) = gCrossroad.MainRoadDirections.Value;
-                Coords dir1 = CoordsConvertor.GetCoords(m1);
-                Coords dir2 = CoordsConvertor.GetCoords(m2);
-                IGRoad r1 = GetRoad(new Vector(gCrossroad.CrossroadId, gCrossroad.CrossroadId + dir1));
-                IGRoad r2 = GetRoad(new Vector(gCrossroad.CrossroadId, gCrossroad.CrossroadId + dir2));
-                if (!HasOpenRoad(r1) || !HasOpenRoad(r2))
+                // If the main road is no longer valid, remove it
+                var (dir1, dir2) = gCrossroad.MainRoadDirections.Value;
+                if (!CanBeMainRoad(gCrossroad, dir1, dir2))
                     gCrossroad.MainRoadDirections = null;
             }
         }
@@ -314,6 +330,11 @@ namespace RoadTrafficSimulator
         private bool DestroyGuiRoad(IGRoad gRoad)
         {
             return guiMap.RemoveRoad(gRoad);
+        }
+
+        private static void FillPriorityCrossing(IGMap gMap, IGCrossroad gCrossroad, Map map)
+        {
+            FillPriorityCrossing(gMap, gCrossroad, map.GetNode(gCrossroad.CrossroadId) as Crossroad);
         }
 
         // TODO: move to static
@@ -415,7 +436,7 @@ namespace RoadTrafficSimulator
             }
         }
 
-        #endregion members
+        #endregion privateMethods
 
         #region nested_types
 
@@ -478,22 +499,22 @@ namespace RoadTrafficSimulator
                 return true;
             }
 
-            public bool FinishRoad()
+            public bool FinishRoad(bool updatePriorityCrossing)
             {
-                return FinishRoad(out var _);
+                return FinishRoad(out var _, updatePriorityCrossing);
             }
 
-            public bool FinishRoad(Speed maxSpeed)
+            public bool FinishRoad(Speed maxSpeed, bool updatePriorityCrossing)
             {
-                return FinishRoad(maxSpeed, out var _);
+                return FinishRoad(maxSpeed, out var _, updatePriorityCrossing);
             }
 
-            public bool FinishRoad(out IGRoad builtRoad)
+            public bool FinishRoad(out IGRoad builtRoad, bool updatePriorityCrossing)
             {
-                return FinishRoad(defaultMaxSpeed, out builtRoad);
+                return FinishRoad(defaultMaxSpeed, out builtRoad, updatePriorityCrossing);
             }
 
-            public bool FinishRoad(Speed maxSpeed, out IGRoad builtRoad)
+            public bool FinishRoad(Speed maxSpeed, out IGRoad builtRoad, bool updatePriorityCrossing)
             {
                 builtRoad = gRoad;
                 if (Route.Count < 2)
@@ -521,8 +542,11 @@ namespace RoadTrafficSimulator
                     to.TrafficLight.AddDefaultDirection(road.Id, backRoad.Id);
                 }
 
-                FillPriorityCrossing(gMap, fromG, from);
-                FillPriorityCrossing(gMap, toG, to);
+                if (updatePriorityCrossing)
+                {
+                    FillPriorityCrossing(gMap, fromG, from);
+                    FillPriorityCrossing(gMap, toG, to);
+                }
                 Invalidate();
                 return true;
             }

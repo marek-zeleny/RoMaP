@@ -212,25 +212,6 @@ namespace RoadTrafficSimulator.Forms
 
         private void InitialiseComboBoxMainRoad()
         {
-            bool CanBeMainRoad(CoordsConvertor.Direction dir1, CoordsConvertor.Direction dir2, out bool isSelected)
-            {
-                GUI.IGRoad road1 = mapManager.GetRoad(crossroad.crossroad.Id, dir1);
-                GUI.IGRoad road2 = mapManager.GetRoad(crossroad.crossroad.Id, dir2);
-                isSelected =
-                    crossroad.gCrossroad.IsMainRoadDirection(dir1) &&
-                    crossroad.gCrossroad.IsMainRoadDirection(dir2);
-
-                if (road1 == null || road2 == null)
-                    return false;
-                if (road1.GetRoad(GUI.IGRoad.Direction.Backward)?.IsConnected == true &&
-                    road2.GetRoad(GUI.IGRoad.Direction.Forward)?.IsConnected == true)
-                    return true;
-                if (road2.GetRoad(GUI.IGRoad.Direction.Backward)?.IsConnected == true &&
-                    road1.GetRoad(GUI.IGRoad.Direction.Forward)?.IsConnected == true)
-                    return true;
-                return false;
-            }
-
             var items = imageComboBoxMainRoad.Items;
             items.Clear();
             items.Add(new ImageComboBox.DropDownItem("none", null));
@@ -246,9 +227,10 @@ namespace RoadTrafficSimulator.Forms
                 {
                     CoordsConvertor.Direction dir1 = allDirections[i];
                     CoordsConvertor.Direction dir2 = allDirections[j];
-                    if (CanBeMainRoad(dir1, dir2, out bool isSelected))
+                    if (mapManager.CanBeMainRoad(crossroad.gCrossroad, dir1, dir2))
                     {
-                        if (isSelected)
+                        if (crossroad.gCrossroad.IsMainRoadDirection(dir1) &&
+                            crossroad.gCrossroad.IsMainRoadDirection(dir2))
                             selectedIndex = items.Count;
                         items.Add(new ImageComboBox.DropDownItem($"{dir1} - {dir2}", null));
                         // TODO: add image Properties.Resources.main_road_{dir1}_{dir2}

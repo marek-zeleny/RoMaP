@@ -9,10 +9,10 @@ namespace RoadTrafficSimulator
     {
         bool CanContinue { get; }
         bool AddSegment(Coords nextCoords);
-        bool FinishRoad();
-        bool FinishRoad(Speed maxSpeed);
-        bool FinishRoad(out IGRoad builtRoad);
-        bool FinishRoad(Speed maxSpeed, out IGRoad builtRoad);
+        bool FinishRoad(bool updatePriorityCrossing = true);
+        bool FinishRoad(Speed maxSpeed, bool updatePriorityCrossing = true);
+        bool FinishRoad(out IGRoad builtRoad, bool updatePriorityCrossing = true);
+        bool FinishRoad(Speed maxSpeed, out IGRoad builtRoad, bool updatePriorityCrossing = true);
         void DestroyRoad();
     }
 }

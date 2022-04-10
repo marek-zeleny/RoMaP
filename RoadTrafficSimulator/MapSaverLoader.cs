@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 
 using RoadTrafficSimulator.Components;
@@ -45,13 +46,13 @@ namespace RoadTrafficSimulator
             public const string to = "to";
         }
 
+        private static readonly JsonWriterOptions writerOptions = new() { Indented = true };
+
+        #region interface
+
         public static void SaveMap(Stream stream, Map map, IGMap guiMap)
         {
-            JsonWriterOptions options = new()
-            {
-                Indented = true,
-            };
-            Utf8JsonWriter writer = new(stream, options);
+            Utf8JsonWriter writer = new(stream, writerOptions);
             writer.WriteStartObject();
 
             string sideOfDriving = MapManager.roadSide switch
@@ -71,7 +72,9 @@ namespace RoadTrafficSimulator
             foreach (var gCrossroad in guiMap.GetCrossroads())
             {
                 Crossroad crossroad = (Crossroad)map.GetNode(gCrossroad.CrossroadId);
-                SerialiseCrossroad(writer, gCrossroad, crossroad);
+                // May be closed crossroad (only GUI) - need to check
+                if (crossroad != null)
+                    SerialiseCrossroad(writer, gCrossroad, crossroad);
             }
             writer.WriteEndArray();
 
@@ -81,12 +84,27 @@ namespace RoadTrafficSimulator
 
         public static bool LoadMap(Stream stream, Map map, IGMap guiMap)
         {
-            // TODO: support side of driving
             using var document = JsonDocument.Parse(stream);
             var root = document.RootElement;
             if (root.ValueKind != JsonValueKind.Object)
                 return false;
             var elements = root.EnumerateObject();
+            // Load side of driving
+            if (!elements.MoveNext())
+                return false;
+            if (!ParseStringProperty(elements.Current, Keywords.sideOfDriving, out string side))
+                return false;
+            switch (side)
+            {
+                case Keywords.right:
+                    MapManager.roadSide = MapManager.RoadSide.Right;
+                    break;
+                case Keywords.left:
+                    MapManager.roadSide = MapManager.RoadSide.Left;
+                    break;
+                default:
+                    return false;
+            }
             // Load roads
             if (!elements.MoveNext())
                 return false;
@@ -100,8 +118,8 @@ namespace RoadTrafficSimulator
             {
                 if (!ParseRoad(road, map, guiMap, out var roadIdMappings))
                     return false;
-                foreach (var mapping in roadIdMappings)
-                    roadIdMapper.Add(mapping.previous, mapping.current);
+                foreach (var (previous, current) in roadIdMappings)
+                    roadIdMapper.Add(previous, current);
             }
             // Load crossroads
             if (!elements.MoveNext())
@@ -119,6 +137,10 @@ namespace RoadTrafficSimulator
             // No other element should be present
             return !elements.MoveNext();
         }
+
+        #endregion interface
+
+        #region serialising
 
         private static void SerialiseRoad(Utf8JsonWriter writer, IGRoad gRoad)
         {
@@ -209,14 +231,31 @@ namespace RoadTrafficSimulator
             writer.WriteEndObject();
         }
 
+        #endregion serialising
+
+        #region highLevelParsers
+
         private static bool ParseRoad(JsonElement jRoad, Map map, IGMap gMap,
             out IEnumerable<(int previous, int current)> roadIdMappings)
         {
-            // TODO: support closed roads
-            static bool Parse(JsonElement jRoad, Road road, ref (int previous, int current) idMapping)
+            bool Parse(JsonElement jRoad, IGRoad gRoad, IGRoad.Direction direction, ref (int prev, int curr)? idMapping)
             {
-                if (!ParseIntProperty(jRoad, Keywords.id, out int id))
+                Road road = gRoad.GetRoad(direction);
+                if (!ParseBooleanProperty(jRoad, Keywords.open, out bool open))
                     return false;
+                if (open)
+                {
+                    // Road open -> load previous ID and map it to the new one
+                    if (!ParseIntProperty(jRoad, Keywords.id, out int id))
+                        return false;
+                    idMapping = (id, road.Id);
+                }
+                else
+                {
+                    // Road closed -> remove from map, set highlight, etc.
+                    map.RemoveRoad(road.Id);
+                    gRoad.SetHighlight(Highlight.Transparent, direction);
+                }
                 if (!ParseIntProperty(jRoad, Keywords.length, out int length))
                     return false;
                 if (!ParseIntProperty(jRoad, Keywords.maxSpeed, out int maxSpeed))
@@ -226,8 +265,6 @@ namespace RoadTrafficSimulator
                 road.Length = length.Metres();
                 road.MaxSpeed = maxSpeed.KilometresPerHour();
                 road.LaneCount = laneCount;
-                idMapping.previous = id;
-                idMapping.current = road.Id;
                 return true;
             }
 
@@ -261,21 +298,20 @@ namespace RoadTrafficSimulator
                     return false;
                 }
             }
-            if (!builder.FinishRoad(out IGRoad gRoad))
+            if (!builder.FinishRoad(out IGRoad gRoad, false))
             {
                 builder.DestroyRoad();
                 return false;
             }
 
-            int roadCount = forward && backward ? 2 : 1;
-            var idMappings = new (int, int)[roadCount];
-            roadIdMappings = idMappings;
+            var idMappings = new (int, int)?[2];
             if (forward)
-                if (!Parse(jForward, gRoad.GetRoad(IGRoad.Direction.Forward) as Road, ref idMappings[0]))
+                if (!Parse(jForward, gRoad, IGRoad.Direction.Forward, ref idMappings[0]))
                     return false;
             if (backward)
-                if (!Parse(jBackward, gRoad.GetRoad(IGRoad.Direction.Backward) as Road, ref idMappings[roadCount - 1]))
+                if (!Parse(jBackward, gRoad, IGRoad.Direction.Backward, ref idMappings[1]))
                     return false;
+            roadIdMappings = idMappings.Where(nullable => nullable.HasValue).Select(nullable => nullable.Value);
             return true;
         }
 
@@ -370,15 +406,9 @@ namespace RoadTrafficSimulator
             return true;
         }
 
-        private static bool ParseIntProperty(JsonElement elem, string propertyName, out int value)
-        {
-            value = default;
-            if (!elem.TryGetProperty(propertyName, out var jValue))
-                return false;
-            if (jValue.ValueKind != JsonValueKind.Number)
-                return false;
-            return jValue.TryGetInt32(out value);
-        }
+        #endregion highLevelParsers
+
+        #region lowLevelParsers
 
         private static bool ParseCoords(JsonElement jCoords, out Coords coords)
         {
@@ -405,5 +435,47 @@ namespace RoadTrafficSimulator
             direction = new Direction(from, to);
             return true;
         }
+
+        private static bool ParseStringProperty(JsonProperty prop, string propertyName, out string value)
+        {
+            value = default;
+            if (prop.Name != propertyName)
+                return false;
+            if (prop.Value.ValueKind != JsonValueKind.String)
+                return false;
+            value = prop.Value.GetString();
+            return true;
+        }
+
+        private static bool ParseIntProperty(JsonElement elem, string propertyName, out int value)
+        {
+            value = default;
+            if (!elem.TryGetProperty(propertyName, out var jValue))
+                return false;
+            if (jValue.ValueKind != JsonValueKind.Number)
+                return false;
+            return jValue.TryGetInt32(out value);
+        }
+
+        private static bool ParseBooleanProperty(JsonElement elem, string propertyName, out bool value)
+        {
+            value = default;
+            if (!elem.TryGetProperty(propertyName, out var jValue))
+                return false;
+            if (jValue.ValueKind == JsonValueKind.True)
+            {
+                value = true;
+                return true;
+            }
+            else if (jValue.ValueKind == JsonValueKind.False)
+            {
+                value = false;
+                return true;
+            }
+            else
+                return false;
+        }
+
+        #endregion lowLevelParsers
     }
 }
