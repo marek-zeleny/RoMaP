@@ -8,7 +8,8 @@ namespace RoadTrafficSimulator.Components
 {
     class TrafficLight : ICrossingAlgorithm
     {
-        private const int maxSettingsCount = 5;
+        public const int maxSettingsCount = 5;
+
         private static readonly Time yellowLightDuration = 3.Seconds(); // TODO: mention in thesis
 
         private HashSet<Direction> defaultDirections = new(4);
@@ -125,9 +126,25 @@ namespace RoadTrafficSimulator.Components
 
         public class Setting : IReadOnlyCollection<Direction>
         {
-            private HashSet<Direction> allowedDirections = new HashSet<Direction>(4);
+            private static readonly Time minDuration = 5.Seconds();
+            private static readonly Time maxDuration = 120.Seconds();
 
-            public Time Duration { get; set; } = 20.Seconds();
+            private Time duration = 20.Seconds();
+            private HashSet<Direction> allowedDirections = new(4);
+
+            public Time Duration
+            {
+                get => duration;
+                set
+                {
+                    if (value < minDuration)
+                        duration = minDuration;
+                    else if (value > maxDuration)
+                        duration = maxDuration;
+                    else
+                        duration = value;
+                }
+            }
 
             public int Count { get => allowedDirections.Count; }
 
