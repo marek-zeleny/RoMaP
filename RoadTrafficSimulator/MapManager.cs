@@ -15,15 +15,11 @@ namespace RoadTrafficSimulator
     {
         #region static
 
-        public enum RoadSide { Right, Left };
-
         public const int gridSize = 120;
 
         private static readonly Speed defaultMaxSpeed = 50.KilometresPerHour();
 
         public static readonly Distance roadSegmentDefaultLength = 100.Metres();
-
-        public static RoadSide roadSide = RoadSide.Right;
 
         public static IRoadBuilder CreateRoadBuilder(Map map, IGMap guiMap, Coords startingCoords,
             bool twoWayRoad)
@@ -33,7 +29,7 @@ namespace RoadTrafficSimulator
 
         public static bool NoGuiRoadsAt(IGMap guiMap, Coords coords)
         {
-            foreach (Coords diff in CoordsConvertor.GetAllowedDirections())
+            foreach (Coords diff in CoordsConvertor.GetAllowedDirections(guiMap.SideOfDriving))
                 if (guiMap.GetRoad(new Vector(coords, coords + diff)) != null)
                     return false;
             return true;
@@ -44,8 +40,23 @@ namespace RoadTrafficSimulator
         private IGMap guiMap = new GMap();
 
         public Map Map { get; private set; } = new Map();
+        public RoadSide SideOfDriving { get => guiMap.SideOfDriving; }
 
         #region publicMethods
+
+        public void SetSideOfDriving(RoadSide sideOfDriving)
+        {
+            if (sideOfDriving == guiMap.SideOfDriving)
+                return;
+            guiMap.SideOfDriving = sideOfDriving;
+            // Need to update priority crossing after the change
+            foreach (IGCrossroad gCrossroad in guiMap.GetCrossroads())
+            {
+                Crossroad crossroad = (Crossroad)Map.GetNode(gCrossroad.CrossroadId);
+                if (crossroad != null)
+                    FillPriorityCrossing(guiMap, gCrossroad, crossroad);
+            }
+        }
 
         public CrossroadWrapper? GetCrossroad(Coords coords)
         {
@@ -109,7 +120,7 @@ namespace RoadTrafficSimulator
             // No crossroad in the area
             if (nearestCrossroad == null)
             {
-                IEnumerator<Coords> e = CoordsConvertor.GetAllowedDirections().GetEnumerator();
+                IEnumerator<Coords> e = CoordsConvertor.GetAllowedDirections(guiMap.SideOfDriving).GetEnumerator();
                 var (vector1, road1) = FindNextRoad(e);
                 var (vector2, road2) = FindNextRoad(e);
                 if (road1 == null)
@@ -119,7 +130,7 @@ namespace RoadTrafficSimulator
                     Debug.Assert(road2 != null);
                     Debug.Assert(vector1.from == coords);
                     Debug.Assert(vector2.from == coords);
-                    if (CoordsConvertor.IsCorrectDirection(vector1, vector2, point, origin, zoom))
+                    if (CoordsConvertor.IsCorrectDirection(guiMap.SideOfDriving, vector1, vector2, point, origin, zoom))
                         return road1;
                     else
                         return road2;
@@ -129,7 +140,7 @@ namespace RoadTrafficSimulator
             else
             {
                 Vector vector = CoordsConvertor.CalculateVector(point, origin, zoom);
-                if (!CoordsConvertor.IsCorrectDirection(vector, point, origin, zoom))
+                if (!CoordsConvertor.IsCorrectDirection(guiMap.SideOfDriving, vector, point, origin, zoom))
                     vector = vector.Reverse();
                 return GetRoad(vector);
             }
@@ -143,7 +154,9 @@ namespace RoadTrafficSimulator
         {
             IGRoad Selector(Coords diff) => GetRoad(new Vector(coords, coords + diff));
 
-            return CoordsConvertor.GetAllowedDirections().Select(Selector).Where(gRoad => gRoad != null);
+            return CoordsConvertor.GetAllowedDirections(guiMap.SideOfDriving)
+                .Select(Selector)
+                .Where(gRoad => gRoad != null);
         }
 
         /// <summary>
@@ -155,7 +168,9 @@ namespace RoadTrafficSimulator
         {
             IGRoad Selector(Coords diff) => GetRoad(new Vector(vector.from, vector.from + diff));
 
-            return CoordsConvertor.GetAllowedDirections(vector.Diff()).Select(Selector).Where(gRoad => gRoad != null);
+            return CoordsConvertor.GetAllowedDirections(guiMap.SideOfDriving, vector.Diff())
+                .Select(Selector)
+                .Where(gRoad => gRoad != null);
         }
 
         public IRoadBuilder GetRoadBuilder(Coords startingCoords, bool twoWayRoad = true)
@@ -349,7 +364,7 @@ namespace RoadTrafficSimulator
                     return null;
             }
 
-            foreach (var fromDir in CoordsConvertor.GetAllowedDirections())
+            foreach (var fromDir in CoordsConvertor.GetAllowedDirections(gMap.SideOfDriving))
             {
                 Road fromRoad = GetRoad(fromDir, IGRoad.Direction.Backward);
                 if (fromRoad == null)
@@ -358,7 +373,7 @@ namespace RoadTrafficSimulator
                 var mainRoadDirs = gCrossroad.MainRoadDirections;
                 bool isMainRoad = gCrossroad.IsMainRoadDirection(fromDir);
 
-                foreach (var toDir in CoordsConvertor.GetAllowedDirections())
+                foreach (var toDir in CoordsConvertor.GetAllowedDirections(gMap.SideOfDriving))
                 {
                     Road toRoad = GetRoad(toDir, IGRoad.Direction.Forward);
                     if (toRoad == null)
@@ -366,7 +381,9 @@ namespace RoadTrafficSimulator
 
                     Direction fromPriority = new(fromRoad.Id, toRoad.Id);
                     // Need to start *after* fromDir and end with it instead
-                    var priorDirections = CoordsConvertor.GetAllowedDirections(fromDir).Skip(1).Append(fromDir);
+                    var priorDirections = CoordsConvertor.GetAllowedDirections(gMap.SideOfDriving, fromDir)
+                        .Skip(1)
+                        .Append(fromDir);
                     bool Pred(Coords dir) => dir != toDir;
 
                     var priorFromDirections = priorDirections.TakeWhile(Pred);
@@ -391,7 +408,7 @@ namespace RoadTrafficSimulator
                         IEnumerable<Coords> priorToDirections;
                         if (!isMainRoad && priorIsMainRoad)
                             // Side road gives priority to all directions from a main road
-                            priorToDirections = CoordsConvertor.GetAllowedDirections();
+                            priorToDirections = CoordsConvertor.GetAllowedDirections(gMap.SideOfDriving);
                         else
                             priorToDirections = priorDirections.SkipWhile(Pred);
 

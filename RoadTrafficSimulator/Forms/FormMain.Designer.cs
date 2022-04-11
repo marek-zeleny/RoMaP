@@ -233,7 +233,7 @@
             // 
             this.buildPanel.AutoSize = true;
             this.buildPanel.CurrentMode = RoadTrafficSimulator.Forms.BuildPanel.Mode.Build;
-            this.buildPanel.CurrentRoadSide = RoadTrafficSimulator.Forms.BuildPanel.RoadSide.Right;
+            this.buildPanel.CurrentRoadSide = RoadTrafficSimulator.GUI.RoadSide.Right;
             this.buildPanel.Dock = System.Windows.Forms.DockStyle.Top;
             this.buildPanel.Lanes = 1;
             this.buildPanel.Length = 100;

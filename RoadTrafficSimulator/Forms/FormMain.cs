@@ -176,12 +176,7 @@ namespace RoadTrafficSimulator.Forms
 
         private void buildPanel_CurrentRoadSideChanged(object sender, EventArgs e)
         {
-            MapManager.roadSide = buildPanel.CurrentRoadSide switch
-            {
-                BuildPanel.RoadSide.Right => MapManager.RoadSide.Right,
-                BuildPanel.RoadSide.Left => MapManager.RoadSide.Left,
-                _ => throw new NotImplementedException(),
-            };
+            mapManager.SetSideOfDriving(buildPanel.CurrentRoadSide);
             mapPanel.Redraw();
         }
 
@@ -392,6 +387,7 @@ namespace RoadTrafficSimulator.Forms
                         default:
                             break;
                     }
+                    buildPanel.CurrentRoadSide = mapManager.SideOfDriving;
                     buttonMode.Text = "Finish Build";
                     mode = Mode.Build;
                     break;
@@ -646,6 +642,7 @@ namespace RoadTrafficSimulator.Forms
             {
                 stream = File.OpenRead(path);
                 successful = mapManager.LoadMap(stream);
+                buildPanel.CurrentRoadSide = mapManager.SideOfDriving;
             }
             catch (Exception e) when (
                 e is IOException ||

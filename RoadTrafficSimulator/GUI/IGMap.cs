@@ -6,8 +6,12 @@ using RoadTrafficSimulator.ValueTypes;
 
 namespace RoadTrafficSimulator.GUI
 {
+    public enum RoadSide { Right, Left };
+
     interface IGMap
     {
+        public RoadSide SideOfDriving { get; set; }
+
         bool AddCrossroad(IGCrossroad crossroad, Coords coords);
         bool AddRoadSegment(IGRoad road, Vector vector);
         bool RemoveCrossroad(Coords coords);

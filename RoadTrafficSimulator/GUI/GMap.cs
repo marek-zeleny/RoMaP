@@ -12,6 +12,8 @@ namespace RoadTrafficSimulator.GUI
         private Dictionary<Vector, IGRoad> roadSegments = new();
         private HashSet<IGRoad> roads = new();
 
+        public RoadSide SideOfDriving { get; set; } = RoadSide.Right;
+
         public bool AddCrossroad(IGCrossroad crossroad, Coords coords)
         {
             return crossroads.TryAdd(coords, crossroad);
@@ -79,7 +81,7 @@ namespace RoadTrafficSimulator.GUI
             bool IsVisible(Point point) => IsInRange(point, width, height);
 
             foreach (IGRoad road in roads)
-                road.Draw(graphics, origin, zoom, simulationMode, IsVisible);
+                road.Draw(graphics, origin, zoom, SideOfDriving, simulationMode, IsVisible);
 
             foreach (var crossroad in crossroads.Values)
                 crossroad.Draw(graphics, origin, zoom, IsVisible);

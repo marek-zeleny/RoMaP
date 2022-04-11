@@ -22,7 +22,8 @@ namespace RoadTrafficSimulator.GUI
         void ResetHighlight(Highlight highlight, Direction direction);
         void SetHighlight(Highlight highlight, Direction direction);
         void UnsetHighlight(Highlight highlight, Direction direction);
-        void Draw(Graphics graphics, Point origin, float zoom, bool simulationMode, Func<Point, bool> isVisible);
+        void Draw(Graphics graphics, Point origin, float zoom, RoadSide sideOfDriving, bool simulationMode,
+            Func<Point, bool> isVisible);
     }
 
     interface IMutableGRoad : IGRoad

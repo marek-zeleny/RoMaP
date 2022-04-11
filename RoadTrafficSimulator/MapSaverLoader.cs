@@ -55,10 +55,10 @@ namespace RoadTrafficSimulator
             Utf8JsonWriter writer = new(stream, writerOptions);
             writer.WriteStartObject();
 
-            string sideOfDriving = MapManager.roadSide switch
+            string sideOfDriving = guiMap.SideOfDriving switch
             {
-                MapManager.RoadSide.Right => Keywords.right,
-                MapManager.RoadSide.Left => Keywords.left,
+                RoadSide.Right => Keywords.right,
+                RoadSide.Left => Keywords.left,
                 _ => throw new NotImplementedException(),
             };
             writer.WriteString(Keywords.sideOfDriving, sideOfDriving);
@@ -97,10 +97,10 @@ namespace RoadTrafficSimulator
             switch (side)
             {
                 case Keywords.right:
-                    MapManager.roadSide = MapManager.RoadSide.Right;
+                    guiMap.SideOfDriving = RoadSide.Right;
                     break;
                 case Keywords.left:
-                    MapManager.roadSide = MapManager.RoadSide.Left;
+                    guiMap.SideOfDriving = RoadSide.Left;
                     break;
                 default:
                     return false;

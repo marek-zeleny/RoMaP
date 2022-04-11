@@ -134,7 +134,8 @@ namespace RoadTrafficSimulator.GUI
 
         #region graphics
 
-        public void Draw(Graphics graphics, Point origin, float zoom, bool simulationMode, Func<Point, bool> isVisible)
+        public void Draw(Graphics graphics, Point origin, float zoom, RoadSide sideOfDriving, bool simulationMode,
+            Func<Point, bool> isVisible)
         {
             Debug.Assert(Route.Count >= 2);
 
@@ -154,40 +155,44 @@ namespace RoadTrafficSimulator.GUI
                 to = CoordsConvertor.CalculatePoint(routeEnum.Current, origin, zoom);
                 if (isVisible(from) || isVisible(to))
                 {
-                    DrawSegment(graphics, from, to, width, fWidth, bWidth, fColor, bColor);
+                    DrawSegment(graphics, from, to, sideOfDriving, fWidth, bWidth, fColor, bColor);
                 }
             }
         }
 
-        private void DrawSegment(Graphics graphics, Point from, Point to, int width, int fWidth, int bWidth,
-            Color fColor, Color bColor)
+        private void DrawSegment(Graphics graphics, Point from, Point to, RoadSide sideOfDriving,
+            int fWidth, int bWidth, Color fColor, Color bColor)
         {
             if (bRoad == null)
             {
                 if (fRoad == null)
+                {
                     // Building phase - both roads are null
-                    DrawLane(graphics, from, to, width, defaultColor);
+                    Debug.Assert(fWidth == bWidth);
+                    DrawLane(graphics, from, to, fWidth, defaultColor);
+                }
                 else
                     // One-way forward road
-                    DrawOneWayRoad(graphics, from, to, fWidth, fColor, fRoad.LaneCount);
+                    DrawOneWayRoad(graphics, from, to, sideOfDriving, fWidth, fColor, fRoad.LaneCount);
             }
             else if (fRoad == null)
             {
                 // One-way backward road
-                DrawOneWayRoad(graphics, to, from, bWidth, bColor, bRoad.LaneCount);
+                DrawOneWayRoad(graphics, to, from, sideOfDriving, bWidth, bColor, bRoad.LaneCount);
             }
             else
             {
                 // Two-way
-                DrawTwoWayRoad(graphics, from, to, fWidth, bWidth, fColor, bColor);
+                DrawTwoWayRoad(graphics, from, to, sideOfDriving, fWidth, bWidth, fColor, bColor);
             }
         }
 
-        private void DrawOneWayRoad(Graphics graphics, Point from, Point to, int width, Color color, int lanes)
+        private void DrawOneWayRoad(Graphics graphics, Point from, Point to, RoadSide sideOfDriving,
+            int width, Color color, int lanes)
         {
             Point from2 = from;
             Point to2 = to;
-            var offsetDirs = GetLaneOffsetDirections(from, to);
+            var offsetDirs = GetLaneOffsetDirections(from, to, sideOfDriving);
             var (dx, dy) = ScaleLaneOffsets(offsetDirs, GetLaneOffset(width));
             if (lanes % 2 == 0)
             {
@@ -222,8 +227,8 @@ namespace RoadTrafficSimulator.GUI
             }
         }
 
-        private void DrawTwoWayRoad(Graphics graphics, Point from, Point to, int fWidth, int bWidth,
-            Color fColor, Color bColor)
+        private void DrawTwoWayRoad(Graphics graphics, Point from, Point to, RoadSide sideOfDriving,
+            int fWidth, int bWidth, Color fColor, Color bColor)
         {
             void DrawOneWay(Point from, Point to, int dx, int dy, int width, int lanes, Color color)
             {
@@ -237,7 +242,7 @@ namespace RoadTrafficSimulator.GUI
                 }
             }
 
-            var offsetDirs = GetLaneOffsetDirections(from, to);
+            var offsetDirs = GetLaneOffsetDirections(from, to, sideOfDriving);
             var o1 = ScaleLaneOffsets(offsetDirs, GetLaneOffset(fWidth));
             var o2 = ScaleLaneOffsets(offsetDirs, GetLaneOffset(bWidth));
             o2 = (-o2.dx, -o2.dy);
@@ -283,7 +288,7 @@ namespace RoadTrafficSimulator.GUI
             return ApplyHighlight(color);
         }
 
-        private static (int dx, int dy) GetLaneOffsetDirections(Point from, Point to)
+        private static (int dx, int dy) GetLaneOffsetDirections(Point from, Point to, RoadSide sideOfDriving)
         {
             int diffX = to.X - from.X;
             int diffY = to.Y - from.Y;
@@ -293,7 +298,7 @@ namespace RoadTrafficSimulator.GUI
             {
                 // vertical road
                 Debug.Assert(diffY != 0);
-                if ((diffY < 0) == (MapManager.roadSide == MapManager.RoadSide.Right))
+                if ((diffY < 0) == (sideOfDriving == RoadSide.Right))
                     // upwards road
                     dx = 1;
                 else
@@ -304,7 +309,7 @@ namespace RoadTrafficSimulator.GUI
             {
                 // horizontal road
                 Debug.Assert(diffY == 0);
-                if ((diffX > 0) == (MapManager.roadSide == MapManager.RoadSide.Right))
+                if ((diffX > 0) == (sideOfDriving == RoadSide.Right))
                     // rightwards road
                     dy = 1;
                 else
@@ -359,9 +364,9 @@ namespace RoadTrafficSimulator.GUI
                 gRoad.SetHighlight(highlight, Reverse(direction));
             public void UnsetHighlight(Highlight highlight, IGRoad.Direction direction) =>
                 gRoad.UnsetHighlight(highlight, Reverse(direction));
-            public void Draw(Graphics graphics, Point origin, float zoom, bool simulationMode,
+            public void Draw(Graphics graphics, Point origin, float zoom, RoadSide sideOfDriving, bool simulationMode,
                 Func<Point, bool> isVisible) =>
-                gRoad.Draw(graphics, origin, zoom, simulationMode, isVisible);
+                gRoad.Draw(graphics, origin, zoom, sideOfDriving, simulationMode, isVisible);
         }
     }
 

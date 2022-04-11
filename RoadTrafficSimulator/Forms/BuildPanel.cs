@@ -9,7 +9,6 @@ namespace RoadTrafficSimulator.Forms
 {
     public partial class BuildPanel : UserControl
     {
-        public enum RoadSide { Right, Left };
         public enum Mode { Build, Select };
 
         private Mode mode;
@@ -18,23 +17,23 @@ namespace RoadTrafficSimulator.Forms
         private bool lockLength;
         private bool lockMaxSpeed;
 
-        public RoadSide CurrentRoadSide
+        public GUI.RoadSide CurrentRoadSide
         {
             get
             {
                 if (radioButtonDriveRight.Checked)
-                    return RoadSide.Right;
+                    return GUI.RoadSide.Right;
                 else
-                    return RoadSide.Left;
+                    return GUI.RoadSide.Left;
             }
             set
             {
                 switch (value)
                 {
-                    case RoadSide.Right:
+                    case GUI.RoadSide.Right:
                         radioButtonDriveRight.Checked = true;
                         break;
-                    case RoadSide.Left:
+                    case GUI.RoadSide.Left:
                         radioButtonDriveLeft.Checked = true;
                         break;
                 }

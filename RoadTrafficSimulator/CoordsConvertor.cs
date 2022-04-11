@@ -55,17 +55,17 @@ namespace RoadTrafficSimulator
         /// Gets allowed directions in the correct order according to <see cref="roadSide"/> starting from the
         /// <paramref name="i"/>th index.
         /// </summary>
-        public static IEnumerable<Coords> GetAllowedDirections(int i = 0)
+        public static IEnumerable<Coords> GetAllowedDirections(GUI.RoadSide sideOfDriving, int i = 0)
         {
             yield return allowedDirections[i];
             int m = allowedDirections.Length;
-            switch (MapManager.roadSide)
+            switch (sideOfDriving)
             {
-                case MapManager.RoadSide.Right:
+                case GUI.RoadSide.Right:
                     for (int j = (i + 1) % m; j != i; j = (j + 1) % m)
                         yield return allowedDirections[j];
                     break;
-                case MapManager.RoadSide.Left:
+                case GUI.RoadSide.Left:
                     for (int j = (i - 1 + m) % m; j != i; j = (j - 1 + m) % m)
                         yield return allowedDirections[j];
                     break;
@@ -78,11 +78,11 @@ namespace RoadTrafficSimulator
         /// Gets allowed directions in the correct order according to <see cref="roadSide"/> starting from
         /// <paramref name="startDirection"/>.
         /// </summary>
-        public static IEnumerable<Coords> GetAllowedDirections(Coords startDirection)
+        public static IEnumerable<Coords> GetAllowedDirections(GUI.RoadSide sideOfDriving, Coords startDirection)
         {
             int index = Array.IndexOf(allowedDirections, startDirection);
             if (index >= 0)
-                return GetAllowedDirections(index);
+                return GetAllowedDirections(sideOfDriving, index);
             else
                 throw new ArgumentException("The given start direction isn't allowed.", nameof(startDirection));
         }
@@ -91,9 +91,9 @@ namespace RoadTrafficSimulator
         /// Gets allowed directions in the correct order according to <see cref="roadSide"/> starting from
         /// <paramref name="startDirection"/>.
         /// </summary>
-        public static IEnumerable<Coords> GetAllowedDirections(Direction startDirection)
+        public static IEnumerable<Coords> GetAllowedDirections(GUI.RoadSide sideOfDriving, Direction startDirection)
         {
-            return GetAllowedDirections((int)startDirection);
+            return GetAllowedDirections(sideOfDriving, (int)startDirection);
         }
 
         public static int DotProduct(Point p1, Point p2)
@@ -101,12 +101,12 @@ namespace RoadTrafficSimulator
             return p1.X * p2.X + p1.Y * p2.Y;
         }
 
-        public static Point Normal(Point point)
+        public static Point Normal(Point point, GUI.RoadSide sideOfDriving)
         {
-            return MapManager.roadSide switch
+            return sideOfDriving switch
             {
-                MapManager.RoadSide.Right => new Point(-point.Y, point.X),
-                MapManager.RoadSide.Left => new Point(point.Y, -point.X),
+                GUI.RoadSide.Right => new Point(-point.Y, point.X),
+                GUI.RoadSide.Left => new Point(point.Y, -point.X),
                 _ => throw new NotImplementedException(),
             };
         }
@@ -145,17 +145,19 @@ namespace RoadTrafficSimulator
             return new Vector(from, to);
         }
 
-        public static bool IsCorrectDirection(Vector vector, Point point, Point origin, float zoom)
+        public static bool IsCorrectDirection(GUI.RoadSide sideOfDriving, Vector vector, Point point,
+            Point origin, float zoom)
         {
             // Returns true if the vector is correctly directed
             Point centre = CalculatePoint(vector.from, origin, zoom);
             Point to = CalculatePoint(vector.to, origin, zoom);
             to.Offset(-centre.X, -centre.Y);
             point.Offset(-centre.X, -centre.Y);
-            return DotProduct(Normal(to), point) > 0;
+            return DotProduct(Normal(to, sideOfDriving), point) > 0;
         }
 
-        public static bool IsCorrectDirection(Vector vector1, Vector vector2, Point point, Point origin, float zoom)
+        public static bool IsCorrectDirection(GUI.RoadSide sideOfDriving, Vector vector1, Vector vector2, Point point,
+            Point origin, float zoom)
         {
             // Returns true if the correct direction is vector1 and false if it's vector2
             Debug.Assert(vector1.from == vector2.from);
@@ -165,8 +167,8 @@ namespace RoadTrafficSimulator
             p1.Offset(-centre.X, -centre.Y);
             p2.Offset(-centre.X, -centre.Y);
             point.Offset(-centre.X, -centre.Y);
-            Point n1 = Normal(p1);
-            Point n2 = Normal(p2);
+            Point n1 = Normal(p1, sideOfDriving);
+            Point n2 = Normal(p2, sideOfDriving);
             bool switched = DotProduct(p1, n2) < 0;
             if (switched)
                 (n1, n2) = (n2, n1);
