@@ -35,6 +35,112 @@ namespace RoadTrafficSimulator
             return true;
         }
 
+        // needs to be static so it can be called from RoadBuilder
+        private static void FillPriorityCrossing(IGMap gMap, IGCrossroad gCrossroad, Map map)
+        {
+            FillPriorityCrossing(gMap, gCrossroad, map.GetNode(gCrossroad.CrossroadId) as Crossroad);
+        }
+
+        private static void FillPriorityCrossing(IGMap gMap, IGCrossroad gCrossroad, Crossroad crossroad)
+        {
+            Road GetRoad(Coords diff, IGRoad.Direction direction)
+            {
+                Road road = gMap.GetRoad(new Vector(crossroad.Id, crossroad.Id + diff))?.GetRoad(direction);
+                if (road?.IsConnected == true)
+                    return road;
+                else
+                    return null;
+            }
+
+            foreach (var fromDir in CoordsConvertor.GetAllowedDirections(gMap.SideOfDriving))
+            {
+                Road fromRoad = GetRoad(fromDir, IGRoad.Direction.Backward);
+                if (fromRoad == null)
+                    continue;
+
+                var mainRoadDirs = gCrossroad.MainRoadDirections;
+                bool isMainRoad = gCrossroad.IsMainRoadDirection(fromDir);
+
+                foreach (var toDir in CoordsConvertor.GetAllowedDirections(gMap.SideOfDriving))
+                {
+                    Road toRoad = GetRoad(toDir, IGRoad.Direction.Forward);
+                    if (toRoad == null)
+                        continue;
+
+                    Direction fromPriority = new(fromRoad.Id, toRoad.Id);
+                    // Need to start *after* fromDir and end with it instead
+                    var priorDirections = CoordsConvertor.GetAllowedDirections(gMap.SideOfDriving, fromDir)
+                        .Skip(1)
+                        .Append(fromDir);
+                    bool Pred(Coords dir) => dir != toDir;
+
+                    var priorFromDirections = priorDirections.TakeWhile(Pred);
+                    // Give priority also to both main roads
+                    if (mainRoadDirs.HasValue && !isMainRoad)
+                    {
+                        priorFromDirections = priorFromDirections
+                            .Append(CoordsConvertor.GetCoords(mainRoadDirs.Value.Item1))
+                            .Append(CoordsConvertor.GetCoords(mainRoadDirs.Value.Item2));
+                    }
+                    foreach (var priorFromDir in priorFromDirections)
+                    {
+                        bool priorIsMainRoad = gCrossroad.IsMainRoadDirection(priorFromDir);
+                        // Main road doesn't give priority to side roads
+                        if (isMainRoad && !priorIsMainRoad)
+                            continue;
+
+                        Road priorFromRoad = GetRoad(priorFromDir, IGRoad.Direction.Backward);
+                        if (priorFromRoad == null)
+                            continue;
+
+                        IEnumerable<Coords> priorToDirections;
+                        if (!isMainRoad && priorIsMainRoad)
+                            // Side road gives priority to all directions from a main road
+                            priorToDirections = CoordsConvertor.GetAllowedDirections(gMap.SideOfDriving);
+                        else
+                            priorToDirections = priorDirections.SkipWhile(Pred);
+
+                        foreach (var priorToDir in priorToDirections)
+                        {
+                            Road priorToRoad = GetRoad(priorToDir, IGRoad.Direction.Forward);
+                            if (priorToRoad == null)
+                                continue;
+
+                            Direction toPriority = new(priorFromRoad.Id, priorToRoad.Id);
+                            crossroad.PriorityCrossing.AddPriority(fromPriority, toPriority);
+                        }
+                    }
+                }
+            }
+        }
+
+        private static void DrawGrid(Graphics graphics, Point origin, float zoom, int width, int height)
+        {
+            float step = gridSize * zoom;
+            Coords firstCoords = CoordsConvertor.CalculateCoords(new Point(0, 0), origin, zoom);
+            Point firstPoint = CoordsConvertor.CalculatePoint(firstCoords, origin, zoom);
+
+            Pen pen = new Pen(Color.Gray, 1)
+            {
+                DashStyle = System.Drawing.Drawing2D.DashStyle.Dash
+            };
+            Font font = new Font(SystemFonts.DefaultFont.FontFamily, 10f);
+            Brush brush = Brushes.DarkOrange;
+
+            int xCoord = firstCoords.x;
+            for (float x = firstPoint.X; x < width; x += step)
+            {
+                graphics.DrawLine(pen, x, 0, x, height);
+                graphics.DrawString(string.Format("[{0}]", xCoord++), font, brush, x + 5, 5);
+            }
+            int yCoord = firstCoords.y;
+            for (float y = firstPoint.Y; y < height; y += step)
+            {
+                graphics.DrawLine(pen, 0, y, width, y);
+                graphics.DrawString(string.Format("[{0}]", yCoord++), font, brush, 5, y + 5);
+            }
+        }
+
         #endregion static
 
         private IGMap guiMap = new GMap();
@@ -345,112 +451,6 @@ namespace RoadTrafficSimulator
         private bool DestroyGuiRoad(IGRoad gRoad)
         {
             return guiMap.RemoveRoad(gRoad);
-        }
-
-        private static void FillPriorityCrossing(IGMap gMap, IGCrossroad gCrossroad, Map map)
-        {
-            FillPriorityCrossing(gMap, gCrossroad, map.GetNode(gCrossroad.CrossroadId) as Crossroad);
-        }
-
-        // TODO: move to static
-        private static void FillPriorityCrossing(IGMap gMap, IGCrossroad gCrossroad, Crossroad crossroad)
-        {
-            Road GetRoad(Coords diff, IGRoad.Direction direction)
-            {
-                Road road = gMap.GetRoad(new Vector(crossroad.Id, crossroad.Id + diff))?.GetRoad(direction);
-                if (road?.IsConnected == true)
-                    return road;
-                else
-                    return null;
-            }
-
-            foreach (var fromDir in CoordsConvertor.GetAllowedDirections(gMap.SideOfDriving))
-            {
-                Road fromRoad = GetRoad(fromDir, IGRoad.Direction.Backward);
-                if (fromRoad == null)
-                    continue;
-
-                var mainRoadDirs = gCrossroad.MainRoadDirections;
-                bool isMainRoad = gCrossroad.IsMainRoadDirection(fromDir);
-
-                foreach (var toDir in CoordsConvertor.GetAllowedDirections(gMap.SideOfDriving))
-                {
-                    Road toRoad = GetRoad(toDir, IGRoad.Direction.Forward);
-                    if (toRoad == null)
-                        continue;
-
-                    Direction fromPriority = new(fromRoad.Id, toRoad.Id);
-                    // Need to start *after* fromDir and end with it instead
-                    var priorDirections = CoordsConvertor.GetAllowedDirections(gMap.SideOfDriving, fromDir)
-                        .Skip(1)
-                        .Append(fromDir);
-                    bool Pred(Coords dir) => dir != toDir;
-
-                    var priorFromDirections = priorDirections.TakeWhile(Pred);
-                    // Give priority also to both main roads
-                    if (mainRoadDirs.HasValue && !isMainRoad)
-                    {
-                        priorFromDirections = priorFromDirections
-                            .Append(CoordsConvertor.GetCoords(mainRoadDirs.Value.Item1))
-                            .Append(CoordsConvertor.GetCoords(mainRoadDirs.Value.Item2));
-                    }
-                    foreach (var priorFromDir in priorFromDirections)
-                    {
-                        bool priorIsMainRoad = gCrossroad.IsMainRoadDirection(priorFromDir);
-                        // Main road doesn't give priority to side roads
-                        if (isMainRoad && !priorIsMainRoad)
-                            continue;
-
-                        Road priorFromRoad = GetRoad(priorFromDir, IGRoad.Direction.Backward);
-                        if (priorFromRoad == null)
-                            continue;
-
-                        IEnumerable<Coords> priorToDirections;
-                        if (!isMainRoad && priorIsMainRoad)
-                            // Side road gives priority to all directions from a main road
-                            priorToDirections = CoordsConvertor.GetAllowedDirections(gMap.SideOfDriving);
-                        else
-                            priorToDirections = priorDirections.SkipWhile(Pred);
-
-                        foreach (var priorToDir in priorToDirections)
-                        {
-                            Road priorToRoad = GetRoad(priorToDir, IGRoad.Direction.Forward);
-                            if (priorToRoad == null)
-                                continue;
-
-                            Direction toPriority = new(priorFromRoad.Id, priorToRoad.Id);
-                            crossroad.PriorityCrossing.AddPriority(fromPriority, toPriority);
-                        }
-                    }
-                }
-            }
-        }
-
-        private void DrawGrid(Graphics graphics, Point origin, float zoom, int width, int height)
-        {
-            float step = gridSize * zoom;
-            Coords firstCoords = CoordsConvertor.CalculateCoords(new Point(0, 0), origin, zoom);
-            Point firstPoint = CoordsConvertor.CalculatePoint(firstCoords, origin, zoom);
-
-            Pen pen = new Pen(Color.Gray, 1)
-            {
-                DashStyle = System.Drawing.Drawing2D.DashStyle.Dash
-            };
-            Font font = new Font(SystemFonts.DefaultFont.FontFamily, 10f);
-            Brush brush = Brushes.DarkOrange;
-
-            int xCoord = firstCoords.x;
-            for (float x = firstPoint.X; x < width; x += step)
-            {
-                graphics.DrawLine(pen, x, 0, x, height);
-                graphics.DrawString(string.Format("[{0}]", xCoord++), font, brush, x + 5, 5);
-            }
-            int yCoord = firstCoords.y;
-            for (float y = firstPoint.Y; y < height; y += step)
-            {
-                graphics.DrawLine(pen, 0, y, width, y);
-                graphics.DrawString(string.Format("[{0}]", yCoord++), font, brush, 5, y + 5);
-            }
         }
 
         #endregion privateMethods
