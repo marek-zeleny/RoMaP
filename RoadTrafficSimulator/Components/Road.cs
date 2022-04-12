@@ -10,6 +10,9 @@ using RoadTrafficSimulator.Statistics;
 
 namespace RoadTrafficSimulator.Components
 {
+    /// <summary>
+    /// Represents a road in a map.
+    /// </summary>
     class Road : Edge<Coords, int>
     {
         public static readonly Distance minLength = 20.Metres();
@@ -24,6 +27,9 @@ namespace RoadTrafficSimulator.Components
         private Queue<Time> averageDurationHistory;
         private RoadStatistics statistics;
 
+        /// <summary>
+        /// Length of the road; must be at least <see cref="minLength"/>
+        /// </summary>
         public Distance Length
         {
             get => length;
@@ -34,8 +40,12 @@ namespace RoadTrafficSimulator.Components
                 else
                     length = value;
                 Weight = (Length / MaxSpeed).Weight();
+                AverageDuration = Length / MaxSpeed;
             }
         }
+        /// <summary>
+        /// Maximum allowed speed on the road; must be at least <see cref="minMaxSpeed"/>
+        /// </summary>
         public Speed MaxSpeed
         {
             get => maxSpeed;
@@ -46,10 +56,22 @@ namespace RoadTrafficSimulator.Components
                 else
                     maxSpeed = value;
                 Weight = (Length / MaxSpeed).Weight();
+                AverageDuration = Length / MaxSpeed;
+                AverageSpeed = MaxSpeed;
             }
         }
+        /// <summary>
+        /// Average duration of a car's travel through the road, computed as a mean value of the last few cars that
+        /// reached the end
+        /// </summary>
         public Time AverageDuration { get; private set; }
+        /// <summary>
+        /// Average speed of cars currently on the road
+        /// </summary>
         public Speed AverageSpeed { get; private set; }
+        /// <summary>
+        /// Total number of cars currently on the road
+        /// </summary>
         public int CarCount
         {
             get
@@ -60,6 +82,12 @@ namespace RoadTrafficSimulator.Components
                 return count;
             }
         }
+        /// <summary>
+        /// Number of lanes of the road; must be at most <see cref="maxLaneCount"/>
+        /// </summary>
+        /// <remarks>
+        /// Cars cannot cross between lanes, but more lanes increase the road's throughput.
+        /// </remarks>
         public int LaneCount
         {
             get => laneCount;
@@ -76,36 +104,43 @@ namespace RoadTrafficSimulator.Components
                 laneCount = newLaneCount;
             }
         }
+        /// <summary>
+        /// Crossroad at the end of the road
+        /// </summary>
         public Crossroad Destination { get => (Crossroad)ToNode; }
+        /// <summary>
+        /// Statistics collected by the road during the simulation
+        /// </summary>
         public IRoadStatistics Statistics { get => statistics; }
+        /// <summary>
+        /// <c>true</c> if the road is currently connected to a graph, otherwise <c>false</c>
+        /// </summary>
         public bool IsConnected { get; set; }
 
+        /// <summary>
+        /// Creates a new road between two given crossroads with a given ID, length and maximal speed.
+        /// </summary>
         public Road(int id, Crossroad from, Crossroad to, Distance length, Speed maxSpeed)
             : base(id, from, to)
         {
-            if (length < minLength)
-                length = minLength;
-            if (maxSpeed < minMaxSpeed)
-                maxSpeed = minMaxSpeed;
-            this.length = length;
-            this.maxSpeed = maxSpeed;
-            Weight = (length / maxSpeed).Weight();
+            Length = length;
+            MaxSpeed = maxSpeed;
+            Weight = (Length / MaxSpeed).Weight();
             lanes = new Lane[maxLaneCount];
             LaneCount = 1;
-            AverageDuration = Length / MaxSpeed;
-            AverageSpeed = MaxSpeed;
         }
 
+        /// <summary>
+        /// Creates a new road between two given crossroads copying the properties of an existing road.
+        /// </summary>
         public Road(int id, Crossroad from, Crossroad to, Road originalRoad)
             : base(id, from, to)
         {
-            length = originalRoad.length;
-            maxSpeed = originalRoad.maxSpeed;
+            Length = originalRoad.length;
+            MaxSpeed = originalRoad.maxSpeed;
             Weight = originalRoad.Weight;
             lanes = originalRoad.lanes;
             laneCount = originalRoad.laneCount;
-            AverageDuration = Length / MaxSpeed;
-            AverageSpeed = MaxSpeed;
         }
 
         #region methods
@@ -115,6 +150,12 @@ namespace RoadTrafficSimulator.Components
             throw new InvalidOperationException($"Cannot explicitly set weight of a {nameof(Road)}.");
         }
 
+        /// <summary>
+        /// Performs necessary initial actions and checks before starting a simulation.
+        /// </summary>
+        /// <param name="collector">Statistics collector necessary to collect the road's statistics</param>
+        /// <param name="clock">Simulation clock necessary for the road's functioning</param>
+        /// <returns><c>true</c> if all checks are successful, otherwise <c>false</c></returns>
         public bool Initialise(StatisticsCollector collector, IClock clock)
         {
             for (int i = 0; i < LaneCount; i++)
@@ -126,6 +167,14 @@ namespace RoadTrafficSimulator.Components
             return true;
         }
 
+        /// <summary>
+        /// Tries to place a given car at the beginning of one of the lanes.
+        /// </summary>
+        /// <param name="carInFront">
+        /// If successful, returns the car that was last in the lane until now (<c>null</c> if there was no car);
+        /// undefined otherwise
+        /// </param>
+        /// <returns><c>true</c> the car was successfully placed, otherwise <c>false</c></returns>
         public bool TryGetOn(Car car, out Car carInFront)
         {
             int maxIndex = 0;
@@ -142,13 +191,16 @@ namespace RoadTrafficSimulator.Components
             return lanes[maxIndex].TryGetOn(this, car, out carInFront);
         }
 
+        /// <summary>
+        /// Removes a car from the beginning of some lane.
+        /// </summary>
+        /// <exception cref="ArgumentException">The given car was not the first in its lane.</exception>
         public void GetOff(Car car)
         {
             for (int i = 0; i < LaneCount; i++)
             {
-                if (lanes[i].TryGetOff(this, car, out Time arriveTime))
+                if (lanes[i].TryGetOff(this, car, out Time duration))
                 {
-                    Time duration = statistics.CarGotOff(car.Id, arriveTime);
                     if (averageDurationHistory.Count >= averageDurationHistorySize)
                         averageDurationHistory.Dequeue();
                     averageDurationHistory.Enqueue(duration);
@@ -160,6 +212,9 @@ namespace RoadTrafficSimulator.Components
             throw new ArgumentException("The car must be first in a lane to get off the road.", nameof(car));
         }
 
+        /// <summary>
+        /// Performs a simulation step of given time duration on all cars on the road and updates statistics.
+        /// </summary>
         public void Tick(Time time)
         {
             // We don't want to include into statistics cars that got off the road (it could mess up average speed)
@@ -187,14 +242,23 @@ namespace RoadTrafficSimulator.Components
 
         #region subclasses
 
+        /// <summary>
+        /// Represents a lane on the road.
+        /// </summary>
         private struct Lane
         {
             private Car firstCar;
             private Car lastCar;
             private Queue<Time> arriveTimes;
 
+            /// <summary>
+            /// Number of cars currently on the lane
+            /// </summary>
             public int CarCount { get => arriveTimes.Count; }
 
+            /// <summary>
+            /// Initialises the lane before simulation start.
+            /// </summary>
             public void Initialise()
             {
                 firstCar = null;
@@ -202,17 +266,32 @@ namespace RoadTrafficSimulator.Components
                 arriveTimes = new Queue<Time>();
             }
 
+            /// <summary>
+            /// Calculates free space at the beginning of the lane before encountering the first car.
+            /// </summary>
+            /// <param name="length">Length of the lane (only known by the owning road)</param>
+            /// <returns>Free space at the beginning; may be negative</returns>
             public Distance FreeSpace(Distance length)
             {
-                return lastCar == null ? length : lastCar.DistanceRear;
+                return lastCar == null ? length : lastCar.DistanceRear - Car.minDistanceBetweenCars;
             }
 
+            /// <summary>
+            /// Tries to place a given car at the beginning of the lane. If successful, takes care of updating
+            /// statistics.
+            /// </summary>
+            /// <param name="road">Road that contains this lane</param>
+            /// <param name="carInFront">
+            /// If successful, returns the car that was last in the lane until now (<c>null</c> if there was no car);
+            /// undefined otherwise
+            /// </param>
+            /// <returns><c>true</c> if the car was successfully placed, otherwise <c>false</c></returns>
             public bool TryGetOn(Road road, Car car, out Car carInFront)
             {
                 carInFront = lastCar;
                 if (firstCar == null)
                     firstCar = car;
-                else if (lastCar.DistanceRear < car.Length)
+                else if (FreeSpace(road.Length) < car.Length)
                     return false;
                 else
                     lastCar.SetCarBehind(road, car);
@@ -222,11 +301,19 @@ namespace RoadTrafficSimulator.Components
                 return true;
             }
 
-            public bool TryGetOff(Road road, Car car, out Time arriveTime)
+            /// <summary>
+            /// Tries to remove a given car from the end of the lane. If successful, takes care of updating statistics.
+            /// </summary>
+            /// <param name="road">Road that contains this lane</param>
+            /// <param name="travelDuration">
+            /// If successful, returns the simulation time at which the car arrived at the lane; undefined otherwise
+            /// </param>
+            /// <returns><c>true</c> if the car was successfully removed, otherwise <c>false</c></returns>
+            public bool TryGetOff(Road road, Car car, out Time travelDuration)
             {
                 if (car != firstCar)
                 {
-                    arriveTime = default;
+                    travelDuration = default;
                     return false;
                 }
                 firstCar = firstCar.CarBehind;
@@ -234,10 +321,13 @@ namespace RoadTrafficSimulator.Components
                     lastCar = null;
                 else
                     firstCar.RemoveCarInFront(road);
-                arriveTime = arriveTimes.Dequeue();
+                travelDuration = road.statistics.CarGotOff(car.Id, arriveTimes.Dequeue());
                 return true;
             }
 
+            /// <summary>
+            /// Iterates through all cars in the lane and applies a given action onto them.
+            /// </summary>
             public void ForAllCars(Action<Car> action)
             {
                 Car current = firstCar;
@@ -252,13 +342,31 @@ namespace RoadTrafficSimulator.Components
             }
         }
 
+        /// <summary>
+        /// Interface describing statistics collected by a road.
+        /// 
+        /// Some data might not be available based on the selected level of statistical detail. In that case, those
+        /// fields return a default value (usually <c>null</c>).
+        /// </summary>
         public interface IRoadStatistics
         {
+            /// <summary>
+            /// Unique ID of the road
+            /// </summary>
             public int RoadId { get; }
+            /// <summary>
+            /// Records each car that passes through the road together with its arrival and leaving times
+            /// </summary>
             public IReadOnlyList<Timestamp<CarPassage>> CarLog { get; }
+            /// <summary>
+            /// Periodically records throughput metrics of the road.
+            /// </summary>
             public IReadOnlyList<Timestamp<Throughput>> ThroughputLog { get; }
         }
 
+        /// <summary>
+        /// Captures a car's passage through a road.
+        /// </summary>
         public readonly struct CarPassage
         {
             public readonly int carId;
@@ -271,6 +379,9 @@ namespace RoadTrafficSimulator.Components
             }
         }
 
+        /// <summary>
+        /// Captures a road's throughput metrics at a single moment.
+        /// </summary>
         public readonly struct Throughput
         {
             public readonly int carCount;
@@ -306,11 +417,19 @@ namespace RoadTrafficSimulator.Components
                     clock.Time, new Throughput(carCount, averageSpeed, averageDuration)));
             }
 
+            /// <summary>
+            /// Registers that a car arrived at the road.
+            /// </summary>
+            /// <returns>Current simulation time</returns>
             public Time CarGotOn(int carId)
             {
                 return clock.Time;
             }
 
+            /// <summary>
+            /// Registers that a car left the road.
+            /// </summary>
+            /// <returns>Duration of the car's passage through the road</returns>
             public Time CarGotOff(int carId, Time arriveTime)
             {
                 carLog.Get()?.Add(new Timestamp<CarPassage>(clock.Time, new CarPassage(carId, arriveTime)));

@@ -9,15 +9,42 @@ using RoadTrafficSimulator.Statistics;
 
 namespace RoadTrafficSimulator.Components
 {
+    /// <summary>
+    /// Represents a navigation for a car.
+    /// </summary>
     interface INavigation
     {
+        /// <summary>
+        /// Global clock measuring the running simulation's time
+        /// </summary>
         IClock Clock { get; }
+        /// <summary>
+        /// Time estimation of the rest of the planned trip
+        /// </summary>
         Time RemainingDuration { get; }
+        /// <summary>
+        /// Road on which the car is currently driving, or <c>null</c> if the drive is finished
+        /// </summary>
         Road CurrentRoad { get; }
+        /// <summary>
+        /// Road where the car should continue when it reaches the end of the current road, or <c>null</c> if there
+        /// is no next road
+        /// </summary>
         Road NextRoad { get; }
+
+        /// <summary>
+        /// Sets the next road as the new current road and decides where to continue afterwards.
+        /// </summary>
         void MoveToNextRoad();
     }
 
+    /// <summary>
+    /// Represents a central navigation system for optimised searching for shortest paths.
+    /// It's used to create instances of navigations for cars.
+    /// </summary>
+    /// <remarks>
+    /// This class serves active navigations to find shortest paths based on current traffic in the simulation.
+    /// </remarks>
     class CentralNavigation
     {
         private readonly struct Timestamp
@@ -38,6 +65,9 @@ namespace RoadTrafficSimulator.Components
         private IClock clock;
         private IDictionary<Coords, IDictionary<Coords, Timestamp>> pathsCache;
 
+        /// <summary>
+        /// Creates a new central navigation over a given map with a given simulation clock.
+        /// </summary>
         public CentralNavigation(Map map, IClock clock)
         {
             this.map = map;
@@ -47,6 +77,19 @@ namespace RoadTrafficSimulator.Components
                 pathsCache[crossroad.Id] = new Dictionary<Coords, Timestamp>(map.CrossroadCount);
         }
 
+        /// <summary>
+        /// Obtains a new navigation guiding between two given coordinates denoting crossroads.
+        /// </summary>
+        /// <remarks>
+        /// Passive navigation finds the shortest path with respect to maximal allowed speed on roads; as this speed
+        /// doesn't change during the simulation, it only finds the path once at the beginning.
+        /// Active navigation takes into account current traffic situation in the simulation and therefore updates the
+        /// shortest path during the car's passage.
+        /// </remarks>
+        /// <param name="active">If <c>true</c>, returns an active navigation, otherwise returns a passive one</param>
+        /// <exception cref="ArgumentException">
+        /// There is no crossroad in the map under one of the given coordinates.
+        /// </exception>
         public INavigation GetNavigation(Coords from, Coords to, bool active)
         {
             if (active)
@@ -55,6 +98,11 @@ namespace RoadTrafficSimulator.Components
                 return new PassiveNavigation(this, from, to);
         }
 
+        /// <summary>
+        /// Gets the next road on the shortest path between given coordinates based on current traffic in the
+        /// simulation.
+        /// </summary>
+        /// <returns>The next road and the weight of the shortest path found</returns>
         private (Road nextRoad, Weight remainingWeight) GetNextRoad(Coords from, Coords destination)
         {
             UpdateCache(from, destination);
@@ -62,6 +110,9 @@ namespace RoadTrafficSimulator.Components
             return (t.nextRoad, t.remainingWeight);
         }
 
+        /// <summary>
+        /// Updates cached shortest path between given coordinates. Does nothing if the cache is up-to-date.
+        /// </summary>
         private void UpdateCache(Coords from, Coords to)
         {
             bool isUpToDate(Coords from, Coords to) =>
@@ -91,6 +142,13 @@ namespace RoadTrafficSimulator.Components
 
         #region nested_classes
 
+        /// <summary>
+        /// Represents a passive car navigation.
+        /// </summary>
+        /// <remarks>
+        /// Finds the shortest path with respect to maximal allowed speed on roads; as this speed doesn't change during
+        /// the simulation, it only finds the path once at the beginning and stores it for the rest of the passage.
+        /// </remarks>
         private class PassiveNavigation : INavigation
         {
             private CentralNavigation central;
@@ -102,6 +160,10 @@ namespace RoadTrafficSimulator.Components
             public Road CurrentRoad { get; private set; }
             public Road NextRoad { get => nextRoadExists ? remainingPath.Current : null; }
 
+            /// <summary>
+            /// Creates a new passive navigation between two given coordinates.
+            /// </summary>
+            /// <param name="central">Central navigation to which the instance will be connected</param>
             public PassiveNavigation(CentralNavigation central, Coords start, Coords finish)
             {
                 this.central = central;
@@ -128,6 +190,14 @@ namespace RoadTrafficSimulator.Components
             }
         }
 
+        /// <summary>
+        /// Represents an active car navigation.
+        /// </summary>
+        /// <remarks>
+        /// Takes into account current traffic situation in the simulation and therefore updates the shortest path
+        /// during the car's passage. For efficiency, it uses the central navigation's data to find the current shortest
+        /// path, as there may be many navigations querying the same information.
+        /// </remarks>
         private class ActiveNavigation : INavigation
         {
             private readonly CentralNavigation central;
@@ -139,6 +209,10 @@ namespace RoadTrafficSimulator.Components
             public Road CurrentRoad { get; private set; }
             public Road NextRoad { get; private set; }
 
+            /// <summary>
+            /// Creates a new active navigation between two given coordinates.
+            /// </summary>
+            /// <param name="central">Central navigation to which the instance will be connected</param>
             public ActiveNavigation(CentralNavigation central, Coords start, Coords finish)
             {
                 this.central = central;
@@ -163,6 +237,9 @@ namespace RoadTrafficSimulator.Components
                     UpdateNextRoad();
             }
 
+            /// <summary>
+            /// Updates the next road based on current traffic.
+            /// </summary>
             private void UpdateNextRoad()
             {
                 var (nextRoad, remainingWeight) = central.GetNextRoad(CurrentRoad.ToNode.Id, destination);

@@ -8,19 +8,28 @@ using RoadTrafficSimulator.Statistics;
 
 namespace RoadTrafficSimulator.Components
 {
+    /// <summary>
+    /// Represents a single car in the simulation.
+    /// </summary>
     class Car
     {
         #region static
 
+        public static readonly Distance minDistanceBetweenCars = 1.Metres();
+
         private static int nextId = 0;
-        private static readonly Distance minDistanceBetweenCars = 1.Metres();
         private static readonly Acceleration deceleration = 5.MetresPerSecondPerSecond();
         private static readonly Acceleration acceleration = 4.MetresPerSecondPerSecond();
         private static readonly Time reactionTime = 1.Seconds();
 
+        /// <summary>
+        /// Calculates optimal speed of a car based on how much free space it has and how fast is the car in front of it
+        /// travelling.
+        /// </summary>
+        /// <returns>Non-negative speed value</returns>
         private static Speed CalculateOptimalSpeed(Distance freeSpace, Speed carInFrontSpeed)
         {
-            // Calculate optimal speed using the following formula, the result is non-negative
+            // Uses the following formula:
             // v = sqrt((a_d t_r)^2 + 2 a_d (s_d - d) + v_f^2) - a_d t_r
             // For more details and derivation of this formula see the programming documentation
             // Has to be calculated in integers instead of the type system because of non-standard intermediate units
@@ -54,15 +63,37 @@ namespace RoadTrafficSimulator.Components
         private Distance distance;
         private bool newRoad;
 
+        /// <summary>
+        /// Unique ID within all cars in the simulation
+        /// </summary>
         public int Id { get; }
+        /// <summary>
+        /// <c>true</c> if the car has finished its travel, otherwise <c>false</c>
+        /// </summary>
         public bool Finished { get; private set; }
         public Distance Length { get; }
         public Speed CurrentSpeed { get; private set; }
+        /// <summary>
+        /// Distance of the car's rear from the beginning of the road it's currently on; can be negative
+        /// </summary>
         public Distance DistanceRear { get => distance - Length; }
+        /// <summary>
+        /// Car that is directly in front of this one on the same road; <c>null</c> if this car is the first on a road
+        /// </summary>
         private Car CarInFront { get; set; }
+        /// <summary>
+        /// Car that is directly behind this one on the same road; <c>null</c> if this car is the last on a road
+        /// </summary>
         public Car CarBehind { get; private set; }
+        /// <summary>
+        /// Statistics collected by the car during the simulation
+        /// </summary>
         public ICarStatistics Statistics { get => statistics; }
 
+        /// <summary>
+        /// Creates a new car with specified length and a given navigation.
+        /// </summary>
+        /// <param name="collector">Statistics collector necessary to collect this car's statistics</param>
         public Car(Distance length, INavigation navigation, StatisticsCollector collector)
         {
             Id = nextId++;
@@ -75,6 +106,10 @@ namespace RoadTrafficSimulator.Components
 
         #region methods
 
+        /// <summary>
+        /// Tries to release the car onto the simulation map.
+        /// </summary>
+        /// <returns><c>true</c> if the car was successfully released, otherwise <c>false</c></returns>
         public bool Initialise()
         {
             if (!navigation.CurrentRoad.TryGetOn(this, out Car newCarInFront))
@@ -83,6 +118,10 @@ namespace RoadTrafficSimulator.Components
             return true;
         }
 
+        /// <summary>
+        /// Simulates the car's movement for a given time duration and updates statistics accordingly.
+        /// After all cars are updated in a tick, the method <c>AfterTick()</c> must be called before another tick.
+        /// </summary>
         public void Tick(Time time)
         {
             // If the car already crossed from a different road during this tick, do nothing
@@ -95,23 +134,38 @@ namespace RoadTrafficSimulator.Components
             TryFinishDrive();
         }
 
+        /// <summary>
+        /// Must be called each time after all cars are updated in one simulation tick. Performs clean-up operations.
+        /// </summary>
         public void AfterTick()
         {
             newRoad = false;
         }
 
+        /// <summary>
+        /// Puts a new car behind this one.
+        /// </summary>
+        /// <param name="road">The road the car is currently on; used for safety check</param>
         public void SetCarBehind(Road road, Car car)
         {
             Debug.Assert(road == navigation.CurrentRoad);
             CarBehind = car;
         }
 
+        /// <summary>
+        /// Removes the car in front of this one.
+        /// </summary>
+        /// <param name="road">The road the car is currently on; used for safety check</param>
         public void RemoveCarInFront(Road road)
         {
             Debug.Assert(road == navigation.CurrentRoad);
             CarInFront = null;
         }
 
+        /// <summary>
+        /// Moves the car for a given amount of time.
+        /// </summary>
+        /// <returns>Distance travelled by the car</returns>
         private Distance Move(Time time)
         {
             if (CarInFront == null)
@@ -120,6 +174,10 @@ namespace RoadTrafficSimulator.Components
                 return ApproachCar(time);
         }
 
+        /// <summary>
+        /// Approaches the car directly in front of this one with an optimal (safe) speed, for a given amount of time.
+        /// </summary>
+        /// <returns>Distance travelled by the car</returns>
         private Distance ApproachCar(Time time)
         {
             Distance freeSpace = CarInFront.DistanceRear - distance - minDistanceBetweenCars;
@@ -141,6 +199,11 @@ namespace RoadTrafficSimulator.Components
             return travelledDistance;
         }
 
+        /// <summary>
+        /// Approaches the crossroad at the end of the current road if no car is in front, for a given amount of time.
+        /// If the crossroad is reached, tries to continue to the next road given by the navigation.
+        /// </summary>
+        /// <returns>Distance travelled by the car</returns>
         private Distance ApproachCrossroad(Time time)
         {
             Distance freeSpace = navigation.CurrentRoad.Length - distance;
@@ -180,6 +243,11 @@ namespace RoadTrafficSimulator.Components
             return travelledDistance;
         }
 
+        /// <summary>
+        /// Tries to cross to the next road given by the navigation. If successful, continues to travel on the next road
+        /// for the given remaining time duration.
+        /// </summary>
+        /// <returns>Distance travelled by the car</returns>
         private Distance TryCrossToNextRoad(Time remainingTime)
         {
             if (!navigation.NextRoad.TryGetOn(this, out Car newCarInFront))
@@ -198,6 +266,9 @@ namespace RoadTrafficSimulator.Components
             return travelledDistance;
         }
 
+        /// <summary>
+        /// Checks if the car has finished its drive and eventually performs clean-up operations.
+        /// </summary>
         private void TryFinishDrive()
         {
             if (navigation.NextRoad == null && distance == navigation.CurrentRoad.Length)
@@ -213,13 +284,38 @@ namespace RoadTrafficSimulator.Components
 
         #region subclasses
 
+        /// <summary>
+        /// Interface describing statistics collected by a car.
+        /// 
+        /// Some data might not be available based on the selected level of statistical detail. In that case, those
+        /// fields return a default value (usually <c>null</c>).
+        /// </summary>
         public interface ICarStatistics
         {
+            /// <summary>
+            /// Unique ID of the car
+            /// </summary>
             public int CarId { get; }
+            /// <summary>
+            /// Simulation time when the car was created.
+            /// </summary>
             public Time StartTime { get; }
+            /// <summary>
+            /// Simulation time when the car reached its destination. If the car has not yet finished, the value is
+            /// zero.
+            /// </summary>
             public Time FinishTime { get; }
+            /// <summary>
+            /// Total distance travelled by the car.
+            /// </summary>
             public Distance Distance { get; }
+            /// <summary>
+            /// Duration of the drive calculated by the navigation at the beginning of the trip.
+            /// </summary>
             public Time ExpectedDuration { get; }
+            /// <summary>
+            /// Actual duration of the drive so far.
+            /// </summary>
             public Time Duration { get; }
             /// <summary>
             /// Records each road and time the car got on that road.
@@ -257,15 +353,8 @@ namespace RoadTrafficSimulator.Components
                         return clock.Time - StartTime;
                 }
             }
-            /// <summary>
-            /// Records each road and time the car got on that road.
-            /// </summary>
             public IReadOnlyList<Timestamp<int>> RoadLog { get => roadLog.Get(); }
-            /// <summary>
-            /// Periodically records the car's speed.
-            /// </summary>
             public IReadOnlyList<Timestamp<Speed>> SpeedLog { get => speedLog.Get(); }
-
 
             public CarStatistics(StatisticsCollector collector, IClock clock,
                 int CarId, Time expectedDuration, int firstRoadId)

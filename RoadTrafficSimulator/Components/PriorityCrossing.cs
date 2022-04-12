@@ -8,9 +8,12 @@ using RoadTrafficSimulator.Statistics;
 
 namespace RoadTrafficSimulator.Components
 {
+    /// <summary>
+    /// Represents priority crossing rules for a crossroad.
+    /// </summary>
     class PriorityCrossing : ICrossingAlgorithm
     {
-        // Time reserved for a time to surely go through a crossroad
+        // Time reserved for a car to surely go through a crossroad
         private static readonly Time maxTimeToCross = 4.Seconds();
 
         private Dictionary<Direction, DirectionInfo> directions = new();
@@ -72,6 +75,10 @@ namespace RoadTrafficSimulator.Components
 
         #region usage
 
+        /// <summary>
+        /// Initialises the priority crossing algorithm before starting a simulation.
+        /// </summary>
+        /// <param name="clock">Simulation clock necessary for the algorithm</param>
         public void Initialise(IClock clock)
         {
             this.clock = clock;
@@ -148,7 +155,7 @@ namespace RoadTrafficSimulator.Components
             waitingCars.Remove(waiting);
         }
 
-        public void Tick(Time time)
+        public void Tick(Time _)
         {
             if (totalWaitingCars > 0 && currentlyAllowedToGo == 0)
             {
@@ -167,6 +174,9 @@ namespace RoadTrafficSimulator.Components
             currentlyAllowedToGo = 0;
         }
 
+        /// <summary>
+        /// Removes all information about directions satisfying a given predicate.
+        /// </summary>
         private void RemoveDirectionsWhere(Func<Direction, bool> predicate)
         {
             var keys = directions.Keys.Where(predicate).ToList();
@@ -179,12 +189,24 @@ namespace RoadTrafficSimulator.Components
 
         #endregion usage
 
+        /// <summary>
+        /// Contains information about a certain direction.
+        /// </summary>
         private class DirectionInfo
         {
+            /// <summary>
+            /// Contains information about a car asking for permission to go through the crossroad.
+            /// </summary>
             public class WaitingCar
             {
                 public Car Car { get; set; }
+                /// <summary>
+                /// Time at which the car began waiting for permission
+                /// </summary>
                 public Time Arrival { get; set; }
+                /// <summary>
+                /// <c>true</c> if a permission to go was given, otherwise <c>false</c>
+                /// </summary>
                 public bool PermissionToGo { get; set; }
 
                 public WaitingCar(Car car, Time arrival, bool permissionToGo)
@@ -197,14 +219,26 @@ namespace RoadTrafficSimulator.Components
 
             private List<Direction> priorDirections = new();
 
+            /// <summary>
+            /// Collection of directions this direction must give priority to
+            /// </summary>
             public ICollection<Direction> PriorDirections { get => priorDirections; }
+            /// <summary>
+            /// Set of all cars waiting for (or already having) permission to go in this direction.
+            /// </summary>
             public ICollection<WaitingCar> WaitingCars { get; private set; }
 
+            /// <summary>
+            /// Initialises the direction information before starting a simulation.
+            /// </summary>
             public void Initialise()
             {
                 WaitingCars = new List<WaitingCar>(Road.maxLaneCount); // Capacity ~ number of lanes of a road
             }
 
+            /// <summary>
+            /// Removes all prior directions satisfying a given predicate.
+            /// </summary>
             public void RemovePriorDirectionsWhere(Func<Direction, bool> predicate)
             {
                 priorDirections.RemoveAll(dir => predicate(dir));
