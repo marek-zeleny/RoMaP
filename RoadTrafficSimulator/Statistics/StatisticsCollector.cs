@@ -5,11 +5,18 @@ using System.IO;
 
 namespace RoadTrafficSimulator.Statistics
 {
+    /// <summary>
+    /// Collects statistics from the simulation and provides methods for exporting them.
+    /// </summary>
     class StatisticsCollector
     {
         private Dictionary<Type, List<StatisticsBase>> data = new(2);
-        public int CarsTotal { get; private set; }
 
+        /// <summary>
+        /// Registers a statistics-measuring class to track.
+        /// </summary>
+        /// <param name="statistics">Statistics class to collect</param>
+        /// <param name="owner">Type of the owner of the statistics</param>
         public void TrackStatistics(StatisticsBase statistics, Type owner)
         {
             if (!data.TryGetValue(owner, out var statList))
@@ -20,6 +27,9 @@ namespace RoadTrafficSimulator.Statistics
             statList.Add(statistics);
         }
 
+        /// <summary>
+        /// Exports all collected statistics to a given path in the file system.
+        /// </summary>
         public void ExportJson(string path)
         {
             string dirName = $"sim_stats_{DateTime.Now:yyyyMMdd_hhmmss}";

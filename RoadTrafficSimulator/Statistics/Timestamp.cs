@@ -4,6 +4,10 @@ using RoadTrafficSimulator.ValueTypes;
 
 namespace RoadTrafficSimulator.Statistics
 {
+    /// <summary>
+    /// Represents statistical datum marked by a timestamp.
+    /// </summary>
+    /// <typeparam name="T">Type of the statistical data</typeparam>
     struct Timestamp<T>
     {
         public readonly Time time;

@@ -4,6 +4,9 @@ using System.Text.Json;
 
 namespace RoadTrafficSimulator.Statistics
 {
+    /// <summary>
+    /// Abstract class serving as a base for statistics-measuring classes.
+    /// </summary>
     abstract class StatisticsBase
     {
         public enum DetailLevel
@@ -13,16 +16,26 @@ namespace RoadTrafficSimulator.Statistics
             High
         };
 
+        /// <summary>
+        /// Current setting of the maximum detail level for which statistics are measured
+        /// </summary>
         public static DetailLevel detailSetting = DetailLevel.Medium;
 
         protected IClock clock;
 
+        /// <summary>
+        /// Creates a new statistics class bound to a given collector, measuring statistics of a given owner type.
+        /// </summary>
+        /// <param name="clock">Global clock providing current time of the simulation</param>
         protected StatisticsBase(StatisticsCollector collector, Type owner, IClock clock)
         {
             this.clock = clock;
             collector.TrackStatistics(this, owner);
         }
 
+        /// <summary>
+        /// Serialises the collected statistics using a given JSON writer.
+        /// </summary>
         public abstract void Serialise(Utf8JsonWriter writer);
 
         #region serialisation_helpers
@@ -78,12 +91,25 @@ namespace RoadTrafficSimulator.Statistics
 
         #region structures
 
+        /// <summary>
+        /// Represents a single statistical item (datum).
+        /// </summary>
+        /// <typeparam name="T">Type of the stored data</typeparam>
         protected struct Item<T>
         {
             private T data;
+            /// <summary>
+            /// Detail level of the statistic; if <see cref="detailSetting"/> is lower, the statistic is not measured
+            /// </summary>
             public DetailLevel Detail { get; }
+            /// <summary>
+            /// <c>true</c> if the statistic is measured (based on its detail level), otherwise <c>false</c>
+            /// </summary>
             public bool IsActive { get => detailSetting >= Detail; }
 
+            /// <summary>
+            /// Creates a new statistical item with a given detail level and optionally an initial value.
+            /// </summary>
             public Item(DetailLevel detail, T data = default)
             {
                 Detail = detail;
@@ -93,11 +119,18 @@ namespace RoadTrafficSimulator.Statistics
                 this.data = data;
             }
 
+            /// <summary>
+            /// Gets the data stored in the item.
+            /// </summary>
+            /// <returns>Stored data if the item is active, otherwise <c>default</c></returns>
             public T Get()
             {
                 return IsActive ? data : default;
             }
 
+            /// <summary>
+            /// Stores a given value in the item. If the item is not active, the new value is discarded.
+            /// </summary>
             public void Set(T value)
             {
                 if (IsActive)
