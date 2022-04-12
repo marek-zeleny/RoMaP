@@ -5,6 +5,9 @@ using DataStructures.Graphs;
 
 namespace RoadTrafficSimulator.ValueTypes
 {
+    /// <summary>
+    /// Provides conversion extensions for value types.
+    /// </summary>
     static class ValueTypesExtensions
     {
         private static class Coefficients
@@ -25,6 +28,9 @@ namespace RoadTrafficSimulator.ValueTypes
             // Acceleration
             public const int metresPerSecondPerSecond = Acceleration.precision;
 
+            /// <summary>
+            /// Checks that all conversion coefficients are greater than zero, i.e. all conversions are valid.
+            /// </summary>
             static Coefficients()
             {
                 Debug.Assert(metres > 0);
@@ -44,32 +50,31 @@ namespace RoadTrafficSimulator.ValueTypes
         #region from_int_to_quant
 
         // Distance
-        public static Distance Millimetres(this int value) => new Distance(value * Coefficients.millimetres);
+        public static Distance Millimetres(this int value) => new(value * Coefficients.millimetres);
 
-        public static Distance Metres(this int value) => new Distance(value * Coefficients.metres);
+        public static Distance Metres(this int value) => new(value * Coefficients.metres);
 
         // Time
-        public static Time Milliseconds(this int value) => new Time(value * Coefficients.milliseconds);
+        public static Time Milliseconds(this int value) => new(value * Coefficients.milliseconds);
 
-        public static Time Seconds(this int value) => new Time(value * Coefficients.seconds);
+        public static Time Seconds(this int value) => new(value * Coefficients.seconds);
 
-        public static Time Minutes(this int value) => new Time(value * Coefficients.minutes);
+        public static Time Minutes(this int value) => new(value * Coefficients.minutes);
 
-        public static Time Hours(this int value) => new Time(value * Coefficients.hours);
+        public static Time Hours(this int value) => new(value * Coefficients.hours);
 
-        public static Time Days(this int value) => new Time(value * Coefficients.days);
+        public static Time Days(this int value) => new(value * Coefficients.days);
 
         // Speed
-        public static Speed MillimetresPerSecond(this int value) =>
-            new Speed(value * Coefficients.millimetresPerSecond);
+        public static Speed MillimetresPerSecond(this int value) => new(value * Coefficients.millimetresPerSecond);
 
-        public static Speed MetresPerSecond(this int value) => new Speed(value * Coefficients.metresPerSecond);
+        public static Speed MetresPerSecond(this int value) => new(value * Coefficients.metresPerSecond);
 
-        public static Speed KilometresPerHour(this int value) => new Speed(value * Coefficients.kilometresPerHour);
+        public static Speed KilometresPerHour(this int value) => new(value * Coefficients.kilometresPerHour);
 
         // Acceleration
         public static Acceleration MetresPerSecondPerSecond(this int value) =>
-            new Acceleration(value * Coefficients.metresPerSecondPerSecond);
+            new(value * Coefficients.metresPerSecondPerSecond);
 
         #endregion from_int_to_quant
 
@@ -103,8 +108,8 @@ namespace RoadTrafficSimulator.ValueTypes
         #endregion from_quant_to_int
 
 
-        public static Weight Weight(this Time value) => new Weight(value);
+        public static Weight Weight(this Time value) => new(value);
 
-        public static Weight Weight(this Speed value) => new Weight(value);
+        public static Weight Weight(this Speed value) => new(value);
     }
 }

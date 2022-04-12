@@ -3,6 +3,9 @@ using System.Diagnostics;
 
 namespace RoadTrafficSimulator.ValueTypes
 {
+    /// <summary>
+    /// Represents an acceleration (speed over time) value.
+    /// </summary>
     readonly struct Acceleration : IComparable<Acceleration>
     {
         public const int precision = 1;
@@ -21,21 +24,19 @@ namespace RoadTrafficSimulator.ValueTypes
 
         public static implicit operator int(Acceleration a) => a.value;
 
-        public static explicit operator Acceleration(int i) => new Acceleration(i);
+        public static explicit operator Acceleration(int i) => new(i);
 
-        public static Acceleration operator +(Acceleration a1, Acceleration a2) =>
-            new Acceleration(a1.value + a2.value);
+        public static Acceleration operator +(Acceleration a1, Acceleration a2) => new(a1.value + a2.value);
 
-        public static Acceleration operator -(Acceleration a) => new Acceleration(-a.value);
+        public static Acceleration operator -(Acceleration a) => new(-a.value);
 
-        public static Acceleration operator -(Acceleration a1, Acceleration a2) =>
-            new Acceleration(a1.value - a2.value);
+        public static Acceleration operator -(Acceleration a1, Acceleration a2) => new(a1.value - a2.value);
 
-        public static Acceleration operator *(Acceleration a, int i) => new Acceleration(a.value * i);
+        public static Acceleration operator *(Acceleration a, int i) => new(a.value * i);
 
         public static Acceleration operator *(int i, Acceleration a) => a * i;
 
-        public static Acceleration operator /(Acceleration a, int i) => new Acceleration(a.value / i);
+        public static Acceleration operator /(Acceleration a, int i) => new(a.value / i);
 
         public static Speed operator *(Acceleration a, Time t)
         {

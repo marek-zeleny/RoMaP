@@ -2,6 +2,9 @@
 
 namespace RoadTrafficSimulator.ValueTypes
 {
+    /// <summary>
+    /// Represents a pair of XY coordinates.
+    /// </summary>
     readonly struct Coords : IEquatable<Coords>
     {
         public readonly int x, y;

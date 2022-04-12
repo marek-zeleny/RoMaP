@@ -3,6 +3,9 @@ using System.Diagnostics;
 
 namespace RoadTrafficSimulator.ValueTypes
 {
+    /// <summary>
+    /// Represents a time value.
+    /// </summary>
     readonly struct Time : IComparable<Time>
     {
         public const int precision = 1000;
@@ -19,19 +22,19 @@ namespace RoadTrafficSimulator.ValueTypes
 
         public static implicit operator int(Time t) => t.value;
 
-        public static explicit operator Time(int i) => new Time(i);
+        public static explicit operator Time(int i) => new(i);
 
-        public static Time operator +(Time t1, Time t2) => new Time(t1.value + t2.value);
+        public static Time operator +(Time t1, Time t2) => new(t1.value + t2.value);
 
-        public static Time operator -(Time t) => new Time(-t.value);
+        public static Time operator -(Time t) => new(-t.value);
 
-        public static Time operator -(Time t1, Time t2) => new Time(t1.value - t2.value);
+        public static Time operator -(Time t1, Time t2) => new(t1.value - t2.value);
 
-        public static Time operator *(Time t, int i) => new Time(t.value * i);
+        public static Time operator *(Time t, int i) => new(t.value * i);
 
         public static Time operator *(int i, Time t) => t * i;
 
-        public static Time operator /(Time t, int i) => new Time(t.value / i);
+        public static Time operator /(Time t, int i) => new(t.value / i);
 
         public static Distance operator *(Time t, Speed s)
         {

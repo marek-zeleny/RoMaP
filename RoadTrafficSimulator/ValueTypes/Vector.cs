@@ -2,6 +2,9 @@
 
 namespace RoadTrafficSimulator.ValueTypes
 {
+    /// <summary>
+    /// Represents a vector between two pairs of coordinates.
+    /// </summary>
     readonly struct Vector : IEquatable<Vector>
     {
         public readonly Coords from, to;
@@ -12,11 +15,18 @@ namespace RoadTrafficSimulator.ValueTypes
             this.to = to;
         }
 
+        /// <summary>
+        /// Obtains a vector of the opposite direction.
+        /// </summary>
+        /// <returns></returns>
         public Vector Reverse()
         {
             return new Vector(to, from);
         }
 
+        /// <summary>
+        /// Obtains the difference of coordinates forming the vector (i.e. shifts the vector's origin to (0;0)).
+        /// </summary>
         public Coords Diff()
         {
             return to - from;
