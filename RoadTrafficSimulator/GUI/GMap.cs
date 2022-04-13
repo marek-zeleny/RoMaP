@@ -6,6 +6,9 @@ using RoadTrafficSimulator.ValueTypes;
 
 namespace RoadTrafficSimulator.GUI
 {
+    /// <summary>
+    /// Represents the graphical part of a map.
+    /// </summary>
     class GMap : IGMap
     {
         private Dictionary<Coords, IGCrossroad> crossroads = new();
@@ -14,9 +17,9 @@ namespace RoadTrafficSimulator.GUI
 
         public RoadSide SideOfDriving { get; set; } = RoadSide.Right;
 
-        public bool AddCrossroad(IGCrossroad crossroad, Coords coords)
+        public bool AddCrossroad(IGCrossroad crossroad)
         {
-            return crossroads.TryAdd(coords, crossroad);
+            return crossroads.TryAdd(crossroad.CrossroadId, crossroad);
         }
 
         public bool AddRoadSegment(IGRoad road, Vector vector)
@@ -87,9 +90,16 @@ namespace RoadTrafficSimulator.GUI
                 crossroad.Draw(graphics, origin, zoom, IsVisible);
         }
 
+        /// <summary>
+        /// Determines if a given point is within a range of given dimensions.
+        /// </summary>
+        /// <returns><c>true</c> if the point is within the range, otherwise <c>false</c></returns>
         private static bool IsInRange (Point point, int width, int height)
         {
-            return point.X >= 0 && point.X <= width && point.Y >= 0 && point.Y <= height;
+            return point.X >= 0
+                && point.X <= width
+                && point.Y >= 0
+                && point.Y <= height;
         }
     }
 }

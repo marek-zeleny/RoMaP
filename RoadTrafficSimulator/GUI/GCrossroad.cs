@@ -5,6 +5,9 @@ using RoadTrafficSimulator.ValueTypes;
 
 namespace RoadTrafficSimulator.GUI
 {
+    /// <summary>
+    /// Represents graphical properties of a crossroad.
+    /// </summary>
     class GCrossroad : IGCrossroad
     {
         private const int size = 20;
@@ -15,6 +18,9 @@ namespace RoadTrafficSimulator.GUI
         public Coords CrossroadId { get; }
         public (CoordsConvertor.Direction, CoordsConvertor.Direction)? MainRoadDirections { get; set; }
 
+        /// <summary>
+        /// Creates a new crossroad at given coordinates.
+        /// </summary>
         public GCrossroad(Coords crossroadId)
         {
             CrossroadId = crossroadId;
@@ -55,6 +61,9 @@ namespace RoadTrafficSimulator.GUI
             graphics.FillEllipse(brush, rect);
         }
 
+        /// <summary>
+        /// Gets an increased size of the crossroad given its normal size.
+        /// </summary>
         public static int GetIncreasedSize(int size) => size * 3 / 2;
     }
 }

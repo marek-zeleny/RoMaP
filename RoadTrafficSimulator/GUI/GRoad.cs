@@ -9,6 +9,9 @@ using DataStructures.Miscellaneous;
 
 namespace RoadTrafficSimulator.GUI
 {
+    /// <summary>
+    /// Represents graphical properties of a road.
+    /// </summary>
     class GRoad : IMutableGRoad
     {
         private const int laneWidth = 7;
@@ -160,6 +163,13 @@ namespace RoadTrafficSimulator.GUI
             }
         }
 
+        /// <summary>
+        /// Draws a segment of the road onto given graphics between given points.
+        /// </summary>
+        /// <param name="fWidth">Width of the forward going road</param>
+        /// <param name="bWidth">Width of the backward going road</param>
+        /// <param name="fColor">Colour of the forward going road</param>
+        /// <param name="bColor">Colour of the backward going road</param>
         private void DrawSegment(Graphics graphics, Point from, Point to, RoadSide sideOfDriving,
             int fWidth, int bWidth, Color fColor, Color bColor)
         {
@@ -187,6 +197,10 @@ namespace RoadTrafficSimulator.GUI
             }
         }
 
+        /// <summary>
+        /// Draws a one-way segment of the road onto given graphics between given points.
+        /// </summary>
+        /// <param name="lanes">Number of lanes of the road</param>
         private void DrawOneWayRoad(Graphics graphics, Point from, Point to, RoadSide sideOfDriving,
             int width, Color color, int lanes)
         {
@@ -227,6 +241,9 @@ namespace RoadTrafficSimulator.GUI
             }
         }
 
+        /// <summary>
+        /// Draws a two-way segment of the road onto given graphics between given points.
+        /// </summary>
         private void DrawTwoWayRoad(Graphics graphics, Point from, Point to, RoadSide sideOfDriving,
             int fWidth, int bWidth, Color fColor, Color bColor)
         {
@@ -251,6 +268,9 @@ namespace RoadTrafficSimulator.GUI
             DrawOneWay(to, from, o2.dx, o2.dy, bWidth, bRoad.LaneCount, bColor);
         }
 
+        /// <summary>
+        /// Draws a road lane onto given graphics between given points.
+        /// </summary>
         private static void DrawLane(Graphics graphics, Point from, Point to, int width, Color color)
         {
             Pen pen = new(color, width);
@@ -264,6 +284,12 @@ namespace RoadTrafficSimulator.GUI
             graphics.FillArrow(brush, arrowFrom, arrowTo, width / 2);
         }
 
+        /// <summary>
+        /// Gets the colour of a given road given its highlight.
+        /// If simulation mode is <c>true</c>, the colour is calculated from current traffic density on the road,
+        /// otherwise the default colour is used.
+        /// </summary>
+        /// <returns></returns>
         private static Color GetRoadColor(Road road, Highlight highlight, bool simulationMode)
         {
             Color ApplyHighlight(Color color)
@@ -288,6 +314,11 @@ namespace RoadTrafficSimulator.GUI
             return ApplyHighlight(color);
         }
 
+        /// <summary>
+        /// Gets coordinate directions in which lanes are offset from each other on a road segment between given points,
+        /// taking into account the side of driving.
+        /// </summary>
+        /// <returns>Pair of numbers from the domain {-1, 0, 1} denoting offset directions for both axes</returns>
         private static (int dx, int dy) GetLaneOffsetDirections(Point from, Point to, RoadSide sideOfDriving)
         {
             int diffX = to.X - from.X;
@@ -319,19 +350,38 @@ namespace RoadTrafficSimulator.GUI
             return (dx, dy);
         }
 
+        /// <summary>
+        /// Scales given offset directions by a given scaling ratio.
+        /// </summary>
+        /// <param name="dirs">
+        /// Pair of numbers from the domain {-1, 0, 1} denoting offset directions for both axes
+        /// </param>
+        /// <param name="scale">Scaling ratio of the offset</param>
         private static (int dx, int dy) ScaleLaneOffsets((int dx, int dy) dirs, int scale)
         {
             return (dirs.dx * scale, dirs.dy * scale);
         }
 
+        /// <summary>
+        /// Gets the desired offset of lanes from each other given their width.
+        /// </summary>
         private static int GetLaneOffset(int laneWidth) => laneWidth * 3 / 2;
 
+        /// <summary>
+        /// Gets an increased width of a lane given its normal width.
+        /// </summary>
         private static int GetIncreasedWidth(int width) => width * 3 / 2;
 
         #endregion graphics
 
+        /// <summary>
+        /// Reversed view over a GUI road that reverses direction-specific methods.
+        /// </summary>
         private class ReversedGRoad : IGRoad
         {
+            /// <summary>
+            /// Reverses a given direction.
+            /// </summary>
             private static IGRoad.Direction Reverse(IGRoad.Direction direction)
             {
                 return direction switch
@@ -348,6 +398,9 @@ namespace RoadTrafficSimulator.GUI
             public Coords To => gRoad.From;
             public bool IsTwoWay => gRoad.IsTwoWay;
 
+            /// <summary>
+            /// Creates a new reversed view over a given road.
+            /// </summary>
             public ReversedGRoad(IGRoad gRoad)
             {
                 this.gRoad = gRoad;
@@ -370,8 +423,18 @@ namespace RoadTrafficSimulator.GUI
         }
     }
 
+    /// <summary>
+    /// Defines extensions for the Graphics class useful for drawing GUI roads.
+    /// </summary>
     static class GraphicsExtensions
     {
+        /// <summary>
+        /// Fills the interior of an arrow defined by two points and a width.
+        /// </summary>
+        /// <param name="brush">Brush that determines the characteristics of the fill</param>
+        /// <param name="from">Starting point of the arrow</param>
+        /// <param name="to">Ending point of the arrow</param>
+        /// <param name="width">Width of the arrow</param>
         public static void FillArrow(this Graphics graphics, Brush brush, PointF from, PointF to, int width)
         {
             PointF[] points = new PointF[8];
