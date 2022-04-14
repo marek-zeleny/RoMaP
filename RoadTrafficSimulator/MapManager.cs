@@ -585,7 +585,7 @@ namespace RoadTrafficSimulator
                 if (output != null)
                     return output;
                 output = new GCrossroad(coords);
-                gMap.AddCrossroad(output, coords);
+                gMap.AddCrossroad(output);
                 return output;
             }
 
