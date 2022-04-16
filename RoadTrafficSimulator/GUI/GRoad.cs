@@ -420,6 +420,24 @@ namespace RoadTrafficSimulator.GUI
             public void Draw(Graphics graphics, Point origin, float zoom, RoadSide sideOfDriving, bool simulationMode,
                 Func<Point, bool> isVisible) =>
                 gRoad.Draw(graphics, origin, zoom, sideOfDriving, simulationMode, isVisible);
+
+            public bool Equals(ReversedGRoad other) => gRoad.Equals(other.gRoad);
+
+            public override bool Equals(object obj)
+            {
+                if (obj == null)
+                    return false;
+                else if (obj is ReversedGRoad r)
+                    return Equals(r);
+                else
+                    return false;
+            }
+
+            public override int GetHashCode()
+            {
+                const int diff = int.MaxValue / 2;
+                return gRoad.GetHashCode() + diff;
+            }
         }
     }
 
