@@ -10,18 +10,37 @@ using RoadTrafficSimulator.Statistics;
 
 namespace RoadTrafficSimulator
 {
+    /// <summary>
+    /// Controls the simulation flow.
+    /// </summary>
     class Simulation
     {
+        /// <summary>
+        /// Minimal allowed length of a simulation step.
+        /// </summary>
         public static readonly Time MinTimeStep = 100.Milliseconds();
 
+        /// <summary>
+        /// Distribution from which lengths of cars will be randomly generated
+        /// </summary>
+        /// TODO: change to reflect real car lengths
         private static readonly int[] carLengthDistribution = new int[] { 2, 3, 3, 3, 3, 4, 4, 10, 10, 15 };
 
+        /// <summary>
+        /// Measures the simulation time.
+        /// </summary>
         private class SimulationClock : IClock
         {
             public Time Time { get; private set; }
 
+            /// <summary>
+            /// Moves the clock forward by a given interval.
+            /// </summary>
             public void Tick(Time interval) => Time += interval;
 
+            /// <summary>
+            /// Resets the clock to time 0.
+            /// </summary>
             public void Reset() => Time = new Time();
         }
 
@@ -35,19 +54,63 @@ namespace RoadTrafficSimulator
         private HashSet<Car> stagedCars;
         private GlobalStatistics statistics;
 
+        /// <summary>
+        /// <c>true</c> if the simulation is currently running, otherwise <c>false</c>
+        /// </summary>
         public bool IsRunning { get => settings != null && Clock.Time < settings.Duration; }
+        /// <summary>
+        /// Simulation clock measuring current time
+        /// </summary>
         public IClock Clock { get => clock; }
+        /// <summary>
+        /// Statistics collector for the simulation
+        /// </summary>
         public StatisticsCollector StatsCollector { get; private set; }
+        /// <summary>
+        /// Global statistics measured for the simulation
+        /// </summary>
         public IGlobalStatistics Statistics { get => statistics; }
 
+        /// <summary>
+        /// Creates a new simulation instance.
+        /// </summary>
         public Simulation()
         {
             random = new Random();
             clock = new SimulationClock();
         }
 
-        public enum InitialisationResult { Ok, Error_MapIsNull, Error_NoMap, Error_InvalidCrossroad }
+        /// <summary>
+        /// Result of simulation initialisation
+        /// </summary>
+        public enum InitialisationResult {
+            /// <summary>
+            /// Initialisation was successful
+            /// </summary>
+            Ok,
+            /// <summary>
+            /// Initialisation failed: the given map is <c>null</c>
+            /// </summary>
+            Error_MapIsNull,
+            /// <summary>
+            /// Initialisation failed: the given map is empty (has no roads nor crossroads)
+            /// </summary>
+            Error_NoMap,
+            /// <summary>
+            /// Initialisation failed: some crossroad could not be initialised due to inconsistent state
+            /// </summary>
+            Error_InvalidCrossroad,
+        }
 
+        /// <summary>
+        /// Initialise before running a new simulation.
+        /// </summary>
+        /// <param name="map">Map to run the simulation on</param>
+        /// <param name="invalidCrossroad">
+        /// If initialisation fails due to an invalid state of a crossroad, outputs that crossroad; otherwise the value
+        /// is undefined
+        /// </param>
+        /// <returns>Result of the initialisation</returns>
         public InitialisationResult Initialise(Map map, out Crossroad invalidCrossroad)
         {
             clock.Reset();
@@ -77,14 +140,22 @@ namespace RoadTrafficSimulator
             return InitialisationResult.Ok;
         }
 
-        public void StartSimulation(SimulationSettings settings, out Func<Time, bool> continueFunc)
+        /// <summary>
+        /// Starts a simulation on a currently initialised map with given simulation settings.
+        /// </summary>
+        /// <returns>Function to call for continuing the simulation for a given period of time</returns>
+        public Func<Time, bool> StartSimulation(SimulationSettings settings)
         {
             Debug.Assert(map != null);
             this.settings = settings;
             StatisticsBase.detailSetting = settings.StatisticsDetail;
-            continueFunc = ContinueSimulation;
+            return ContinueSimulation;
         }
 
+        /// <summary>
+        /// Continues simulating for a given period of time.
+        /// </summary>
+        /// <returns><c>true</c> if the simulation is not yet finished, otherwise <c>false</c></returns>
         private bool ContinueSimulation(Time duration)
         {
             Time end = Clock.Time + duration;
@@ -97,6 +168,9 @@ namespace RoadTrafficSimulator
             return Clock.Time < settings.Duration;
         }
 
+        /// <summary>
+        /// Performs a simulation tick of a given length.
+        /// </summary>
         private void Tick(Time timeStep)
         {
             // Generate new cars
@@ -106,7 +180,7 @@ namespace RoadTrafficSimulator
             for (; newCarProbability > 0; newCarProbability--)
                 GenerateCar(settings.ActiveNavigationRate, newCarProbability);
             // Release waiting cars
-            HashSet<Car> releasedCars = new HashSet<Car>();
+            HashSet<Car> releasedCars = new();
             foreach (Car c in stagedCars)
                 if (c.Initialise())
                     releasedCars.Add(c);
@@ -120,8 +194,8 @@ namespace RoadTrafficSimulator
             // Update statistics
             int finishedCars = 0;
             int carsWithZeroSpeed = 0;
-            Speed speedSum = new Speed(0);
-            Time delaySum = new Time(0);
+            Speed speedSum = new(0);
+            Time delaySum = new(0);
             foreach (Car car in allCars)
             {
                 if (car.Finished)
@@ -146,6 +220,13 @@ namespace RoadTrafficSimulator
             statistics.Update(allCars.Count, activeCars, finishedCars, carsWithZeroSpeed, averageSpeed, averageDelay);
         }
 
+        /// <summary>
+        /// With a given probability, generates a new car with randomised parameters.
+        /// </summary>
+        /// <param name="activeNavigationRate">Percentage of actively navigated cars (number between 0 and 1)</param>
+        /// <param name="probability">
+        /// Probability of generating a new car; if greater than or equal to 1, a new car is guaranteed to be generated
+        /// </param>
         private void GenerateCar(float activeNavigationRate, double probability = 1f)
         {
             if (probability < 1f && random.NextDouble() >= probability)
@@ -159,17 +240,23 @@ namespace RoadTrafficSimulator
             Distance length = carLengthDistribution[random.Next(carLengthDistribution.Length)].Metres();
             bool active = random.NextDouble() < activeNavigationRate;
             INavigation navigation = centralNavigation.GetNavigation(start.Id, finish.Id, active);
-            Car car = new Car(length, navigation, StatsCollector);
+            Car car = new(length, navigation, StatsCollector);
             stagedCars.Add(car);
             allCars.Add(car);
         }
 
+        /// <summary>
+        /// Gets a random crossroad with distribution given by car spawn rate of each crossroad.
+        /// </summary>
         private Crossroad GetRandomCrossroad()
         {
             randomCrossroads.MoveNext();
             return randomCrossroads.Current;
         }
 
+        /// <summary>
+        /// Gets an enumerator generating random crossroads with distribution given by car spawn rate of each crossroad.
+        /// </summary>
         private IEnumerable<Crossroad> GetRandomCrossroads()
         {
             List<Crossroad> crossroads = new List<Crossroad>();
@@ -183,17 +270,44 @@ namespace RoadTrafficSimulator
 
         #region statistics
 
+        /// <summary>
+        /// Interface describing global statistics collected by the simulation.
+        /// </summary>
         public interface IGlobalStatistics
         {
+            /// <summary>
+            /// Total number of cars that entered the simulation
+            /// </summary>
             public int CarsTotal { get; }
+            /// <summary>
+            /// Number of cars that are currently active (i.e. already begun their passage and haven't yet finished)
+            /// </summary>
             public int CarsActive { get; }
+            /// <summary>
+            /// Number of cars that have already reached their destination
+            /// </summary>
             public int CarsFinished { get; }
+            /// <summary>
+            /// Number of active cars that have zero speed at the moment
+            /// </summary>
             public int CarsWithZeroSpeed { get; }
+            /// <summary>
+            /// Average speed of all active cars
+            /// </summary>
             public Speed AverageSpeed { get; }
+            /// <summary>
+            /// Average delay of all finished cars
+            /// </summary>
             public Time AverageDelay { get; }
+            /// <summary>
+            /// Periodically records global metrics of the simulation
+            /// </summary>
             public IReadOnlyList<Timestamp<StatsData>> DataLog { get; }
         }
 
+        /// <summary>
+        /// Describes global statistical data of a running simulation at certain moment.
+        /// </summary>
         public readonly struct StatsData
         {
             public readonly int carsTotal;
@@ -268,18 +382,40 @@ namespace RoadTrafficSimulator
         #endregion statistics
     }
 
+    /// <summary>
+    /// Contains settings and parameters of a simulation.
+    /// </summary>
     class SimulationSettings
     {
-        // New cars per second
+        /// <summary>
+        /// New cars per crossroad per second
+        /// </summary>
         private readonly float carSpawnFrequency;
-        // Relative distribution through time (values from interval (0, 1])
+        /// <summary>
+        /// Relative distribution through time (values from interval (0, 1])
+        /// </summary>
         private readonly float[] carSpawnFrequencyDistribution;
 
+        /// <summary>
+        /// Duration of the simulation
+        /// </summary>
         public Time Duration { get; }
+        /// <summary>
+        /// Length of one time step
+        /// </summary>
         public Time TimeStep { get; set; }
+        /// <summary>
+        /// Percentage of cars with active navigation
+        /// </summary>
         public float ActiveNavigationRate { get; }
+        /// <summary>
+        /// Maximum detail level of statistics that should be collected
+        /// </summary>
         public StatisticsBase.DetailLevel StatisticsDetail { get; }
 
+        /// <summary>
+        /// Creates new simulation settings with given parameters.
+        /// </summary>
         public SimulationSettings(Time duration, float activeNavigationRate, StatisticsBase.DetailLevel statsDetail,
             float carSpawnFrequency, float[] carSpawnFrequencyDistribution)
         {
@@ -291,7 +427,9 @@ namespace RoadTrafficSimulator
             this.carSpawnFrequencyDistribution = carSpawnFrequencyDistribution;
         }
 
-        /// <returns>New cars per second per crossroad.</returns>
+        /// <summary>
+        /// Gets the number of new cars generated per second per crossroad at given simulation time.
+        /// </summary>
         public float GetCarSpawnFrequency(Time simulationTime)
         {
             int index = carSpawnFrequencyDistribution.Length * (int)simulationTime / (int)Duration;

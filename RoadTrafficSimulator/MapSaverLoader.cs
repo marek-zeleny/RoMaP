@@ -11,8 +11,17 @@ using RoadTrafficSimulator.ValueTypes;
 
 namespace RoadTrafficSimulator
 {
+    /// <summary>
+    /// Provides methods for saving and loading maps.
+    /// </summary>
     static class MapSaverLoader
     {
+        /// <summary>
+        /// String constants used in saved files.
+        /// </summary>
+        /// <remarks>
+        /// All strings used in the files should be defined here; do not use string literals in the code.
+        /// </remarks>
         private static class Keywords
         {
             public const string sideOfDriving = "sideOfDriving";
@@ -50,6 +59,13 @@ namespace RoadTrafficSimulator
 
         #region interface
 
+        /// <summary>
+        /// Saves a given map (back-end and graphical) as a JSON document using a given stream.
+        /// </summary>
+        /// <remarks>
+        /// If the given back-end map and GUI map are not consistent with respect to each other, the behaviour is
+        /// undefined.
+        /// </remarks>
         public static void SaveMap(Stream stream, Map map, IGMap guiMap)
         {
             Utf8JsonWriter writer = new(stream, writerOptions);
@@ -82,6 +98,23 @@ namespace RoadTrafficSimulator
             writer.Flush();
         }
 
+        /// <summary>
+        /// Loads a saved map from a given stream and stores it into given back-end and graphical map objects.
+        /// </summary>
+        /// <remarks>
+        /// The method assumes that given map objects are empty (i.e. in their initial state).
+        /// 
+        /// Note that the created map may not be internally identical to the original one that was saved, as IDs of
+        /// roads can change during the process. However, this change is only an implementation detail and is not
+        /// observable from the outside.
+        /// </remarks>
+        /// <param name="map">
+        /// Back-end map object to which the map was loaded; if loading failed, the map's state is undefined
+        /// </param>
+        /// <param name="guiMap">
+        /// Graphical map object to which the map was loaded; if loading failed, the map's state is undefined
+        /// </param>
+        /// <returns><c>true</c> if the map was successfully loaded, otherwise <c>false</c></returns>
         public static bool LoadMap(Stream stream, Map map, IGMap guiMap)
         {
             using var document = JsonDocument.Parse(stream);
@@ -235,6 +268,20 @@ namespace RoadTrafficSimulator
 
         #region highLevelParsers
 
+        /// <summary>
+        /// Parses a road from a given JSON element and adds it to the given map objects.
+        /// </summary>
+        /// <remarks>
+        /// If the parsing was not successful, states of the map objects are undefined.
+        /// 
+        /// Note that the parsed road may have a different ID than the one in the JSON file. Use the outputted road ID
+        /// mappings to resolve potential inconsistencies.
+        /// </remarks>
+        /// <param name="roadIdMappings">
+        /// Outputs mappings of road IDs from the JSON file to actual IDs of the created roads (see remarks for
+        /// details); if parsing failed, the contents are undefined
+        /// </param>
+        /// <returns><c>true</c> if the road was successfully parsed, otherwise <c>false</c></returns>
         private static bool ParseRoad(JsonElement jRoad, Map map, IGMap gMap,
             out IEnumerable<(int previous, int current)> roadIdMappings)
         {
@@ -286,7 +333,7 @@ namespace RoadTrafficSimulator
                 return false;
             if (!ParseCoords(routeEnum.Current, out Coords firstCoords))
                 return false;
-            IRoadBuilder builder = MapManager.CreateRoadBuilder(map, gMap, firstCoords, forward && backward);
+            IRoadBuilder builder = MapManager.CreateRoadBuilder(map, gMap, firstCoords);
             if (builder == null)
                 return false;
             while (routeEnum.MoveNext())
@@ -298,7 +345,7 @@ namespace RoadTrafficSimulator
                     return false;
                 }
             }
-            if (!builder.FinishRoad(out IGRoad gRoad, false))
+            if (!builder.FinishRoad(forward && backward, out IGRoad gRoad, false))
             {
                 builder.DestroyRoad();
                 return false;
@@ -315,6 +362,14 @@ namespace RoadTrafficSimulator
             return true;
         }
 
+        /// <summary>
+        /// Parses a crossroad from a given JSON element and adds it to the given map objects.
+        /// </summary>
+        /// <remarks>
+        /// If the parsing was not successful, states of the map objects are undefined.
+        /// </remarks>
+        /// <param name="roadIdMapper">Mappings of road IDs from the JSON file to IDs of the actual roads</param>
+        /// <returns><c>true</c> if the crossroad was successfully parsed, otherwise <c>false</c></returns>
         private static bool ParseCrossroad(JsonElement jCrossroad, Map map, IGMap gMap,
             Dictionary<int, int> roadIdMapper)
         {
@@ -410,6 +465,11 @@ namespace RoadTrafficSimulator
 
         #region lowLevelParsers
 
+        /// <summary>
+        /// Parses coordinates from a given JSON element.
+        /// </summary>
+        /// <param name="coords">Outputs the parsed coordinates; if parsing failed, the value is undefined</param>
+        /// <returns><c>true</c> if the coordinates were successfully parsed, otherwise <c>false</c></returns>
         private static bool ParseCoords(JsonElement jCoords, out Coords coords)
         {
             coords = default;
@@ -423,6 +483,11 @@ namespace RoadTrafficSimulator
             return true;
         }
 
+        /// <summary>
+        /// Parses a direction (from one road to another) from a given JSON element.
+        /// </summary>
+        /// <param name="direction">Outputs the parsed direction; if parsing failed, the value is undefined</param>
+        /// <returns><c>true</c> if the direction was successfully parsed, otherwise <c>false</c></returns>
         private static bool ParseDirection(JsonElement jDirection, out Direction direction)
         {
             direction = default;
@@ -436,6 +501,12 @@ namespace RoadTrafficSimulator
             return true;
         }
 
+        /// <summary>
+        /// Parses string value of a given property.
+        /// </summary>
+        /// <param name="propertyName">Expected name of the property; if not consistent, parsing fails</param>
+        /// <param name="value">Outputs the parsed string value; if parsing failed, the value is undefined</param>
+        /// <returns><c>true</c> if the property was successfully parsed, otherwise <c>false</c></returns>
         private static bool ParseStringProperty(JsonProperty prop, string propertyName, out string value)
         {
             value = default;
@@ -447,6 +518,11 @@ namespace RoadTrafficSimulator
             return true;
         }
 
+        /// <summary>
+        /// Parses integer value of a property with a given name in a given JSON element.
+        /// </summary>
+        /// <param name="value">Outputs the parsed integer value; if parsing failed, the value is undefined</param>
+        /// <returns><c>true</c> if the property was successfully parsed, otherwise <c>false</c></returns>
         private static bool ParseIntProperty(JsonElement elem, string propertyName, out int value)
         {
             value = default;
@@ -457,6 +533,11 @@ namespace RoadTrafficSimulator
             return jValue.TryGetInt32(out value);
         }
 
+        /// <summary>
+        /// Parses boolean value of a property with a given name in a given JSON element.
+        /// </summary>
+        /// <param name="value">Outputs the parsed boolean value; if parsing failed, the value is undefined</param>
+        /// <returns><c>true</c> if the property was successfully parsed, otherwise <c>false</c></returns>
         private static bool ParseBooleanProperty(JsonElement elem, string propertyName, out bool value)
         {
             value = default;

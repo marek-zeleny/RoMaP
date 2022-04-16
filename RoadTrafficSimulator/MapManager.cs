@@ -11,22 +11,36 @@ using RoadTrafficSimulator.ValueTypes;
 
 namespace RoadTrafficSimulator
 {
+    /// <summary>
+    /// Manages both back-end and graphical maps and provides methods for interacting with them from the user interface.
+    /// </summary>
     class MapManager
     {
         #region static
 
+        /// <summary>
+        /// Size (length and height) of one grid square with default zoom on the GUI map
+        /// </summary>
         public const int gridSize = 120;
-
+        /// <summary>
+        /// Default setting for roads' maximum speed
+        /// </summary>
         private static readonly Speed defaultMaxSpeed = 50.KilometresPerHour();
-
+        /// <summary>
+        /// Default length of one road segment
+        /// </summary>
         public static readonly Distance roadSegmentDefaultLength = 100.Metres();
 
-        public static IRoadBuilder CreateRoadBuilder(Map map, IGMap guiMap, Coords startingCoords,
-            bool twoWayRoad)
+        /// <inheritdoc cref="RoadBuilder.CreateRoadBuilder(Map, IGMap, Coords)"/>
+        public static IRoadBuilder CreateRoadBuilder(Map map, IGMap guiMap, Coords startingCoords)
         {
-            return RoadBuilder.CreateRoadBuilder(map, guiMap, startingCoords, twoWayRoad);
+            return RoadBuilder.CreateRoadBuilder(map, guiMap, startingCoords);
         }
 
+        /// <summary>
+        /// Checks if there is no graphical road going through given coordinates on a given GUI map.
+        /// </summary>
+        /// <returns><c>true</c> if there is a road going through the coordinates, otherwise <c>false</c></returns>
         public static bool NoGuiRoadsAt(IGMap guiMap, Coords coords)
         {
             foreach (Coords diff in CoordsConvertor.GetAllowedDirections(guiMap.SideOfDriving))
@@ -36,12 +50,20 @@ namespace RoadTrafficSimulator
         }
 
         // needs to be static so it can be called from RoadBuilder
-        private static void FillPriorityCrossing(IGMap gMap, IGCrossroad gCrossroad, Map map)
+        /// <summary>
+        /// Fills priority crossing rules at a given crossroad.
+        /// </summary>
+        /// <param name="gCrossroad">GUI crossroad to fill the priority crossing rules at</param>
+        /// <param name="gMap">GUI map where the crossroad is located</param>
+        /// <param name="map">Back-end map where the crossroad is located</param>
+        private static void FillPriorityCrossing(IGCrossroad gCrossroad, IGMap gMap, Map map)
         {
-            FillPriorityCrossing(gMap, gCrossroad, map.GetNode(gCrossroad.CrossroadId) as Crossroad);
+            FillPriorityCrossing(gCrossroad, gMap, map.GetNode(gCrossroad.CrossroadId) as Crossroad);
         }
 
-        private static void FillPriorityCrossing(IGMap gMap, IGCrossroad gCrossroad, Crossroad crossroad)
+        /// <inheritdoc cref="FillPriorityCrossing(IGCrossroad, IGMap, Map)"/>
+        /// <param name="crossroad">Back-end crossroad corresponding to the GUI crossroad</param>
+        private static void FillPriorityCrossing(IGCrossroad gCrossroad, IGMap gMap, Crossroad crossroad)
         {
             Road GetRoad(Coords diff, IGRoad.Direction direction)
             {
@@ -114,6 +136,13 @@ namespace RoadTrafficSimulator
             }
         }
 
+        /// <summary>
+        /// Draws a coordinate grid onto given graphics.
+        /// </summary>
+        /// <param name="origin">Position of the map's origin</param>
+        /// <param name="zoom">Current zoom of the map</param>
+        /// <param name="width">Width of the visible part of the map (in pixels)</param>
+        /// <param name="height">Height of the visible part of the map (in pixels)</param>
         private static void DrawGrid(Graphics graphics, Point origin, float zoom, int width, int height)
         {
             float step = gridSize * zoom;
@@ -145,11 +174,20 @@ namespace RoadTrafficSimulator
 
         private IGMap guiMap = new GMap();
 
-        public Map Map { get; private set; } = new Map();
+        /// <summary>
+        /// Back-end map attached to the manager
+        /// </summary>
+        public Map Map { get; private set; } = new();
+        /// <summary>
+        /// Side of driving associated with the map managed by the manager
+        /// </summary>
         public RoadSide SideOfDriving { get => guiMap.SideOfDriving; }
 
         #region publicMethods
 
+        /// <summary>
+        /// Sets a given road side as the new side of driving for the managed map.
+        /// </summary>
         public void SetSideOfDriving(RoadSide sideOfDriving)
         {
             if (sideOfDriving == guiMap.SideOfDriving)
@@ -160,25 +198,42 @@ namespace RoadTrafficSimulator
             {
                 Crossroad crossroad = (Crossroad)Map.GetNode(gCrossroad.CrossroadId);
                 if (crossroad != null)
-                    FillPriorityCrossing(guiMap, gCrossroad, crossroad);
+                    FillPriorityCrossing(gCrossroad, guiMap, crossroad);
             }
         }
 
+        /// <summary>
+        /// Gets a crossroad at given coordinates.
+        /// </summary>
+        /// <returns>Wrapper containing a crossroad if it exists at the coordinates, otherwise <c>null</c></returns>
         public CrossroadWrapper? GetCrossroad(Coords coords)
         {
             IGCrossroad gCrossroad = guiMap.GetCrossroad(coords);
             if (gCrossroad == null)
                 return null;
-            Crossroad crossroad = (Crossroad)Map.GetNode(coords); // may be null if only a GUI crossroad exists
+            Crossroad crossroad = (Crossroad)Map.GetNode(coords); // May be null if only a GUI crossroad exists
             return new CrossroadWrapper(gCrossroad, crossroad);
         }
 
+        /// <summary>
+        /// Gets a crossroad at coordinates nearest to a given point.
+        /// </summary>
+        /// <param name="origin">Position of the map's origin</param>
+        /// <param name="zoom">Current zoom of the map</param>
+        /// <returns>
+        /// Wrapper containing a crossroad if it exists at the nearest coordinates, otherwise <c>null</c>
+        /// </returns>
         public CrossroadWrapper? GetNearestCrossroad(Point point, Point origin, float zoom)
         {
             Coords coords = CoordsConvertor.CalculateCoords(point, origin, zoom);
             return GetCrossroad(coords);
         }
 
+        /// <param name="proximity">
+        /// Outputs proximity coefficient of the point from the nearest crossroad relative to the distance between two
+        /// neighbouring coordinates; if there is no crossroad, the value is undefined
+        /// </param>
+        /// <inheritdoc cref="GetNearestCrossroad(Point, Point, float)"/>
         public CrossroadWrapper? GetNearestCrossroad(Point point, Point origin, float zoom, out double proximity)
         {
             static double CalculateDistance(Point p1, Point p2)
@@ -195,17 +250,38 @@ namespace RoadTrafficSimulator
             return GetCrossroad(coords);
         }
 
+        /// <summary>
+        /// Gets a road passing through a given vector.
+        /// </summary>
+        /// <returns>
+        /// GUI road passing through the vector oriented in the vector's direction if it exists, otherwise <c>null</c>
+        /// </returns>
         public IGRoad GetRoad(Vector vector)
         {
             return guiMap.GetRoad(vector);
         }
 
+        /// <summary>
+        /// Gets a road passing through given coordinates in a given direction.
+        /// </summary>
+        /// <returns>
+        /// GUI road passing through the coordinates oriented in the given direction if it exists, otherwise <c>null</c>
+        /// </returns>
         public IGRoad GetRoad(Coords from, CoordsConvertor.Direction direction)
         {
             Coords to = from + CoordsConvertor.GetCoords(direction);
             return GetRoad(new Vector(from, to));
         }
 
+        /// <summary>
+        /// Gets a road passing through a vector closest to a given point.
+        /// </summary>
+        /// <param name="origin">Position of the map's origin</param>
+        /// <param name="zoom">Current zoom of the map</param>
+        /// <returns>
+        /// GUI road passing close to the point, oriented so that the forward direction has the road closer to that
+        /// point (in case of a two-way road); if no road passes by, returns <c>null</c>
+        /// </returns>
         public IGRoad GetNearestRoad(Point point, Point origin, float zoom)
         {
             Coords coords = CoordsConvertor.CalculateCoords(point, origin, zoom);
@@ -236,7 +312,7 @@ namespace RoadTrafficSimulator
                     Debug.Assert(road2 != null);
                     Debug.Assert(vector1.from == coords);
                     Debug.Assert(vector2.from == coords);
-                    if (CoordsConvertor.IsCorrectDirection(guiMap.SideOfDriving, vector1, vector2, point, origin, zoom))
+                    if (CoordsConvertor.ChooseCorrectOrientation(guiMap.SideOfDriving, vector1, vector2, point, origin, zoom))
                         return road1;
                     else
                         return road2;
@@ -246,17 +322,22 @@ namespace RoadTrafficSimulator
             else
             {
                 Vector vector = CoordsConvertor.CalculateVector(point, origin, zoom);
-                if (!CoordsConvertor.IsCorrectDirection(guiMap.SideOfDriving, vector, point, origin, zoom))
+                if (!CoordsConvertor.IsCorrectOrientation(guiMap.SideOfDriving, vector, point, origin, zoom))
                     vector = vector.Reverse();
                 return GetRoad(vector);
             }
         }
 
         /// <summary>
-        /// Gets all GUI roads going from <paramref name="coords"/> sorted according to <see cref="roadSide"/>.
-        /// May return the same road twice (in both directions) if it just passes through.
+        /// Gets all roads going through given coordinates.
         /// </summary>
-        public IEnumerable<IGRoad> GetAllGuiRoads(Coords coords)
+        /// <remarks>
+        /// May return the same road twice (once in each direction) if it just passes through the coordinates.
+        /// </remarks>
+        /// <returns>
+        /// Sequence of roads oriented away from the coordinates sorted according to current side of driving
+        /// </returns>
+        public IEnumerable<IGRoad> GetAllRoads(Coords coords)
         {
             IGRoad Selector(Coords diff) => GetRoad(new Vector(coords, coords + diff));
 
@@ -266,11 +347,10 @@ namespace RoadTrafficSimulator
         }
 
         /// <summary>
-        /// Gets all GUI roads going from the starting point of <paramref name="vector"/> sorted according to
-        /// <see cref="roadSide"/>, starting from the direction of <paramref name="vector"/>.
-        /// May return the same road twice (in both directions) if it just passes through.
+        /// Gets all roads going through the base of a given vector, starting from the direction of the vector.
         /// </summary>
-        public IEnumerable<IGRoad> GetAllGuiRoads(Vector vector)
+        /// <inheritdoc cref="GetAllRoads(Coords)"/>
+        public IEnumerable<IGRoad> GetAllRoads(Vector vector)
         {
             IGRoad Selector(Coords diff) => GetRoad(new Vector(vector.from, vector.from + diff));
 
@@ -279,11 +359,18 @@ namespace RoadTrafficSimulator
                 .Where(gRoad => gRoad != null);
         }
 
-        public IRoadBuilder GetRoadBuilder(Coords startingCoords, bool twoWayRoad = true)
+        /// <summary>
+        /// Gets a new road builder instance at given coordinates.
+        /// </summary>
+        /// <inheritdoc cref="CreateRoadBuilder(Map, IGMap, Coords)"/>
+        public IRoadBuilder GetRoadBuilder(Coords startingCoords)
         {
-            return CreateRoadBuilder(Map, guiMap, startingCoords, twoWayRoad);
+            return CreateRoadBuilder(Map, guiMap, startingCoords);
         }
 
+        /// <summary>
+        /// Closes a given road.
+        /// </summary>
         public void CloseRoad(IGRoad gRoad)
         {
             Debug.Assert(gRoad.GetRoad().IsConnected);
@@ -293,6 +380,9 @@ namespace RoadTrafficSimulator
             UpdateGuiCrossroad(guiMap.GetCrossroad(gRoad.To));
         }
 
+        /// <summary>
+        /// Reopens a given closed road.
+        /// </summary>
         public void OpenRoad(IGRoad gRoad)
         {
             Debug.Assert(!gRoad.GetRoad().IsConnected);
@@ -311,16 +401,27 @@ namespace RoadTrafficSimulator
             fromCrossroad.UnsetHighlight(Highlight.Transparent);
             toCrossroad.UnsetHighlight(Highlight.Transparent);
 
-            FillPriorityCrossing(guiMap, fromCrossroad, Map);
-            FillPriorityCrossing(guiMap, toCrossroad, Map);
+            FillPriorityCrossing(fromCrossroad, guiMap, Map);
+            FillPriorityCrossing(toCrossroad, guiMap, Map);
         }
 
+        /// <summary>
+        /// Destroys a given crossroad, as well as any connected roads.
+        /// </summary>
+        /// <returns><c>true</c> if the crossroad was successfully destroyed, otherwise <c>false</c></returns>
         public bool DestroyCrossroad(IGCrossroad gCrossroad)
         {
             Map.RemoveCrossroad(gCrossroad.CrossroadId);
             return DestroyGuiCrossroad(gCrossroad);
         }
 
+        /// <summary>
+        /// Destroys a given road.
+        /// </summary>
+        /// <remarks>
+        /// If a crossroad becomes isolated as a result of this operation, it's destroyed as well.
+        /// </remarks>
+        /// <returns><c>true</c> if the road was successfully destroyed, otherwise <c>false</c></returns>
         public bool DestroyRoad(IGRoad gRoad)
         {
             bool success = true;
@@ -342,6 +443,9 @@ namespace RoadTrafficSimulator
             return success;
         }
 
+        /// <summary>
+        /// Checks if given two directions can form a main road at a given crossroad.
+        /// </summary>
         public bool CanBeMainRoad(IGCrossroad gCrossroad,
             CoordsConvertor.Direction dir1, CoordsConvertor.Direction dir2)
         {
@@ -359,17 +463,28 @@ namespace RoadTrafficSimulator
             return false;
         }
 
+        /// <summary>
+        /// Draws the managed map onto given graphics.
+        /// </summary>
+        /// <inheritdoc cref="IGMap.Draw(Graphics, Point, float, int, int, bool)"/>
         public void Draw(Graphics graphics, Point origin, float zoom, int width, int height, bool simulationMode)
         {
             DrawGrid(graphics, origin, zoom, width, height);
             guiMap.Draw(graphics, origin, zoom, width, height, simulationMode);
         }
 
+        /// <summary>
+        /// Saves the managed map using a given stream.
+        /// </summary>
         public void SaveMap(Stream stream)
         {
             MapSaverLoader.SaveMap(stream, Map, guiMap);
         }
 
+        /// <summary>
+        /// Loads a saved map from a given stream.
+        /// </summary>
+        /// <returns><c>true</c> if the map was successfully loaded, otherwise <c>false</c></returns>
         public bool LoadMap(Stream stream)
         {
             Map newMap = new();
@@ -386,7 +501,7 @@ namespace RoadTrafficSimulator
                     // Fill priority crossing rules (done here for efficiency) - only for open crossroads!
                     Crossroad crossroad = (Crossroad)Map.GetNode(gCrossroad.CrossroadId);
                     if (crossroad != null)
-                        FillPriorityCrossing(guiMap, gCrossroad, crossroad);
+                        FillPriorityCrossing(gCrossroad, guiMap, crossroad);
                 }
             }
             return result;
@@ -430,12 +545,14 @@ namespace RoadTrafficSimulator
         }
 
         /// <summary>
-        /// Destroy a given GUI crossroad and all its adjacent GUI roads.
-        /// You should update all neighbouring crossroads after calling this method.
+        /// Destroys a given GUI crossroad and all its adjacent GUI roads.
         /// </summary>
+        /// <remarks>
+        /// All neighbouring crossroads should be updated after calling this method.
+        /// </remarks>
         private bool DestroyGuiCrossroad(IGCrossroad gCrossroad)
         {
-            foreach (var road in GetAllGuiRoads(gCrossroad.CrossroadId))
+            foreach (var road in GetAllRoads(gCrossroad.CrossroadId))
             {
                 if (!DestroyGuiRoad(road))
                     return false;
@@ -445,9 +562,11 @@ namespace RoadTrafficSimulator
         }
 
         /// <summary>
-        /// Destroy a given GUI road.
-        /// You should update crossroads at both ends after calling this method.
+        /// Destroys a given GUI road.
         /// </summary>
+        /// <remarks>
+        /// Crossroads at both ends should be updated after calling this method.
+        /// </remarks>
         private bool DestroyGuiRoad(IGRoad gRoad)
         {
             return guiMap.RemoveRoad(gRoad);
@@ -457,6 +576,9 @@ namespace RoadTrafficSimulator
 
         #region nested_types
 
+        /// <summary>
+        /// Wrapper around a crossroad and its corresponding graphical component.
+        /// </summary>
         public readonly struct CrossroadWrapper
         {
             public readonly IGCrossroad gCrossroad;
@@ -468,30 +590,40 @@ namespace RoadTrafficSimulator
             }
         }
 
+        /// <summary>
+        /// Represents a builder of a single new road.
+        /// </summary>
         private class RoadBuilder : IRoadBuilder
         {
-            public static IRoadBuilder CreateRoadBuilder(Map map, IGMap guiMap, Coords startingCoords, bool twoWayRoad)
+            /// <summary>
+            /// Creates a new road builder instance for given maps starting at given coordinates.
+            /// </summary>
+            /// <returns>
+            /// Instance of a road builder if a road can begin at the starting coordinates, otherwise <c>null</c>
+            /// </returns>
+            public static IRoadBuilder CreateRoadBuilder(Map map, IGMap guiMap, Coords startingCoords)
             {
                 if (map.GetNode(startingCoords) == null && !NoGuiRoadsAt(guiMap, startingCoords))
                     return null;
                 else
-                    return new RoadBuilder(map, guiMap, startingCoords, twoWayRoad);
+                    return new RoadBuilder(map, guiMap, startingCoords);
             }
 
             private Map map;
             private IGMap gMap;
             private IMutableGRoad gRoad;
-            private bool twoWay;
 
             private ICollection<Coords> Route { get => gRoad.Route; }
 
             public bool CanContinue { get; private set; }
 
-            private RoadBuilder(Map map, IGMap gMap, Coords startCoords, bool twoWay)
+            /// <summary>
+            /// Creates a new instance for given maps starting at given coordinates.
+            /// </summary>
+            private RoadBuilder(Map map, IGMap gMap, Coords startCoords)
             {
                 this.map = map;
                 this.gMap = gMap;
-                this.twoWay = twoWay;
                 gRoad = new GRoad();
                 gRoad.ResetHighlight(Highlight.Large);
                 Route.Add(startCoords);
@@ -516,22 +648,22 @@ namespace RoadTrafficSimulator
                 return true;
             }
 
-            public bool FinishRoad(bool updatePriorityCrossing)
+            public bool FinishRoad(bool twoWayRoad, bool updatePriorityCrossing)
             {
-                return FinishRoad(out var _, updatePriorityCrossing);
+                return FinishRoad(twoWayRoad, out var _, updatePriorityCrossing);
             }
 
-            public bool FinishRoad(Speed maxSpeed, bool updatePriorityCrossing)
+            public bool FinishRoad(bool twoWayRoad, Speed maxSpeed, bool updatePriorityCrossing)
             {
-                return FinishRoad(maxSpeed, out var _, updatePriorityCrossing);
+                return FinishRoad(twoWayRoad, maxSpeed, out var _, updatePriorityCrossing);
             }
 
-            public bool FinishRoad(out IGRoad builtRoad, bool updatePriorityCrossing)
+            public bool FinishRoad(bool twoWayRoad, out IGRoad builtRoad, bool updatePriorityCrossing)
             {
-                return FinishRoad(defaultMaxSpeed, out builtRoad, updatePriorityCrossing);
+                return FinishRoad(twoWayRoad, defaultMaxSpeed, out builtRoad, updatePriorityCrossing);
             }
 
-            public bool FinishRoad(Speed maxSpeed, out IGRoad builtRoad, bool updatePriorityCrossing)
+            public bool FinishRoad(bool twoWayRoad, Speed maxSpeed, out IGRoad builtRoad, bool updatePriorityCrossing)
             {
                 builtRoad = gRoad;
                 if (Route.Count < 2)
@@ -550,7 +682,7 @@ namespace RoadTrafficSimulator
 
                 Crossroad from = (Crossroad)road.FromNode;
                 Crossroad to = (Crossroad)road.ToNode;
-                if (twoWay)
+                if (twoWayRoad)
                 {
                     Road backRoad = map.AddRoad(gRoad.To, gRoad.From, roadLength, maxSpeed);
                     gRoad.SetRoad(backRoad, IGRoad.Direction.Backward);
@@ -561,8 +693,8 @@ namespace RoadTrafficSimulator
 
                 if (updatePriorityCrossing)
                 {
-                    FillPriorityCrossing(gMap, fromG, from);
-                    FillPriorityCrossing(gMap, toG, to);
+                    FillPriorityCrossing(fromG, gMap, from);
+                    FillPriorityCrossing(toG, gMap, to);
                 }
                 Invalidate();
                 return true;
@@ -579,6 +711,10 @@ namespace RoadTrafficSimulator
                 Invalidate();
             }
 
+            /// <summary>
+            /// Gets a crossroad at given coordinates and if no such crossroad exists, creates a new one.
+            /// </summary>
+            /// <returns>Crossroad at given coordinates, either existing or a new one</returns>
             private IGCrossroad TryGetOrAddGuiCrossroad(Coords coords)
             {
                 IGCrossroad output = gMap.GetCrossroad(coords);
@@ -589,6 +725,9 @@ namespace RoadTrafficSimulator
                 return output;
             }
 
+            /// <summary>
+            /// Checks if the road being built can continue at given coordinates.
+            /// </summary>
             private bool CanEnterCoords(Coords newCoords)
             {
                 foreach (Coords c in Route)
@@ -600,6 +739,9 @@ namespace RoadTrafficSimulator
                 return NoGuiRoadsAt(gMap, newCoords);
             }
 
+            /// <summary>
+            /// Invalidates the road builder instance and disables any further building.
+            /// </summary>
             private void Invalidate()
             {
                 map = null;

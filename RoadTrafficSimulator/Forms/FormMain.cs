@@ -336,7 +336,7 @@ namespace RoadTrafficSimulator.Forms
         {
             Coords coords = CoordsConvertor.CalculateCoords(mouseLocation, mapPanel.Origin, mapPanel.Zoom);
             if (currentRoadBuilder == null)
-                currentRoadBuilder = mapManager.GetRoadBuilder(coords, buildPanel.TwoWayRoad);
+                currentRoadBuilder = mapManager.GetRoadBuilder(coords);
             else
             {
                 currentRoadBuilder.AddSegment(coords);
@@ -349,7 +349,7 @@ namespace RoadTrafficSimulator.Forms
         {
             if (currentRoadBuilder == null)
                 return;
-            if (currentRoadBuilder.FinishRoad())
+            if (currentRoadBuilder.FinishRoad(buildPanel.TwoWayRoad))
                 currentRoadBuilder = null;
             else
                 ShowInfo("The road cannot be built like this.");
@@ -463,7 +463,7 @@ namespace RoadTrafficSimulator.Forms
             ResumeLayout();
             ShowInfo($"Starting simulation of {settings.Duration.ToHours()} hours...");
             statisticsForm.SetDataSource(simulation.Statistics, simulation.Clock);
-            simulation.StartSimulation(settings, out continueSimulation);
+            continueSimulation = simulation.StartSimulation(settings);
             timerSimulation.Start();
         }
 
