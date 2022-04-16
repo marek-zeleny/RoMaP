@@ -435,6 +435,7 @@ namespace RoadTrafficSimulator.GUI
 
             public override int GetHashCode()
             {
+                // Add a constant to avoid unnecessary conflicts with the GRoad class
                 const int diff = int.MaxValue / 2;
                 return gRoad.GetHashCode() + diff;
             }
