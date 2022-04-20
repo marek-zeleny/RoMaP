@@ -405,7 +405,7 @@ namespace RoadTrafficSimulator
         /// </summary>
         public Time TimeStep { get; set; }
         /// <summary>
-        /// Percentage of cars with active navigation
+        /// Percentage of cars with active navigation (value from interval [0, 1])
         /// </summary>
         public float ActiveNavigationRate { get; }
         /// <summary>
@@ -416,6 +416,15 @@ namespace RoadTrafficSimulator
         /// <summary>
         /// Creates new simulation settings with given parameters.
         /// </summary>
+        /// <param name="duration">Duration of the simulation</param>
+        /// <param name="activeNavigationRate">
+        /// Percentage of cars with active navigation (value from interval [0, 1])
+        /// </param>
+        /// <param name="statsDetail">Maximum detail level of statistics that should be collected</param>
+        /// <param name="carSpawnFrequency">New cars per crossroad per second</param>
+        /// <param name="carSpawnFrequencyDistribution">
+        /// Relative distribution through time (values from interval (0, 1])
+        /// </param>
         public SimulationSettings(Time duration, float activeNavigationRate, StatisticsBase.DetailLevel statsDetail,
             float carSpawnFrequency, float[] carSpawnFrequencyDistribution)
         {
