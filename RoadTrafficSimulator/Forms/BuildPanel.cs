@@ -7,9 +7,25 @@ using RoadTrafficSimulator.ValueTypes;
 
 namespace RoadTrafficSimulator.Forms
 {
+    /// <summary>
+    /// Provides controls for building and modifying a map.
+    /// </summary>
     public partial class BuildPanel : UserControl
     {
-        public enum Mode { Build, Select };
+        /// <summary>
+        /// Mode of the panel
+        /// </summary>
+        public enum Mode
+        {
+            /// <summary>
+            /// Building new roads
+            /// </summary>
+            Build,
+            /// <summary>
+            /// Selecting and modifying existing roads and crossroads
+            /// </summary>
+            Select
+        };
 
         private Mode mode;
         private bool lockMode;
@@ -17,6 +33,9 @@ namespace RoadTrafficSimulator.Forms
         private bool lockLength;
         private bool lockMaxSpeed;
 
+        /// <summary>
+        /// Side of driving on the map
+        /// </summary>
         public GUI.RoadSide CurrentRoadSide
         {
             get
@@ -40,6 +59,9 @@ namespace RoadTrafficSimulator.Forms
                 CurrentRoadSideChanged?.Invoke(this, new EventArgs());
             }
         }
+        /// <summary>
+        /// Current mode of the panel
+        /// </summary>
         public Mode CurrentMode
         {
             get => mode;
@@ -55,7 +77,13 @@ namespace RoadTrafficSimulator.Forms
                 CurrentModeChanged?.Invoke(this, new EventArgs());
             }
         }
+        /// <summary>
+        /// <c>true</c> if the a newly built road should be two-way, otherwise <c>false</c>
+        /// </summary>
         public bool TwoWayRoad { get => checkBoxTwoWayRoad.Checked; }
+        /// <summary>
+        /// Number of lanes of a selected road
+        /// </summary>
         public int Lanes
         {
             get => (int)numericUpDownLanes.Value;
@@ -66,6 +94,9 @@ namespace RoadTrafficSimulator.Forms
                 lockLanes = false;
             }
         }
+        /// <summary>
+        /// Length of a selected road
+        /// </summary>
         public int Length
         {
             get => (int)numericUpDownLength.Value;
@@ -76,6 +107,9 @@ namespace RoadTrafficSimulator.Forms
                 lockLength = false;
             }
         }
+        /// <summary>
+        /// Maximum speed of a selected road
+        /// </summary>
         public int MaxSpeed
         {
             get => (int)numericUpDownMaxSpeed.Value;

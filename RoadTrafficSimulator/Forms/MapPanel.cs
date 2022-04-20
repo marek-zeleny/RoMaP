@@ -5,18 +5,27 @@ using System.Windows.Forms;
 
 namespace RoadTrafficSimulator.Forms
 {
+    /// <summary>
+    /// Component for visualising a map.
+    /// </summary>
     class MapPanel : Panel
     {
         private const float minZoom = 0.2f;
         private const float maxZoom = 5f;
 
-        private Point origin; // Do not access directly, use the Origin property
-        private float zoom; // Do not access directly, use the Zoom property
+        private Point origin;
+        private float zoom;
         private Point prevMouseLocation;
         private bool drag;
         private bool dragOccured;
 
-        public Point Center { get => new Point(Width / 2, Height / 2); }
+        /// <summary>
+        /// Central point of the panel
+        /// </summary>
+        public Point Center { get => new(Width / 2, Height / 2); }
+        /// <summary>
+        /// Position of the map's origin (coordinates (0;0))
+        /// </summary>
         public Point Origin
         {
             get => origin;
@@ -27,6 +36,9 @@ namespace RoadTrafficSimulator.Forms
                 OriginChanged?.Invoke(this, new EventArgs());
             }
         }
+        /// <summary>
+        /// Zoom of the map
+        /// </summary>
         public float Zoom
         {
             get => zoom;
@@ -43,16 +55,25 @@ namespace RoadTrafficSimulator.Forms
             }
         }
 
+        /// <summary>
+        /// Occurs when the map origin moves.
+        /// </summary>
         [Browsable(true)]
         [Category("Property Changed")]
         [Description("Occurs when the map origin moves.")]
         public event EventHandler OriginChanged;
 
+        /// <summary>
+        /// Occurs when map zoom changes.
+        /// </summary>
         [Browsable(true)]
         [Category("Property Changed")]
         [Description("Occurs when map zoom changes.")]
         public event EventHandler ZoomChanged;
 
+        /// <summary>
+        /// Creates a new map panel.
+        /// </summary>
         public MapPanel()
         {
             // Panel properties
@@ -63,11 +84,17 @@ namespace RoadTrafficSimulator.Forms
             Zoom = 1f;
         }
 
+        /// <summary>
+        /// Ensures that the panel is redrawn.
+        /// </summary>
         public void Redraw()
         {
             Invalidate();
         }
 
+        /// <summary>
+        /// Resets the map's origin and places it into the center of the panel.
+        /// </summary>
         public void ResetOrigin()
         {
             Origin = Center;
@@ -101,7 +128,7 @@ namespace RoadTrafficSimulator.Forms
         {
             if (drag)
             {
-                Point offset = new Point(e.Location.X - prevMouseLocation.X, e.Location.Y - prevMouseLocation.Y);
+                Point offset = new(e.Location.X - prevMouseLocation.X, e.Location.Y - prevMouseLocation.Y);
                 // Careful with mutable structs...
                 Point newOrigin = Origin;
                 newOrigin.Offset(offset);

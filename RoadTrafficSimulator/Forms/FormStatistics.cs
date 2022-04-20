@@ -7,8 +7,14 @@ using RoadTrafficSimulator.ValueTypes;
 
 namespace RoadTrafficSimulator.Forms
 {
+    /// <summary>
+    /// Represents a form for showing statistics of a currently running simulation.
+    /// </summary>
     public partial class FormStatistics : Form
     {
+        /// <summary>
+        /// Defines available time spans for displayed charts
+        /// </summary>
         private static readonly (Time time, string text)[] timeSpans =
         {
             (5.Minutes(), "5 minutes"),
@@ -26,6 +32,9 @@ namespace RoadTrafficSimulator.Forms
         private Chart<Simulation.StatsData, Simulation.IGlobalStatistics> chartAverageDelay;
         private readonly Chart<Simulation.StatsData, Simulation.IGlobalStatistics>[] charts;
 
+        /// <summary>
+        /// Creates a new form for displaying statistics.
+        /// </summary>
         internal FormStatistics()
         {
             InitializeComponent();
@@ -42,6 +51,9 @@ namespace RoadTrafficSimulator.Forms
             comboBoxTimeSpan.SelectedIndex = 1; // Default 20 minutes; triggers comboBoxTimeSpan_SelectedIndexChanged()
         }
 
+        /// <summary>
+        /// Ensures that all statistical data and charts are updated.
+        /// </summary>
         public void UpdateStatistics()
         {
             if (Visible)
@@ -52,6 +64,10 @@ namespace RoadTrafficSimulator.Forms
             }
         }
 
+        /// <summary>
+        /// Sets a new data source for global statistics.
+        /// </summary>
+        /// <param name="clock">Global clock measuring the simulation time</param>
         internal void SetDataSource(Simulation.IGlobalStatistics statistics, IClock clock)
         {
             static IReadOnlyList<Timestamp<Simulation.StatsData>> GetData(Simulation.IGlobalStatistics stats) =>
@@ -62,6 +78,9 @@ namespace RoadTrafficSimulator.Forms
                 chart.SetDataSource(statistics, GetData, clock);
         }
 
+        /// <summary>
+        /// Updates statistical data.
+        /// </summary>
         private void UpdateStats()
         {
             string totalCars = "-";
@@ -89,6 +108,9 @@ namespace RoadTrafficSimulator.Forms
             labelAverageDelay.Text = $"Average delay: {averageDelay} min";
         }
 
+        /// <summary>
+        /// Initialises all charts.
+        /// </summary>
         private void InitialiseCharts()
         {
             static double GetActiveCars(Simulation.StatsData data) => data.carsActive;
@@ -106,6 +128,15 @@ namespace RoadTrafficSimulator.Forms
                 "Average delay (among finished cars)", "min", GetAverageDelay);
         }
 
+        /// <summary>
+        /// Initialises a given chart using given parameters.
+        /// </summary>
+        /// <param name="col">Column in the chart table where the chart will be placed</param>
+        /// <param name="row">Row in the chart table where the chart will be placed</param>
+        /// <param name="name">Name of the control (not displayed anywhere)</param>
+        /// <param name="caption">Caption of the chart (displayed)</param>
+        /// <param name="unit">Unit of values (Y axis) of the chart</param>
+        /// <param name="dataToDouble">Function for extracting values from global statistical data</param>
         private void InitialiseChart(ref Chart<Simulation.StatsData, Simulation.IGlobalStatistics> chart,
             int col, int row, string name, string caption, string unit, Func<Simulation.StatsData, double> dataToDouble)
         {
@@ -139,6 +170,7 @@ namespace RoadTrafficSimulator.Forms
 
         private void FormStatistics_FormClosing(object sender, FormClosingEventArgs e)
         {
+            // Prevents destroying the form when closing, only hides it instead to enable reopening it again
             e.Cancel = true;
             Hide();
         }

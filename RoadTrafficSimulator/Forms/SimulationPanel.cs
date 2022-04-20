@@ -10,8 +10,14 @@ using RoadTrafficSimulator.Statistics;
 
 namespace RoadTrafficSimulator.Forms
 {
+    /// <summary>
+    /// Provides controls for interacting with the simulation.
+    /// </summary>
     public partial class SimulationPanel : UserControl
     {
+        /// <summary>
+        /// Table for converting a track bar value to simulation speed coefficient
+        /// </summary>
         private static readonly int[] simulationSpeedTable = new int[]
         {
             1,
@@ -26,6 +32,9 @@ namespace RoadTrafficSimulator.Forms
             1000,
         };
 
+        /// <summary>
+        /// Converts given time to its string representation.
+        /// </summary>
         private static string TimeToString(Time time)
         {
             int days = time.ToDays();
@@ -44,8 +53,14 @@ namespace RoadTrafficSimulator.Forms
         private Chart<Road.Throughput, Road.IRoadStatistics> chartAverageSpeed;
         private Time simulationTime;
 
+        /// <summary>
+        /// Current simulation speed coefficient
+        /// </summary>
         public int SimulationSpeed { get => simulationSpeedTable[trackBarSimulationSpeed.Value]; }
 
+        /// <summary>
+        /// Current time of the simulation
+        /// </summary>
         internal Time SimulationTime
         {
             get => simulationTime;
@@ -56,6 +71,9 @@ namespace RoadTrafficSimulator.Forms
             }
         }
 
+        /// <summary>
+        /// Creates a new simulation panel
+        /// </summary>
         public SimulationPanel()
         {
             InitializeComponent();
@@ -68,6 +86,9 @@ namespace RoadTrafficSimulator.Forms
 
         #region events
 
+        /// <summary>
+        /// Occurs when the Statistics button is clicked.
+        /// </summary>
         [Browsable(true)]
         [Category("Action")]
         [Description("Occurs when the Statistics button is clicked.")]
@@ -77,6 +98,9 @@ namespace RoadTrafficSimulator.Forms
             remove => buttonStatistics.Click -= value;
         }
 
+        /// <summary>
+        /// Occurs when the SimulationSpeed property is changed.
+        /// </summary>
         [Browsable(true)]
         [Category("Property Changed")]
         [Description("Occurs when the SimulationSpeed property is changed.")]
@@ -90,6 +114,9 @@ namespace RoadTrafficSimulator.Forms
             SimulationSpeedChanged?.Invoke(this, new EventArgs());
         }
 
+        /// <summary>
+        /// Displays information about a given crossroad.
+        /// </summary>
         internal void SelectCrossroad(Crossroad crossroad)
         {
             SuspendLayout();
@@ -101,6 +128,10 @@ namespace RoadTrafficSimulator.Forms
             ResumeLayout();
         }
 
+        /// <summary>
+        /// Displays information about a given road.
+        /// </summary>
+        /// <param name="clock">Global clock for the simulation used for updating the road's chart</param>
         internal void SelectRoad(GUI.IGRoad gRoad, IClock clock)
         {
             static IReadOnlyList<Timestamp<Road.Throughput>> GetThroughput(Road.IRoadStatistics stats) =>
@@ -126,6 +157,9 @@ namespace RoadTrafficSimulator.Forms
             ResumeLayout();
         }
 
+        /// <summary>
+        /// Hides information about the currently selected road or crossroad.
+        /// </summary>
         internal void Deselect()
         {
             SuspendLayout();
@@ -134,12 +168,18 @@ namespace RoadTrafficSimulator.Forms
             ResumeLayout();
         }
 
+        /// <summary>
+        /// Ensures that the road's chart is updated.
+        /// </summary>
         internal void UpdateChart()
         {
             if (chartAverageSpeed.Visible)
                 chartAverageSpeed.UpdateChart();
         }
 
+        /// <summary>
+        /// Initialises the road for road's average speed.
+        /// </summary>
         private void InitialiseChart()
         {
             static double GetAverageSpeed(Road.Throughput throughput) => throughput.averageSpeed.ToKilometresPerHour();

@@ -7,8 +7,14 @@ namespace RoadTrafficSimulator.Forms
     // Code inspired by https://stackoverflow.com/a/9706102/11983817
     // and fixes by https://stackoverflow.com/q/5864633/11983817
 
+    /// <summary>
+    /// Represents a combo box supporting images in items.
+    /// </summary>
     class ImageComboBox : ComboBox
     {
+        /// <summary>
+        /// Creates a new image combo box.
+        /// </summary>
         public ImageComboBox()
         {
             DropDownStyle = ComboBoxStyle.DropDownList;
@@ -42,9 +48,18 @@ namespace RoadTrafficSimulator.Forms
             base.OnDrawItem(e);
         }
 
+        /// <summary>
+        /// Represents an item in <see cref="ImageComboBox"/>.
+        /// </summary>
         public class DropDownItem
         {
+            /// <summary>
+            /// Text of the item
+            /// </summary>
             public string Text { get; set; }
+            /// <summary>
+            /// Image of the item (can be <c>null</c>)
+            /// </summary>
             public Image Image { get; set; }
 
             public DropDownItem(string text, Image image)

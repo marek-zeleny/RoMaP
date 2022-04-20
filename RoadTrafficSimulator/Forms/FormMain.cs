@@ -11,9 +11,25 @@ using RoadTrafficSimulator.ValueTypes;
 
 namespace RoadTrafficSimulator.Forms
 {
+    /// <summary>
+    /// Represents the main form of the application.
+    /// </summary>
     public partial class FormMain : Form
     {
-        private enum Mode { Simulate, Build };
+        /// <summary>
+        /// Mode of the form
+        /// </summary>
+        private enum Mode
+        {
+            /// <summary>
+            /// Running a simulation
+            /// </summary>
+            Simulate,
+            /// <summary>
+            /// Building a map
+            /// </summary>
+            Build
+        };
 
         private static readonly string savePath = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "RoadTrafficSimulator");
@@ -28,6 +44,9 @@ namespace RoadTrafficSimulator.Forms
         private IGRoad selectedRoad;
         private IRoadBuilder currentRoadBuilder;
 
+        /// <summary>
+        /// Creates a new main form.
+        /// </summary>
         public FormMain()
         {
             InitializeComponent();
@@ -251,6 +270,9 @@ namespace RoadTrafficSimulator.Forms
 
         #region control_methods
 
+        /// <summary>
+        /// Selects a road or crossroad nearest to a given point.
+        /// </summary>
         private void Select(Point mouseLocation)
         {
             const double crossroadMaxProximity = 0.2;
@@ -265,6 +287,9 @@ namespace RoadTrafficSimulator.Forms
                 SelectRoad(road);
         }
 
+        /// <summary>
+        /// Cancels selection of currently selected road or crossroad.
+        /// </summary>
         private void Deselect()
         {
             if (selectedCrossroad.HasValue)
@@ -290,6 +315,9 @@ namespace RoadTrafficSimulator.Forms
             }
         }
 
+        /// <summary>
+        /// Selects a given crossroad.
+        /// </summary>
         private void SelectCrossroad(MapManager.CrossroadWrapper crossroad)
         {
             selectedCrossroad = crossroad;
@@ -309,6 +337,9 @@ namespace RoadTrafficSimulator.Forms
             }
         }
 
+        /// <summary>
+        /// Selects a given road.
+        /// </summary>
         private void SelectRoad(IGRoad road)
         {
             if (road.GetRoad() != null)
@@ -332,6 +363,10 @@ namespace RoadTrafficSimulator.Forms
             }
         }
 
+        /// <summary>
+        /// Tries to build another road segment continuing towards coordinates closest to a given point.
+        /// If no road is currently being built, tries to build a new road.
+        /// </summary>
         private void Build(Point mouseLocation)
         {
             Coords coords = CoordsConvertor.CalculateCoords(mouseLocation, mapPanel.Origin, mapPanel.Zoom);
@@ -345,6 +380,10 @@ namespace RoadTrafficSimulator.Forms
             }
         }
 
+        /// <summary>
+        /// Finishes a road currently being built.
+        /// If no road is being built, does nothing.
+        /// </summary>
         private void FinishBuild()
         {
             if (currentRoadBuilder == null)
@@ -355,6 +394,10 @@ namespace RoadTrafficSimulator.Forms
                 ShowInfo("The road cannot be built like this.");
         }
 
+        /// <summary>
+        /// Destroys a road currently being built.
+        /// If no road is being built, does nothing.
+        /// </summary>
         private void DestroyBuild()
         {
             if (currentRoadBuilder == null)
@@ -363,6 +406,9 @@ namespace RoadTrafficSimulator.Forms
             currentRoadBuilder = null;
         }
 
+        /// <summary>
+        /// Changes current mode of the form.
+        /// </summary>
         private void ChangeMode()
         {
             SuspendLayout();
@@ -415,6 +461,10 @@ namespace RoadTrafficSimulator.Forms
 
         #region action_methods
 
+        /// <summary>
+        /// Checks if a simulation can be run on the current map, initialises the map's components and displays a form
+        /// for selecting simulation settings. If successful, starts the simulation.
+        /// </summary>
         private void InitialiseSimulation()
         {
             var initResult = simulation.Initialise(mapManager.Map, out Components.Crossroad invalidCrossroad);
@@ -452,6 +502,9 @@ namespace RoadTrafficSimulator.Forms
             }
         }
 
+        /// <summary>
+        /// Starts a simulation with given settings.
+        /// </summary>
         private void StartSimulation(SimulationSettings settings)
         {
             SuspendLayout();
@@ -467,6 +520,9 @@ namespace RoadTrafficSimulator.Forms
             timerSimulation.Start();
         }
 
+        /// <summary>
+        /// Performs a simulation step of a length defined by currently selected simulation speed.
+        /// </summary>
         private void SimulationStep()
         {
             Time timestep = (timerSimulation.Interval * simulationPanel.SimulationSpeed).Milliseconds();
@@ -479,6 +535,9 @@ namespace RoadTrafficSimulator.Forms
                 EndSimulation();
         }
 
+        /// <summary>
+        /// Pauses a currently running simulation.
+        /// </summary>
         private void PauseSimulation()
         {
             Debug.Assert(simulation.IsRunning);
@@ -490,6 +549,9 @@ namespace RoadTrafficSimulator.Forms
             ShowInfo("Simulation paused.");
         }
 
+        /// <summary>
+        /// Continues a paused simulation.
+        /// </summary>
         private void UnpauseSimulation()
         {
             Debug.Assert(simulation.IsRunning);
@@ -501,6 +563,9 @@ namespace RoadTrafficSimulator.Forms
             timerSimulation.Start();
         }
 
+        /// <summary>
+        /// Ends a currently running simulation.
+        /// </summary>
         private void EndSimulation()
         {
             timerSimulation.Stop();
@@ -520,6 +585,9 @@ namespace RoadTrafficSimulator.Forms
                 InitialiseExportStats();
         }
 
+        /// <summary>
+        /// Shows a dialogue for selecting a location for exporting simulation statistics and tries to export them.
+        /// </summary>
         private void InitialiseExportStats()
         {
             if (simulation.StatsCollector == null)
@@ -554,6 +622,10 @@ namespace RoadTrafficSimulator.Forms
                 ExportStats(dialog.SelectedPath);
         }
 
+        /// <summary>
+        /// Exports simulation statistics to a given path.
+        /// </summary>
+        /// <param name="path">Path of a directory to which statistics files will be saved</param>
         private void ExportStats(string path)
         {
             try
@@ -571,6 +643,9 @@ namespace RoadTrafficSimulator.Forms
             }
         }
 
+        /// <summary>
+        /// Shows a dialogue for selecting a location for saving the current map. If successful, saves the map.
+        /// </summary>
         private void InitialiseSaveMap()
         {
             if (!Directory.Exists(savePath))
@@ -585,6 +660,10 @@ namespace RoadTrafficSimulator.Forms
                 SaveMap(fileDialog.FileName);
         }
 
+        /// <summary>
+        /// Saves the current map to a given path.
+        /// </summary>
+        /// <param name="path">Path to a file to which the map will be saved</param>
         private void SaveMap(string path)
         {
             bool successful = true;
@@ -613,6 +692,9 @@ namespace RoadTrafficSimulator.Forms
                 ShowInfo("Saving map failed due to unknown error.");
         }
 
+        /// <summary>
+        /// Shows a dialogue for selecting a map file to load. If successful, loads the map.
+        /// </summary>
         private void InitialiseLoadMap()
         {
             string message =
@@ -634,6 +716,10 @@ namespace RoadTrafficSimulator.Forms
             }
         }
 
+        /// <summary>
+        /// Loads a map from a given path.
+        /// </summary>
+        /// <param name="path">Path to a file from which the map will be loaded</param>
         private void LoadMap(string path)
         {
             bool successful = false;
@@ -664,6 +750,9 @@ namespace RoadTrafficSimulator.Forms
                 ShowInfo("Chosen map couldn't be loaded due to wrong format.");
         }
 
+        /// <summary>
+        /// Shows a given informative message to the user.
+        /// </summary>
         private void ShowInfo(string info)
         {
             Debug.WriteLine($"{ DateTime.Now}: {info}");

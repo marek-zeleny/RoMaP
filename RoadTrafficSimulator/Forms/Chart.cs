@@ -12,12 +12,54 @@ using DataStructures.Miscellaneous;
 namespace RoadTrafficSimulator.Forms
 {
     // Enums are outside the Chart class so that they are not generic (Chart<TData, TDataCarrier>.[enum] would be long)
-    public enum ChartRangeMode { Fixed, FixedMin, FixedMax, Auto }
+
+    /// <summary>
+    /// Mode of determining value range of a chart
+    /// </summary>
+    public enum ChartRangeMode
+    {
+        /// <summary>
+        /// Fixed manually with minimum and maximum values
+        /// </summary>
+        Fixed,
+        /// <summary>
+        /// Minimum value fixed manually, maximum derived dynamically from current values
+        /// </summary>
+        FixedMin,
+        /// <summary>
+        /// Minimum derived dynamically from current values, maximum value fixed manually
+        /// </summary>
+        FixedMax,
+        /// <summary>
+        /// Minimum and maximum values derived dynamically from current values
+        /// </summary>
+        Auto,
+    }
+
+    /// <summary>
+    /// Unit of time used for measuring the X axis of a chart
+    /// </summary>
     public enum ChartTimeUnit { Millisecond, Second, Minute, Hour, Day }
 
+    /// <summary>
+    /// Component for visualising data progression in time.
+    /// The chart is optimised for dynamically changing data in an incremental manner.
+    /// </summary>
+    /// <remarks>
+    /// The component is designed to be highly compatible with <see cref="Statistics"/>. It is not intended as a general
+    /// purpose Windows Forms component.
+    /// </remarks>
+    /// <typeparam name="TData">Type of data plotted on the Y axis</typeparam>
+    /// <typeparam name="TDataCarrier">
+    /// Type of data source; can either contain a list of timestamped data, or contain a single timestamped datum and
+    /// be given as a list of data carriers
+    /// </typeparam>
     class Chart<TData, TDataCarrier> : Panel
         where TDataCarrier : class
     {
+        /// <summary>
+        /// Function type for aggregating a list of timestamped data from a data source
+        /// </summary>
         public delegate IReadOnlyList<Timestamp<TData>> DataListAggregator(TDataCarrier stats);
 
         // data
@@ -44,6 +86,9 @@ namespace RoadTrafficSimulator.Forms
 
         #region properties
 
+        /// <summary>
+        /// Caption of the chart
+        /// </summary>
         public string Caption
         {
             get => caption;
@@ -53,6 +98,9 @@ namespace RoadTrafficSimulator.Forms
                 UpdateChart();
             }
         }
+        /// <summary>
+        /// Mode in which the chart's value range is determined
+        /// </summary>
         public ChartRangeMode Mode
         {
             get => mode;
@@ -62,6 +110,10 @@ namespace RoadTrafficSimulator.Forms
                 UpdateChart();
             }
         }
+        /// <summary>
+        /// Minimum displayed value of the chart's Y axis
+        /// </summary>
+        /// <remarks>This value is ignored for some chart range modes.</remarks>
         public double MinValue
         {
             get => minValue;
@@ -73,6 +125,10 @@ namespace RoadTrafficSimulator.Forms
                 UpdateChart();
             }
         }
+        /// <summary>
+        /// Maximum displayed value of the chart's Y axis
+        /// </summary>
+        /// <remarks>This value is ignored for some chart range modes.</remarks>
         public double MaxValue
         {
             get => maxValue;
@@ -84,6 +140,9 @@ namespace RoadTrafficSimulator.Forms
                 UpdateChart();
             }
         }
+        /// <summary>
+        /// String displayed as the Y axis' value unit
+        /// </summary>
         public string ValueUnit
         {
             get => valueUnit;
@@ -93,6 +152,9 @@ namespace RoadTrafficSimulator.Forms
                 UpdateChart();
             }
         }
+        /// <summary>
+        /// Time span of the chart's X axis
+        /// </summary>
         public Time TimeSpan
         {
             get => timeSpan;
@@ -106,6 +168,9 @@ namespace RoadTrafficSimulator.Forms
                 UpdateChart();
             }
         }
+        /// <summary>
+        /// Time (X) axis' value unit
+        /// </summary>
         public ChartTimeUnit TimeRepresentation
         {
             get => timeRepr;
@@ -127,6 +192,10 @@ namespace RoadTrafficSimulator.Forms
 
         #endregion properties
 
+        /// <summary>
+        /// Creates a new chart.
+        /// </summary>
+        /// <param name="dataToDouble">Default function for converting data to double values</param>
         public Chart(Func<TData, double> dataToDouble)
         {
             // Panel properties
@@ -140,6 +209,15 @@ namespace RoadTrafficSimulator.Forms
 
         #region interface
 
+        /// <summary>
+        /// Sets a new data source containing a list of timestamped data.
+        /// </summary>
+        /// <param name="stats">Data source</param>
+        /// <param name="aggregator">Function aggregating a list of timestamped data from the data source</param>
+        /// <param name="clock">Global clock of the simulation</param>
+        /// <param name="dataToDouble">
+        /// Function for converting data to double values; if <c>null</c>, a previously given function is used
+        /// </param>
         public void SetDataSource(TDataCarrier stats, DataListAggregator aggregator, IClock clock,
             Func<TData, double> dataToDouble = null)
         {
@@ -158,6 +236,12 @@ namespace RoadTrafficSimulator.Forms
             UpdateChart();
         }
 
+        /// <summary>
+        /// Sets a new data source as a list of data carriers containing a single timestamped datum.
+        /// </summary>
+        /// <param name="statsList">Data source</param>
+        /// <param name="aggregator">Function aggregating timestamped data from data carriers</param>
+        /// <inheritdoc cref="SetDataSource(TDataCarrier, DataListAggregator, IClock, Func{TData, double})"/>
         public void SetDataSource(IReadOnlyList<TDataCarrier> statsList,
             Func<TDataCarrier, Timestamp<TData>> aggregator, IClock clock,
             Func<TData, double> dataToDouble = null)
@@ -177,6 +261,9 @@ namespace RoadTrafficSimulator.Forms
             UpdateChart();
         }
 
+        /// <summary>
+        /// Disconnects the current data source.
+        /// </summary>
         public void ClearDataSource()
         {
             lock (dataCache)
@@ -190,6 +277,9 @@ namespace RoadTrafficSimulator.Forms
             UpdateChart();
         }
 
+        /// <summary>
+        /// Ensures the chart is updated.
+        /// </summary>
         public void UpdateChart()
         {
             Invalidate();
@@ -211,6 +301,9 @@ namespace RoadTrafficSimulator.Forms
 
         #region helper_functions
 
+        /// <summary>
+        /// Draws the chart onto given graphics.
+        /// </summary>
         private void DrawChart(Graphics gr)
         {
             var data = GetData();
@@ -248,6 +341,12 @@ namespace RoadTrafficSimulator.Forms
             }
         }
 
+        /// <summary>
+        /// Draws the chart's X and Y axes onto given graphics.
+        /// </summary>
+        /// <param name="min">Minimum value of the Y axis</param>
+        /// <param name="max">Maximum value of the Y axis</param>
+        /// <returns>Pixel offsets of the chart's borders encapsulating the area for drawing data</returns>
         private (int top, int bot, int left, int right) DrawAxes(Graphics gr, double min, double max)
         {
             const int labelMargin = 5;
@@ -294,6 +393,13 @@ namespace RoadTrafficSimulator.Forms
             return (top, bot, left, right);
         }
 
+        /// <summary>
+        /// Draws data onto given graphics.
+        /// </summary>
+        /// <param name="data">Data to be drawn</param>
+        /// <param name="min">Minimum value of the Y axis</param>
+        /// <param name="max">Maximum value of the Y axis</param>
+        /// <param name="border">Pixel offsets of the chart's borders encapsulating the area for drawing data</param>
         private void DrawData(Graphics gr, IEnumerable<Timestamp<TData>> data, double min, double max,
             (int top, int bot, int left, int right) border)
         {
@@ -327,6 +433,10 @@ namespace RoadTrafficSimulator.Forms
             }
         }
 
+        /// <summary>
+        /// Prints that no data is available onto given graphics.
+        /// </summary>
+        /// <param name="gr"></param>
         private void PrintNoData(Graphics gr)
         {
             const string text = "No data available";
@@ -340,10 +450,16 @@ namespace RoadTrafficSimulator.Forms
             gr.DrawString(text, font, brush, Width / 2, Height / 2, format);
         }
 
+        /// <summary>
+        /// Gets data to be drawn and updates the data cache.
+        /// </summary>
+        /// <remarks>
+        /// In order for the data cache to work, the data source must provide linearly ordered data in time.
+        /// </remarks>
         private IEnumerable<Timestamp<TData>> GetData()
         {
-            // Expects time linearity of the data
             IEnumerable<Timestamp<TData>> newData;
+            // Updating data cache must be mutually exclusive with setting new data source
             lock (dataCache)
             {
                 if (stats != null)
@@ -377,6 +493,10 @@ namespace RoadTrafficSimulator.Forms
             }
         }
 
+        /// <summary>
+        /// Finds extreme values of the given data.
+        /// </summary>
+        /// <returns>Minimum and maximum value in the data</returns>
         private (double min, double max) FindExtremes(IEnumerable<Timestamp<TData>> data)
         {
             double min = dataToDouble(data.First().data);
@@ -392,6 +512,9 @@ namespace RoadTrafficSimulator.Forms
             return (min, max);
         }
 
+        /// <summary>
+        /// Clears the data cache.
+        /// </summary>
         private void ClearCache()
         {
             lock (dataCache)

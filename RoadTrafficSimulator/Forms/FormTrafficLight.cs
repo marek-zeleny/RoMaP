@@ -9,6 +9,9 @@ using RoadTrafficSimulator.ValueTypes;
 
 namespace RoadTrafficSimulator.Forms
 {
+    /// <summary>
+    /// Represents a form for setting up traffic lights and main roads at crossroads.
+    /// </summary>
     public partial class FormTrafficLight : Form
     {
         private const float roadPercentageInView = 0.8f;
@@ -26,6 +29,11 @@ namespace RoadTrafficSimulator.Forms
         private bool freezeCheckBoxes;
         private bool freezeDuration;
 
+        /// <summary>
+        /// Creates a new traffic light form.
+        /// </summary>
+        /// <param name="mapManager">Map manager to work with</param>
+        /// <param name="crossroad">Crossroad to set up</param>
         internal FormTrafficLight(MapManager mapManager, MapManager.CrossroadWrapper crossroad)
         {
             InitializeComponent();
@@ -137,6 +145,12 @@ namespace RoadTrafficSimulator.Forms
 
         #region helper_methods
 
+        /// <summary>
+        /// Select a road nearest to the given mouse location.
+        /// </summary>
+        /// <remarks>
+        /// Always selects the direction going towards the crossroad being set up.
+        /// </remarks>
         private void SelectRoad(Point mouseLocation)
         {
             UnselectRoad();
@@ -155,6 +169,9 @@ namespace RoadTrafficSimulator.Forms
             InitialiseDirectionCheckBoxes();
         }
 
+        /// <summary>
+        /// Cancels selection of a road.
+        /// </summary>
         private void UnselectRoad()
         {
             if (selectedRoad == null)
@@ -163,6 +180,9 @@ namespace RoadTrafficSimulator.Forms
             selectedRoad = null;
         }
 
+        /// <summary>
+        /// Shows properties in the form based on what's selected.
+        /// </summary>
         private void ShowProperties()
         {
             SuspendLayout();
@@ -196,6 +216,9 @@ namespace RoadTrafficSimulator.Forms
             ResumeLayout();
         }
 
+        /// <summary>
+        /// Initialises values in combo box for selecting traffic light settings based on the crossroad being set up.
+        /// </summary>
         private void InitialiseComboBoxSetting()
         {
             int index = comboBoxSetting.SelectedIndex;
@@ -210,6 +233,9 @@ namespace RoadTrafficSimulator.Forms
             comboBoxSetting.SelectedIndex = index;
         }
 
+        /// <summary>
+        /// Initialises values in combo box for selecting main roads based on the crossroad being set up.
+        /// </summary>
         private void InitialiseComboBoxMainRoad()
         {
             var items = imageComboBoxMainRoad.Items;
@@ -241,6 +267,9 @@ namespace RoadTrafficSimulator.Forms
             imageComboBoxMainRoad.SelectedIndex = selectedIndex;
         }
 
+        /// <summary>
+        /// Initialises check boxes for allowed directions based on the currently selected road.
+        /// </summary>
         private void InitialiseDirectionCheckBoxes()
         {
             try
@@ -279,6 +308,9 @@ namespace RoadTrafficSimulator.Forms
             }
         }
 
+        /// <summary>
+        /// Calculates zoom for the map to only show the crossroad being set up.
+        /// </summary>
         private float CalculateZoom()
         {
             float fullRoadSize = Math.Min(panelMap.Width, panelMap.Height) / 2;
