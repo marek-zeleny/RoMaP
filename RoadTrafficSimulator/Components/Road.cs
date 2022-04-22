@@ -123,8 +123,8 @@ namespace RoadTrafficSimulator.Components
         public Road(int id, Crossroad from, Crossroad to, Distance length, Speed maxSpeed)
             : base(id, from, to)
         {
+            MaxSpeed = maxSpeed; // Needs to be assigned first to avoid division by 0 in the property setters
             Length = length;
-            MaxSpeed = maxSpeed;
             Weight = (Length / MaxSpeed).Weight();
             lanes = new Lane[maxLaneCount];
             LaneCount = 1;
