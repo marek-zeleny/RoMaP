@@ -13,8 +13,8 @@ namespace DataStructures.UnitTests
     {
         private struct Path
         {
-            public int from;
-            public int to;
+            public IReadOnlyNode<int, int> from;
+            public IReadOnlyNode<int, int> to;
             public Weight weight;
             public List<IReadOnlyEdge<int, int>> edges;
         }
@@ -23,12 +23,14 @@ namespace DataStructures.UnitTests
         private IReadOnlyList<Path> smallGraphExamplePaths;
         private IReadOnlyGraph<int, int> largeGraph;
         private IReadOnlyList<Path> largeGraphExamplePaths;
+        private IReadOnlyNode<int, int> nonExistentNode;
 
         [TestInitialize]
         public void InitializeGraphs()
         {
             InitialiseSmallGraph();
             InitialiseLargeGraph();
+            nonExistentNode = new Node<int, int>(-5);
         }
 
         [DataTestMethod]
@@ -38,7 +40,8 @@ namespace DataStructures.UnitTests
         [ExpectedException(typeof(ArgumentException))]
         public void FindShortestPath_NonexistingStart_ExpectedArgumentException(Algorithms.GraphType graphType)
         {
-            smallGraph.FindShortestPath(graphType, -5, 1);
+            var node1 = smallGraph.GetNode(1);
+            smallGraph.FindShortestPath(graphType, nonExistentNode, node1);
         }
 
         [DataTestMethod]
@@ -48,7 +51,8 @@ namespace DataStructures.UnitTests
         [ExpectedException(typeof(ArgumentException))]
         public void FindShortestPath_NonexistingEnd_ExpectedArgumentException(Algorithms.GraphType graphType)
         {
-            smallGraph.FindShortestPath(graphType, 1, -3);
+            var node1 = smallGraph.GetNode(1);
+            smallGraph.FindShortestPath(graphType, node1, nonExistentNode);
         }
 
         [DataTestMethod]
@@ -58,7 +62,7 @@ namespace DataStructures.UnitTests
         [ExpectedException(typeof(ArgumentException))]
         public void FindShortestPaths_NonexistingStart_ExpectedArgumentException(Algorithms.GraphType graphType)
         {
-            smallGraph.FindShortestPaths(graphType, -5);
+            smallGraph.FindShortestPaths(graphType, nonExistentNode);
         }
 
         [TestMethod]
@@ -85,7 +89,7 @@ namespace DataStructures.UnitTests
             FindShortestPaths(largeGraph, largeGraphExamplePaths, Algorithms.GraphType.NonnegativeWeights);
         }
 
-        private void FindShortestPath(IReadOnlyGraph<int, int> graph, IReadOnlyList<Path> examplePaths,
+        private static void FindShortestPath(IReadOnlyGraph<int, int> graph, IReadOnlyList<Path> examplePaths,
             Algorithms.GraphType graphType)
         {
             foreach (var exPath in examplePaths)
@@ -99,10 +103,13 @@ namespace DataStructures.UnitTests
             }
         }
 
-        private void FindShortestPaths(IReadOnlyGraph<int, int> graph, IReadOnlyList<Path> examplePaths,
+        private static void FindShortestPaths(IReadOnlyGraph<int, int> graph, IReadOnlyList<Path> examplePaths,
             Algorithms.GraphType graphType)
         {
-            var paths = new Dictionary<int, IDictionary<int, Algorithms.Path<int, int>>>(examplePaths.Count);
+            var paths = new Dictionary<
+                IReadOnlyNode<int, int>,
+                IDictionary<IReadOnlyNode<int, int>, Algorithms.Path<int, int>>
+                >(examplePaths.Count);
             foreach (var exPath in examplePaths)
             {
                 // Act
@@ -140,9 +147,9 @@ namespace DataStructures.UnitTests
             var path3to3 = new List<IReadOnlyEdge<int, int>>();
 
             var examplePaths = new List<Path>(3);
-            examplePaths.Add(new Path { from = 1, to = 3, weight = 12.Weight(), edges = path1to3 });
-            examplePaths.Add(new Path { from = 2, to = 1, weight = Weight.positiveInfinity, edges = path2to1 });
-            examplePaths.Add(new Path { from = 3, to = 3, weight = 0.Weight(), edges = path3to3 });
+            examplePaths.Add(new Path { from = node1, to = node3, weight = 12.Weight(), edges = path1to3 });
+            examplePaths.Add(new Path { from = node2, to = node1, weight = Weight.positiveInfinity, edges = path2to1 });
+            examplePaths.Add(new Path { from = node3, to = node3, weight = 0.Weight(), edges = path3to3 });
 
             smallGraph = graph;
             smallGraphExamplePaths = examplePaths;
@@ -207,7 +214,7 @@ namespace DataStructures.UnitTests
 
             var path2to9 = new List<IReadOnlyEdge<int, int>> { edge3, edge6, edge10, edge16 };
             var examplePaths = new List<Path>(1);
-            examplePaths.Add(new Path { from = 2, to = 9, edges = path2to9, weight = 25.Weight() });
+            examplePaths.Add(new Path { from = node2, to = node9, edges = path2to9, weight = 25.Weight() });
 
             largeGraph = graph;
             largeGraphExamplePaths = examplePaths;
