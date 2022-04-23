@@ -63,7 +63,7 @@ namespace RoadTrafficSimulator.Components
 
         private Map map;
         private IClock clock;
-        private IDictionary<Coords, IDictionary<Coords, Timestamp>> pathsCache;
+        private IDictionary<Crossroad, IDictionary<Crossroad, Timestamp>> pathsCache;
 
         /// <summary>
         /// Creates a new central navigation over a given map with a given simulation clock.
@@ -72,13 +72,13 @@ namespace RoadTrafficSimulator.Components
         {
             this.map = map;
             this.clock = clock;
-            pathsCache = new Dictionary<Coords, IDictionary<Coords, Timestamp>>(map.CrossroadCount);
-            foreach (var crossroad in map.GetNodes())
-                pathsCache[crossroad.Id] = new Dictionary<Coords, Timestamp>(map.CrossroadCount);
+            pathsCache = new Dictionary<Crossroad, IDictionary<Crossroad, Timestamp>>(map.CrossroadCount);
+            foreach (Crossroad crossroad in map.GetNodes())
+                pathsCache[crossroad] = new Dictionary<Crossroad, Timestamp>(map.CrossroadCount);
         }
 
         /// <summary>
-        /// Obtains a new navigation guiding between two given coordinates denoting crossroads.
+        /// Obtains a new navigation guiding between two given crossroads.
         /// </summary>
         /// <remarks>
         /// Passive navigation finds the shortest path with respect to maximal allowed speed on roads; as this speed
@@ -88,9 +88,9 @@ namespace RoadTrafficSimulator.Components
         /// </remarks>
         /// <param name="active">If <c>true</c>, returns an active navigation, otherwise returns a passive one</param>
         /// <exception cref="ArgumentException">
-        /// There is no crossroad in the map under one of the given coordinates.
+        /// The crossroad does not belong to the navigation's map.
         /// </exception>
-        public INavigation GetNavigation(Coords from, Coords to, bool active)
+        public INavigation GetNavigation(Crossroad from, Crossroad to, bool active)
         {
             if (active)
                 return new ActiveNavigation(this, from, to);
@@ -99,11 +99,10 @@ namespace RoadTrafficSimulator.Components
         }
 
         /// <summary>
-        /// Gets the next road on the shortest path between given coordinates based on current traffic in the
-        /// simulation.
+        /// Gets the next road on the shortest path between given crossroads based on current traffic in the simulation.
         /// </summary>
         /// <returns>The next road and the weight of the shortest path found</returns>
-        private (Road nextRoad, Weight remainingWeight) GetNextRoad(Coords from, Coords destination)
+        private (Road nextRoad, Weight remainingWeight) GetNextRoad(Crossroad from, Crossroad destination)
         {
             UpdateCache(from, destination);
             Timestamp t = pathsCache[from][destination];
@@ -111,11 +110,11 @@ namespace RoadTrafficSimulator.Components
         }
 
         /// <summary>
-        /// Updates cached shortest path between given coordinates. Does nothing if the cache is up-to-date.
+        /// Updates cached shortest path between given crossroads. Does nothing if the cache is up-to-date.
         /// </summary>
-        private void UpdateCache(Coords from, Coords to)
+        private void UpdateCache(Crossroad from, Crossroad to)
         {
-            bool isUpToDate(Coords from, Coords to) =>
+            bool isUpToDate(Crossroad from, Crossroad to) =>
                 pathsCache[from].ContainsKey(to) && pathsCache[from][to].searchTime >= clock.Time;
 
             if (isUpToDate(from, to))
@@ -125,18 +124,19 @@ namespace RoadTrafficSimulator.Components
                 edge => ((Road)edge).AverageSpeed.Weight());
             foreach (var (dest, path) in paths)
             {
+                Crossroad destination = (Crossroad)dest;
                 Debug.Assert(path.TotalWeight < Weight.positiveInfinity);
                 Road prevRoad = null;
                 foreach (var segment in path.ReversedPathSegments)
                 {
-                    var source = segment.Edge.ToNode.Id;
-                    if (!isUpToDate(source, dest))
-                        pathsCache[source][dest] = new Timestamp(
+                    Crossroad source = (Crossroad)segment.Edge.ToNode;
+                    if (!isUpToDate(source, destination))
+                        pathsCache[source][destination] = new Timestamp(
                             clock.Time, prevRoad, path.TotalWeight - segment.TotalWeight);
                     prevRoad = (Road)segment.Edge;
                 }
-                if (!isUpToDate(from, dest))
-                    pathsCache[from][dest] = new Timestamp(clock.Time, prevRoad, path.TotalWeight);
+                if (!isUpToDate(from, destination))
+                    pathsCache[from][destination] = new Timestamp(clock.Time, prevRoad, path.TotalWeight);
             }
         }
 
@@ -161,10 +161,10 @@ namespace RoadTrafficSimulator.Components
             public Road NextRoad { get => nextRoadExists ? remainingPath.Current : null; }
 
             /// <summary>
-            /// Creates a new passive navigation between two given coordinates.
+            /// Creates a new passive navigation between two given crossroads.
             /// </summary>
             /// <param name="central">Central navigation to which the instance will be connected</param>
-            public PassiveNavigation(CentralNavigation central, Coords start, Coords finish)
+            public PassiveNavigation(CentralNavigation central, Crossroad start, Crossroad finish)
             {
                 this.central = central;
                 var path = central.map.FindShortestPath(Algorithms.GraphType.NonnegativeWeights, start, finish);
@@ -201,7 +201,7 @@ namespace RoadTrafficSimulator.Components
         private class ActiveNavigation : INavigation
         {
             private readonly CentralNavigation central;
-            private readonly Coords destination;
+            private readonly Crossroad destination;
             private Time nextRemainingDuration;
 
             public IClock Clock => central.clock;
@@ -210,10 +210,10 @@ namespace RoadTrafficSimulator.Components
             public Road NextRoad { get; private set; }
 
             /// <summary>
-            /// Creates a new active navigation between two given coordinates.
+            /// Creates a new active navigation between two given crossroads.
             /// </summary>
             /// <param name="central">Central navigation to which the instance will be connected</param>
-            public ActiveNavigation(CentralNavigation central, Coords start, Coords finish)
+            public ActiveNavigation(CentralNavigation central, Crossroad start, Crossroad finish)
             {
                 this.central = central;
                 destination = finish;
@@ -231,7 +231,7 @@ namespace RoadTrafficSimulator.Components
                         "at the end of the path.");
                 CurrentRoad = NextRoad;
                 RemainingDuration = nextRemainingDuration;
-                if (CurrentRoad.Destination.Id == destination)
+                if (CurrentRoad.Destination == destination)
                     NextRoad = null;
                 else
                     UpdateNextRoad();
@@ -242,7 +242,7 @@ namespace RoadTrafficSimulator.Components
             /// </summary>
             private void UpdateNextRoad()
             {
-                var (nextRoad, remainingWeight) = central.GetNextRoad(CurrentRoad.ToNode.Id, destination);
+                var (nextRoad, remainingWeight) = central.GetNextRoad(CurrentRoad.Destination, destination);
                 nextRemainingDuration = new Time((int)remainingWeight);
                 NextRoad = nextRoad;
             }

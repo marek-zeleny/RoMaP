@@ -239,7 +239,7 @@ namespace RoadTrafficSimulator
             while (finish == start);
             Distance length = carLengthDistribution[random.Next(carLengthDistribution.Length)].Metres();
             bool active = random.NextDouble() < activeNavigationRate;
-            INavigation navigation = centralNavigation.GetNavigation(start.Id, finish.Id, active);
+            INavigation navigation = centralNavigation.GetNavigation(start, finish, active);
             Car car = new(length, navigation, StatsCollector);
             stagedCars.Add(car);
             allCars.Add(car);
