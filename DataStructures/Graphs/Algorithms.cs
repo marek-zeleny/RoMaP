@@ -216,7 +216,7 @@ namespace DataStructures.Graphs
         /// implementation will be used (see remarks).
         /// </param>
         /// <returns>
-        /// <see cref="IDictionary{TKey, TValue}"/> with <typeparamref name="TNodeId"/> as key and
+        /// <see cref="IDictionary{TKey, TValue}"/> with <see cref="IReadOnlyNode{TNodeId, TEdgeId}"/> as key and
         /// <see cref="Path{TNodeId, TEdgeId}"/> as value, containing shortest paths from <paramref name="startNode"/>
         /// to all other nodes in the <paramref name="graph"/>.
         /// </returns>
@@ -275,7 +275,7 @@ namespace DataStructures.Graphs
         /// implementation will be used (see remarks).
         /// </param>
         /// <returns>
-        /// <see cref="IDictionary{TKey, TValue}"/> with <typeparamref name="TNodeId"/> as key and
+        /// <see cref="IDictionary{TKey, TValue}"/> with <see cref="IReadOnlyNode{TNodeId, TEdgeId}"/> as key and
         /// <see cref="Path{TNodeId, TEdgeId}"/> as value, containing shortest paths from <paramref name="startNode"/>
         /// to other nodes in the <paramref name="graph"/>. See remarks for more detail.
         /// </returns>
