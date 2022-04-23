@@ -166,10 +166,10 @@ namespace DataStructures.Graphs
             where TNodeId : IEquatable<TNodeId>
             where TEdgeId : IEquatable<TEdgeId>
         {
-            if (startNode != graph.GetNode(startNode.Id))
+            if (graph.GetNode(startNode.Id) == default)
                 throw new ArgumentException($"Start node is not present in the graph.",
                     nameof(startNode));
-            if (endNode != graph.GetNode(endNode.Id))
+            if (graph.GetNode(endNode.Id) == default)
                 throw new ArgumentException($"End node is not present in the graph.",
                     nameof(endNode));
 
@@ -237,7 +237,7 @@ namespace DataStructures.Graphs
             where TNodeId : IEquatable<TNodeId>
             where TEdgeId : IEquatable<TEdgeId>
         {
-            if (startNode != graph.GetNode(startNode.Id))
+            if (graph.GetNode(startNode.Id) == default)
                 throw new ArgumentException($"Start node is not present in the graph.",
                     nameof(startNode));
 
