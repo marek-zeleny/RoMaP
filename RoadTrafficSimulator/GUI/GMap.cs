@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+
 using RoadTrafficSimulator.ValueTypes;
 
 namespace RoadTrafficSimulator.GUI
@@ -83,6 +84,8 @@ namespace RoadTrafficSimulator.GUI
         {
             bool IsVisible(Point point) => IsInRange(point, width, height);
 
+            DrawGrid(graphics, origin, zoom, width, height);
+
             foreach (IGRoad road in roads)
                 road.Draw(graphics, origin, zoom, SideOfDriving, simulationMode, IsVisible);
 
@@ -100,6 +103,40 @@ namespace RoadTrafficSimulator.GUI
                 && point.X <= width
                 && point.Y >= 0
                 && point.Y <= height;
+        }
+
+        /// <summary>
+        /// Draws a coordinate grid onto given graphics.
+        /// </summary>
+        /// <param name="origin">Position of the map's origin</param>
+        /// <param name="zoom">Current zoom of the map</param>
+        /// <param name="width">Width of the visible part of the map (in pixels)</param>
+        /// <param name="height">Height of the visible part of the map (in pixels)</param>
+        private static void DrawGrid(Graphics graphics, Point origin, float zoom, int width, int height)
+        {
+            float step = CoordsConvertor.gridSize * zoom;
+            Coords firstCoords = CoordsConvertor.CalculateCoords(new Point(0, 0), origin, zoom);
+            Point firstPoint = CoordsConvertor.CalculatePoint(firstCoords, origin, zoom);
+
+            Pen pen = new(Color.Gray, 1)
+            {
+                DashStyle = System.Drawing.Drawing2D.DashStyle.Dash
+            };
+            Font font = new(SystemFonts.DefaultFont.FontFamily, 10f);
+            Brush brush = Brushes.DarkOrange;
+
+            int xCoord = firstCoords.x;
+            for (float x = firstPoint.X; x < width; x += step)
+            {
+                graphics.DrawLine(pen, x, 0, x, height);
+                graphics.DrawString(string.Format("[{0}]", xCoord++), font, brush, x + 5, 5);
+            }
+            int yCoord = firstCoords.y;
+            for (float y = firstPoint.Y; y < height; y += step)
+            {
+                graphics.DrawLine(pen, 0, y, width, y);
+                graphics.DrawString(string.Format("[{0}]", yCoord++), font, brush, 5, y + 5);
+            }
         }
     }
 }

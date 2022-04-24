@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Windows.Forms;
 
 using RoadTrafficSimulator.Components;
+using RoadTrafficSimulator.GUI;
 using RoadTrafficSimulator.ValueTypes;
 
 namespace RoadTrafficSimulator.Forms
@@ -25,7 +26,7 @@ namespace RoadTrafficSimulator.Forms
 
         private List<(CoordsConvertor.Direction, CoordsConvertor.Direction)?> mainRoadOptions = new();
         private TrafficLight.Setting currentSetting;
-        private GUI.IGRoad selectedRoad;
+        private IGRoad selectedRoad;
         private bool freezeCheckBoxes;
         private bool freezeDuration;
 
@@ -165,7 +166,7 @@ namespace RoadTrafficSimulator.Forms
                 return;
             }
 
-            selectedRoad.SetHighlight(GUI.Highlight.Large, GUI.IGRoad.Direction.Forward);
+            selectedRoad.SetHighlight(Highlight.Large, IGRoad.Direction.Forward);
             InitialiseDirectionCheckBoxes();
         }
 
@@ -176,7 +177,7 @@ namespace RoadTrafficSimulator.Forms
         {
             if (selectedRoad == null)
                 return;
-            selectedRoad.UnsetHighlight(GUI.Highlight.Large, GUI.IGRoad.Direction.Forward);
+            selectedRoad.UnsetHighlight(Highlight.Large, IGRoad.Direction.Forward);
             selectedRoad = null;
         }
 
@@ -314,7 +315,7 @@ namespace RoadTrafficSimulator.Forms
         private float CalculateZoom()
         {
             float fullRoadSize = Math.Min(panelMap.Width, panelMap.Height) / 2;
-            float fullZoom = fullRoadSize / MapManager.gridSize;
+            float fullZoom = fullRoadSize / CoordsConvertor.gridSize;
             return fullZoom / roadPercentageInView;
         }
 

@@ -4,7 +4,7 @@ using System.Drawing;
 
 using RoadTrafficSimulator.ValueTypes;
 
-namespace RoadTrafficSimulator
+namespace RoadTrafficSimulator.GUI
 {
     /// <summary>
     /// Provides methods for converting between coordinates and graphic pixels.
@@ -39,6 +39,11 @@ namespace RoadTrafficSimulator
             new Coords(-1, 0),
             new Coords(0, 1),
         };
+
+        /// <summary>
+        /// Size (length and height) of one grid square with default zoom on the GUI map
+        /// </summary>
+        public const int gridSize = 120;
 
         /// <summary>
         /// Checks if given coordinates represent an allowed direction.
@@ -87,17 +92,17 @@ namespace RoadTrafficSimulator
         /// For right-side driving, the ordering is counter-clockwise, for left-side driving it's clockwise.
         /// </remarks>
         /// <returns>Sequence of coordinates representing all allowed directions</returns>
-        public static IEnumerable<Coords> GetAllowedDirections(GUI.RoadSide sideOfDriving, int i = 0)
+        public static IEnumerable<Coords> GetAllowedDirections(RoadSide sideOfDriving, int i = 0)
         {
             yield return allowedDirections[i];
             int m = allowedDirections.Length;
             switch (sideOfDriving)
             {
-                case GUI.RoadSide.Right:
+                case RoadSide.Right:
                     for (int j = (i + 1) % m; j != i; j = (j + 1) % m)
                         yield return allowedDirections[j];
                     break;
-                case GUI.RoadSide.Left:
+                case RoadSide.Left:
                     for (int j = (i - 1 + m) % m; j != i; j = (j - 1 + m) % m)
                         yield return allowedDirections[j];
                     break;
@@ -115,7 +120,7 @@ namespace RoadTrafficSimulator
         /// </remarks>
         /// <returns>Sequence of coordinates representing all allowed directions</returns>
         /// <exception cref="ArgumentException">Start direction is not an allowed direction</exception>
-        public static IEnumerable<Coords> GetAllowedDirections(GUI.RoadSide sideOfDriving, Coords startDirection)
+        public static IEnumerable<Coords> GetAllowedDirections(RoadSide sideOfDriving, Coords startDirection)
         {
             int index = Array.IndexOf(allowedDirections, startDirection);
             if (index >= 0)
@@ -132,9 +137,22 @@ namespace RoadTrafficSimulator
         /// For right-side driving, the ordering is counter-clockwise, for left-side driving it's clockwise.
         /// </remarks>
         /// <returns>Sequence of coordinates representing all allowed directions</returns>
-        public static IEnumerable<Coords> GetAllowedDirections(GUI.RoadSide sideOfDriving, Direction startDirection)
+        public static IEnumerable<Coords> GetAllowedDirections(RoadSide sideOfDriving, Direction startDirection)
         {
             return GetAllowedDirections(sideOfDriving, (int)startDirection);
+        }
+
+        /// <summary>
+        /// Computes relative distance of two given points with respect to the size of a GUI grid square.
+        /// </summary>
+        /// <param name="zoom">Zoom ratio of the map's visualisation</param>
+        /// <returns>Euclidean distance between the two points divided by grid size scaled by zoom</returns>
+        public static double RelativeDistance(Point p1, Point p2, float zoom)
+        {
+            int dx = p1.X - p2.X;
+            int dy = p1.Y - p2.Y;
+            double distance = Math.Sqrt(dx * dx + dy * dy);
+            return distance / (gridSize * zoom);
         }
 
         /// <summary>
@@ -153,12 +171,12 @@ namespace RoadTrafficSimulator
         /// to the right and vice versa.
         /// </remarks>
         /// <returns>Point perpendicular to the given point with the same size</returns>
-        public static Point Normal(Point point, GUI.RoadSide sideOfDriving)
+        public static Point Normal(Point point, RoadSide sideOfDriving)
         {
             return sideOfDriving switch
             {
-                GUI.RoadSide.Right => new Point(-point.Y, point.X),
-                GUI.RoadSide.Left => new Point(point.Y, -point.X),
+                RoadSide.Right => new Point(-point.Y, point.X),
+                RoadSide.Left => new Point(point.Y, -point.X),
                 _ => throw new NotImplementedException(),
             };
         }
@@ -172,8 +190,8 @@ namespace RoadTrafficSimulator
         {
             Point output = new()
             {
-                X = origin.X + (int)(coords.x * MapManager.gridSize * zoom),
-                Y = origin.Y + (int)(coords.y * MapManager.gridSize * zoom)
+                X = origin.X + (int)(coords.x * gridSize * zoom),
+                Y = origin.Y + (int)(coords.y * gridSize * zoom)
             };
             return output;
         }
@@ -185,8 +203,8 @@ namespace RoadTrafficSimulator
         /// <param name="zoom">Zoom ratio of the map's visualisation</param>
         public static Coords CalculateCoords(Point point, Point origin, float zoom)
         {
-            int x = (int)Math.Round((point.X - origin.X) / (MapManager.gridSize * zoom));
-            int y = (int)Math.Round((point.Y - origin.Y) / (MapManager.gridSize * zoom));
+            int x = (int)Math.Round((point.X - origin.X) / (gridSize * zoom));
+            int y = (int)Math.Round((point.Y - origin.Y) / (gridSize * zoom));
             return new Coords(x, y);
         }
 
@@ -239,7 +257,7 @@ namespace RoadTrafficSimulator
         /// </remarks>
         /// <param name="origin">Pixel position of the origin of the coordinate system (0;0)</param>
         /// <param name="zoom">Zoom ratio of the map's visualisation</param>
-        public static bool IsCorrectOrientation(GUI.RoadSide sideOfDriving, Vector vector, Point point,
+        public static bool IsCorrectOrientation(RoadSide sideOfDriving, Vector vector, Point point,
             Point origin, float zoom)
         {
             Point centre = CalculatePoint(vector.from, origin, zoom);
@@ -276,7 +294,7 @@ namespace RoadTrafficSimulator
         /// <param name="zoom">Zoom ratio of the map's visualisation</param>
         /// <returns><c>true</c> if the correctly oriented vector is vector 1, <c>false</c> for vector 2</returns>
         /// <exception cref="ArgumentException">Vectors don't originate at the same coordinates</exception>
-        public static bool ChooseCorrectOrientation(GUI.RoadSide sideOfDriving, Vector vector1, Vector vector2,
+        public static bool ChooseCorrectOrientation(RoadSide sideOfDriving, Vector vector1, Vector vector2,
             Point point, Point origin, float zoom)
         {
             if (vector1.from != vector2.from)

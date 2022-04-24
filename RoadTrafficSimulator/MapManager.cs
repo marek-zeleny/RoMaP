@@ -19,10 +19,6 @@ namespace RoadTrafficSimulator
         #region static
 
         /// <summary>
-        /// Size (length and height) of one grid square with default zoom on the GUI map
-        /// </summary>
-        public const int gridSize = 120;
-        /// <summary>
         /// Default setting for roads' maximum speed
         /// </summary>
         private static readonly Speed defaultMaxSpeed = 50.KilometresPerHour();
@@ -136,40 +132,6 @@ namespace RoadTrafficSimulator
             }
         }
 
-        /// <summary>
-        /// Draws a coordinate grid onto given graphics.
-        /// </summary>
-        /// <param name="origin">Position of the map's origin</param>
-        /// <param name="zoom">Current zoom of the map</param>
-        /// <param name="width">Width of the visible part of the map (in pixels)</param>
-        /// <param name="height">Height of the visible part of the map (in pixels)</param>
-        private static void DrawGrid(Graphics graphics, Point origin, float zoom, int width, int height)
-        {
-            float step = gridSize * zoom;
-            Coords firstCoords = CoordsConvertor.CalculateCoords(new Point(0, 0), origin, zoom);
-            Point firstPoint = CoordsConvertor.CalculatePoint(firstCoords, origin, zoom);
-
-            Pen pen = new Pen(Color.Gray, 1)
-            {
-                DashStyle = System.Drawing.Drawing2D.DashStyle.Dash
-            };
-            Font font = new Font(SystemFonts.DefaultFont.FontFamily, 10f);
-            Brush brush = Brushes.DarkOrange;
-
-            int xCoord = firstCoords.x;
-            for (float x = firstPoint.X; x < width; x += step)
-            {
-                graphics.DrawLine(pen, x, 0, x, height);
-                graphics.DrawString(string.Format("[{0}]", xCoord++), font, brush, x + 5, 5);
-            }
-            int yCoord = firstCoords.y;
-            for (float y = firstPoint.Y; y < height; y += step)
-            {
-                graphics.DrawLine(pen, 0, y, width, y);
-                graphics.DrawString(string.Format("[{0}]", yCoord++), font, brush, 5, y + 5);
-            }
-        }
-
         #endregion static
 
         private IGMap guiMap = new GMap();
@@ -236,17 +198,9 @@ namespace RoadTrafficSimulator
         /// <inheritdoc cref="GetNearestCrossroad(Point, Point, float)"/>
         public CrossroadWrapper? GetNearestCrossroad(Point point, Point origin, float zoom, out double proximity)
         {
-            static double CalculateDistance(Point p1, Point p2)
-            {
-                int dx = p1.X - p2.X;
-                int dy = p1.Y - p2.Y;
-                return Math.Sqrt(dx * dx + dy * dy);
-            }
-
             Coords coords = CoordsConvertor.CalculateCoords(point, origin, zoom);
             Point crossroadPoint = CoordsConvertor.CalculatePoint(coords, origin, zoom);
-            double distance = CalculateDistance(crossroadPoint, point);
-            proximity = distance / (gridSize * zoom);
+            proximity = CoordsConvertor.RelativeDistance(crossroadPoint, point, zoom);
             return GetCrossroad(coords);
         }
 
@@ -469,7 +423,6 @@ namespace RoadTrafficSimulator
         /// <inheritdoc cref="IGMap.Draw(Graphics, Point, float, int, int, bool)"/>
         public void Draw(Graphics graphics, Point origin, float zoom, int width, int height, bool simulationMode)
         {
-            DrawGrid(graphics, origin, zoom, width, height);
             guiMap.Draw(graphics, origin, zoom, width, height, simulationMode);
         }
 
