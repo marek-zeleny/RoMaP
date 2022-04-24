@@ -8,7 +8,15 @@ namespace RoadTrafficSimulator.ValueTypes
     /// </summary>
     readonly struct Acceleration : IComparable<Acceleration>
     {
+        /// <summary>
+        /// Precision coefficient of acceleration relative to SI units (metres per second per second).
+        /// </summary>
+        /// <remarks>
+        /// In order to change the physical quantity's precision, only change this constant and the string unit,
+        /// the rest is done automatically.
+        /// </remarks>
         public const int precision = 1;
+
         private const string unit = "mpss";
         private const int convertToSpeedCoef = Speed.precision / (Time.precision * precision);
         private const int convertToSpeedCoefInverse = Time.precision * precision / Speed.precision;

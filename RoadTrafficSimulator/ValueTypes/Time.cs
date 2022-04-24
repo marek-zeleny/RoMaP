@@ -8,7 +8,15 @@ namespace RoadTrafficSimulator.ValueTypes
     /// </summary>
     readonly struct Time : IComparable<Time>
     {
+        /// <summary>
+        /// Precision coefficient of time relative to SI units (seconds).
+        /// </summary>
+        /// <remarks>
+        /// In order to change the physical quantity's precision, only change this constant and the string unit,
+        /// the rest is done automatically.
+        /// </remarks>
         public const int precision = 1000;
+
         private const string unit = "ms";
         private const int convertToDistanceCoef = Distance.precision / (precision * Speed.precision);
         private const int convertToDistanceCoefInverse = precision * Speed.precision / Distance.precision;

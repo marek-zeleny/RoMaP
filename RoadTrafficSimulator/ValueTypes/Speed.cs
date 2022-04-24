@@ -8,7 +8,15 @@ namespace RoadTrafficSimulator.ValueTypes
     /// </summary>
     readonly struct Speed : IComparable<Speed>
     {
+        /// <summary>
+        /// Precision coefficient of speed relative to SI units (metres per second).
+        /// </summary>
+        /// <remarks>
+        /// In order to change the physical quantity's precision, only change this constant and the string unit,
+        /// the rest is done automatically.
+        /// </remarks>
         public const int precision = 1000;
+
         private const string unit = "mmps";
         private const int convertToTimeCoef = Time.precision * precision / Distance.precision;
         private const int convertToTimeCoefInverse = Distance.precision / (Time.precision * precision);
