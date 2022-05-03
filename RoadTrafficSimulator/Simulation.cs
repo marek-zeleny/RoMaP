@@ -441,8 +441,11 @@ namespace RoadTrafficSimulator
         /// </summary>
         public float GetCarSpawnFrequency(Time simulationTime)
         {
-            int index = carSpawnFrequencyDistribution.Length * (int)simulationTime / (int)Duration;
-            return carSpawnFrequency * carSpawnFrequencyDistribution[index];
+            int index = Math.DivRem(carSpawnFrequencyDistribution.Length * (int)simulationTime, Duration, out int rem);
+            float remRelative = rem / (float)Duration;
+            float distributionCoef = carSpawnFrequencyDistribution[index] * remRelative
+                + carSpawnFrequencyDistribution[index] * (1 - remRelative);
+            return carSpawnFrequency * distributionCoef;
         }
     }
 }
