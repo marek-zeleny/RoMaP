@@ -302,17 +302,23 @@ namespace RoadTrafficSimulator.GUI
             Point centre = CalculatePoint(vector1.from, origin, zoom);
             Point p1 = CalculatePoint(vector1.to, origin, zoom);
             Point p2 = CalculatePoint(vector2.to, origin, zoom);
+            // Translate the system so that the centre is at the origin (0,0)
             p1.Offset(-centre.X, -centre.Y);
             p2.Offset(-centre.X, -centre.Y);
             point.Offset(-centre.X, -centre.Y);
+            // If vector2 comes before vector1 with respect to side of driving, swap the vectors
+            // (counter-clockwise for RHS, clockwise for LHS)
             Point n1 = Normal(p1, sideOfDriving);
             Point n2 = Normal(p2, sideOfDriving);
-            bool switched = DotProduct(p1, n2) < 0;
-            if (switched)
+            bool swapped = DotProduct(p1, n2) < 0;
+            if (swapped)
                 (n1, n2) = (n2, n1);
+            // point is before vector1
+            // (counter-clockwise for RHS driving, clockwise for LHS driving)
             bool before1 = DotProduct(point, n1) > 0;
+            // point is after vector2
             bool after2 = DotProduct(point, n2) < 0;
-            return (before1 || after2) ^ switched;
+            return (before1 || after2) ^ swapped;
         }
     }
 }

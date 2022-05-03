@@ -25,8 +25,6 @@ namespace RoadTrafficSimulator
         private static class Keywords
         {
             public const string sideOfDriving = "sideOfDriving";
-            public const string right = "right";
-            public const string left = "left";
 
             public const string roads = "roads";
             public const string crossroads = "crossroads";
@@ -71,13 +69,7 @@ namespace RoadTrafficSimulator
             Utf8JsonWriter writer = new(stream, writerOptions);
             writer.WriteStartObject();
 
-            string sideOfDriving = guiMap.SideOfDriving switch
-            {
-                RoadSide.Right => Keywords.right,
-                RoadSide.Left => Keywords.left,
-                _ => throw new NotImplementedException(),
-            };
-            writer.WriteString(Keywords.sideOfDriving, sideOfDriving);
+            writer.WriteString(Keywords.sideOfDriving, guiMap.SideOfDriving.ToString());
 
             writer.WriteStartArray(Keywords.roads);
             foreach (var gRoad in guiMap.GetRoads())
@@ -127,17 +119,9 @@ namespace RoadTrafficSimulator
                 return false;
             if (!ParseStringProperty(elements.Current, Keywords.sideOfDriving, out string side))
                 return false;
-            switch (side)
-            {
-                case Keywords.right:
-                    guiMap.SideOfDriving = RoadSide.Right;
-                    break;
-                case Keywords.left:
-                    guiMap.SideOfDriving = RoadSide.Left;
-                    break;
-                default:
-                    return false;
-            }
+            if (!Enum.TryParse(side, out RoadSide sideOfDriving))
+                return false;
+            guiMap.SideOfDriving = sideOfDriving;
             // Load roads
             if (!elements.MoveNext())
                 return false;

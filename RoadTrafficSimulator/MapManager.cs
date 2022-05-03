@@ -76,7 +76,6 @@ namespace RoadTrafficSimulator
                 if (fromRoad == null)
                     continue;
 
-                var mainRoadDirs = gCrossroad.MainRoadDirections;
                 bool isMainRoad = gCrossroad.IsMainRoadDirection(fromDir);
 
                 foreach (var toDir in CoordsConvertor.GetAllowedDirections(gMap.SideOfDriving))
@@ -94,6 +93,7 @@ namespace RoadTrafficSimulator
 
                     var priorFromDirections = priorDirections.TakeWhile(Pred);
                     // Give priority also to both main roads
+                    var mainRoadDirs = gCrossroad.MainRoadDirections;
                     if (mainRoadDirs.HasValue && !isMainRoad)
                     {
                         priorFromDirections = priorFromDirections

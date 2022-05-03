@@ -13,7 +13,9 @@ namespace RoadTrafficSimulator.Components
     /// </summary>
     class PriorityCrossing : ICrossingAlgorithm
     {
-        // Time reserved for a car to surely go through a crossroad
+        /// <summary>
+        /// Time reserved for a car to surely go through a crossroad
+        /// </summary>
         private static readonly Time maxTimeToCross = 4.Seconds();
 
         private Dictionary<Direction, DirectionInfo> directions = new();
