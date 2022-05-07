@@ -14,7 +14,7 @@ namespace RoadTrafficSimulator.Components
         /// <summary>
         /// The maximum allowed number of traffic light settings (phases) for one traffic light
         /// </summary>
-        public const int maxSettingsCount = 5;
+        public const int maxSettingsCount = 6;
 
         private static readonly Time yellowLightDuration = 3.Seconds(); // TODO: mention in thesis
 

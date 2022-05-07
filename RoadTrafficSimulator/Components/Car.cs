@@ -18,8 +18,8 @@ namespace RoadTrafficSimulator.Components
         public static readonly Distance minDistanceBetweenCars = 1.Metres();
 
         private static int nextId = 0;
-        private static readonly Acceleration deceleration = 5.MetresPerSecondPerSecond();
-        private static readonly Acceleration acceleration = 4.MetresPerSecondPerSecond();
+        private static readonly Acceleration deceleration = 4.MetresPerSecondPerSecond();
+        private static readonly Acceleration acceleration = 1600.MillimetresPerSecondPerSecond();
         private static readonly Time reactionTime = 1.Seconds();
 
         /// <summary>

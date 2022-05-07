@@ -314,7 +314,7 @@ namespace RoadTrafficSimulator.Forms
             this.Name = "FormSimulationSettings";
             this.Padding = new System.Windows.Forms.Padding(5, 6, 5, 6);
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "Road Traffic Simulator - Simulation Settings";
+            this.Text = "RoMaP - Simulation Settings";
             this.groupBoxSpawnFrequency.ResumeLayout(false);
             this.groupBoxSpawnFrequency.PerformLayout();
             this.flowLayoutPanelDistribution.ResumeLayout(false);

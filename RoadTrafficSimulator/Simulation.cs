@@ -21,10 +21,15 @@ namespace RoadTrafficSimulator
         public static readonly Time MinTimeStep = 100.Milliseconds();
 
         /// <summary>
-        /// Distribution from which lengths of cars will be randomly generated
+        /// Distribution from which lengths of cars will be randomly generated (in metres)
         /// </summary>
-        /// TODO: change to reflect real car lengths
-        private static readonly int[] carLengthDistribution = new int[] { 2, 3, 3, 3, 3, 4, 4, 10, 10, 15 };
+        private static readonly int[] carLengthDistribution = new int[] {
+            4, 4, 4, 4, 4, 4, 4, 4, 4, 4,   // short passenger cars (50 % -> 10x)
+            5, 5, 5, 5, 5, 5,               // long passenger cars (30 % -> 6x)
+            6, 6,                           // pick-ups (10 % -> 2x)
+            14,                             // lorries (5 % -> 1x)
+            8,                              // trailers (5 % -> 1x)
+        };
 
         /// <summary>
         /// Measures the simulation time.
@@ -259,7 +264,7 @@ namespace RoadTrafficSimulator
         /// </summary>
         private IEnumerable<Crossroad> GetRandomCrossroads()
         {
-            List<Crossroad> crossroads = new List<Crossroad>();
+            List<Crossroad> crossroads = new();
             foreach (Crossroad crossroad in map.GetNodes())
                 for (int i = 0; i < crossroad.CarSpawnRate; i++)
                     crossroads.Add(crossroad);

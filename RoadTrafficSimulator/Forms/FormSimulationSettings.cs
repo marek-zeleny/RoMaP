@@ -25,7 +25,10 @@ namespace RoadTrafficSimulator.Forms
         /// Quotient for converting a value from the frequency track bar to car spawn frequency in cars per crossroad
         /// per second
         /// </summary>
-        private const float carFrequencyQuotient = 0.3f;
+        /// <remarks>
+        /// The value represents 10x the number of new cars per crossroad per second with default settings.
+        /// </remarks>
+        private const float carFrequencyQuotient = 0.015f;
         /// <summary>
         /// Table for converting a track bar value to simulation duration (in hours)
         /// </summary>

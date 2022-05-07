@@ -136,10 +136,11 @@ namespace RoadTrafficSimulator.Components
         public Road(int id, Crossroad from, Crossroad to, Road originalRoad)
             : base(id, from, to)
         {
-            Length = originalRoad.length;
-            MaxSpeed = originalRoad.maxSpeed;
+            MaxSpeed = originalRoad.MaxSpeed; // Needs to be assigned first (see constructor above)
+            Length = originalRoad.Length;
             Weight = originalRoad.Weight;
             lanes = originalRoad.lanes;
+            // Direct access instead of using the property because the lanes are copied from the original road
             laneCount = originalRoad.laneCount;
         }
 

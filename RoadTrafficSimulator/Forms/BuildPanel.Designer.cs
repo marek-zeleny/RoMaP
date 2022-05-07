@@ -297,7 +297,7 @@ namespace RoadTrafficSimulator.Forms
             this.numericUpDownLength.Location = new System.Drawing.Point(76, 5);
             this.numericUpDownLength.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.numericUpDownLength.Maximum = new decimal(new int[] {
-            1000,
+            10000,
             0,
             0,
             0});

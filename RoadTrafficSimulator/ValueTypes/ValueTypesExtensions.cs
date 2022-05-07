@@ -27,6 +27,7 @@ namespace RoadTrafficSimulator.ValueTypes
             public const int kilometresPerHour = metresPerSecond * 10 / 36;
             // Acceleration
             public const int metresPerSecondPerSecond = Acceleration.precision;
+            public const int millimetresPerSecondPerSecond = metresPerSecondPerSecond / 1000;
 
             /// <summary>
             /// Checks that all conversion coefficients are greater than zero, i.e. all conversions are valid.
@@ -44,6 +45,7 @@ namespace RoadTrafficSimulator.ValueTypes
                 Debug.Assert(millimetresPerSecond > 0);
                 Debug.Assert(kilometresPerHour > 0);
                 Debug.Assert(metresPerSecondPerSecond > 0);
+                Debug.Assert(millimetresPerSecondPerSecond > 0);
             }
         }
 
@@ -75,6 +77,9 @@ namespace RoadTrafficSimulator.ValueTypes
         // Acceleration
         public static Acceleration MetresPerSecondPerSecond(this int value) =>
             new(value * Coefficients.metresPerSecondPerSecond);
+
+        public static Acceleration MillimetresPerSecondPerSecond(this int value) =>
+            new(value * Coefficients.millimetresPerSecondPerSecond);
 
         #endregion from_int_to_quant
 

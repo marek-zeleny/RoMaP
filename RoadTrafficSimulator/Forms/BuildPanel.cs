@@ -272,6 +272,7 @@ namespace RoadTrafficSimulator.Forms
             groupBoxRoad.Visible = true;
             if (gRoad.GetRoad().IsConnected)
             {
+                numericUpDownLanes.Enabled = true;
                 numericUpDownLength.Enabled = true;
                 numericUpDownMaxSpeed.Enabled = true;
                 buttonCloseRoad.Visible = true;
@@ -279,6 +280,7 @@ namespace RoadTrafficSimulator.Forms
             }
             else
             {
+                numericUpDownLanes.Enabled = false;
                 numericUpDownLength.Enabled = false;
                 numericUpDownMaxSpeed.Enabled = false;
                 buttonCloseRoad.Visible = false;
