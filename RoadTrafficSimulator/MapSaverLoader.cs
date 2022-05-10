@@ -329,7 +329,8 @@ namespace RoadTrafficSimulator
                     return false;
                 }
             }
-            if (!builder.FinishRoad(forward && backward, out IGRoad gRoad, false))
+            // If we only want a backward road, we need to build a two-way road and delete forward direction
+            if (!builder.FinishRoad(backward, out IGRoad gRoad, false))
             {
                 builder.DestroyRoad();
                 return false;
@@ -337,11 +338,19 @@ namespace RoadTrafficSimulator
 
             var idMappings = new (int, int)?[2];
             if (forward)
+            {
                 if (!Parse(jForward, gRoad, IGRoad.Direction.Forward, ref idMappings[0]))
                     return false;
+            }
+            else
+            {
+                (gRoad as IMutableGRoad).SetRoad(null, IGRoad.Direction.Forward);
+            }
             if (backward)
+            {
                 if (!Parse(jBackward, gRoad, IGRoad.Direction.Backward, ref idMappings[1]))
                     return false;
+            }
             roadIdMappings = idMappings.Where(nullable => nullable.HasValue).Select(nullable => nullable.Value);
             return true;
         }
