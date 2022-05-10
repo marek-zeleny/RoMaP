@@ -30,31 +30,44 @@ namespace RoadTrafficSimulator.Statistics
         /// <summary>
         /// Exports all collected statistics to a given path in the file system.
         /// </summary>
-        public void ExportJson(string path)
+        public void ExportCsv(string path)
         {
             string dirName = $"sim_stats_{DateTime.Now:yyyyMMdd_hhmmss}";
             string dirPath = Path.Combine(path, dirName);
             Directory.CreateDirectory(dirPath);
-            JsonWriterOptions options = new()
-            {
-                Indented = true,
-            };
             foreach (var (source, stats) in data)
             {
-                string fileName = source.Name;
-                string filePath = Path.ChangeExtension(Path.Combine(dirPath, fileName), "json");
-                using (Stream stream = File.OpenWrite(filePath))
-                {
-                    Utf8JsonWriter writer = new(stream, options);
+                string subdirName = source.Name;
+                string subdirPath = Path.Combine(dirPath, subdirName);
 
-                    writer.WriteStartObject();
-                    writer.WriteStartArray($"{source.Name}Statistics");
-                    foreach (var stat in stats)
-                        stat.Serialise(writer);
-                    writer.WriteEndArray();
-                    writer.WriteEndObject();
-                    writer.Flush();
+                // Function to create a file
+                StreamWriter CreateFile(string fileName)
+                {
+                    // Create type-specific subdirectory
+                    if (!Directory.Exists(subdirPath))
+                        Directory.CreateDirectory(subdirPath);
+                    string filePath = Path.Combine(subdirPath, fileName);
+                    return new StreamWriter(filePath);
                 }
+
+                // Function to create a periodic data file
+                StreamWriter CreatePeriodicDataFile(string dataId) => CreateFile($"periodic-data_{dataId}.csv");
+
+                // Skip empty statistics
+                if (stats.Count == 0)
+                    continue;
+                // Export constant-size data
+                string header = stats[0].GetConstantDataHeader();
+                if (header != null)
+                {
+                    using StreamWriter sw = CreateFile("serial-data.csv");
+                    sw.WriteLine(header);
+                    foreach (var stat in stats)
+                        stat.SerialiseConstantData(sw);
+                }
+                // Export periodic data
+                foreach (var stat in stats)
+                    stat.SerialisePeriodicData(CreatePeriodicDataFile);
             }
         }
     }

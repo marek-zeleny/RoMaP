@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text.Json;
 
 namespace RoadTrafficSimulator.Statistics
@@ -34,9 +35,31 @@ namespace RoadTrafficSimulator.Statistics
         }
 
         /// <summary>
-        /// Serialises the collected statistics using a given JSON writer.
+        /// Gets the header of a CSV file for constant-size data collected by this class.
         /// </summary>
-        public abstract void Serialise(Utf8JsonWriter writer);
+        /// <remarks>
+        /// This function should be instance-independent (type-specific), but it cannot be static, because static
+        /// functions cannot be overridden.
+        /// </remarks>
+        /// <returns>
+        /// String containing a CSV header, or <c>null</c> if the class does not collect any constant-size data
+        /// </returns>
+        public abstract string GetConstantDataHeader();
+
+        /// <summary>
+        /// Serialises collected constant-size data into a given writer in a CSV format.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">The class does not collect constant-size data.</exception>
+        public abstract void SerialiseConstantData(TextWriter writer);
+
+        /// <summary>
+        /// Serialises collected periodic data into a text writer in a CSV format.
+        /// </summary>
+        /// <param name="getWriterFunc">
+        /// Function for obtaining the text writer given an instance ID.
+        /// If the class does not collect periodic data, the function is never called.
+        /// </param>
+        public abstract void SerialisePeriodicData(Func<string, TextWriter> getWriterFunc);
 
         #region serialisation_helpers
 
@@ -92,7 +115,7 @@ namespace RoadTrafficSimulator.Statistics
         #region structures
 
         /// <summary>
-        /// Represents a single statistical item (datum).
+        /// Represents a single statistical datum.
         /// </summary>
         /// <typeparam name="T">Type of the stored data</typeparam>
         protected struct Item<T>
@@ -140,6 +163,55 @@ namespace RoadTrafficSimulator.Statistics
             public static implicit operator T(Item<T> item) => item.Get();
 
             public override string ToString() => IsActive ? data.ToString() : string.Empty;
+        }
+
+        /// <summary>
+        /// Represents a list of timestamped statistical data.
+        /// </summary>
+        /// <typeparam name="T">Type of the stored data</typeparam>
+        protected struct ListItem<T>
+        {
+            private readonly List<Timestamp<T>> data;
+            /// <summary>
+            /// Detail level of the statistic; if <see cref="detailSetting"/> is lower, the statistic is not measured
+            /// </summary>
+            public DetailLevel Detail { get; }
+            /// <summary>
+            /// <c>true</c> if the statistic is measured (based on its detail level), otherwise <c>false</c>
+            /// </summary>
+            public bool IsActive { get => detailSetting >= Detail; }
+
+            /// <summary>
+            /// Creates a new list of timestamped data with a given detail level.
+            /// </summary>
+            public ListItem(DetailLevel detail)
+            {
+                Detail = detail;
+                //if (detailSetting < detail)
+                //    data = null;
+                // TODO: this makes logically sense, but it would require to initialise some items before each simulation; consider this
+                data = new List<Timestamp<T>>();
+            }
+
+            /// <summary>
+            /// Gets the list of timestamped data stored in the item.
+            /// </summary>
+            /// <returns>Stored data if the item is active, otherwise <c>null</c></returns>
+            public IReadOnlyList<Timestamp<T>> Get()
+            {
+                return IsActive ? data : default;
+            }
+
+            /// <summary>
+            /// Adds a given timestamped value into the list. If the item is not active, the value is discarded.
+            /// </summary>
+            public void Add(ValueTypes.Time time, T value)
+            {
+                if (IsActive)
+                    data.Add(new Timestamp<T>(time, value));
+            }
+
+            public override string ToString() => IsActive ? $"ListItem: {data.Count}" : string.Empty;
         }
 
         #endregion structures

@@ -5,6 +5,7 @@ using System.Diagnostics;
 
 using RoadTrafficSimulator.ValueTypes;
 using RoadTrafficSimulator.Statistics;
+using System.IO;
 
 namespace RoadTrafficSimulator.Components
 {
@@ -333,8 +334,8 @@ namespace RoadTrafficSimulator.Components
             private Item<Time> finishTime = new(DetailLevel.Low);
             private Item<Distance> distance = new(DetailLevel.Low, 0.Metres());
             private Item<Time> expectedDuration = new(DetailLevel.Low);
-            private Item<List<Timestamp<int>>> roadLog = new(DetailLevel.Medium, new());
-            private Item<List<Timestamp<Speed>>> speedLog = new(DetailLevel.High, new());
+            private ListItem<int> roadLog = new(DetailLevel.Medium);
+            private ListItem<Speed> speedLog = new(DetailLevel.High);
 
             public int CarId { get; }
             public Time StartTime { get => startTime; }
@@ -363,18 +364,18 @@ namespace RoadTrafficSimulator.Components
                 this.CarId = CarId;
                 this.expectedDuration.Set(expectedDuration);
                 startTime.Set(clock.Time);
-                roadLog.Get()?.Add(new Timestamp<int>(clock.Time, firstRoadId));
+                roadLog.Add(clock.Time, firstRoadId);
             }
 
             public void Update(Distance addedDistance, Speed speed)
             {
                 distance.Set(Distance + addedDistance);
-                speedLog.Get()?.Add(new Timestamp<Speed>(clock.Time, speed));
+                speedLog.Add(clock.Time, speed);
             }
 
             public void MovedToNextRoad(int roadId)
             {
-                roadLog.Get()?.Add(new Timestamp<int>(clock.Time, roadId));
+                roadLog.Add(clock.Time, roadId);
             }
 
             public void Finish()
@@ -382,24 +383,88 @@ namespace RoadTrafficSimulator.Components
                 finishTime.Set(clock.Time);
             }
 
-            public override void Serialise(Utf8JsonWriter writer)
+            public override string GetConstantDataHeader()
             {
-                static int SerialiseTime(Time t) => t;
-                static int SerialiseDistance(Distance d) => d;
-                static void SerialiseRoadId(Utf8JsonWriter writer, int id) => writer.WriteNumber("roadId", id);
-                static void SerialiseSpeed(Utf8JsonWriter writer, Speed s) => writer.WriteNumber("speed", s);
+                if (!HasConstantData())
+                    return null;
+                else
+                    return "car ID,start time,finish time,distance,duration,expected duration";
+            }
 
-                writer.WriteStartObject();
-                writer.WriteNumber("id", CarId);
+            public override void SerialiseConstantData(TextWriter writer)
+            {
+                if (!HasConstantData())
+                    throw new InvalidOperationException();
+                else
+                    writer.WriteLine(
+                        $"{CarId}," +
+                        $"{(int)StartTime},{(int)FinishTime},{(int)Distance},{(int)Duration},{(int)ExpectedDuration}");
+            }
 
-                SerialiseIntItem(writer, startTime, nameof(startTime), SerialiseTime);
-                SerialiseIntItem(writer, finishTime, nameof(finishTime), SerialiseTime);
-                SerialiseIntItem(writer, expectedDuration, nameof(expectedDuration), SerialiseTime);
-                SerialiseIntItem(writer, distance, nameof(distance), SerialiseDistance);
-                SerialiseTimestampListItem(writer, roadLog, nameof(roadLog), SerialiseRoadId);
-                SerialiseTimestampListItem(writer, speedLog, nameof(speedLog), SerialiseSpeed);
+            public override void SerialisePeriodicData(Func<string, TextWriter> getWriterFunc)
+            {
+                if (!roadLog.IsActive && !speedLog.IsActive)
+                    return;
+                using TextWriter writer = getWriterFunc(CarId.ToString());
+                // Write CSV header
+                writer.WriteLine("time,current road ID,speed");
+                // Prepare enumerators to write asynchronous data
+                Time time = new();
+                string currRoad = "";
+                string currSpeed = "";
+                IEnumerator<Timestamp<int>> enumRoad = null;
+                IEnumerator<Timestamp<Speed>> enumSpeed = null;
+                bool continueRoad = false;
+                bool continueSpeed = false;
+                if (roadLog.IsActive)
+                {
+                    enumRoad = roadLog.Get().GetEnumerator();
+                    continueRoad = enumRoad.MoveNext();
+                }
+                if (speedLog.IsActive)
+                {
+                    enumSpeed = speedLog.Get().GetEnumerator();
+                    continueSpeed = enumSpeed.MoveNext();
+                }
+                // Write CSV data
+                while (continueRoad && continueSpeed)
+                {
+                    // Move time forward
+                    if (enumSpeed.Current.time <= enumRoad.Current.time)
+                        time = enumSpeed.Current.time;
+                    else
+                        time = enumRoad.Current.time;
+                    // Move road forward
+                    if (enumRoad.Current.time == time)
+                    {
+                        currRoad = enumRoad.Current.data.ToString();
+                        continueRoad = enumRoad.MoveNext();
+                    }
+                    // Move speed forward
+                    if (enumSpeed.Current.time == time)
+                    {
+                        currSpeed = ((int)enumSpeed.Current.data).ToString();
+                        continueSpeed = enumSpeed.MoveNext();
+                    }
+                    // Write line
+                    writer.WriteLine($"{(int)time},{currRoad},{currSpeed}");
+                }
+                // Flush the rest of the data
+                while (continueRoad)
+                {
+                    writer.WriteLine($"{(int)enumRoad.Current.time},{enumRoad.Current.data},{currSpeed}");
+                    continueRoad = enumRoad.MoveNext();
+                }
+                while (continueSpeed)
+                {
+                    writer.WriteLine($"{(int)enumSpeed.Current.time},{currRoad},{(int)enumSpeed.Current.data}");
+                    continueSpeed = enumSpeed.MoveNext();
+                }
+            }
 
-                writer.WriteEndObject();
+            private bool HasConstantData()
+            {
+                return startTime.IsActive || finishTime.IsActive || distance.IsActive || expectedDuration.IsActive;
             }
         }
 

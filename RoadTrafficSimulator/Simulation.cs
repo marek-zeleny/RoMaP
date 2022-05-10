@@ -7,6 +7,7 @@ using System.Threading;
 using RoadTrafficSimulator.Components;
 using RoadTrafficSimulator.ValueTypes;
 using RoadTrafficSimulator.Statistics;
+using System.IO;
 
 namespace RoadTrafficSimulator
 {
@@ -358,29 +359,32 @@ namespace RoadTrafficSimulator
                 dataLog.Get()?.Add(new Timestamp<StatsData>(clock.Time, currentData));
             }
 
-            public override void Serialise(Utf8JsonWriter writer)
+            public override string GetConstantDataHeader()
             {
-                static void SerialiseData(Utf8JsonWriter writer, StatsData data)
+                return null;
+            }
+
+            public override void SerialiseConstantData(TextWriter writer)
+            {
+                throw new InvalidOperationException();
+            }
+
+            public override void SerialisePeriodicData(Func<string, TextWriter> getWriterFunc)
+            {
+                if (!dataLog.IsActive)
+                    return;
+                using TextWriter writer = getWriterFunc("global");
+                // Write CSV header
+                writer.WriteLine("time,cars,active cars,finished cars,stationary cars,average speed,average delay");
+                // Write data
+                foreach (var timestamp in dataLog.Get())
                 {
-                    writer.WriteNumber("carsTotal", data.carsTotal);
-                    writer.WriteNumber("carsActive", data.carsActive);
-                    writer.WriteNumber("carsFinished", data.carsFinished);
-                    writer.WriteNumber("carsWithZeroSpeed", data.carsWithZeroSpeed);
-                    writer.WriteNumber("averageSpeed", data.averageSpeed);
-                    writer.WriteNumber("averageDelay", data.averageDelay);
+                    writer.WriteLine(
+                        $"{(int)timestamp.time},{timestamp.data.carsTotal},{timestamp.data.carsActive}," +
+                        $"{timestamp.data.carsFinished},{timestamp.data.carsWithZeroSpeed}," +
+                        $"{(int)timestamp.data.averageSpeed},{(int)timestamp.data.averageDelay}"
+                        );
                 }
-
-                writer.WriteStartObject();
-
-                writer.WriteNumber("endCarsTotal", CarsTotal);
-                writer.WriteNumber("endCarsActive", CarsActive);
-                writer.WriteNumber("endCarsFinished", CarsFinished);
-                writer.WriteNumber("endCarsWithZeroSpeed", CarsWithZeroSpeed);
-                writer.WriteNumber("endAverageSpeed", AverageSpeed);
-                writer.WriteNumber("endAverageDelay", AverageDelay);
-                SerialiseTimestampListItem(writer, dataLog, "dataLog", SerialiseData);
-
-                writer.WriteEndObject();
             }
         }
 

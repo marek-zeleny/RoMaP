@@ -630,7 +630,7 @@ namespace RoadTrafficSimulator.Forms
         {
             try
             {
-                simulation.StatsCollector.ExportJson(path);
+                simulation.StatsCollector.ExportCsv(path);
                 ShowInfo("Statistics successfully exported.");
             }
             catch (Exception e) when (

@@ -7,6 +7,7 @@ using System.Diagnostics;
 using DataStructures.Graphs;
 using RoadTrafficSimulator.ValueTypes;
 using RoadTrafficSimulator.Statistics;
+using System.IO;
 
 namespace RoadTrafficSimulator.Components
 {
@@ -18,13 +19,11 @@ namespace RoadTrafficSimulator.Components
         public static readonly Distance minLength = 20.Metres();
         public static readonly Speed minMaxSpeed = 10.KilometresPerHour();
         public const int maxLaneCount = 3;
-        private const int averageDurationHistorySize = 10;
 
         private Distance length;
         private Speed maxSpeed;
         private Lane[] lanes;
         private int laneCount;
-        private Queue<Time> averageDurationHistory;
         private RoadStatistics statistics;
 
         /// <summary>
@@ -40,7 +39,6 @@ namespace RoadTrafficSimulator.Components
                 else
                     length = value;
                 Weight = (Length / MaxSpeed).Weight();
-                AverageDuration = Length / MaxSpeed;
             }
         }
         /// <summary>
@@ -56,15 +54,9 @@ namespace RoadTrafficSimulator.Components
                 else
                     maxSpeed = value;
                 Weight = (Length / MaxSpeed).Weight();
-                AverageDuration = Length / MaxSpeed;
                 AverageSpeed = MaxSpeed;
             }
         }
-        /// <summary>
-        /// Average duration of a car's travel through the road, computed as a mean value of the last few cars that
-        /// reached the end
-        /// </summary>
-        public Time AverageDuration { get; private set; }
         /// <summary>
         /// Average speed of cars currently on the road
         /// </summary>
@@ -161,9 +153,7 @@ namespace RoadTrafficSimulator.Components
         {
             for (int i = 0; i < LaneCount; i++)
                 lanes[i].Initialise();
-            AverageDuration = Length / MaxSpeed;
             AverageSpeed = MaxSpeed;
-            averageDurationHistory = new Queue<Time>(averageDurationHistorySize);
             statistics = new RoadStatistics(collector, clock, Id);
             return true;
         }
@@ -199,17 +189,8 @@ namespace RoadTrafficSimulator.Components
         public void GetOff(Car car)
         {
             for (int i = 0; i < LaneCount; i++)
-            {
-                if (lanes[i].TryGetOff(this, car, out Time duration))
-                {
-                    if (averageDurationHistory.Count >= averageDurationHistorySize)
-                        averageDurationHistory.Dequeue();
-                    averageDurationHistory.Enqueue(duration);
-                    Time totalDuration = averageDurationHistory.Aggregate((acc, dur) => acc + dur);
-                    AverageDuration = totalDuration / averageDurationHistory.Count;
+                if (lanes[i].TryGetOff(this, car))
                     return;
-                }
-            }
             throw new ArgumentException("The car must be first in a lane to get off the road.", nameof(car));
         }
 
@@ -236,7 +217,7 @@ namespace RoadTrafficSimulator.Components
             else
                 AverageSpeed = totalSpeed / carCount;
             Debug.Assert(AverageSpeed >= 0);
-            statistics.Update(CarCount, AverageSpeed, AverageDuration);
+            statistics.Update(CarCount, AverageSpeed);
         }
 
         #endregion methods
@@ -250,12 +231,11 @@ namespace RoadTrafficSimulator.Components
         {
             private Car firstCar;
             private Car lastCar;
-            private Queue<Time> arriveTimes;
 
             /// <summary>
             /// Number of cars currently on the lane
             /// </summary>
-            public int CarCount { get => arriveTimes.Count; }
+            public int CarCount { get; private set; }
 
             /// <summary>
             /// Initialises the lane before simulation start.
@@ -264,7 +244,6 @@ namespace RoadTrafficSimulator.Components
             {
                 firstCar = null;
                 lastCar = null;
-                arriveTimes = new Queue<Time>();
             }
 
             /// <summary>
@@ -278,8 +257,7 @@ namespace RoadTrafficSimulator.Components
             }
 
             /// <summary>
-            /// Tries to place a given car at the beginning of the lane. If successful, takes care of updating
-            /// statistics.
+            /// Tries to place a given car at the beginning of the lane.
             /// </summary>
             /// <param name="road">Road that contains this lane</param>
             /// <param name="carInFront">
@@ -297,32 +275,25 @@ namespace RoadTrafficSimulator.Components
                 else
                     lastCar.SetCarBehind(road, car);
                 lastCar = car;
-                Time time = road.statistics.CarGotOn(car.Id);
-                arriveTimes.Enqueue(time);
+                CarCount++;
                 return true;
             }
 
             /// <summary>
-            /// Tries to remove a given car from the end of the lane. If successful, takes care of updating statistics.
+            /// Tries to remove a given car from the end of the lane.
             /// </summary>
             /// <param name="road">Road that contains this lane</param>
-            /// <param name="travelDuration">
-            /// If successful, returns the simulation time at which the car arrived at the lane; undefined otherwise
-            /// </param>
             /// <returns><c>true</c> if the car was successfully removed, otherwise <c>false</c></returns>
-            public bool TryGetOff(Road road, Car car, out Time travelDuration)
+            public bool TryGetOff(Road road, Car car)
             {
                 if (car != firstCar)
-                {
-                    travelDuration = default;
                     return false;
-                }
                 firstCar = firstCar.CarBehind;
                 if (firstCar == null)
                     lastCar = null;
                 else
                     firstCar.RemoveCarInFront(road);
-                travelDuration = road.statistics.CarGotOff(car.Id, arriveTimes.Dequeue());
+                CarCount--;
                 return true;
             }
 
@@ -356,28 +327,9 @@ namespace RoadTrafficSimulator.Components
             /// </summary>
             public int RoadId { get; }
             /// <summary>
-            /// Records each car that passes through the road together with its arrival and leaving times
-            /// </summary>
-            public IReadOnlyList<Timestamp<CarPassage>> CarLog { get; }
-            /// <summary>
             /// Periodically records throughput metrics of the road.
             /// </summary>
             public IReadOnlyList<Timestamp<Throughput>> ThroughputLog { get; }
-        }
-
-        /// <summary>
-        /// Captures a car's passage through a road.
-        /// </summary>
-        public readonly struct CarPassage
-        {
-            public readonly int carId;
-            public readonly Time arriveTime;
-
-            public CarPassage(int carId, Time arriveTime)
-            {
-                this.carId = carId;
-                this.arriveTime = arriveTime;
-            }
         }
 
         /// <summary>
@@ -387,23 +339,19 @@ namespace RoadTrafficSimulator.Components
         {
             public readonly int carCount;
             public readonly Speed averageSpeed;
-            public readonly Time averageDuration;
 
-            public Throughput(int carCount, Speed averageSpeed, Time averageDuration)
+            public Throughput(int carCount, Speed averageSpeed)
             {
                 this.carCount = carCount;
                 this.averageSpeed = averageSpeed;
-                this.averageDuration = averageDuration;
             }
         }
 
         private class RoadStatistics : StatisticsBase, IRoadStatistics
         {
-            private Item<List<Timestamp<CarPassage>>> carLog = new(DetailLevel.Medium, new());
             private Item<List<Timestamp<Throughput>>> throughputLog = new(DetailLevel.High, new());
 
             public int RoadId { get; }
-            public IReadOnlyList<Timestamp<CarPassage>> CarLog { get => carLog.Get(); }
             public IReadOnlyList<Timestamp<Throughput>> ThroughputLog { get => throughputLog.Get(); }
 
             public RoadStatistics(StatisticsCollector collector, IClock clock, int roadId)
@@ -412,52 +360,36 @@ namespace RoadTrafficSimulator.Components
                 RoadId = roadId;
             }
 
-            public void Update(int carCount, Speed averageSpeed, Time averageDuration)
+            public void Update(int carCount, Speed averageSpeed)
             {
                 throughputLog.Get()?.Add(new Timestamp<Throughput>(
-                    clock.Time, new Throughput(carCount, averageSpeed, averageDuration)));
+                    clock.Time, new Throughput(carCount, averageSpeed)));
             }
 
-            /// <summary>
-            /// Registers that a car arrived at the road.
-            /// </summary>
-            /// <returns>Current simulation time</returns>
-            public Time CarGotOn(int carId)
+            public override string GetConstantDataHeader()
             {
-                return clock.Time;
+                return null;
             }
 
-            /// <summary>
-            /// Registers that a car left the road.
-            /// </summary>
-            /// <returns>Duration of the car's passage through the road</returns>
-            public Time CarGotOff(int carId, Time arriveTime)
+            public override void SerialiseConstantData(TextWriter writer)
             {
-                carLog.Get()?.Add(new Timestamp<CarPassage>(clock.Time, new CarPassage(carId, arriveTime)));
-                return clock.Time - arriveTime;
+                throw new InvalidOperationException();
             }
 
-            public override void Serialise(Utf8JsonWriter writer)
+            public override void SerialisePeriodicData(Func<string, TextWriter> getWriterFunc)
             {
-                static void SerialiseCarPassage(Utf8JsonWriter writer, CarPassage passage)
+                if (!throughputLog.IsActive)
+                    return;
+                using TextWriter writer = getWriterFunc(RoadId.ToString());
+                // Write CSV header
+                writer.WriteLine("time,car count,average speed");
+                // Write data
+                foreach (var timestamp in throughputLog.Get())
                 {
-                    writer.WriteNumber("arriveTime", passage.arriveTime);
-                    writer.WriteNumber("carId", passage.carId);
+                    writer.WriteLine(
+                        $"{(int)timestamp.time},{timestamp.data.carCount},{(int)timestamp.data.averageSpeed}"
+                        );
                 }
-                static void SerialiseThroughput(Utf8JsonWriter writer, Throughput throughput)
-                {
-                    writer.WriteNumber("carCount", throughput.carCount);
-                    writer.WriteNumber("averageSpeed", throughput.averageSpeed);
-                    writer.WriteNumber("averageDuration", throughput.averageDuration);
-                }
-
-                writer.WriteStartObject();
-                writer.WriteNumber("id", RoadId);
-
-                SerialiseTimestampListItem(writer, carLog, "carLog", SerialiseCarPassage);
-                SerialiseTimestampListItem(writer, throughputLog, "throughputLog", SerialiseThroughput);
-
-                writer.WriteEndObject();
             }
         }
 
