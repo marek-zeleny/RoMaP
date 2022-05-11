@@ -64,9 +64,7 @@ namespace RoadTrafficSimulator.Forms
         {
             this.crossroad = crossroad;
             trafficLight = crossroad.crossroad.TrafficLight;
-            zoom = CalculateZoom();
-            Point offset = CoordsConvertor.CalculatePoint(crossroad.crossroad.Id, new Point(0, 0), zoom);
-            origin = new Point(panelMap.Width / 2 - offset.X, panelMap.Height / 2 - offset.Y);
+            UpdateMapPositioning();
             InitialiseComboBoxSetting();
             InitialiseComboBoxMainRoad();
         }
@@ -90,6 +88,13 @@ namespace RoadTrafficSimulator.Forms
             SelectRoad(e.Location);
             panelMap.Invalidate();
             MapClicked?.Invoke(sender, e);
+        }
+
+        private void panelMap_Resize(object sender, EventArgs e)
+        {
+            if (panelMap.Height != panelMap.Width)
+                panelMap.Height = panelMap.Width;
+            UpdateMapPositioning();
         }
 
         private void checkBoxActivateTrafficLight_CheckedChanged(object sender, EventArgs e)
@@ -297,14 +302,18 @@ namespace RoadTrafficSimulator.Forms
             }
         }
 
-        /// <summary>
-        /// Calculates zoom for the map to only show the crossroad being set up.
-        /// </summary>
-        private float CalculateZoom()
+        private void UpdateMapPositioning()
         {
+            // Calculate zoom for the map to only show the crossroad being set up.
             float fullRoadSize = Math.Min(panelMap.Width, panelMap.Height) / 2;
             float fullZoom = fullRoadSize / CoordsConvertor.gridSize;
-            return fullZoom / roadPercentageInView;
+            zoom = fullZoom / roadPercentageInView;
+            // Centre on the crossroad
+            if (crossroad.crossroad != null)
+            {
+                Point offset = CoordsConvertor.CalculatePoint(crossroad.crossroad.Id, new Point(0, 0), zoom);
+                origin = new Point(panelMap.Width / 2 - offset.X, panelMap.Height / 2 - offset.Y);
+            }
         }
 
         #endregion helper_methods
