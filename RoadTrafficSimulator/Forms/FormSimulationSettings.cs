@@ -156,7 +156,7 @@ namespace RoadTrafficSimulator.Forms
             {
                 // Reverse order because of reversed docking order of spawnFrequencyBars in the form
                 TrackBar bar = spawnFrequencyBars[^(i + 1)];
-                spawnFrequencyDistribution[i] = ((float)bar.Value / bar.Maximum);
+                spawnFrequencyDistribution[i] = 2f * bar.Value / bar.Maximum;
             }
             Settings = new SimulationSettings(duration, navigationRate, statsDetail, spawnFrequency,
                 spawnFrequencyDistribution);

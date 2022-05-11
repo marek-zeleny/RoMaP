@@ -433,7 +433,7 @@ namespace RoadTrafficSimulator
         /// </summary>
         private readonly float carSpawnFrequency;
         /// <summary>
-        /// Relative distribution through time (values from interval (0, 1])
+        /// Relative distribution through time (values from interval (0, 2])
         /// </summary>
         private readonly float[] carSpawnFrequencyDistribution;
 
@@ -464,7 +464,7 @@ namespace RoadTrafficSimulator
         /// <param name="statsDetail">Maximum detail level of statistics that should be collected</param>
         /// <param name="carSpawnFrequency">New cars per crossroad per second</param>
         /// <param name="carSpawnFrequencyDistribution">
-        /// Relative distribution through time (values from interval (0, 1])
+        /// Relative distribution through time (values from interval (0, 2])
         /// </param>
         public SimulationSettings(Time duration, float activeNavigationRate, StatisticsBase.DetailLevel statsDetail,
             float carSpawnFrequency, float[] carSpawnFrequencyDistribution)
