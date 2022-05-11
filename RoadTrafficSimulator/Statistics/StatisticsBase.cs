@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 
+using RoadTrafficSimulator.ValueTypes;
+
 namespace RoadTrafficSimulator.Statistics
 {
     /// <summary>
@@ -131,8 +133,11 @@ namespace RoadTrafficSimulator.Statistics
             public bool IsActive { get => detailSetting >= Detail; }
 
             /// <summary>
-            /// Creates a new statistical item with a given detail level and optionally an initial value.
+            /// Creates a new statistical item, optionally with an initial value.
             /// </summary>
+            /// <param name="detail">
+            /// Detail level of the statistic; if <see cref="detailSetting"/> is lower, the statistic is not measured
+            /// </param>
             public Item(DetailLevel detail, T data = default)
             {
                 Detail = detail;
@@ -182,8 +187,11 @@ namespace RoadTrafficSimulator.Statistics
             public bool IsActive { get => detailSetting >= Detail; }
 
             /// <summary>
-            /// Creates a new list of timestamped data with a given detail level.
+            /// Creates a new list of timestamped data.
             /// </summary>
+            /// <param name="detail">
+            /// Detail level of the statistic; if <see cref="detailSetting"/> is lower, the statistic is not measured
+            /// </param>
             public ListItem(DetailLevel detail)
             {
                 Detail = detail;
@@ -205,13 +213,118 @@ namespace RoadTrafficSimulator.Statistics
             /// <summary>
             /// Adds a given timestamped value into the list. If the item is not active, the value is discarded.
             /// </summary>
-            public void Add(ValueTypes.Time time, T value)
+            public void Add(Time time, T value)
             {
                 if (IsActive)
                     data.Add(new Timestamp<T>(time, value));
             }
 
             public override string ToString() => IsActive ? $"ListItem: {data.Count}" : string.Empty;
+        }
+
+        /// <summary>
+        /// Represents a list of timestamped statistical data that only stores data accumulated and aggregated over
+        /// some period of time.
+        /// </summary>
+        /// <typeparam name="T">Type of the stored data</typeparam>
+        protected struct CumulativeListItem<T>
+        {
+            private readonly ListItem<T> data;
+            private readonly Time accumInterval;
+            private readonly Func<T, T, T> accumulate;
+            private readonly Func<T, int, T> aggregate;
+
+            private T accumulator;
+            private int accumCount;
+            private int lastAccumIdx;
+
+            /// <summary>
+            /// Detail level of the statistic; if <see cref="detailSetting"/> is lower, the statistic is not measured
+            /// </summary>
+            public DetailLevel Detail { get => data.Detail; }
+            /// <summary>
+            /// <c>true</c> if the statistic is measured (based on its detail level), otherwise <c>false</c>
+            /// </summary>
+            public bool IsActive { get => data.IsActive; }
+
+            /// <summary>
+            /// Creates a new list accumulating timestamped statistical data.
+            /// </summary>
+            /// <param name="detail">
+            /// Detail level of the statistic; if <see cref="detailSetting"/> is lower, the statistic is not measured
+            /// </param>
+            /// <param name="accumInterval">Time interval over which the data is accumulated</param>
+            /// <param name="accumulate">Function for accumulating data</param>
+            /// <param name="aggregate">Function for aggregating a stored result from accumulated data</param>
+            public CumulativeListItem(DetailLevel detail, Time accumInterval,
+                Func<T, T, T> accumulate, Func<T, int, T> aggregate)
+            {
+                data = new ListItem<T>(detail);
+                this.accumInterval = accumInterval;
+                this.accumulate = accumulate;
+                this.aggregate = aggregate;
+                accumulator = default;
+                accumCount = 0;
+                lastAccumIdx = 0;
+            }
+
+            /// <summary>
+            /// Gets the list of timestamped data stored in the item.
+            /// </summary>
+            /// <returns>Stored data if the item is active, otherwise <c>null</c></returns>
+            public IReadOnlyList<Timestamp<T>> Get() => data.Get();
+
+            /// <summary>
+            /// Accumulates a given timestamped value. If the item is not active, the value is discarded.
+            /// If the accumulation interval has been exceeded since the last accumulation, the aggregates a value from
+            /// the accumulated data and stores it into the list.
+            /// </summary>
+            public void Add(Time time, T value)
+            {
+                if (!IsActive)
+                    return;
+                int accumIdx = (int)time / accumInterval;
+                // No data accumulated yet
+                if (accumCount == 0)
+                {
+                    accumulator = value;
+                    lastAccumIdx = accumIdx;
+                    accumCount = 1;
+                    return;
+                }
+                // Aggregating and adding to data
+                if (accumIdx > lastAccumIdx)
+                {
+                    data.Add(accumIdx * accumInterval, aggregate(accumulator, accumCount));
+                    accumulator = value;
+                    accumCount = 1;
+                    lastAccumIdx = accumIdx;
+                }
+                // Accumulating
+                else
+                {
+                    accumulator = accumulate(accumulator, value);
+                    accumCount++;
+                }
+            }
+
+            /// <summary>
+            /// Flushes accumulated data, aggregates a value and stores it into the list.
+            /// </summary>
+            public void Flush(Time time)
+            {
+                if (!IsActive || accumCount == 0)
+                    return;
+                int accumIdx = (int)time / accumInterval;
+                if (accumIdx <= lastAccumIdx)
+                    accumIdx = lastAccumIdx + 1;
+                data.Add(accumIdx * accumInterval, aggregate(accumulator, accumCount));
+                accumulator = default;
+                accumCount = 0;
+                lastAccumIdx = accumIdx;
+            }
+
+            public override string ToString() => data.ToString();
         }
 
         #endregion structures

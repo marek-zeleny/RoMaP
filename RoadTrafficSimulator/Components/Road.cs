@@ -154,7 +154,7 @@ namespace RoadTrafficSimulator.Components
             for (int i = 0; i < LaneCount; i++)
                 lanes[i].Initialise();
             AverageSpeed = MaxSpeed;
-            statistics = new RoadStatistics(collector, clock, Id);
+            statistics = new RoadStatistics(collector, clock, Id, FromNode.Id, ToNode.Id);
             return true;
         }
 
@@ -349,38 +349,45 @@ namespace RoadTrafficSimulator.Components
 
         private class RoadStatistics : StatisticsBase, IRoadStatistics
         {
-            private Item<List<Timestamp<Throughput>>> throughputLog = new(DetailLevel.High, new());
+            private CumulativeListItem<Throughput> throughputLog = new(DetailLevel.High, 1.Seconds(),
+                (t1, t2) => new Throughput(t1.carCount + t2.carCount, t1.averageSpeed + t2.averageSpeed),
+                (t, n) => new Throughput(t.carCount / n, t.averageSpeed / n)
+                );
 
             public int RoadId { get; }
+            public Coords From { get; }
+            public Coords To { get; }
             public IReadOnlyList<Timestamp<Throughput>> ThroughputLog { get => throughputLog.Get(); }
 
-            public RoadStatistics(StatisticsCollector collector, IClock clock, int roadId)
+            public RoadStatistics(StatisticsCollector collector, IClock clock, int roadId, Coords from, Coords to)
                 : base(collector, typeof(Road), clock)
             {
                 RoadId = roadId;
+                From = from;
+                To = to;
             }
 
             public void Update(int carCount, Speed averageSpeed)
             {
-                throughputLog.Get()?.Add(new Timestamp<Throughput>(
-                    clock.Time, new Throughput(carCount, averageSpeed)));
+                throughputLog.Add(clock.Time, new Throughput(carCount, averageSpeed));
             }
 
             public override string GetConstantDataHeader()
             {
-                return null;
+                return "road ID,from crossroad X,from crossroad Y,to crossroad X,to crossroad Y";
             }
 
             public override void SerialiseConstantData(TextWriter writer)
             {
-                throw new InvalidOperationException();
+                writer.WriteLine($"{RoadId},{From.x},{From.y},{To.x},{To.y}");
             }
 
             public override void SerialisePeriodicData(Func<string, TextWriter> getWriterFunc)
             {
                 if (!throughputLog.IsActive)
                     return;
-                using TextWriter writer = getWriterFunc(RoadId.ToString());
+                throughputLog.Flush(clock.Time);
+                using TextWriter writer = getWriterFunc($"road-{RoadId}");
                 // Write CSV header
                 writer.WriteLine("time,car count,average speed");
                 // Write data

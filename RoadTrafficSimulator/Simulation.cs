@@ -337,8 +337,26 @@ namespace RoadTrafficSimulator
 
         private class GlobalStatistics : StatisticsBase, IGlobalStatistics
         {
+            private static StatsData AddStats(StatsData sd1, StatsData sd2) => new(
+                sd1.carsTotal + sd2.carsTotal,
+                sd1.carsActive + sd2.carsActive,
+                sd1.carsFinished + sd2.carsFinished,
+                sd1.carsWithZeroSpeed + sd2.carsWithZeroSpeed,
+                sd1.averageSpeed + sd2.averageSpeed,
+                sd1.averageDelay + sd2.averageDelay
+                );
+
+            private static StatsData DivideStats(StatsData sd, int n) => new(
+                sd.carsTotal / n,
+                sd.carsActive / n,
+                sd.carsFinished / n,
+                sd.carsWithZeroSpeed / n,
+                sd.averageSpeed / n,
+                sd.averageDelay / n
+                );
+
             private StatsData currentData;
-            private Item<List<Timestamp<StatsData>>> dataLog = new(DetailLevel.Medium, new());
+            private CumulativeListItem<StatsData> dataLog = new(DetailLevel.Medium, 1.Seconds(), AddStats, DivideStats);
 
             public int CarsTotal { get => currentData.carsTotal; }
             public int CarsActive { get => currentData.carsActive; }
@@ -356,7 +374,7 @@ namespace RoadTrafficSimulator
             {
                 currentData = new StatsData(carsTotal, carsActive, carsFinished, carsWithZeroSpeed,
                     averageSpeed, averageDelay);
-                dataLog.Get()?.Add(new Timestamp<StatsData>(clock.Time, currentData));
+                dataLog.Add(clock.Time, currentData);
             }
 
             public override string GetConstantDataHeader()
@@ -373,6 +391,7 @@ namespace RoadTrafficSimulator
             {
                 if (!dataLog.IsActive)
                     return;
+                dataLog.Flush(clock.Time);
                 using TextWriter writer = getWriterFunc("global");
                 // Write CSV header
                 writer.WriteLine("time,cars,active cars,finished cars,stationary cars,average speed,average delay");

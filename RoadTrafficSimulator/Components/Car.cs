@@ -335,7 +335,10 @@ namespace RoadTrafficSimulator.Components
             private Item<Distance> distance = new(DetailLevel.Low, 0.Metres());
             private Item<Time> expectedDuration = new(DetailLevel.Low);
             private ListItem<int> roadLog = new(DetailLevel.Medium);
-            private ListItem<Speed> speedLog = new(DetailLevel.High);
+            private CumulativeListItem<Speed> speedLog = new(DetailLevel.High, 1.Seconds(),
+                (s1, s2) => s1 + s2,
+                (s, n) => s / n
+                );
 
             public int CarId { get; }
             public Time StartTime { get => startTime; }
@@ -381,6 +384,7 @@ namespace RoadTrafficSimulator.Components
             public void Finish()
             {
                 finishTime.Set(clock.Time);
+                speedLog.Flush(clock.Time);
             }
 
             public override string GetConstantDataHeader()
@@ -405,7 +409,7 @@ namespace RoadTrafficSimulator.Components
             {
                 if (!roadLog.IsActive && !speedLog.IsActive)
                     return;
-                using TextWriter writer = getWriterFunc(CarId.ToString());
+                using TextWriter writer = getWriterFunc($"car-{CarId}");
                 // Write CSV header
                 writer.WriteLine("time,current road ID,speed");
                 // Prepare enumerators to write asynchronous data
