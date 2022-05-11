@@ -3,7 +3,7 @@
 namespace DataStructures.Graphs
 {
     /// <summary>
-    /// Exception that is thrown when an error related to <see cref="IReadOnlyGraph{TNodeId, TEdgeId}"/> occures.
+    /// Exception that is thrown when an error related to <see cref="IReadOnlyGraph{TNodeId, TEdgeId}"/> occurs.
     /// </summary>
     public class GraphException<TNodeId, TEdgeId>
         : Exception
@@ -78,6 +78,21 @@ namespace DataStructures.Graphs
         /// </summary>
         public InconsistentGraphException()
             : base()
+        {}
+
+        /// <summary>
+        /// Indicates a new exception with a given <paramref name="message"/>, <paramref name="graph"/>, and optionally
+        /// <paramref name="innerException"/>.
+        /// </summary>
+        /// <inheritdoc
+        /// cref="GraphException{TNodeId, TEdgeId}.GraphException(string, IReadOnlyGraph{TNodeId, TEdgeId}, Exception)"
+        /// />
+        public InconsistentGraphException(
+            string message,
+            IReadOnlyGraph<TNodeId, TEdgeId> graph,
+            Exception innerException = null
+            )
+            : base(message, graph, innerException)
         {}
 
         /// <summary>

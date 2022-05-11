@@ -15,6 +15,64 @@ namespace DataStructures.Graphs
         #region interface
 
         /// <summary>
+        /// Determines whether a <see cref="IReadOnlyGraph{TNodeId, TEdgeId}"/> is strongly connected, i.e. there exists
+        /// a path between any two nodes.
+        /// </summary>
+        /// <remarks>
+        /// Time complexity of this algorithm is O(n + m).
+        /// </remarks>
+        /// <param name="graph"><see cref="IReadOnlyGraph{TNodeId, TEdgeId}"/> to check</param>
+        /// <returns><c>true</c> if <paramref name="graph"/> is strongly connected, otherwise <c>false</c></returns>
+        /// <exception cref="InconsistentGraphException{TNodeId, TEdgeId}">
+        /// <paramref name="graph"/> is not consistent.
+        /// </exception>
+        /// <inheritdoc cref="IReadOnlyGraph{TNodeId, TEdgeId}"/>
+        public static bool IsStronglyConnected<TNodeId, TEdgeId>(this IReadOnlyGraph<TNodeId, TEdgeId> graph)
+            where TNodeId : IEquatable<TNodeId>
+            where TEdgeId : IEquatable<TEdgeId>
+        {
+            if (graph.NodeCount == 0)
+                return true;
+            // Initialisation
+            IReadOnlyNode<TNodeId, TEdgeId> source = graph.GetNodes().First();
+            HashSet<IReadOnlyNode<TNodeId, TEdgeId>> visitedNodes = new();
+            Stack<IReadOnlyNode<TNodeId, TEdgeId>> processedNodes = new();
+            processedNodes.Push(source);
+            // Forward DFS
+            while (processedNodes.TryPop(out var node))
+            {
+                visitedNodes.Add(node);
+                foreach (var edge in node.GetOutEdges())
+                    if (!visitedNodes.Contains(edge.ToNode))
+                        processedNodes.Push(edge.ToNode);
+            }
+            // Check if we visited all nodes
+            if (visitedNodes.Count < graph.NodeCount)
+                return false;
+            else if (visitedNodes.Count > graph.NodeCount)
+                throw new InconsistentGraphException<TNodeId, TEdgeId>(
+                    "DFS algorithm discovered more nodes than the graph contains.", graph);
+            // Re-initialisation
+            visitedNodes.Clear();
+            processedNodes.Push(source);
+            // Backward DFS
+            while (processedNodes.TryPop(out var node))
+            {
+                visitedNodes.Add(node);
+                foreach (var edge in node.GetInEdges())
+                    if (!visitedNodes.Contains(edge.FromNode))
+                        processedNodes.Push(edge.FromNode);
+            }
+            // Check if we visited all nodes again
+            if (visitedNodes.Count > graph.NodeCount)
+                throw new InconsistentGraphException<TNodeId, TEdgeId>(
+                    "DFS algorithm discovered more nodes than the graph contains.", graph);
+            return visitedNodes.Count == graph.NodeCount;
+        }
+
+        #region path_algorithms
+
+        /// <summary>
         /// Classification types of graphs.
         /// </summary>
         public enum GraphType
@@ -248,9 +306,13 @@ namespace DataStructures.Graphs
             };
         }
 
+        #endregion path_algorithms
+
         #endregion interface
 
         #region implementation
+
+        #region path_algorithms
 
         /// <summary>
         /// Finds shortest paths in a <see cref="IReadOnlyGraph{TNodeId, TEdgeId}"/> with non-negative weights from a
@@ -371,6 +433,8 @@ namespace DataStructures.Graphs
             }
             return solvedNodes;
         }
+
+        #endregion path_algorithms
 
         #endregion implementation
     }
