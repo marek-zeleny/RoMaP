@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
@@ -10,20 +11,17 @@ using RoadTrafficSimulator.ValueTypes;
 
 namespace RoadTrafficSimulator.Forms
 {
-    /// <summary>
-    /// Represents a form for setting up traffic lights and main roads at crossroads.
-    /// </summary>
-    public partial class FormTrafficLight : Form
+    public partial class TrafficLightPanel : UserControl
     {
         private const float roadPercentageInView = 0.8f;
 
-        private readonly float zoom;
-        private readonly MapManager mapManager;
-        private readonly MapManager.CrossroadWrapper crossroad;
-        private readonly TrafficLight trafficLight;
         private readonly Dictionary<CheckBox, CoordsConvertor.Direction> checkBoxDirections;
-        private readonly Point origin;
 
+        private Point origin;
+        private float zoom;
+        private MapManager mapManager;
+        private MapManager.CrossroadWrapper crossroad;
+        private TrafficLight trafficLight;
         private List<(CoordsConvertor.Direction, CoordsConvertor.Direction)?> mainRoadOptions = new();
         private TrafficLight.Setting currentSetting;
         private IGRoad selectedRoad;
@@ -31,27 +29,18 @@ namespace RoadTrafficSimulator.Forms
         private bool freezeDuration;
 
         /// <summary>
-        /// Creates a new traffic light form.
+        /// Creates a new traffic light panel.
         /// </summary>
-        /// <param name="mapManager">Map manager to work with</param>
-        /// <param name="crossroad">Crossroad to set up</param>
-        internal FormTrafficLight(MapManager mapManager, MapManager.CrossroadWrapper crossroad)
+        public TrafficLightPanel()
         {
             InitializeComponent();
-            // Disable form resizing via maximizing the window, disable minimizing the window
-            MaximizeBox = false;
-            MinimizeBox = false;
             // Enable double-buffering for panelMap
             typeof(Panel).InvokeMember("DoubleBuffered",
                 System.Reflection.BindingFlags.SetProperty |
                 System.Reflection.BindingFlags.Instance |
                 System.Reflection.BindingFlags.NonPublic,
                 null, panelMap, new object[] { true });
-            zoom = CalculateZoom();
 
-            this.mapManager = mapManager;
-            this.crossroad = crossroad;
-            trafficLight = crossroad.crossroad.TrafficLight;
             checkBoxDirections = new Dictionary<CheckBox, CoordsConvertor.Direction>()
             {
                 { checkBoxUp, CoordsConvertor.Direction.Up },
@@ -59,32 +48,62 @@ namespace RoadTrafficSimulator.Forms
                 { checkBoxLeft, CoordsConvertor.Direction.Left },
                 { checkBoxRight, CoordsConvertor.Direction.Right },
             };
+        }
+
+        [Browsable(true)]
+        [Category("Action")]
+        [Description("Occurs when the map is clicked.")]
+        public event EventHandler MapClicked;
+
+        internal void Initialise(MapManager mapManager)
+        {
+            this.mapManager = mapManager;
+        }
+
+        internal void Activate(MapManager.CrossroadWrapper crossroad)
+        {
+            this.crossroad = crossroad;
+            trafficLight = crossroad.crossroad.TrafficLight;
+            zoom = CalculateZoom();
             Point offset = CoordsConvertor.CalculatePoint(crossroad.crossroad.Id, new Point(0, 0), zoom);
             origin = new Point(panelMap.Width / 2 - offset.X, panelMap.Height / 2 - offset.Y);
             InitialiseComboBoxSetting();
             InitialiseComboBoxMainRoad();
         }
 
+        internal void Deactivate()
+        {
+            crossroad = default;
+            trafficLight = null;
+            UnselectRoad();
+        }
+
         #region form_events
 
         private void panelMap_Paint(object sender, PaintEventArgs e)
         {
-            mapManager.Draw(e.Graphics, origin, zoom, panelMap.Width, panelMap.Height, false);
+            mapManager?.Draw(e.Graphics, origin, zoom, panelMap.Width, panelMap.Height, false);
         }
 
         private void panelMap_MouseClick(object sender, MouseEventArgs e)
         {
             SelectRoad(e.Location);
             panelMap.Invalidate();
+            MapClicked?.Invoke(sender, e);
+        }
+
+        private void checkBoxActivateTrafficLight_CheckedChanged(object sender, EventArgs e)
+        {
+            if (checkBoxActivateTrafficLight.Checked)
+                crossroad.crossroad.ActivateTrafficLight();
+            else
+                crossroad.crossroad.DeactivateTrafficLight();
         }
 
         private void comboBoxSetting_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (comboBoxSetting.SelectedIndex == 0)
-                currentSetting = null;
-            else
-                currentSetting = trafficLight.Settings[comboBoxSetting.SelectedIndex - 1];
-            ShowProperties();
+            currentSetting = trafficLight.Settings[comboBoxSetting.SelectedIndex];
+            ShowTrafficLightProperties();
         }
 
         private void imageComboBoxMainRoad_SelectedIndexChanged(object sender, EventArgs e)
@@ -117,9 +136,9 @@ namespace RoadTrafficSimulator.Forms
                 currentSetting.RemoveDirection(from, to);
         }
 
-        private void buttonNewSetting_Click(object sender, EventArgs e)
+        private void buttonAddSetting_Click(object sender, EventArgs e)
         {
-            TrafficLight.Setting setting = trafficLight.InsertSetting(comboBoxSetting.SelectedIndex);
+            TrafficLight.Setting setting = trafficLight.InsertSetting(comboBoxSetting.SelectedIndex + 1);
             Debug.Assert(setting != null);
             InitialiseComboBoxSetting();
             comboBoxSetting.SelectedIndex++;
@@ -127,19 +146,9 @@ namespace RoadTrafficSimulator.Forms
 
         private void buttonDeleteSetting_Click(object sender, EventArgs e)
         {
-            bool success = trafficLight.RemoveSetting(comboBoxSetting.SelectedIndex - 1);
+            bool success = trafficLight.RemoveSetting(comboBoxSetting.SelectedIndex);
             Debug.Assert(success);
             InitialiseComboBoxSetting();
-        }
-
-        private void buttonFinish_Click(object sender, EventArgs e)
-        {
-            Close();
-        }
-
-        private void FormTrafficLight_FormClosed(object sender, FormClosedEventArgs e)
-        {
-            UnselectRoad();
         }
 
         #endregion form_events
@@ -163,6 +172,7 @@ namespace RoadTrafficSimulator.Forms
             if (selectedRoad?.GetRoad()?.IsConnected != true)
             {
                 selectedRoad = null;
+                InitialiseDirectionCheckBoxes();
                 return;
             }
 
@@ -182,38 +192,17 @@ namespace RoadTrafficSimulator.Forms
         }
 
         /// <summary>
-        /// Shows properties in the form based on what's selected.
+        /// Shows properties in the tab page for traffic lights based on available and selected traffic light settings.
         /// </summary>
-        private void ShowProperties()
+        private void ShowTrafficLightProperties()
         {
             SuspendLayout();
-            if (currentSetting == null)
-            {
-                // Main road settings
-                groupBoxAllowedDirections.Visible = false;
-                groupBoxMainRoad.Visible = true;
-
-                numericUpDownDuration.Enabled = false;
-                buttonNewSetting.Enabled = false;
-                buttonDeleteSetting.Enabled = false;
-                freezeDuration = true;
-                numericUpDownDuration.Value = 0;
-                freezeDuration = false;
-            }
-            else
-            {
-                // Traffic light settings
-                groupBoxAllowedDirections.Visible = true;
-                groupBoxMainRoad.Visible = false;
-
-                numericUpDownDuration.Enabled = trafficLight.Settings.Count > 1;
-                buttonDeleteSetting.Enabled = trafficLight.Settings.Count > 1;
-                buttonNewSetting.Enabled = trafficLight.Settings.Count < TrafficLight.maxSettingsCount;
-                freezeDuration = true;
-                numericUpDownDuration.Value = currentSetting.Duration.ToSeconds();
-                freezeDuration = false;
-                InitialiseDirectionCheckBoxes();
-            }
+            buttonDeleteSetting.Enabled = trafficLight.Settings.Count > 2;
+            buttonAddSetting.Enabled = trafficLight.Settings.Count < TrafficLight.maxSettingsCount;
+            freezeDuration = true;
+            numericUpDownDuration.Value = currentSetting.Duration.ToSeconds();
+            freezeDuration = false;
+            InitialiseDirectionCheckBoxes();
             ResumeLayout();
         }
 
@@ -224,9 +213,8 @@ namespace RoadTrafficSimulator.Forms
         {
             int index = comboBoxSetting.SelectedIndex;
             comboBoxSetting.Items.Clear();
-            comboBoxSetting.Items.Add("Main road setting");
             for (int i = 1; i <= trafficLight.Settings.Count; i++)
-                comboBoxSetting.Items.Add(string.Format("Setting {0}", i));
+                comboBoxSetting.Items.Add($"Period {i}");
             if (index > comboBoxSetting.Items.Count - 1)
                 index = comboBoxSetting.Items.Count - 1;
             if (comboBoxSetting.Items.Count > 0 && index < 0)
@@ -291,7 +279,7 @@ namespace RoadTrafficSimulator.Forms
                         else
                         {
                             // If the selected road is two-way, disable the backward direction
-                            Road backRoad = selectedRoad.GetRoad(GUI.IGRoad.Direction.Backward);
+                            Road backRoad = selectedRoad.GetRoad(IGRoad.Direction.Backward);
                             cb.Enabled = backRoad == null || backRoad.Id != road.Id;
                             cb.Checked = currentSetting.ContainsDirection(selectedRoad.GetRoad().Id, road.Id);
                         }

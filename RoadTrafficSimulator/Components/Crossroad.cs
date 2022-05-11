@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 using RoadTrafficSimulator.ValueTypes;
 using RoadTrafficSimulator.Statistics;
@@ -49,6 +50,23 @@ namespace RoadTrafficSimulator.Components
         {
             TrafficLight = new TrafficLight();
             PriorityCrossing = new PriorityCrossing();
+            ActiveCrossingAlgorithm = PriorityCrossing;
+        }
+
+        /// <summary>
+        /// Activates traffic lights at the crossroad.
+        /// </summary>
+        public void ActivateTrafficLight()
+        {
+            ActiveCrossingAlgorithm = TrafficLight;
+        }
+
+        /// <summary>
+        /// Deactivates traffic lights at the crossroad.
+        /// </summary>
+        public void DeactivateTrafficLight()
+        {
+            ActiveCrossingAlgorithm = PriorityCrossing;
         }
 
         /// <summary>
@@ -58,17 +76,25 @@ namespace RoadTrafficSimulator.Components
         /// <returns><c>true</c> if all checks are successful, otherwise <c>false</c></returns>
         public bool Initialise(IClock clock)
         {
-            PriorityCrossing.Initialise(clock);
-            if (TrafficLight.Settings.Count > 1)
-                ActiveCrossingAlgorithm = TrafficLight;
+            if (ActiveCrossingAlgorithm == PriorityCrossing)
+            {
+                PriorityCrossing.Initialise(clock);
+                return true;
+            }
             else
-                ActiveCrossingAlgorithm = PriorityCrossing;
+            {
+                Debug.Assert(ActiveCrossingAlgorithm == TrafficLight);
+                if (TrafficLight.Settings.Count > 1)
+                    ActiveCrossingAlgorithm = TrafficLight;
+                else
+                    ActiveCrossingAlgorithm = PriorityCrossing;
 
-            var trafficLightVerifier = new Dictionary<Direction, bool>(InDegree * OutDegree);
-            foreach (Road inRoad in GetInEdges())
-                foreach (Road outRoad in GetOutEdges())
-                    trafficLightVerifier.Add(new Direction(inRoad.Id, outRoad.Id), false);
-            return TrafficLight.Initialise(trafficLightVerifier);
+                var trafficLightVerifier = new Dictionary<Direction, bool>(InDegree * OutDegree);
+                foreach (Road inRoad in GetInEdges())
+                    foreach (Road outRoad in GetOutEdges())
+                        trafficLightVerifier.Add(new Direction(inRoad.Id, outRoad.Id), false);
+                return TrafficLight.Initialise(trafficLightVerifier);
+            }
         }
 
         /// <summary>

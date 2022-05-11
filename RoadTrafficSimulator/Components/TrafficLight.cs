@@ -15,6 +15,7 @@ namespace RoadTrafficSimulator.Components
         /// The maximum allowed number of traffic light settings (phases) for one traffic light
         /// </summary>
         public const int maxSettingsCount = 6;
+        public const int minSettingsCount = 2;
 
         private static readonly Time yellowLightDuration = 3.Seconds(); // TODO: mention in thesis
 
@@ -37,7 +38,8 @@ namespace RoadTrafficSimulator.Components
         public TrafficLight()
         {
             settings = new List<Setting>(maxSettingsCount);
-            settings.Add(new Setting());
+            for (int i = 0; i < minSettingsCount; i++)
+                settings.Add(new Setting());
         }
 
         #region methods
@@ -89,11 +91,10 @@ namespace RoadTrafficSimulator.Components
         /// <summary>
         /// Removes a setting at a given index.
         /// </summary>
-        /// <param name="index"></param>
         /// <returns><c>true</c> if successfully removed, otherwise <c>false</c></returns>
         public bool RemoveSetting(int index)
         {
-            if (index >= settings.Count || settings.Count <= 1)
+            if (settings.Count <= minSettingsCount || index >= settings.Count)
                 return false;
             settings.RemoveAt(index);
             return true;
@@ -113,16 +114,12 @@ namespace RoadTrafficSimulator.Components
         /// <summary>
         /// Initialises the traffic light before starting a simulation.
         /// Checks whether all directions in a given verifier are allowed in at least one setting.
-        /// If the traffic light only has one setting, the check is always successful.
         /// If the consistency check is successful, sets the first setting as active.
         /// </summary>
         /// <param name="verifier">Dictionary containing checked directions as keys with all values <c>false</c></param>
         /// <returns><c>true</c> if the consistency check was successful, otherwise <c>false</c></returns>
         public bool Initialise(Dictionary<Direction, bool> verifier)
         {
-            if (settings.Count <= 1)
-                return true;
-
             foreach (Setting s in settings)
                 foreach (Direction d in s)
                     verifier[d] = true;
@@ -135,8 +132,6 @@ namespace RoadTrafficSimulator.Components
 
         public void Tick(Time time)
         {
-            if (settings.Count <= 1)
-                return;
             if (currentTime > CurrentSetting.Duration)
             {
                 currentTime -= CurrentSetting.Duration;
@@ -147,8 +142,6 @@ namespace RoadTrafficSimulator.Components
 
         public bool CanCross(Car car, int fromRoadId, int toRoadId, Time expectedArrival)
         {
-            if (settings.Count <= 1)
-                return false;
             if (CurrentSettingExpired)
                 return false;
             if (CurrentSetting.ContainsDirection(fromRoadId, toRoadId))

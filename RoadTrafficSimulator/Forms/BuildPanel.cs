@@ -165,15 +165,6 @@ namespace RoadTrafficSimulator.Forms
 
         [Browsable(true)]
         [Category("Action")]
-        [Description("Occurs when the Traffic Light button is clicked.")]
-        public event EventHandler TrafficLightClick
-        {
-            add => buttonTrafficLight.Click += value;
-            remove => buttonTrafficLight.Click -= value;
-        }
-
-        [Browsable(true)]
-        [Category("Action")]
         [Description("Occurs when the Destroy Crossroad button is clicked.")]
         public event EventHandler DestroyCrossroadClick
         {
@@ -197,6 +188,15 @@ namespace RoadTrafficSimulator.Forms
         {
             add => buttonLoadMap.Click += value;
             remove => buttonLoadMap.Click -= value;
+        }
+
+        [Browsable(true)]
+        [Category("Action")]
+        [Description("Occurs when the map on the traffic light panel is clicked.")]
+        public event EventHandler TrafficLightMapClick
+        {
+            add => trafficLightPanel.MapClicked += value;
+            remove => trafficLightPanel.MapClicked -= value;
         }
 
         [Browsable(true)]
@@ -240,15 +240,22 @@ namespace RoadTrafficSimulator.Forms
 
         #endregion events
 
-        internal void SelectCrossroad(Components.Crossroad crossroad)
+        internal void Initialise(MapManager mapManager)
+        {
+            trafficLightPanel.Initialise(mapManager);
+        }
+
+        internal void SelectCrossroad(MapManager.CrossroadWrapper crossroad)
         {
             Debug.Assert(CurrentMode == Mode.Select);
             SuspendLayout();
-            labelCoords.Text = $"Coords: {crossroad.Id}";
-            labelInIndex.Text = $"Incoming roads: {crossroad.InDegree}";
-            labelOutIndex.Text = $"Outcoming roads: {crossroad.OutDegree}";
-            labelCarSpawnRate.Text = $"Car spawn rate: {crossroad.CarSpawnRate} %";
-            trackBarCarSpawnRate.Value = crossroad.CarSpawnRate;
+            labelCoords.Text = $"Coords: {crossroad.crossroad.Id}";
+            labelInIndex.Text = $"Incoming roads: {crossroad.crossroad.InDegree}";
+            labelOutIndex.Text = $"Outcoming roads: {crossroad.crossroad.OutDegree}";
+            labelCarSpawnRate.Text = $"Car spawn rate: {crossroad.crossroad.CarSpawnRate} %";
+            trackBarCarSpawnRate.Value = crossroad.crossroad.CarSpawnRate;
+
+            trafficLightPanel.Activate(crossroad);
             groupBoxCrossroad.Visible = true;
             ResumeLayout();
         }
@@ -294,6 +301,7 @@ namespace RoadTrafficSimulator.Forms
             SuspendLayout();
             groupBoxCrossroad.Visible = false;
             groupBoxRoad.Visible = false;
+            trafficLightPanel.Deactivate();
             ResumeLayout();
         }
 

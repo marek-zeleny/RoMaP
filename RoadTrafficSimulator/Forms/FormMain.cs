@@ -55,6 +55,7 @@ namespace RoadTrafficSimulator.Forms
             settingsForm = new FormSimulationSettings();
             statisticsForm = new FormStatistics();
             mapPanel.ResetOrigin();
+            buildPanel.Initialise(mapManager);
             timerSimulation.Interval = Simulation.MinTimeStep.ToMilliseconds();
             mode = Mode.Build;
             ChangeMode();
@@ -135,13 +136,6 @@ namespace RoadTrafficSimulator.Forms
         private void buttonStop_Click(object sender, EventArgs e)
         {
             EndSimulation();
-        }
-
-        private void buildPanel_TrafficLightClick(object sender, EventArgs e)
-        {
-            Debug.Assert(selectedCrossroad.HasValue);
-            FormTrafficLight form = new(mapManager, selectedCrossroad.Value);
-            form.ShowDialog();
         }
 
         private void buildPanel_DestroyCrossroadClick(object sender, EventArgs e)
@@ -253,6 +247,11 @@ namespace RoadTrafficSimulator.Forms
             }
         }
 
+        private void buildPanel_TrafficLightMapClick(object sender, EventArgs e)
+        {
+            mapPanel.Redraw();
+        }
+
         private void simulationPanel_StatisticsClick(object sender, EventArgs e)
         {
             statisticsForm.Show();
@@ -330,7 +329,7 @@ namespace RoadTrafficSimulator.Forms
                     simulationPanel.SelectCrossroad(crossroad.crossroad);
                     break;
                 case Mode.Build:
-                    buildPanel.SelectCrossroad(crossroad.crossroad);
+                    buildPanel.SelectCrossroad(crossroad);
                     break;
                 default:
                     break;
@@ -428,7 +427,7 @@ namespace RoadTrafficSimulator.Forms
                             if (selectedRoad != null)
                                 buildPanel.SelectRoad(selectedRoad);
                             if (selectedCrossroad.HasValue)
-                                buildPanel.SelectCrossroad(selectedCrossroad.Value.crossroad);
+                                buildPanel.SelectCrossroad(selectedCrossroad.Value);
                             break;
                         default:
                             break;
