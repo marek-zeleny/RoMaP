@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Text.Json;
+using System.IO;
 using System.Threading;
 
 using RoadTrafficSimulator.Components;
 using RoadTrafficSimulator.ValueTypes;
 using RoadTrafficSimulator.Statistics;
-using System.IO;
 
 namespace RoadTrafficSimulator
 {
