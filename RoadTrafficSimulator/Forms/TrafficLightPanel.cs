@@ -16,6 +16,7 @@ namespace RoadTrafficSimulator.Forms
         private const float roadPercentageInView = 0.8f;
 
         private readonly Dictionary<CheckBox, CoordsConvertor.Direction> checkBoxDirections;
+        private readonly ImageList mainRoadDirectionImages;
 
         private Point origin;
         private float zoom;
@@ -25,6 +26,7 @@ namespace RoadTrafficSimulator.Forms
         private List<(CoordsConvertor.Direction, CoordsConvertor.Direction)?> mainRoadOptions = new();
         private TrafficLight.Setting currentSetting;
         private IGRoad selectedRoad;
+        private bool freezeMainRoads;
         private bool freezeCheckBoxes;
         private bool freezeDuration;
 
@@ -48,6 +50,8 @@ namespace RoadTrafficSimulator.Forms
                 { checkBoxLeft, CoordsConvertor.Direction.Left },
                 { checkBoxRight, CoordsConvertor.Direction.Right },
             };
+            mainRoadDirectionImages = new ImageList();
+            InitialiseMainRoadSelection();
         }
 
         [Browsable(true)]
@@ -66,7 +70,7 @@ namespace RoadTrafficSimulator.Forms
             trafficLight = crossroad.crossroad.TrafficLight;
             UpdateMapPositioning();
             InitialiseComboBoxSetting();
-            InitialiseComboBoxMainRoad();
+            FillViableMainRoadDirections();
         }
 
         internal void Deactivate()
@@ -111,9 +115,10 @@ namespace RoadTrafficSimulator.Forms
             ShowTrafficLightProperties();
         }
 
-        private void imageComboBoxMainRoad_SelectedIndexChanged(object sender, EventArgs e)
+        private void dataGridViewMainRoad_SelectionChanged(object sender, EventArgs e)
         {
-            crossroad.gCrossroad.MainRoadDirections = mainRoadOptions[imageComboBoxMainRoad.SelectedIndex];
+            if (!freezeMainRoads && dataGridViewMainRoad.SelectedRows.Count > 0)
+                crossroad.gCrossroad.MainRoadDirections = mainRoadOptions[dataGridViewMainRoad.SelectedRows[0].Index];
         }
 
         private void numericUpDownDuration_ValueChanged(object sender, EventArgs e)
@@ -227,20 +232,58 @@ namespace RoadTrafficSimulator.Forms
             comboBoxSetting.SelectedIndex = index;
         }
 
-        /// <summary>
-        /// Initialises values in combo box for selecting main roads based on the crossroad being set up.
-        /// </summary>
-        private void InitialiseComboBoxMainRoad()
+        private void InitialiseMainRoadSelection()
         {
-            var items = imageComboBoxMainRoad.Items;
+            const int imageSize = 48;
+
+            var allDirections = Enum.GetValues<CoordsConvertor.Direction>();
+            Image defaultImg = new Bitmap(imageSize, imageSize);
+            mainRoadDirectionImages.Images.Add(defaultImg);
+
+            for (int i = 0; i < allDirections.Length; i++)
+            {
+                for (int j = i + 1; j < allDirections.Length; j++)
+                {
+                    string dir1 = allDirections[i].ToString().ToLower();
+                    string dir2 = allDirections[j].ToString().ToLower();
+                    Image img = (Image)Properties.Resources.ResourceManager.GetObject($"main_road_{dir1}_{dir2}");
+                    if (img == null)
+                        img = (Image)Properties.Resources.ResourceManager.GetObject($"main_road_{dir2}_{dir1}");
+                    Debug.Assert(img != null);
+                    mainRoadDirectionImages.Images.Add(img);
+                }
+            }
+            mainRoadDirectionImages.ImageSize = new Size(imageSize, imageSize);
+
+            DataGridViewImageColumn imageCol = new()
+            {
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
+                Width = 70,
+            };
+            DataGridViewTextBoxColumn textCol = new()
+            {
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
+            };
+            dataGridViewMainRoad.Columns.AddRange(imageCol, textCol);
+        }
+
+        /// <summary>
+        /// Initialises values in the list view for selecting main roads based on the crossroad being set up.
+        /// </summary>
+        private void FillViableMainRoadDirections()
+        {
+            freezeMainRoads = true;
+            dataGridViewMainRoad.ClearSelection();
+            var items = dataGridViewMainRoad.Rows;
             items.Clear();
-            items.Add(new ImageComboBox.DropDownItem("none", null));
+            items.Add(mainRoadDirectionImages.Images[0], "None");
             mainRoadOptions.Clear();
             mainRoadOptions.Add(null);
 
             int selectedIndex = 0;
             var allDirections = Enum.GetValues<CoordsConvertor.Direction>();
 
+            int imgIndex = 1;
             for (int i = 0; i < allDirections.Length; i++)
             {
                 for (int j = i + 1; j < allDirections.Length; j++)
@@ -252,13 +295,15 @@ namespace RoadTrafficSimulator.Forms
                         if (crossroad.gCrossroad.IsMainRoadDirection(dir1) &&
                             crossroad.gCrossroad.IsMainRoadDirection(dir2))
                             selectedIndex = items.Count;
-                        items.Add(new ImageComboBox.DropDownItem($"{dir1} - {dir2}", null));
-                        // TODO: add image Properties.Resources.main_road_{dir1}_{dir2}
+                        items.Add(mainRoadDirectionImages.Images[imgIndex], $"{dir1} - {dir2}");
                         mainRoadOptions.Add((dir1, dir2));
                     }
+                    imgIndex++;
                 }
             }
-            imageComboBoxMainRoad.SelectedIndex = selectedIndex;
+            dataGridViewMainRoad.CurrentCell = dataGridViewMainRoad.Rows[selectedIndex].Cells[0];
+            dataGridViewMainRoad.Rows[selectedIndex].Selected = true;
+            freezeMainRoads = false;
         }
 
         /// <summary>

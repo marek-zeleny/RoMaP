@@ -32,8 +32,7 @@ namespace RoadTrafficSimulator.Forms
             this.panelMap = new System.Windows.Forms.Panel();
             this.tabControl = new System.Windows.Forms.TabControl();
             this.tabPageMainRoad = new System.Windows.Forms.TabPage();
-            this.groupBoxMainRoad = new System.Windows.Forms.GroupBox();
-            this.imageComboBoxMainRoad = new RoadTrafficSimulator.Forms.ImageComboBox();
+            this.dataGridViewMainRoad = new System.Windows.Forms.DataGridView();
             this.tabPageTrafficLights = new System.Windows.Forms.TabPage();
             this.tableLayoutPanelButtons = new System.Windows.Forms.TableLayoutPanel();
             this.buttonAddSetting = new System.Windows.Forms.Button();
@@ -51,7 +50,7 @@ namespace RoadTrafficSimulator.Forms
             this.checkBoxActivateTrafficLight = new System.Windows.Forms.CheckBox();
             this.tabControl.SuspendLayout();
             this.tabPageMainRoad.SuspendLayout();
-            this.groupBoxMainRoad.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewMainRoad)).BeginInit();
             this.tabPageTrafficLights.SuspendLayout();
             this.tableLayoutPanelButtons.SuspendLayout();
             this.groupBoxAllowedDirections.SuspendLayout();
@@ -64,10 +63,10 @@ namespace RoadTrafficSimulator.Forms
             this.panelMap.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(236)))), ((int)(((byte)(237)))), ((int)(((byte)(242)))));
             this.panelMap.Cursor = System.Windows.Forms.Cursors.Cross;
             this.panelMap.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panelMap.Location = new System.Drawing.Point(0, 0);
+            this.panelMap.Location = new System.Drawing.Point(5, 5);
             this.panelMap.Margin = new System.Windows.Forms.Padding(4);
             this.panelMap.Name = "panelMap";
-            this.panelMap.Size = new System.Drawing.Size(400, 400);
+            this.panelMap.Size = new System.Drawing.Size(390, 400);
             this.panelMap.TabIndex = 0;
             this.panelMap.Paint += new System.Windows.Forms.PaintEventHandler(this.panelMap_Paint);
             this.panelMap.MouseClick += new System.Windows.Forms.MouseEventHandler(this.panelMap_MouseClick);
@@ -78,48 +77,48 @@ namespace RoadTrafficSimulator.Forms
             this.tabControl.Controls.Add(this.tabPageMainRoad);
             this.tabControl.Controls.Add(this.tabPageTrafficLights);
             this.tabControl.Dock = System.Windows.Forms.DockStyle.Top;
-            this.tabControl.Location = new System.Drawing.Point(0, 400);
+            this.tabControl.Location = new System.Drawing.Point(5, 405);
             this.tabControl.Name = "tabControl";
             this.tabControl.SelectedIndex = 0;
-            this.tabControl.Size = new System.Drawing.Size(400, 370);
+            this.tabControl.Size = new System.Drawing.Size(390, 370);
             this.tabControl.TabIndex = 1;
             // 
             // tabPageMainRoad
             // 
             this.tabPageMainRoad.AutoScroll = true;
-            this.tabPageMainRoad.Controls.Add(this.groupBoxMainRoad);
+            this.tabPageMainRoad.Controls.Add(this.dataGridViewMainRoad);
             this.tabPageMainRoad.Location = new System.Drawing.Point(4, 34);
             this.tabPageMainRoad.Name = "tabPageMainRoad";
             this.tabPageMainRoad.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageMainRoad.Size = new System.Drawing.Size(392, 332);
+            this.tabPageMainRoad.Size = new System.Drawing.Size(382, 332);
             this.tabPageMainRoad.TabIndex = 0;
             this.tabPageMainRoad.Text = "Main Road";
             this.tabPageMainRoad.UseVisualStyleBackColor = true;
             // 
-            // groupBoxMainRoad
+            // dataGridViewMainRoad
             // 
-            this.groupBoxMainRoad.AutoSize = true;
-            this.groupBoxMainRoad.Controls.Add(this.imageComboBoxMainRoad);
-            this.groupBoxMainRoad.Dock = System.Windows.Forms.DockStyle.Top;
-            this.groupBoxMainRoad.Location = new System.Drawing.Point(3, 3);
-            this.groupBoxMainRoad.Margin = new System.Windows.Forms.Padding(2);
-            this.groupBoxMainRoad.Name = "groupBoxMainRoad";
-            this.groupBoxMainRoad.Padding = new System.Windows.Forms.Padding(2);
-            this.groupBoxMainRoad.Size = new System.Drawing.Size(386, 61);
-            this.groupBoxMainRoad.TabIndex = 25;
-            this.groupBoxMainRoad.TabStop = false;
-            this.groupBoxMainRoad.Text = "Main Road";
-            // 
-            // imageComboBoxMainRoad
-            // 
-            this.imageComboBoxMainRoad.Dock = System.Windows.Forms.DockStyle.Top;
-            this.imageComboBoxMainRoad.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.imageComboBoxMainRoad.FormattingEnabled = true;
-            this.imageComboBoxMainRoad.Location = new System.Drawing.Point(2, 26);
-            this.imageComboBoxMainRoad.Margin = new System.Windows.Forms.Padding(2);
-            this.imageComboBoxMainRoad.Name = "imageComboBoxMainRoad";
-            this.imageComboBoxMainRoad.Size = new System.Drawing.Size(382, 33);
-            this.imageComboBoxMainRoad.TabIndex = 0;
+            this.dataGridViewMainRoad.AllowUserToAddRows = false;
+            this.dataGridViewMainRoad.AllowUserToDeleteRows = false;
+            this.dataGridViewMainRoad.AllowUserToResizeColumns = false;
+            this.dataGridViewMainRoad.AllowUserToResizeRows = false;
+            this.dataGridViewMainRoad.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.DisplayedCells;
+            this.dataGridViewMainRoad.ClipboardCopyMode = System.Windows.Forms.DataGridViewClipboardCopyMode.Disable;
+            this.dataGridViewMainRoad.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridViewMainRoad.ColumnHeadersVisible = false;
+            this.dataGridViewMainRoad.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dataGridViewMainRoad.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically;
+            this.dataGridViewMainRoad.Location = new System.Drawing.Point(3, 3);
+            this.dataGridViewMainRoad.MultiSelect = false;
+            this.dataGridViewMainRoad.Name = "dataGridViewMainRoad";
+            this.dataGridViewMainRoad.ReadOnly = true;
+            this.dataGridViewMainRoad.RowHeadersVisible = false;
+            this.dataGridViewMainRoad.RowHeadersWidth = 62;
+            this.dataGridViewMainRoad.RowTemplate.Height = 33;
+            this.dataGridViewMainRoad.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.dataGridViewMainRoad.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+            this.dataGridViewMainRoad.Size = new System.Drawing.Size(376, 326);
+            this.dataGridViewMainRoad.TabIndex = 0;
+            this.dataGridViewMainRoad.SelectionChanged += new System.EventHandler(this.dataGridViewMainRoad_SelectionChanged);
             // 
             // tabPageTrafficLights
             // 
@@ -132,7 +131,7 @@ namespace RoadTrafficSimulator.Forms
             this.tabPageTrafficLights.Location = new System.Drawing.Point(4, 34);
             this.tabPageTrafficLights.Name = "tabPageTrafficLights";
             this.tabPageTrafficLights.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageTrafficLights.Size = new System.Drawing.Size(392, 332);
+            this.tabPageTrafficLights.Size = new System.Drawing.Size(382, 332);
             this.tabPageTrafficLights.TabIndex = 1;
             this.tabPageTrafficLights.Text = "Traffic Lights";
             this.tabPageTrafficLights.UseVisualStyleBackColor = true;
@@ -151,7 +150,7 @@ namespace RoadTrafficSimulator.Forms
             this.tableLayoutPanelButtons.RowCount = 2;
             this.tableLayoutPanelButtons.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanelButtons.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanelButtons.Size = new System.Drawing.Size(386, 92);
+            this.tableLayoutPanelButtons.Size = new System.Drawing.Size(376, 92);
             this.tableLayoutPanelButtons.TabIndex = 4;
             // 
             // buttonAddSetting
@@ -160,7 +159,7 @@ namespace RoadTrafficSimulator.Forms
             this.buttonAddSetting.Location = new System.Drawing.Point(4, 5);
             this.buttonAddSetting.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.buttonAddSetting.Name = "buttonAddSetting";
-            this.buttonAddSetting.Size = new System.Drawing.Size(378, 36);
+            this.buttonAddSetting.Size = new System.Drawing.Size(368, 36);
             this.buttonAddSetting.TabIndex = 0;
             this.buttonAddSetting.Text = "Add New Period";
             this.buttonAddSetting.UseVisualStyleBackColor = true;
@@ -172,7 +171,7 @@ namespace RoadTrafficSimulator.Forms
             this.buttonDeleteSetting.Location = new System.Drawing.Point(4, 51);
             this.buttonDeleteSetting.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.buttonDeleteSetting.Name = "buttonDeleteSetting";
-            this.buttonDeleteSetting.Size = new System.Drawing.Size(378, 36);
+            this.buttonDeleteSetting.Size = new System.Drawing.Size(368, 36);
             this.buttonDeleteSetting.TabIndex = 1;
             this.buttonDeleteSetting.Text = "Remove Period";
             this.buttonDeleteSetting.UseVisualStyleBackColor = true;
@@ -190,7 +189,7 @@ namespace RoadTrafficSimulator.Forms
             this.groupBoxAllowedDirections.Margin = new System.Windows.Forms.Padding(4);
             this.groupBoxAllowedDirections.Name = "groupBoxAllowedDirections";
             this.groupBoxAllowedDirections.Padding = new System.Windows.Forms.Padding(4);
-            this.groupBoxAllowedDirections.Size = new System.Drawing.Size(386, 126);
+            this.groupBoxAllowedDirections.Size = new System.Drawing.Size(376, 126);
             this.groupBoxAllowedDirections.TabIndex = 3;
             this.groupBoxAllowedDirections.TabStop = false;
             this.groupBoxAllowedDirections.Text = "Allowed Directions";
@@ -205,7 +204,7 @@ namespace RoadTrafficSimulator.Forms
             this.checkBoxDown.Location = new System.Drawing.Point(59, 75);
             this.checkBoxDown.Margin = new System.Windows.Forms.Padding(4);
             this.checkBoxDown.Name = "checkBoxDown";
-            this.checkBoxDown.Size = new System.Drawing.Size(268, 47);
+            this.checkBoxDown.Size = new System.Drawing.Size(258, 47);
             this.checkBoxDown.TabIndex = 3;
             this.checkBoxDown.Text = "▼";
             this.checkBoxDown.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
@@ -222,7 +221,7 @@ namespace RoadTrafficSimulator.Forms
             this.checkBoxUp.Location = new System.Drawing.Point(59, 28);
             this.checkBoxUp.Margin = new System.Windows.Forms.Padding(4);
             this.checkBoxUp.Name = "checkBoxUp";
-            this.checkBoxUp.Size = new System.Drawing.Size(268, 47);
+            this.checkBoxUp.Size = new System.Drawing.Size(258, 47);
             this.checkBoxUp.TabIndex = 1;
             this.checkBoxUp.Text = "▲";
             this.checkBoxUp.TextAlign = System.Drawing.ContentAlignment.TopCenter;
@@ -236,7 +235,7 @@ namespace RoadTrafficSimulator.Forms
             this.checkBoxRight.Dock = System.Windows.Forms.DockStyle.Right;
             this.checkBoxRight.Enabled = false;
             this.checkBoxRight.Font = new System.Drawing.Font("Arial", 9.163636F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.checkBoxRight.Location = new System.Drawing.Point(327, 28);
+            this.checkBoxRight.Location = new System.Drawing.Point(317, 28);
             this.checkBoxRight.Margin = new System.Windows.Forms.Padding(4);
             this.checkBoxRight.Name = "checkBoxRight";
             this.checkBoxRight.Size = new System.Drawing.Size(55, 94);
@@ -272,7 +271,7 @@ namespace RoadTrafficSimulator.Forms
             this.flowLayoutPanelDuration.Margin = new System.Windows.Forms.Padding(2);
             this.flowLayoutPanelDuration.Name = "flowLayoutPanelDuration";
             this.flowLayoutPanelDuration.Padding = new System.Windows.Forms.Padding(1);
-            this.flowLayoutPanelDuration.Size = new System.Drawing.Size(386, 43);
+            this.flowLayoutPanelDuration.Size = new System.Drawing.Size(376, 43);
             this.flowLayoutPanelDuration.TabIndex = 2;
             // 
             // labelDuration
@@ -322,7 +321,7 @@ namespace RoadTrafficSimulator.Forms
             this.comboBoxSetting.Location = new System.Drawing.Point(3, 32);
             this.comboBoxSetting.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.comboBoxSetting.Name = "comboBoxSetting";
-            this.comboBoxSetting.Size = new System.Drawing.Size(386, 33);
+            this.comboBoxSetting.Size = new System.Drawing.Size(376, 33);
             this.comboBoxSetting.TabIndex = 1;
             this.comboBoxSetting.SelectedIndexChanged += new System.EventHandler(this.comboBoxSetting_SelectedIndexChanged);
             // 
@@ -332,7 +331,7 @@ namespace RoadTrafficSimulator.Forms
             this.checkBoxActivateTrafficLight.Dock = System.Windows.Forms.DockStyle.Top;
             this.checkBoxActivateTrafficLight.Location = new System.Drawing.Point(3, 3);
             this.checkBoxActivateTrafficLight.Name = "checkBoxActivateTrafficLight";
-            this.checkBoxActivateTrafficLight.Size = new System.Drawing.Size(386, 29);
+            this.checkBoxActivateTrafficLight.Size = new System.Drawing.Size(376, 29);
             this.checkBoxActivateTrafficLight.TabIndex = 0;
             this.checkBoxActivateTrafficLight.Text = "Activate traffic lights";
             this.checkBoxActivateTrafficLight.UseVisualStyleBackColor = true;
@@ -345,11 +344,11 @@ namespace RoadTrafficSimulator.Forms
             this.Controls.Add(this.tabControl);
             this.Controls.Add(this.panelMap);
             this.Name = "TrafficLightPanel";
+            this.Padding = new System.Windows.Forms.Padding(5);
             this.Size = new System.Drawing.Size(400, 833);
             this.tabControl.ResumeLayout(false);
             this.tabPageMainRoad.ResumeLayout(false);
-            this.tabPageMainRoad.PerformLayout();
-            this.groupBoxMainRoad.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewMainRoad)).EndInit();
             this.tabPageTrafficLights.ResumeLayout(false);
             this.tabPageTrafficLights.PerformLayout();
             this.tableLayoutPanelButtons.ResumeLayout(false);
@@ -380,8 +379,7 @@ namespace RoadTrafficSimulator.Forms
         private System.Windows.Forms.NumericUpDown numericUpDownDuration;
         private System.Windows.Forms.Label labelS;
         private System.Windows.Forms.ComboBox comboBoxSetting;
-        private System.Windows.Forms.GroupBox groupBoxMainRoad;
-        private ImageComboBox imageComboBoxMainRoad;
         private System.Windows.Forms.CheckBox checkBoxActivateTrafficLight;
+        private System.Windows.Forms.DataGridView dataGridViewMainRoad;
     }
 }

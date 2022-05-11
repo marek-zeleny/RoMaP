@@ -52,6 +52,7 @@ namespace RoadTrafficSimulator.Forms
             this.labelFrom = new System.Windows.Forms.Label();
             this.labelTwoWayRoad = new System.Windows.Forms.Label();
             this.groupBoxCrossroad = new System.Windows.Forms.GroupBox();
+            this.groupBoxTrafficLight = new System.Windows.Forms.GroupBox();
             this.trafficLightPanel = new RoadTrafficSimulator.Forms.TrafficLightPanel();
             this.buttonDestroyCrossroad = new System.Windows.Forms.Button();
             this.trackBarCarSpawnRate = new System.Windows.Forms.TrackBar();
@@ -77,6 +78,7 @@ namespace RoadTrafficSimulator.Forms
             this.flowLayoutPanelLanes.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownLanes)).BeginInit();
             this.groupBoxCrossroad.SuspendLayout();
+            this.groupBoxTrafficLight.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarCarSpawnRate)).BeginInit();
             this.tableLayoutPanelMapButtons.SuspendLayout();
             this.groupBoxMap.SuspendLayout();
@@ -409,7 +411,7 @@ namespace RoadTrafficSimulator.Forms
             // 
             this.groupBoxCrossroad.AutoSize = true;
             this.groupBoxCrossroad.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.groupBoxCrossroad.Controls.Add(this.trafficLightPanel);
+            this.groupBoxCrossroad.Controls.Add(this.groupBoxTrafficLight);
             this.groupBoxCrossroad.Controls.Add(this.buttonDestroyCrossroad);
             this.groupBoxCrossroad.Controls.Add(this.trackBarCarSpawnRate);
             this.groupBoxCrossroad.Controls.Add(this.labelCarSpawnRate);
@@ -421,20 +423,32 @@ namespace RoadTrafficSimulator.Forms
             this.groupBoxCrossroad.Margin = new System.Windows.Forms.Padding(2, 4, 2, 4);
             this.groupBoxCrossroad.Name = "groupBoxCrossroad";
             this.groupBoxCrossroad.Padding = new System.Windows.Forms.Padding(2, 4, 2, 4);
-            this.groupBoxCrossroad.Size = new System.Drawing.Size(439, 1021);
+            this.groupBoxCrossroad.Size = new System.Drawing.Size(439, 1080);
             this.groupBoxCrossroad.TabIndex = 4;
             this.groupBoxCrossroad.TabStop = false;
             this.groupBoxCrossroad.Text = "Crossroad Properties";
             this.groupBoxCrossroad.Visible = false;
             // 
+            // groupBoxTrafficLight
+            // 
+            this.groupBoxTrafficLight.AutoSize = true;
+            this.groupBoxTrafficLight.Controls.Add(this.trafficLightPanel);
+            this.groupBoxTrafficLight.Dock = System.Windows.Forms.DockStyle.Top;
+            this.groupBoxTrafficLight.Location = new System.Drawing.Point(2, 247);
+            this.groupBoxTrafficLight.Name = "groupBoxTrafficLight";
+            this.groupBoxTrafficLight.Size = new System.Drawing.Size(435, 829);
+            this.groupBoxTrafficLight.TabIndex = 6;
+            this.groupBoxTrafficLight.TabStop = false;
+            this.groupBoxTrafficLight.Text = "Main Road and Traffic Light Settings";
+            // 
             // trafficLightPanel
             // 
             this.trafficLightPanel.AutoSize = true;
-            this.trafficLightPanel.Dock = System.Windows.Forms.DockStyle.Top;
-            this.trafficLightPanel.Location = new System.Drawing.Point(2, 247);
+            this.trafficLightPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.trafficLightPanel.Location = new System.Drawing.Point(3, 27);
             this.trafficLightPanel.Name = "trafficLightPanel";
-            this.trafficLightPanel.Size = new System.Drawing.Size(435, 770);
-            this.trafficLightPanel.TabIndex = 5;
+            this.trafficLightPanel.Size = new System.Drawing.Size(429, 799);
+            this.trafficLightPanel.TabIndex = 0;
             // 
             // buttonDestroyCrossroad
             // 
@@ -443,7 +457,7 @@ namespace RoadTrafficSimulator.Forms
             this.buttonDestroyCrossroad.Margin = new System.Windows.Forms.Padding(2);
             this.buttonDestroyCrossroad.Name = "buttonDestroyCrossroad";
             this.buttonDestroyCrossroad.Size = new System.Drawing.Size(435, 50);
-            this.buttonDestroyCrossroad.TabIndex = 1;
+            this.buttonDestroyCrossroad.TabIndex = 5;
             this.buttonDestroyCrossroad.Text = "Destroy Crossroad";
             this.buttonDestroyCrossroad.UseVisualStyleBackColor = true;
             // 
@@ -632,6 +646,8 @@ namespace RoadTrafficSimulator.Forms
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownLanes)).EndInit();
             this.groupBoxCrossroad.ResumeLayout(false);
             this.groupBoxCrossroad.PerformLayout();
+            this.groupBoxTrafficLight.ResumeLayout(false);
+            this.groupBoxTrafficLight.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarCarSpawnRate)).EndInit();
             this.tableLayoutPanelMapButtons.ResumeLayout(false);
             this.groupBoxMap.ResumeLayout(false);
@@ -683,5 +699,6 @@ namespace RoadTrafficSimulator.Forms
         private System.Windows.Forms.NumericUpDown numericUpDownLanes;
         private TrafficLightPanel trafficLightPanel;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanelDrivingSide;
+        private System.Windows.Forms.GroupBox groupBoxTrafficLight;
     }
 }
