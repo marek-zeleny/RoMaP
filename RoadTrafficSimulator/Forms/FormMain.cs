@@ -756,8 +756,8 @@ namespace RoadTrafficSimulator.Forms
         /// </summary>
         private void ShowInfo(string info)
         {
-            Debug.WriteLine($"{ DateTime.Now}: {info}");
-            labelInfo.Text = info;
+            Debug.WriteLine($"[{ DateTime.Now}]: {info}");
+            labelInfo.Text = $"[{DateTime.Now:HH:mm:ss}]: {info}\n" + labelInfo.Text;
             labelInfo.Refresh();
         }
 
