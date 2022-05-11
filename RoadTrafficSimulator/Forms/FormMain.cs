@@ -245,6 +245,7 @@ namespace RoadTrafficSimulator.Forms
                 default:
                     break;
             }
+            mapPanel.Redraw();
         }
 
         private void buildPanel_TrafficLightMapClick(object sender, EventArgs e)
@@ -743,6 +744,7 @@ namespace RoadTrafficSimulator.Forms
             }
             if (successful)
             {
+                Deselect();
                 ShowInfo("Map successfully loaded.");
             }
             else

@@ -336,7 +336,6 @@ namespace RoadTrafficSimulator.Forms
 
         private void comboBoxMode_SelectedIndexChanged(object sender, EventArgs e)
         {
-            Deselect();
             Mode newMode = Enum.Parse<Mode>(comboBoxMode.Text.Replace(' ', '_'));
             switch (newMode)
             {

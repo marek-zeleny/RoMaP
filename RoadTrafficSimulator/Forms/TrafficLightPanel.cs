@@ -11,6 +11,9 @@ using RoadTrafficSimulator.ValueTypes;
 
 namespace RoadTrafficSimulator.Forms
 {
+    /// <summary>
+    /// Provides interface for setting up traffic lights and main roads.
+    /// </summary>
     public partial class TrafficLightPanel : UserControl
     {
         private const float roadPercentageInView = 0.8f;
@@ -27,7 +30,8 @@ namespace RoadTrafficSimulator.Forms
         private TrafficLight.Setting currentSetting;
         private IGRoad selectedRoad;
         private bool freezeMainRoads;
-        private bool freezeCheckBoxes;
+        private bool freezeDirectionCheckBoxes;
+        private bool freezeCheckBoxTrafficLight;
         private bool freezeDuration;
 
         /// <summary>
@@ -59,20 +63,32 @@ namespace RoadTrafficSimulator.Forms
         [Description("Occurs when the map is clicked.")]
         public event EventHandler MapClicked;
 
+        /// <summary>
+        /// Initialises the traffic light panel and connects it to a given map manager.
+        /// </summary>
         internal void Initialise(MapManager mapManager)
         {
             this.mapManager = mapManager;
         }
 
+        /// <summary>
+        /// Activates the panel and connects it to a given crossroad.
+        /// </summary>
         internal void Activate(MapManager.CrossroadWrapper crossroad)
         {
             this.crossroad = crossroad;
             trafficLight = crossroad.crossroad.TrafficLight;
+            freezeCheckBoxTrafficLight = true;
+            checkBoxActivateTrafficLight.Checked = crossroad.crossroad.ActiveCrossingAlgorithm == trafficLight;
+            freezeCheckBoxTrafficLight = false;
             UpdateMapPositioning();
             InitialiseComboBoxSetting();
             FillViableMainRoadDirections();
         }
 
+        /// <summary>
+        /// Deactivates the panel and disconnects it from a currently connected crossroad.
+        /// </summary>
         internal void Deactivate()
         {
             crossroad = default;
@@ -103,6 +119,8 @@ namespace RoadTrafficSimulator.Forms
 
         private void checkBoxActivateTrafficLight_CheckedChanged(object sender, EventArgs e)
         {
+            if (freezeCheckBoxTrafficLight)
+                return;
             if (checkBoxActivateTrafficLight.Checked)
                 crossroad.crossroad.ActivateTrafficLight();
             else
@@ -134,7 +152,7 @@ namespace RoadTrafficSimulator.Forms
 
         private void checkBoxDirection_CheckedChanged(object sender, EventArgs e)
         {
-            if (freezeCheckBoxes)
+            if (freezeDirectionCheckBoxes)
                 return;
             CheckBox cb = sender as CheckBox;
             int from = selectedRoad.GetRoad().Id;
@@ -232,6 +250,9 @@ namespace RoadTrafficSimulator.Forms
             comboBoxSetting.SelectedIndex = index;
         }
 
+        /// <summary>
+        /// Initialises controls for main road selection.
+        /// </summary>
         private void InitialiseMainRoadSelection()
         {
             const int imageSize = 48;
@@ -268,7 +289,7 @@ namespace RoadTrafficSimulator.Forms
         }
 
         /// <summary>
-        /// Initialises values in the list view for selecting main roads based on the crossroad being set up.
+        /// Fills in viable directions for selecting main roads based on the connected crossroad.
         /// </summary>
         private void FillViableMainRoadDirections()
         {
@@ -313,7 +334,7 @@ namespace RoadTrafficSimulator.Forms
         {
             try
             {
-                freezeCheckBoxes = true;
+                freezeDirectionCheckBoxes = true;
                 bool enable = selectedRoad != null;
                 foreach (var (cb, dir) in checkBoxDirections)
                 {
@@ -343,10 +364,13 @@ namespace RoadTrafficSimulator.Forms
             }
             finally
             {
-                freezeCheckBoxes = false;
+                freezeDirectionCheckBoxes = false;
             }
         }
 
+        /// <summary>
+        /// Updates the position and zoom of the displayed map to only contain the connected crossroad.
+        /// </summary>
         private void UpdateMapPositioning()
         {
             // Calculate zoom for the map to only show the crossroad being set up.
