@@ -78,6 +78,7 @@ namespace RoadTrafficSimulator.Forms
             // 
             // splitContainer.Panel2
             // 
+            this.splitContainer.Panel2.AutoScroll = true;
             this.splitContainer.Panel2.Controls.Add(this.buttonClose);
             this.splitContainer.Panel2.Controls.Add(this.groupBoxStatistics);
             this.splitContainer.Panel2.Controls.Add(this.comboBoxTimeSpan);
@@ -205,6 +206,7 @@ namespace RoadTrafficSimulator.Forms
             this.Controls.Add(this.splitContainer);
             this.Name = "FormStatistics";
             this.Padding = new System.Windows.Forms.Padding(6, 8, 6, 8);
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "FormStatistics";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormStatistics_FormClosing);
             this.splitContainer.Panel1.ResumeLayout(false);
