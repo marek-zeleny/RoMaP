@@ -392,7 +392,11 @@ namespace RoadTrafficSimulator.Components
                 if (!HasConstantData())
                     return null;
                 else
-                    return "car ID,start time,finish time,distance,duration,expected duration";
+                    return $"car ID," +
+                        $"start time ({Time.unit})," +
+                        $"finish time ({Time.unit})," +
+                        $"expected duration ({Time.unit})," +
+                        $"distance ({Distance.unit})";
             }
 
             public override void SerialiseConstantData(TextWriter writer)
@@ -402,7 +406,7 @@ namespace RoadTrafficSimulator.Components
                 else
                     writer.WriteLine(
                         $"{CarId}," +
-                        $"{(int)StartTime},{(int)FinishTime},{(int)Distance},{(int)Duration},{(int)ExpectedDuration}");
+                        $"{(int)StartTime},{(int)FinishTime},{(int)ExpectedDuration},{(int)Distance}");
             }
 
             public override void SerialisePeriodicData(Func<string, TextWriter> getWriterFunc)
@@ -411,7 +415,7 @@ namespace RoadTrafficSimulator.Components
                     return;
                 using TextWriter writer = getWriterFunc($"car-{CarId}");
                 // Write CSV header
-                writer.WriteLine("time,current road ID,speed");
+                writer.WriteLine($"time ({Time.unit}),current road ID,speed ({Speed.unit})");
                 // Prepare enumerators to write asynchronous data
                 Time time = new();
                 string currRoad = "";

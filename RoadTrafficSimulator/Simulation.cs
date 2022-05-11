@@ -394,7 +394,9 @@ namespace RoadTrafficSimulator
                 dataLog.Flush(clock.Time);
                 using TextWriter writer = getWriterFunc("global");
                 // Write CSV header
-                writer.WriteLine("time,cars,active cars,finished cars,stationary cars,average speed,average delay");
+                writer.WriteLine($"time ({Time.unit}),cars,active cars,finished cars,stationary cars," +
+                    $"average speed ({Speed.unit}),average delay ({Time.unit})"
+                    );
                 // Write data
                 foreach (var timestamp in dataLog.Get())
                 {

@@ -389,7 +389,7 @@ namespace RoadTrafficSimulator.Components
                 throughputLog.Flush(clock.Time);
                 using TextWriter writer = getWriterFunc($"road-{RoadId}");
                 // Write CSV header
-                writer.WriteLine("time,car count,average speed");
+                writer.WriteLine($"time ({Time.unit}),car count,average speed ({Speed.unit})");
                 // Write data
                 foreach (var timestamp in throughputLog.Get())
                 {

@@ -16,8 +16,8 @@ namespace RoadTrafficSimulator.ValueTypes
         /// the rest is done automatically.
         /// </remarks>
         public const int precision = 1000;
+        public const string unit = "mm/s^2";
 
-        private const string unit = "mmpss";
         private const int convertToSpeedCoef = Speed.precision / (Time.precision * precision);
         private const int convertToSpeedCoefInverse = Time.precision * precision / Speed.precision;
         private const int convertToTimeCoef = Time.precision * precision / Speed.precision;
