@@ -479,25 +479,21 @@ namespace RoadTrafficSimulator.Forms
             }
             else
             {
-                string message;
-                switch (initResult)
+                string message = initResult switch
                 {
-                    case Simulation.InitialisationResult.Error_NoMap:
-                        message =
-                            "Map check complete: the map is empty.\n" +
-                            "You have to create a map before starting the simulation.";
-                        break;
-                    case Simulation.InitialisationResult.Error_InvalidCrossroad:
-                        message =
-                            $"Map check complete: the traffic light at {invalidCrossroad.Id} is inconsistent.\n" +
-                            "Please make sure that every possible direction is allowed at that crossroad.";
-                        break;
-                    default:
-                        message =
-                            "Map check complete: cannot start the simulation for an unknown reason.\n" +
-                            "If the problem occurs repeatedly, please restart the application.";
-                        break;
-                }
+                    Simulation.InitialisationResult.Error_NoMap =>
+                        "Map check complete: the map is empty.\n" +
+                        "You have to create a map before starting the simulation.",
+                    Simulation.InitialisationResult.Error_NotConnected =>
+                        "Map check complete: the map is not strongly connected.\n" +
+                        "Please make sure that there is a path between any two crossroads.",
+                    Simulation.InitialisationResult.Error_InvalidCrossroad =>
+                        $"Map check complete: the traffic light at {invalidCrossroad.Id} is inconsistent.\n" +
+                        "Please make sure that every possible direction is allowed at that crossroad.",
+                    _ =>
+                        "Map check complete: cannot start the simulation for an unknown reason.\n" +
+                        "If the problem occurs repeatedly, please restart the application.",
+                };
                 MessageBox.Show(message, "Map Inconsistent", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
         }
@@ -697,12 +693,19 @@ namespace RoadTrafficSimulator.Forms
         /// </summary>
         private void InitialiseLoadMap()
         {
-            string message =
-                "Are you sure you want to load a new map?\n" +
-                "The currently built map will be lost unless it's already saved.";
-            DialogResult result = MessageBox.Show(message, "Load Map",
-                MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2);
-            if (result == DialogResult.Yes)
+            bool approved;
+            if (mapManager.MapIsEmpty)
+                approved = true;
+            else
+            {
+                string message =
+                    "Are you sure you want to load a new map?\n" +
+                    "The currently built map will be lost unless it's already saved.";
+                DialogResult result = MessageBox.Show(message, "Load Map",
+                    MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2);
+                approved = result == DialogResult.Yes;
+            }
+            if (approved)
             {
                 OpenFileDialog fileDialog = new()
                 {

@@ -7,6 +7,7 @@ using System.Threading;
 using RoadTrafficSimulator.Components;
 using RoadTrafficSimulator.ValueTypes;
 using RoadTrafficSimulator.Statistics;
+using DataStructures.Graphs;
 
 namespace RoadTrafficSimulator
 {
@@ -102,6 +103,11 @@ namespace RoadTrafficSimulator
             /// </summary>
             Error_NoMap,
             /// <summary>
+            /// Initialisation failed: the given map is not strongly connected (there are some crossroads with no path
+            /// between them)
+            /// </summary>
+            Error_NotConnected,
+            /// <summary>
             /// Initialisation failed: some crossroad could not be initialised due to inconsistent state
             /// </summary>
             Error_InvalidCrossroad,
@@ -121,10 +127,15 @@ namespace RoadTrafficSimulator
             clock.Reset();
             settings = null;
             invalidCrossroad = null;
+            // Check if the map is non-empty
             if (map == null)
                 return InitialisationResult.Error_MapIsNull;
             if (map.CrossroadCount == 0 || map.RoadCount == 0)
                 return InitialisationResult.Error_NoMap;
+            // Check if the map is strongly connected
+            if (!map.IsStronglyConnected())
+                return InitialisationResult.Error_NotConnected;
+            // Initialise crossroads
             foreach (Crossroad c in map.GetNodes())
                 if (!c.Initialise(Clock))
                 {
@@ -132,13 +143,14 @@ namespace RoadTrafficSimulator
                     return InitialisationResult.Error_InvalidCrossroad;
                 }
             this.map = map;
-
+            // Initialise supporting infrastructure
             StatsCollector = new StatisticsCollector();
             statistics = new GlobalStatistics(StatsCollector, Clock);
             allCars = new List<Car>();
-
+            // Initialise roads
             foreach (Road r in this.map.GetEdges())
                 r.Initialise(StatsCollector, Clock);
+            // Initialise more supporting infrastructure
             centralNavigation = new CentralNavigation(this.map, Clock);
             randomCrossroads = GetRandomCrossroads().GetEnumerator();
             stagedCars = new HashSet<Car>();

@@ -137,6 +137,10 @@ namespace RoadTrafficSimulator
         private IGMap guiMap = new GMap();
 
         /// <summary>
+        /// <c>true</c> if the managed map is currently empty, otherwise <c>false</c>
+        /// </summary>
+        public bool MapIsEmpty { get => Map.CrossroadCount == 0 && !guiMap.GetCrossroads().Any(); }
+        /// <summary>
         /// Back-end map attached to the manager
         /// </summary>
         public Map Map { get; private set; } = new();
