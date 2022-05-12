@@ -32,7 +32,7 @@ namespace RoadTrafficSimulator.Forms
         };
 
         private static readonly string savePath = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "RoadTrafficSimulator");
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "RoMaP");
 
         private MapManager mapManager;
         private Simulation simulation;

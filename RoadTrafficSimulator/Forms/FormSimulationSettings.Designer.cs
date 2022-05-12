@@ -238,7 +238,7 @@ namespace RoadTrafficSimulator.Forms
             this.labelSpawnFrequency.Name = "labelSpawnFrequency";
             this.labelSpawnFrequency.Size = new System.Drawing.Size(256, 50);
             this.labelSpawnFrequency.TabIndex = 4;
-            this.labelSpawnFrequency.Text = "Car spawn frequency: 10 %";
+            this.labelSpawnFrequency.Text = "Car spawn frequency: 1.0x";
             this.labelSpawnFrequency.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // labelStatisticsDetail

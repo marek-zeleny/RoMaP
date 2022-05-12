@@ -31,7 +31,7 @@ namespace RoadTrafficSimulator.Statistics
         /// </summary>
         public void ExportCsv(string path)
         {
-            string dirName = $"sim_stats_{DateTime.Now:yyyyMMdd_hhmmss}";
+            string dirName = $"sim_stats_{DateTime.Now:yyyyMMdd_HHmmss}";
             string dirPath = Path.Combine(path, dirName);
             Directory.CreateDirectory(dirPath);
             foreach (var (source, stats) in data)

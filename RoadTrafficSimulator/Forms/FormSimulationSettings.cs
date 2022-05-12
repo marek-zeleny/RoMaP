@@ -100,7 +100,8 @@ namespace RoadTrafficSimulator.Forms
 
         private void trackBarSpawnFrequency_Scroll(object sender, EventArgs e)
         {
-            labelSpawnFrequency.Text = $"Car spawn frequency: {trackBarSpawnFrequency.Value} %";
+            int value = trackBarSpawnFrequency.Value;
+            labelSpawnFrequency.Text = $"Car spawn frequency: {value / 10}.{value % 10}x";
         }
 
         private void comboBoxSpawnFrequencyDetail_SelectedIndexChanged(object sender, EventArgs e)
