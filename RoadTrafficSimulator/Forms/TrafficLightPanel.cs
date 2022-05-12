@@ -242,7 +242,7 @@ namespace RoadTrafficSimulator.Forms
             int index = comboBoxSetting.SelectedIndex;
             comboBoxSetting.Items.Clear();
             for (int i = 1; i <= trafficLight.Settings.Count; i++)
-                comboBoxSetting.Items.Add($"Period {i}");
+                comboBoxSetting.Items.Add($"Phase {i}");
             if (index > comboBoxSetting.Items.Count - 1)
                 index = comboBoxSetting.Items.Count - 1;
             if (comboBoxSetting.Items.Count > 0 && index < 0)

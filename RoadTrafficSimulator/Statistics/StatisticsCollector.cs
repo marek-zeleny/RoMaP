@@ -59,7 +59,7 @@ namespace RoadTrafficSimulator.Statistics
                 string header = stats[0].GetConstantDataHeader();
                 if (header != null)
                 {
-                    using StreamWriter sw = CreateFile("serial-data.csv");
+                    using StreamWriter sw = CreateFile("constant-data.csv");
                     sw.WriteLine(header);
                     foreach (var stat in stats)
                         stat.SerialiseConstantData(sw);

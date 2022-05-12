@@ -161,7 +161,7 @@ namespace RoadTrafficSimulator.Forms
             this.buttonAddSetting.Name = "buttonAddSetting";
             this.buttonAddSetting.Size = new System.Drawing.Size(368, 36);
             this.buttonAddSetting.TabIndex = 0;
-            this.buttonAddSetting.Text = "Add New Period";
+            this.buttonAddSetting.Text = "Add New Phase";
             this.buttonAddSetting.UseVisualStyleBackColor = true;
             this.buttonAddSetting.Click += new System.EventHandler(this.buttonAddSetting_Click);
             // 
@@ -173,7 +173,7 @@ namespace RoadTrafficSimulator.Forms
             this.buttonDeleteSetting.Name = "buttonDeleteSetting";
             this.buttonDeleteSetting.Size = new System.Drawing.Size(368, 36);
             this.buttonDeleteSetting.TabIndex = 1;
-            this.buttonDeleteSetting.Text = "Remove Period";
+            this.buttonDeleteSetting.Text = "Remove Phase";
             this.buttonDeleteSetting.UseVisualStyleBackColor = true;
             this.buttonDeleteSetting.Click += new System.EventHandler(this.buttonDeleteSetting_Click);
             // 
