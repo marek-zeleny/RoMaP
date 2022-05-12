@@ -42,6 +42,7 @@ namespace RoadTrafficSimulator
             public const string mainRoadDirections = "mainRoadDirections";
             public const string carSpawnRate = "carSpawnRate";
             public const string trafficLightSettings = "trafficLightSettings";
+            public const string trafficLightIsActive = "trafficLightIsActive";
 
             public const string duration = "duration";
             public const string allowedDirections = "allowedDirections";
@@ -164,15 +165,8 @@ namespace RoadTrafficSimulator
             void Serialise(Road road)
             {
                 writer.WriteStartObject();
-                if (road.IsConnected)
-                {
-                    writer.WriteBoolean(Keywords.open, true);
-                    writer.WriteNumber(Keywords.id, road.Id);
-                }
-                else
-                {
-                    writer.WriteBoolean(Keywords.open, false);
-                }
+                writer.WriteBoolean(Keywords.open, road.IsConnected);
+                writer.WriteNumber(Keywords.id, road.Id);
                 writer.WriteNumber(Keywords.length, road.Length.ToMetres());
                 writer.WriteNumber(Keywords.maxSpeed, road.MaxSpeed.ToKilometresPerHour());
                 writer.WriteNumber(Keywords.laneCount, road.LaneCount);
@@ -180,19 +174,21 @@ namespace RoadTrafficSimulator
             }
 
             writer.WriteStartObject();
-
+            // Forward road
             Road road = gRoad.GetRoad(IGRoad.Direction.Forward);
             if (road != null)
             {
                 writer.WritePropertyName(Keywords.forward);
                 Serialise(road);
             }
+            // Backward road
             road = gRoad.GetRoad(IGRoad.Direction.Backward);
             if (road != null)
             {
                 writer.WritePropertyName(Keywords.backward);
                 Serialise(road);
             }
+            // Route
             writer.WriteStartArray(Keywords.route);
             foreach (var coords in gRoad.GetRoute())
                 SerialiseCoords(writer, coords);
@@ -204,9 +200,10 @@ namespace RoadTrafficSimulator
         private static void SerialiseCrossroad(Utf8JsonWriter writer, IGCrossroad gCrossroad, Crossroad crossroad)
         {
             writer.WriteStartObject();
-
+            // ID
             writer.WritePropertyName(Keywords.id);
             SerialiseCoords(writer, crossroad.Id);
+            // Main road
             if (gCrossroad.MainRoadDirections.HasValue)
             {
                 writer.WriteStartArray(Keywords.mainRoadDirections);
@@ -214,8 +211,11 @@ namespace RoadTrafficSimulator
                 writer.WriteStringValue(gCrossroad.MainRoadDirections.Value.Item2.ToString());
                 writer.WriteEndArray();
             }
+            // Car spawn rate
             writer.WriteNumber(Keywords.carSpawnRate, crossroad.CarSpawnRate);
-
+            // Traffic light
+            writer.WriteBoolean(Keywords.trafficLightIsActive,
+                crossroad.ActiveCrossingAlgorithm == crossroad.TrafficLight);
             writer.WriteStartArray(Keywords.trafficLightSettings);
             foreach (var setting in crossroad.TrafficLight.Settings)
             {
@@ -302,14 +302,14 @@ namespace RoadTrafficSimulator
             roadIdMappings = null;
             if (jRoad.ValueKind != JsonValueKind.Object)
                 return false;
-
+            // Get road elements
             bool forward = jRoad.TryGetProperty(Keywords.forward, out var jForward);
             bool backward = jRoad.TryGetProperty(Keywords.backward, out var jBackward);
             if (!forward && !backward)
                 return false;
             if (!jRoad.TryGetProperty(Keywords.route, out var jRoute))
                 return false;
-
+            // Parse route
             if (jRoute.ValueKind != JsonValueKind.Array)
                 return false;
             var routeEnum = jRoute.EnumerateArray().GetEnumerator();
@@ -330,12 +330,13 @@ namespace RoadTrafficSimulator
                 }
             }
             // If we only want a backward road, we need to build a two-way road and delete forward direction
-            if (!builder.FinishRoad(backward, out IGRoad gRoad, false))
+            bool twoWay = backward;
+            if (!builder.FinishRoad(twoWay, out IGRoad gRoad, false))
             {
                 builder.DestroyRoad();
                 return false;
             }
-
+            // Parse roads
             var idMappings = new (int, int)?[2];
             if (forward)
             {
@@ -344,6 +345,7 @@ namespace RoadTrafficSimulator
             }
             else
             {
+                map.RemoveRoad(gRoad.GetRoad(IGRoad.Direction.Forward).Id);
                 (gRoad as IMutableGRoad).SetRoad(null, IGRoad.Direction.Forward);
             }
             if (backward)
@@ -392,7 +394,7 @@ namespace RoadTrafficSimulator
 
             if (jCrossroad.ValueKind != JsonValueKind.Object)
                 return false;
-
+            // Parse ID
             if (!jCrossroad.TryGetProperty(Keywords.id, out var jId))
                 return false;
             if (!ParseCoords(jId, out Coords id))
@@ -400,7 +402,7 @@ namespace RoadTrafficSimulator
             Crossroad crossroad = (Crossroad)map.GetNode(id);
             if (crossroad == null)
                 return false;
-
+            // Parse main roads
             if (jCrossroad.TryGetProperty(Keywords.mainRoadDirections, out var jMainRoad))
             {
                 if (jMainRoad.ValueKind != JsonValueKind.Array)
@@ -425,24 +427,31 @@ namespace RoadTrafficSimulator
                 Debug.Assert(gCrossroad != null);
                 gCrossroad.MainRoadDirections = (dir1, dir2);
             }
-
+            // Parse car spawn rate
             if (!ParseIntProperty(jCrossroad, Keywords.carSpawnRate, out int carSpawnRate))
                 return false;
             if (carSpawnRate < byte.MinValue || carSpawnRate > byte.MaxValue)
                 return false;
             crossroad.CarSpawnRate = (byte)carSpawnRate;
-
+            // Parse traffic lights
+            if (!ParseBooleanProperty(jCrossroad, Keywords.trafficLightIsActive, out bool trafficLightIsActive))
+                return false;
+            if (trafficLightIsActive)
+                crossroad.ActivateTrafficLight();
             if (!jCrossroad.TryGetProperty(Keywords.trafficLightSettings, out var jTrafficLight))
                 return false;
             if (jTrafficLight.ValueKind != JsonValueKind.Array)
                 return false;
             var settingsEnum = jTrafficLight.EnumerateArray().GetEnumerator();
             TrafficLight trafficLight = crossroad.TrafficLight;
-            // First setting is already created
-            if (!settingsEnum.MoveNext())
-                return false;
-            if (!ParseTrafficLightSetting(settingsEnum.Current, trafficLight.Settings[0]))
-                return false;
+            // First two settings is already created automatically
+            for (int i = 0; i < 2; i++)
+            {
+                if (!settingsEnum.MoveNext())
+                    return false;
+                if (!ParseTrafficLightSetting(settingsEnum.Current, trafficLight.Settings[i]))
+                    return false;
+            }
             while (settingsEnum.MoveNext())
             {
                 var setting = trafficLight.AddSetting();
