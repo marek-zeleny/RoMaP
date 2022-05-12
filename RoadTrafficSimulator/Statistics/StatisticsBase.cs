@@ -89,9 +89,8 @@ namespace RoadTrafficSimulator.Statistics
             public Item(DetailLevel detail, T data = default)
             {
                 Detail = detail;
-                //if (detailSetting < detail)
-                //    data = default;
-                // TODO: this makes logically sense, but it would require to initialise some items before each simulation; consider this
+                // It would logically make sense to only store the data if the item is active, but it would require us
+                // to initialise some items before each simulation
                 this.data = data;
             }
 
@@ -143,9 +142,6 @@ namespace RoadTrafficSimulator.Statistics
             public ListItem(DetailLevel detail)
             {
                 Detail = detail;
-                //if (detailSetting < detail)
-                //    data = null;
-                // TODO: this makes logically sense, but it would require to initialise some items before each simulation; consider this
                 data = new List<Timestamp<T>>();
             }
 

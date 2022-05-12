@@ -209,6 +209,7 @@ namespace RoadTrafficSimulator.Forms
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "FormStatistics";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormStatistics_FormClosing);
+            this.VisibleChanged += new System.EventHandler(this.FormStatistics_VisibleChanged);
             this.splitContainer.Panel1.ResumeLayout(false);
             this.splitContainer.Panel2.ResumeLayout(false);
             this.splitContainer.Panel2.PerformLayout();

@@ -219,7 +219,6 @@ namespace RoadTrafficSimulator
                 {
                     finishedCars++;
                     Time delay = car.Statistics.Duration - car.Statistics.ExpectedDuration;
-                    // TODO: decide what to do with negative delay (active navigation only)
                     delaySum += delay;
                 }
                 else

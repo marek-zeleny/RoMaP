@@ -171,7 +171,6 @@ namespace RoadTrafficSimulator.Components
                 Debug.Assert(path.TotalWeight < Weight.positiveInfinity);
                 RemainingDuration = new Time((int)path.TotalWeight);
 
-                // TODO: try remainingPath = ((IEnumerable<Road>)e).GetEnumerator();
                 remainingPath = path.GetEdges().Select(edge => (Road)edge).GetEnumerator();
                 bool success = remainingPath.MoveNext();
                 Debug.Assert(success);

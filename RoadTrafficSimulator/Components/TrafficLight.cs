@@ -17,7 +17,7 @@ namespace RoadTrafficSimulator.Components
         public const int maxSettingsCount = 6;
         public const int minSettingsCount = 2;
 
-        private static readonly Time yellowLightDuration = 3.Seconds(); // TODO: mention in thesis
+        private static readonly Time yellowLightDuration = 3.Seconds();
 
         private HashSet<Direction> defaultDirections = new(4);
         private List<Setting> settings;

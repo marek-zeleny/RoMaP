@@ -174,5 +174,10 @@ namespace RoadTrafficSimulator.Forms
             e.Cancel = true;
             Hide();
         }
+
+        private void FormStatistics_VisibleChanged(object sender, EventArgs e)
+        {
+            UpdateStatistics();
+        }
     }
 }
